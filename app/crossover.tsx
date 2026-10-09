@@ -83,6 +83,7 @@ export default function Crossover({ initialId }: { initialId?: string }) {
     if (!q) return;
     setQuery(q);
     run.current++; // cancel any slate in flight
+    window.history.pushState(null, "", "/"); // the old /s/<id> no longer describes the page
     setEntity(null);
     setSlate({ state: "idle" });
     setTrace([]);
@@ -157,7 +158,7 @@ export default function Crossover({ initialId }: { initialId?: string }) {
           </div>
         )}
         {resolved.state === "ready" && (resolved.data.status === "not_found" || resolved.data.status === "ambiguous") && (
-          <NotFound name={query} compact={resolved.data.status === "ambiguous"} />
+          <NotFound compact={resolved.data.status === "ambiguous"} />
         )}
         {entity && <MatchCard card={entity} onNotIt={notIt} />}
       </section>
@@ -206,12 +207,12 @@ function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void }) {
   );
 }
 
-function NotFound({ name, compact }: { name: string; compact?: boolean }) {
+function NotFound({ compact }: { compact?: boolean }) {
   return (
     <div className={`rounded-xl border border-dashed border-zinc-300 p-5 ${compact ? "mt-4" : ""}`}>
       <h2 className="font-semibold">{compact ? "None of these?" : "Qloo doesn't know this one yet"}</h2>
       <p className="mt-1 text-sm text-zinc-600">
-        Name two or three brands {name ? `${name}'s` : "your"} customers also love, and Crossover will build the slate from their fans.
+        Name two or three brands your customers also love, and Crossover will build the slate from their fans.
       </p>
       <button disabled className="mt-3 cursor-not-allowed rounded-lg bg-zinc-200 px-4 py-2 text-sm text-zinc-500">
         Use proxies (coming soon)
