@@ -74,10 +74,11 @@ for (const item of list) {
   const run = await events(await fetch(`${base}/api/run?entity=${card.entity_id}&type=${encodeURIComponent(card.type)}`));
   const failed = run.find((e) => e.type === "error");
   if (failed) throw new Error(`${item.name} run: ${failed.message}`);
-  const brands = run.find((e) => e.type === "ranking" && e.domain === "brand")?.data as { kept: { entity_id: string }[] } | undefined;
+  const brands = run.find((e) => e.type === "ranking" && e.domain === "brand")?.data as { kept: { entity_id: string }[]; demoted?: { entity_id: string }[] } | undefined;
   // a missing brand ranking means the ranker failed (Oct 23: the Anthropic balance ran out); don't mark this done
   if (!brands) throw new Error(`${item.name} run: no brand ranking (ranker failed); rerun to retry`);
-  const topBrand = brands.kept[0]?.entity_id ?? null;
+  // nothing kept: the first ranked-lower brand is the brief target, as on the slate (Oct 25)
+  const topBrand = brands.kept[0]?.entity_id ?? brands.demoted?.[0]?.entity_id ?? null;
   const trends = run.find((e) => e.type === "trends")?.data ?? {};
   console.log(`${item.name}: slate ok, top brand ${topBrand ?? "none"}, trends ${JSON.stringify(trends)}`);
 

@@ -102,6 +102,15 @@ export const EXAMPLES = [
   { name: "Mt. Joy", note: "indie folk band", href: "/s/A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A?t=urn%3Aentity%3Aartist" },
   { name: "Somebody Feed Phil", note: "Netflix food show", href: "/s/02F34B14-E7B2-4AFA-B21E-AA9332CD9CC2?t=urn%3Aentity%3Atv_show" },
 ];
+// More warm names for the home page's quiet "or try" row (Oct 25): all warmed, so they open instantly.
+export const MORE_EXAMPLES = [
+  { name: "Taylor Swift", href: "/s/4BBEF799-A0C4-4110-AB01-39216993C312?t=urn%3Aentity%3Aartist" },
+  { name: "Stranger Things", href: "/s/07F1170E-BB69-4982-82C6-255F477EBBAD?t=urn%3Aentity%3Atv_show" },
+  { name: "Chelsea FC", href: "/s/A21D248A-7379-458E-A3BE-7B8C4B961AF6?t=urn%3Aentity%3Abrand" },
+  { name: "Live Nation", href: "/s/5F14EE21-73BC-4D7E-8349-75E24A250705?t=urn%3Aentity%3Abrand" },
+  { name: "A24", href: "/s/7E904879-87BC-4BA6-B4AB-6E380A4C250D?t=urn%3Aentity%3Abrand" },
+  { name: "Erewhon", href: "/s/E87E45A7-080F-4C6E-B1B2-B7BE3A80DCAE?t=urn%3Aentity%3Abrand" },
+];
 export function ExampleLinks() {
   return (
     <span className="flex flex-wrap items-center gap-x-4">

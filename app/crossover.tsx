@@ -9,7 +9,7 @@ import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ConstraintSet } from "@/lib/refine.ts";
 import UsMap from "./map";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, EXAMPLES, ExampleLinks, field, MatchCard, SiteHeader, Thumb } from "./ui";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, EXAMPLES, ExampleLinks, field, MatchCard, MORE_EXAMPLES, SiteHeader, Thumb } from "./ui";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 
@@ -291,6 +291,14 @@ export default function Crossover({
                 </button>
               ))}
             </div>
+            <p className="mt-2 flex flex-wrap items-center gap-x-4 text-base text-ink-3">
+              <span>or try</span>
+              {MORE_EXAMPLES.map((e) => (
+                <a key={e.name} href={e.href} className={btnQuiet}>
+                  {e.name}
+                </a>
+              ))}
+            </p>
             <p className="mt-16 border-t border-rule pt-4 text-sm text-ink-3">Built on Qloo&apos;s taste graph</p>
           </>
         )}
@@ -490,9 +498,13 @@ function arrange(picks: Pick[], r: Ranking[Domain] | undefined, decisions: Recor
       : [];
   const demoted = r.demoted ?? []; // rankings cached before rank-v3 have no demoted list
   const used = new Set([...r.kept, ...demoted, ...r.dropped].map((d) => d.entity_id));
+  const lowerRows = demoted.flatMap(row);
+  // A domain where the ranker kept nothing (Cadillac's brands, Oct 25): the first ranked-lower pick leads the section,
+  // shown open with its reason and chip, and is the brief target. The rest stay behind the disclosure.
+  const lead = r.kept.length === 0 ? lowerRows.slice(0, 1) : [];
   return {
-    rows: [...r.kept.flatMap(row), ...live.filter((p) => !used.has(p.entity_id)).map((pick): Row => ({ pick }))],
-    lower: demoted.flatMap(row),
+    rows: [...lead, ...r.kept.flatMap(row), ...live.filter((p) => !used.has(p.entity_id)).map((pick): Row => ({ pick }))],
+    lower: lowerRows.slice(lead.length),
     dropped: [...mine, ...r.dropped.filter((d) => !decisions[d.entity_id])],
   };
 }
@@ -555,7 +567,7 @@ function Results({
   const renderDomain = ({ domain, picks }: SlateData["domains"][number]) => {
         const { rows, lower, dropped } = arrange(picks, ranking[domain], decisions);
         // the shortlist is what the ranker kept (Qloo's top five before it lands); the rest sit behind "Show all"
-        const shortlist = ranking[domain] ? Math.max(1, ranking[domain].kept.filter((k) => !decisions[k.entity_id] || decisions[k.entity_id].status !== "declined").length) : 5;
+        const shortlist = ranking[domain] ? Math.max(1, ranking[domain].kept.filter((k) => !decisions[k.entity_id] || decisions[k.entity_id].status !== "declined").length) : 5; // the lead row counts as the one
         return (
           <section key={domain} className="border-b border-rule py-8">
             <div className="flex items-baseline justify-between gap-4">

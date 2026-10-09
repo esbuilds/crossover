@@ -35,3 +35,17 @@ for (const [q, name] of Object.entries(KNOWN)) {
     assert.ok(r.match.types.includes("urn:entity:brand"), `matched a ${r.match.types} instead of the brand`);
   });
 }
+
+// Oct 25: a person and an artist with the exact same name resolve to the artist, whichever Qloo lists first.
+for (const [q, id] of [
+  ["Taylor Swift", "4BBEF799-A0C4-4110-AB01-39216993C312"], // person listed first, separate artist entity
+  ["Metallica", "C445C761-CB38-4FEE-B085-D35F444A04DF"], // artist listed first
+]) {
+  test(`${q}: confident artist, not the person`, async () => {
+    const r = await resolve(q, candidates(q), null);
+    assert.equal(r.status, "confident");
+    if (r.status !== "confident") return;
+    assert.equal(r.match.entity_id, id);
+    assert.ok(r.match.types.includes("urn:entity:artist"));
+  });
+}

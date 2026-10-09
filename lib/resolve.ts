@@ -41,7 +41,12 @@ export async function resolve(query: string, candidates: Entity[], judge: Judge 
   // (searching "Graza" finds a Polish colorist at popularity 0), so it gets a card and a question instead.
   const exact = candidates.filter((c) => names(c).some((n) => norm(n) === q.join(" ")));
   const known = exact.filter((c) => c.popularity >= POPULARITY_FLOOR);
-  if (known.length) return { status: "confident", match: known[0], alternates: candidates.filter((c) => c !== known[0]).slice(0, 2), via: "exact" };
+  // Musicians come back twice with the exact name: a person and an artist, sometimes as separate entities with the
+  // person first (Taylor Swift). Crossover means the act, and the artist is the one with a music audience (Oct 25).
+  if (known.length) {
+    const pick = (known[0].types.includes("urn:entity:person") && known.find((c) => c.types.includes("urn:entity:artist"))) || known[0];
+    return { status: "confident", match: pick, alternates: candidates.filter((c) => c !== pick).slice(0, 2), via: "exact" };
+  }
   if (exact.length) return { status: "ambiguous", candidates: exact.slice(0, 3) };
 
   // 3. token subset either way with at least two shared tokens: likely, let the user pick
