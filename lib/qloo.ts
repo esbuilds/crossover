@@ -19,6 +19,7 @@ export type Entity = {
   tags: Tag[];
   affinity?: number;
   explainability?: number; // how much the seed drove this pick (0-1); max across seeds
+  driven_by?: string; // entity_id of the seed that drove it most; only meaningful with several (proxy) seeds
   // places only
   address?: string;
   city?: string;
@@ -91,6 +92,7 @@ function trimEntity(e: Raw): Entity {
     tags: (e.tags ?? []).slice(0, 12).map((t: Raw) => ({ tag_id: t.tag_id ?? t.id, name: t.name, type: t.type })),
     affinity: e.query?.affinity,
     explainability: maxScore(e.query?.explainability?.["signal.interests.entities"]),
+    driven_by: topSignal(e.query?.explainability?.["signal.interests.entities"]),
     address: p.address,
     city: p.geocode?.city,
     price_level: p.price_level,
@@ -102,6 +104,9 @@ function trimEntity(e: Raw): Entity {
 function maxScore(signals: Raw[] | undefined) {
   return signals?.length ? Math.max(...signals.map((s) => s.score ?? 0)) : undefined;
 }
+function topSignal(signals: Raw[] | undefined): string | undefined {
+  return signals?.length ? signals.reduce((a, b) => ((b.score ?? 0) > (a.score ?? 0) ? b : a)).entity_id : undefined;
+}
 
 const trimEntities = (body: Raw): Entity[] => {
   const r = body.results;
@@ -112,7 +117,27 @@ const trimEntities = (body: Raw): Entity[] => {
 export function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promise<R>) {
   const c = unstable_cache(fn, ["qloo", name], { revalidate: THIRTY_DAYS });
   // plain node scripts (fixture recording) have no Next cache; call straight through
-  return (...args: A) => (process.env.NEXT_RUNTIME ? c(...args) : fn(...args));
+  const run = (...args: A) => (process.env.NEXT_RUNTIME ? c(...args) : fn(...args));
+  return process.env.NODE_ENV === "development" ? devFileCache(name, run) : run;
+}
+
+// Development only: the Next data cache resets on hot reload, which re-bills every Opus ranking and brief.
+// Results also persist to .cache/<name>/<hash>.json (gitignored), keyed by the same name and arguments.
+// ponytail: no expiry; delete .cache/ to start fresh.
+function devFileCache<A extends unknown[], R>(name: string, run: (...args: A) => Promise<R>) {
+  return async (...args: A): Promise<R> => {
+    const { createHash } = await import("node:crypto");
+    const { readFile, writeFile, mkdir } = await import("node:fs/promises");
+    const dir = `${process.cwd()}/.cache/${name}`;
+    const file = `${dir}/${createHash("sha1").update(JSON.stringify(args)).digest("hex")}.json`;
+    try {
+      return JSON.parse(await readFile(file, "utf8"));
+    } catch {} // miss
+    const result = await run(...args);
+    await mkdir(dir, { recursive: true });
+    await writeFile(file, JSON.stringify(result));
+    return result;
+  };
 }
 
 // --- public API ---
@@ -133,25 +158,20 @@ export type Signal = { id: string; weight: number };
 
 // Proxy seeding: weighted entities via POST. The field is "id", not "entity" as the docs show.
 // The proxies themselves are always excluded from results.
-export const insightsPost = cached(
-  "insightsPost",
-  async (type: string, signals: Signal[], params: Record<string, string | number> = {}) =>
-    trimEntities(
-      await request("/v2/insights", {
-        body: {
-          "filter.type": type,
-          "signal.interests.entities": signals,
-          ...params,
-          "filter.exclude.entities": [...signals.map((s) => s.id), params["filter.exclude.entities"]].filter(Boolean).join(","),
-        },
-      }),
-    ),
+export const proxyBody = (type: string, signals: Signal[], params: Record<string, string | number> = {}) => ({
+  "filter.type": type,
+  "signal.interests.entities": signals,
+  ...params,
+  "filter.exclude.entities": [...signals.map((s) => s.id), params["filter.exclude.entities"]].filter(Boolean).join(","),
+});
+
+export const insightsPost = cached("insightsPost", async (type: string, signals: Signal[], params: Record<string, string | number> = {}) =>
+  trimEntities(await request("/v2/insights", { body: proxyBody(type, signals, params) })),
 );
 
-export const heatmap = cached("heatmap", async (entityId: string, locationQuery: string): Promise<HeatCell[]> => {
-  const body = await request("/v2/insights", {
-    query: { "filter.type": "urn:heatmap", "signal.interests.entities": entityId, "filter.location.query": locationQuery },
-  });
+export const heatmap = cached("heatmap", async (seed: string | Signal[], locationQuery: string): Promise<HeatCell[]> => {
+  const params = { "filter.type": "urn:heatmap", "signal.interests.entities": seed, "filter.location.query": locationQuery };
+  const body = typeof seed === "string" ? await request("/v2/insights", { query: params as Record<string, string> }) : await request("/v2/insights", { body: params });
   // rounded: up to 11k cells per entity and the cache entry limit is 2 MB
   const r = (n: number, d: number) => Math.round(n * 10 ** d) / 10 ** d;
   return (body.results?.heatmap ?? []).map((c: Raw) => ({

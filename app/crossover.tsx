@@ -6,11 +6,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Card, Domain, Pick } from "@/lib/slate.ts";
 import type { Cities } from "@/lib/cities.ts";
 import type { Ranking } from "@/lib/agent/rank.ts";
+import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import UsMap, { ACCENT } from "./map";
 import BriefPanel from "./brief-panel";
+import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 
 type ResolveResult = { status: "confident" | "ambiguous" | "not_found"; candidates: Card[] };
-type SlateData = { entity: Card; domains: { domain: Domain; picks: Pick[] }[]; cities: Cities };
+type SlateData = { entity: Card; basedOn: Card[]; domains: { domain: Domain; picks: Pick[] }[]; cities: Cities };
+// proxy mode: a brand Qloo doesn't know, its description, and weighted stand-ins ("id:10,id:5")
+export type ProxySpec = { name: string; d: string; p: string };
+const proxyQuery = (s: ProxySpec) => new URLSearchParams({ name: s.name, d: s.d, p: s.p }).toString();
 type Load<T> = { state: "idle" } | { state: "loading" } | { state: "error"; message: string } | { state: "ready"; data: T };
 
 const CHIPS = ["Liquid Death", "Olipop", "Mt. Joy", "Somebody Feed Phil"];
@@ -28,6 +33,7 @@ const TYPE_LABEL: Record<string, string> = {
   "urn:entity:tv_show": "TV show",
   "urn:entity:movie": "Film",
   "urn:entity:person": "Person",
+  proxy: "Brand, not in Qloo yet",
 };
 async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -36,14 +42,16 @@ async function getJson<T>(url: string): Promise<T> {
   return body;
 }
 
-export default function Crossover({ initialId }: { initialId?: string }) {
+export default function Crossover({ initialId, initialProxy }: { initialId?: string; initialProxy?: ProxySpec }) {
   const [query, setQuery] = useState("");
   const [resolved, setResolved] = useState<Load<ResolveResult>>({ state: "idle" });
   const [entity, setEntity] = useState<Card | null>(null);
   const [alternates, setAlternates] = useState<Card[]>([]);
   const [slate, setSlate] = useState<Load<SlateData>>({ state: "idle" });
   const [trace, setTrace] = useState<string[]>([]);
-  const [ranking, setRanking] = useState<Ranking | null>(null);
+  const [ranking, setRanking] = useState<Partial<Ranking>>({});
+  const [proxy, setProxy] = useState<ProxySpec | null>(null); // the proxy run on screen, if any
+  const [draft, setDraft] = useState<ProxyDraft | null>(null); // the proxy form, when it's showing
   const [running, setRunning] = useState(false); // the run stream is still open (ranking may still arrive)
   const [open, setOpen] = useState<{ pick: Pick; domain: Domain } | null>(null);
   const source = useRef<EventSource | null>(null); // newest run wins; starting another closes this one
@@ -55,15 +63,29 @@ export default function Crossover({ initialId }: { initialId?: string }) {
     setRunning(false);
   }
 
-  // Real trace: /api/run streams each Qloo step as it lands, the slate as soon as retrieval is done, then the ranking.
+  // Real trace: /api/run streams each Qloo step as it lands, the slate as soon as retrieval is done, then the
+  // ranking one domain at a time.
   function loadSlate(id: string, name?: string, type?: string) {
+    setProxy(null);
+    startRun(`/api/run?entity=${id}${type ? `&type=${encodeURIComponent(type)}` : ""}`, !name);
+  }
+
+  function loadProxy(spec: ProxySpec) {
+    setProxy(spec);
+    setEntity(null);
+    setDraft(null);
+    setResolved({ state: "idle" });
+    startRun(`/api/run?${proxyQuery(spec)}`, true);
+  }
+
+  function startRun(url: string, takeEntity: boolean) {
     stop();
     setSlate({ state: "loading" });
-    setRanking(null);
+    setRanking({});
     setOpen(null);
     setTrace([]);
     setRunning(true);
-    const es = new EventSource(`/api/run?entity=${id}${type ? `&type=${encodeURIComponent(type)}` : ""}`);
+    const es = new EventSource(url);
     source.current = es;
     const fail = (message: string) => {
       stop();
@@ -74,9 +96,9 @@ export default function Crossover({ initialId }: { initialId?: string }) {
       const ev = JSON.parse(m.data);
       if (ev.type === "trace") setTrace((t) => [...t, ev.text]);
       else if (ev.type === "slate") {
-        if (!name) setEntity(ev.data.entity);
+        if (takeEntity) setEntity(ev.data.entity);
         setSlate({ state: "ready", data: ev.data });
-      } else if (ev.type === "ranking") setRanking(ev.data);
+      } else if (ev.type === "ranking") setRanking((r) => ({ ...r, [ev.domain]: ev.data }));
       else if (ev.type === "done") stop();
       else if (ev.type === "error") fail(ev.message);
     };
@@ -87,6 +109,7 @@ export default function Crossover({ initialId }: { initialId?: string }) {
     setEntity(card);
     setAlternates(others);
     setResolved({ state: "idle" });
+    setDraft(null);
     window.history.pushState(null, "", `/s/${card.entity_id}`);
     loadSlate(card.entity_id, card.name, card.type);
   }
@@ -98,13 +121,18 @@ export default function Crossover({ initialId }: { initialId?: string }) {
     stop(); // cancel any run in flight
     window.history.pushState(null, "", "/"); // the old /s/<id> no longer describes the page
     setEntity(null);
+    setProxy(null);
+    setDraft(null);
     setSlate({ state: "idle" });
     setTrace([]);
     setResolved({ state: "loading" });
     try {
       const r = await getJson<ResolveResult>(`/api/resolve?q=${encodeURIComponent(q)}`);
       if (r.status === "confident") choose(r.candidates[0], r.candidates.slice(1));
-      else setResolved({ state: "ready", data: r });
+      else {
+        setResolved({ state: "ready", data: r });
+        setDraft({ name: q, description: "", brands: [] });
+      }
     } catch (err) {
       setResolved({ state: "error", message: (err as Error).message });
     }
@@ -116,13 +144,32 @@ export default function Crossover({ initialId }: { initialId?: string }) {
     setSlate({ state: "idle" });
     setTrace([]);
     setResolved({ state: "ready", data: { status: alternates.length ? "ambiguous" : "not_found", candidates: alternates } });
+    setDraft({ name: entity?.name ?? query, description: "", brands: [] });
+    window.history.pushState(null, "", "/");
+  }
+
+  function buildFromProxies(d: ProxyDraft, proxies: Card[]) {
+    const spec = { name: d.name.trim(), d: d.description.trim(), p: formatProxies(weightsFor(proxies.map((p) => p.entity_id))) };
+    window.history.pushState(null, "", `/s/p?${proxyQuery(spec)}`);
+    loadProxy(spec);
+  }
+
+  // "Edit" on the banner: back to the form with everything prefilled.
+  function editProxies(basedOn: Card[]) {
+    if (!proxy) return;
+    stop();
+    setDraft({ name: proxy.name, description: proxy.d, brands: basedOn.map((c) => c.name) });
+    setSlate({ state: "idle" });
+    setTrace([]);
+    setResolved({ state: "idle" });
     window.history.pushState(null, "", "/");
   }
 
   // A shared /s/<id> link starts straight at the slate. loadSlate sets loading state up front, which is the point here.
   useEffect(() => {
     if (initialId) loadSlate(initialId); // eslint-disable-line react-hooks/set-state-in-effect
-  }, [initialId]); // eslint-disable-line react-hooks/exhaustive-deps -- run once per shared id, not per render
+    else if (initialProxy) loadProxy(initialProxy);
+  }, [initialId, initialProxy?.p]); // eslint-disable-line react-hooks/exhaustive-deps -- run once per shared link, not per render
 
   return (
     <main className="mx-auto max-w-[1100px] px-4 py-10 sm:py-14">
@@ -170,10 +217,16 @@ export default function Crossover({ initialId }: { initialId?: string }) {
             </div>
           </div>
         )}
-        {resolved.state === "ready" && (resolved.data.status === "not_found" || resolved.data.status === "ambiguous") && (
-          <NotFound compact={resolved.data.status === "ambiguous"} />
+        {draft && (
+          <ProxyForm
+            key={`${draft.name}|${draft.brands.join("|")}`}
+            draft={draft}
+            compact={resolved.state === "ready" && resolved.data.status === "ambiguous"}
+            onBuild={buildFromProxies}
+          />
         )}
-        {entity && <MatchCard card={entity} onNotIt={notIt} />}
+        {entity && <MatchCard card={entity} onNotIt={entity.type === "proxy" ? undefined : notIt} />}
+        {proxy && slate.state === "ready" && <BasedOn cards={slate.data.basedOn} onEdit={() => editProxies(slate.data.basedOn)} />}
       </section>
 
       {trace.length > 0 && (
@@ -195,10 +248,10 @@ export default function Crossover({ initialId }: { initialId?: string }) {
           )}
         </div>
       )}
-      {slate.state === "ready" && (
-        <Results data={slate.data} ranking={ranking} ranking_pending={running && !ranking} onOpen={(pick, domain) => setOpen({ pick, domain })} />
+      {slate.state === "ready" && <Results data={slate.data} ranking={ranking} running={running} onOpen={(pick, domain) => setOpen({ pick, domain })} />}
+      {open && slate.state === "ready" && (
+        <BriefPanel seed={slate.data.entity} proxy={proxy} basedOn={slate.data.basedOn} pick={open.pick} domain={open.domain} onClose={closeBrief} />
       )}
-      {open && slate.state === "ready" && <BriefPanel seed={slate.data.entity} pick={open.pick} domain={open.domain} onClose={closeBrief} />}
     </main>
   );
 }
@@ -223,20 +276,6 @@ function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void }) {
   );
 }
 
-function NotFound({ compact }: { compact?: boolean }) {
-  return (
-    <div className={`rounded-xl border border-dashed border-zinc-300 p-5 ${compact ? "mt-4" : ""}`}>
-      <h2 className="font-semibold">{compact ? "None of these?" : "Qloo doesn't know this one yet"}</h2>
-      <p className="mt-1 text-sm text-zinc-600">
-        Name two or three brands your customers also love, and Crossover will build the slate from their fans.
-      </p>
-      <button disabled className="mt-3 cursor-not-allowed rounded-lg bg-zinc-200 px-4 py-2 text-sm text-zinc-500">
-        Use proxies (coming soon)
-      </button>
-    </div>
-  );
-}
-
 // With a ranking: the shortlist first (with why-lines), then picks the agent neither kept nor dropped,
 // dropped picks hidden behind a toggle. Without one: Qloo's order.
 function arrange(picks: Pick[], r?: Ranking[Domain]) {
@@ -250,24 +289,27 @@ function arrange(picks: Pick[], r?: Ranking[Domain]) {
 function Results({
   data,
   ranking,
-  ranking_pending,
+  running,
   onOpen,
 }: {
   data: SlateData;
-  ranking: Ranking | null;
-  ranking_pending: boolean;
+  ranking: Partial<Ranking>;
+  running: boolean;
   onOpen: (pick: Pick, domain: Domain) => void;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
+  const proxyNames = new Map(data.basedOn.map((c) => [c.entity_id, c.name]));
   return (
     <div className="mt-8 space-y-8">
-      {ranking_pending && <p className="animate-pulse text-sm text-zinc-500">Claude is shortlisting partners and writing why each one fits...</p>}
       {data.domains.map(({ domain, picks }) => {
-        const { rows, dropped } = arrange(picks, ranking?.[domain]);
+        const { rows, dropped } = arrange(picks, ranking[domain]);
         return (
           <section key={domain}>
             <div className="mb-3 flex items-baseline justify-between gap-4">
-              <h2 className="text-lg font-semibold">{DOMAIN_LABEL[domain]}</h2>
+              <h2 className="text-lg font-semibold">
+                {DOMAIN_LABEL[domain]}
+                {running && !ranking[domain] && <span className="ml-3 animate-pulse text-sm font-normal text-zinc-400">Claude is shortlisting...</span>}
+              </h2>
               {dropped.length > 0 && (
                 <details className="relative text-sm text-zinc-500">
                   <summary className="cursor-pointer select-none hover:text-zinc-900">{dropped.length} dropped</summary>
@@ -284,7 +326,7 @@ function Results({
             {rows.length ? (
               <div className="-mx-4 flex items-start gap-3 overflow-x-auto px-4 pb-2">
                 {rows.map(({ pick, why }) => (
-                  <PickCard key={pick.entity_id} pick={pick} why={why} onOpen={() => onOpen(pick, domain)} />
+                  <PickCard key={pick.entity_id} pick={pick} why={why} drivenBy={proxyNames.size > 1 ? proxyNames.get(pick.driven_by ?? "") : undefined} onOpen={() => onOpen(pick, domain)} />
                 ))}
               </div>
             ) : (
@@ -324,7 +366,7 @@ function Results({
   );
 }
 
-function PickCard({ pick, why, onOpen }: { pick: Pick; why?: string; onOpen: () => void }) {
+function PickCard({ pick, why, drivenBy, onOpen }: { pick: Pick; why?: string; drivenBy?: string; onOpen: () => void }) {
   return (
     <button onClick={onOpen} className="flex w-40 shrink-0 flex-col rounded-lg text-left outline-offset-4 hover:opacity-90 sm:w-44">
       <Thumb src={pick.image} name={pick.name} className="aspect-square w-full rounded-lg" />
@@ -344,6 +386,7 @@ function PickCard({ pick, why, onOpen }: { pick: Pick; why?: string; onOpen: () 
           ))}
         </div>
       )}
+      {drivenBy && <p className="mt-1.5 text-[11px] text-orange-800">driven by {drivenBy}</p>}
       {why && <p className="mt-2 text-[13px] leading-snug text-zinc-700">{why}</p>}
     </button>
   );

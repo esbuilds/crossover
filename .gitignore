@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Qloo response data, never commit (PLAN.md section 3)
 /fixtures/demo/
+
+# dev-only file cache (lib/qloo.ts devFileCache)
+/.cache/

@@ -6,7 +6,9 @@ import { cached, insights, tags } from "../qloo.ts";
 import type { Card, Domain, Pick } from "../slate.ts";
 import { MODEL } from "./rank.ts";
 
-export type BriefInput = { seed: Card; pick: Pick; domain: Domain; slateRank: number; slateSize: number };
+// In proxy mode the seed is synthetic (Qloo doesn't know it); anchor is the top-weighted proxy, which stands in
+// for the seed in the reverse check, and basedOn names every proxy.
+export type BriefInput = { seed: Card; pick: Pick; domain: Domain; slateRank: number; slateSize: number; anchor?: Card; basedOn?: string[] };
 export type BriefResult = { text: string; trace: string[]; usage: LanguageModelUsage | null };
 type Listener = { ip: string; ran: boolean; trace: (t: string) => void; text: (d: string) => void };
 
@@ -16,6 +18,8 @@ Playbook:
 1. Call qloo_reverse_affinity first. Forward fit (how much the seed's fans over-index on the partner) is already given to you as a slate rank. The reverse call tells you whether the partner's fans like the seed back: where the seed lands among the partner's own top 50 in the seed's category, plus both entities' tags. A pairing that works one way only is a weaker pitch; say so.
 2. Optionally call qloo_tags once if a shared theme needs grounding in Qloo's tag vocabulary.
 3. Write the brief. Use only facts from the input and the tool results. Never invent numbers, sales figures, past collabs, or quotes.
+
+Some seeds are brands Qloo doesn't know yet. Then the input says so, names the brands whose fans the slate was built from, and names one of them as the stand-in for the reverse check. In that case: say "based on fans of" those brands where you cite the slate rank, and write the mutual fit line as "- Mutual fit, measured against <stand-in> fans: ..." using the stand-in's name, because the reverse check measured the stand-in, not the seed.
 
 Write the brief in plain text with these exact headings, in this order, each on its own line starting with "## ":
 
@@ -39,9 +43,11 @@ Launch plan: Wednesday
 
 Style: written for a partnerships lead, not an engineer. Short sentences. No bold, no emoji, no other headings, no preamble before "## The idea", nothing after "Launch plan: Wednesday".`;
 
-function userTurn({ seed, pick, domain, slateRank, slateSize }: BriefInput) {
+function userTurn({ seed, pick, domain, slateRank, slateSize, anchor, basedOn }: BriefInput) {
   return [
-    `Seed: ${seed.name} (${seed.type.split(":").pop()}). ${seed.short_description ?? ""}`,
+    anchor
+      ? `Seed: ${seed.name} (brand, not in Qloo yet). ${seed.short_description ?? ""}\nThe slate was built from fans of: ${basedOn?.join(", ")}. Stand-in for the reverse check: ${anchor.name}.`
+      : `Seed: ${seed.name} (${seed.type.split(":").pop()}). ${seed.short_description ?? ""}`,
     `Partner: ${pick.name} (${domain}). ${pick.short_description ?? ""}`,
     `Partner tags: ${pick.tags.join(", ") || "none"}`,
     `Forward fit: #${slateRank} of ${slateSize} ${domain} picks in the seed's slate, affinity ${pick.affinity.toFixed(2)}, partner popularity ${pick.popularity.toFixed(2)}.`,
@@ -73,7 +79,7 @@ async function reverseAffinity(seed: Card, pick: Pick) {
 // replays the stored result. ponytail: one listener per pair, so two simultaneous first-time requests for the
 // same pair stream to the later one only; the earlier gets the full text when it finishes. Fine for a demo.
 const listeners = new Map<string, Listener>();
-const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.pick.entity_id}`;
+const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
 
 // ponytail: per-instance, in-memory, resets on cold start, so the real ceiling is 20 x live instances per IP.
 // Upgrade path: a KV counter (Upstash or Vercel KV) keyed by ip:date.
@@ -106,7 +112,7 @@ async function generate(input: BriefInput): Promise<BriefResult> {
         description:
           "Check the pairing from the partner's side: where the seed lands among the partner's fans' top 50 in the seed's category, the seed's raw affinity with those fans, cutoffs for context, and both entities' Qloo tags.",
         inputSchema: jsonSchema<Record<string, never>>({ type: "object", properties: {}, additionalProperties: false }),
-        execute: async () => reverseAffinity(input.seed, input.pick),
+        execute: async () => reverseAffinity(input.anchor ?? input.seed, input.pick),
       }),
       qloo_tags: tool({
         description: "Search Qloo's tag vocabulary for a theme (for example 'sustainability' or 'skate culture'). Returns up to 10 matching tags.",
@@ -127,10 +133,11 @@ async function generate(input: BriefInput): Promise<BriefResult> {
 
   for await (const part of result.stream) {
     if (part.type === "tool-call") {
-      say(part.toolName === "qloo_reverse_affinity" ? `Checking whether ${input.pick.name} fans like ${input.seed.name} back` : `Looking up Qloo tags for "${(part.input as { query?: string }).query}"`);
+      say(part.toolName === "qloo_reverse_affinity" ? `Checking whether ${input.pick.name} fans like ${(input.anchor ?? input.seed).name} back` : `Looking up Qloo tags for "${(part.input as { query?: string }).query}"`);
     } else if (part.type === "tool-result" && part.toolName === "qloo_reverse_affinity") {
       const r = part.output as Awaited<ReturnType<typeof reverseAffinity>>;
-      say(r.seed_rank_in_partner_top50 ? `${input.seed.name} is #${r.seed_rank_in_partner_top50} among ${input.pick.name} fans` : `${input.seed.name} isn't in ${input.pick.name} fans' top 50`);
+      const who = (input.anchor ?? input.seed).name;
+      say(r.seed_rank_in_partner_top50 ? `${who} is #${r.seed_rank_in_partner_top50} among ${input.pick.name} fans` : `${who} isn't in ${input.pick.name} fans' top 50`);
     } else if (part.type === "text-delta") {
       text += part.text;
       l?.text(part.text);
@@ -142,7 +149,7 @@ async function generate(input: BriefInput): Promise<BriefResult> {
   return { text, trace, usage: await result.totalUsage };
 }
 
-const PROMPT_VERSION = "brief-v1"; // bump to regenerate every cached brief after a prompt change
+const PROMPT_VERSION = "brief-v2"; // bump to regenerate every cached brief after a prompt change
 const briefCached = cached("brief", (_v: string, input: BriefInput) => generate(input));
 
 // Runs or replays a brief. Live tokens go to onTrace/onText; on a cache hit the caller gets the stored result

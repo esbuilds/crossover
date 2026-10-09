@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { Card, Domain, Pick } from "@/lib/slate.ts";
+import type { ProxySpec } from "./crossover";
+import { BasedOn } from "./proxy-form";
 
 type Event = { type: "trace"; text: string } | { type: "text"; delta: string } | { type: "done"; cached: boolean } | { type: "error"; message: string };
 
@@ -19,7 +21,21 @@ async function streamEvents(res: Response, onEvent: (e: Event) => void) {
   }
 }
 
-export default function BriefPanel({ seed, pick, domain, onClose }: { seed: Card; pick: Pick; domain: Domain; onClose: () => void }) {
+export default function BriefPanel({
+  seed,
+  proxy,
+  basedOn,
+  pick,
+  domain,
+  onClose,
+}: {
+  seed: Card;
+  proxy: ProxySpec | null;
+  basedOn: Card[];
+  pick: Pick;
+  domain: Domain;
+  onClose: () => void;
+}) {
   const [trace, setTrace] = useState<string[]>([]);
   const [text, setText] = useState("");
   const [status, setStatus] = useState<"writing" | "done" | "error">("writing");
@@ -32,7 +48,7 @@ export default function BriefPanel({ seed, pick, domain, onClose }: { seed: Card
         const res = await fetch("/api/brief", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entity: seed.entity_id, type: seed.type, pick: pick.entity_id, domain }),
+          body: JSON.stringify(proxy ? { proxy, pick: pick.entity_id, domain } : { entity: seed.entity_id, type: seed.type, pick: pick.entity_id, domain }),
           signal: abort.signal,
         });
         if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Couldn't write this brief right now.");
@@ -60,7 +76,7 @@ export default function BriefPanel({ seed, pick, domain, onClose }: { seed: Card
       abort.abort();
       window.removeEventListener("keydown", onKey);
     };
-  }, [seed, pick, domain, onClose]);
+  }, [seed, proxy, pick, domain, onClose]);
 
   return (
     <>
@@ -81,6 +97,8 @@ export default function BriefPanel({ seed, pick, domain, onClose }: { seed: Card
             Close
           </button>
         </div>
+
+        {proxy && <BasedOn cards={basedOn} />}
 
         <ol className="mt-4 space-y-1 text-sm text-zinc-600">
           {trace.map((t, i) => (

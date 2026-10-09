@@ -2,7 +2,7 @@
 // so geohash cells are aggregated to a static table of US markets, one per market and at least 100 km apart.
 // A market can fold in satellite cities ("also"): a cell counts if it's within 40 km of any of its centers.
 import markets from "../data/metros.json" with { type: "json" };
-import { heatmap, type HeatCell } from "./qloo.ts";
+import { heatmap, type HeatCell, type Signal } from "./qloo.ts";
 
 // overIndex: metro score / national mean of all cells x 100. 130 reads "30% above the country" (PLAN.md section 8).
 export type City = { name: string; lat: number; lon: number; score: number; overIndex: number; cells: number };
@@ -71,4 +71,4 @@ export function buildCities(cells: HeatCell[]): Cities {
   };
 }
 
-export const getCities = async (entityId: string) => buildCities(await heatmap(entityId, "United States"));
+export const getCities = async (seed: string | Signal[]) => buildCities(await heatmap(seed, "United States"));

@@ -14,6 +14,7 @@ export type Pick = {
   short_description?: string;
   tags: string[];
   explainability?: number;
+  driven_by?: string;
 };
 export type Slate = Record<Domain, Pick[]>;
 
@@ -27,6 +28,7 @@ const toPick = (e: Entity): Pick => ({
   short_description: e.short_description,
   tags: [...new Set(e.tags.map((t) => t.name))].slice(0, 5), // the same name can appear under two tag types
   explainability: e.explainability,
+  driven_by: e.driven_by,
 });
 
 // seed: one resolved entity id, or weighted proxies when Qloo doesn't know the brand.
