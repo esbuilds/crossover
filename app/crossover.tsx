@@ -2,10 +2,12 @@
 /* eslint-disable @next/next/no-img-element -- Qloo images are remote and already sized; next/image adds config for nothing in v1 */
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Card, Domain, Pick } from "@/lib/slate.ts";
 import type { Cities } from "@/lib/cities.ts";
+import type { Ranking } from "@/lib/agent/rank.ts";
 import UsMap, { ACCENT } from "./map";
+import BriefPanel from "./brief-panel";
 
 type ResolveResult = { status: "confident" | "ambiguous" | "not_found"; candidates: Card[] };
 type SlateData = { entity: Card; domains: { domain: Domain; picks: Pick[] }[]; cities: Cities };
@@ -27,8 +29,6 @@ const TYPE_LABEL: Record<string, string> = {
   "urn:entity:movie": "Film",
   "urn:entity:person": "Person",
 };
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
 async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
   const body = await res.json().catch(() => ({}));
@@ -43,31 +43,44 @@ export default function Crossover({ initialId }: { initialId?: string }) {
   const [alternates, setAlternates] = useState<Card[]>([]);
   const [slate, setSlate] = useState<Load<SlateData>>({ state: "idle" });
   const [trace, setTrace] = useState<string[]>([]);
-  const run = useRef(0); // newest request wins; older ones bail out after each await
+  const [ranking, setRanking] = useState<Ranking | null>(null);
+  const [running, setRunning] = useState(false); // the run stream is still open (ranking may still arrive)
+  const [open, setOpen] = useState<{ pick: Pick; domain: Domain } | null>(null);
+  const source = useRef<EventSource | null>(null); // newest run wins; starting another closes this one
+  const closeBrief = useCallback(() => setOpen(null), []);
 
-  // v1 fakes the trace timing client-side; the real streamed trace comes with the agent on Oct 13.
-  async function loadSlate(id: string, name?: string, type?: string) {
-    const token = ++run.current;
-    const stale = () => token !== run.current;
+  function stop() {
+    source.current?.close();
+    source.current = null;
+    setRunning(false);
+  }
+
+  // Real trace: /api/run streams each Qloo step as it lands, the slate as soon as retrieval is done, then the ranking.
+  function loadSlate(id: string, name?: string, type?: string) {
+    stop();
     setSlate({ state: "loading" });
-    setTrace(name ? [`Found ${name} in Qloo`] : ["Opening shared slate"]);
-    const req = getJson<SlateData>(`/api/slate?entity=${id}${type ? `&type=${type}` : ""}`);
-    req.catch(() => {}); // handled below; avoids an unhandled rejection while the trace animates
-
-    await sleep(450);
-    if (stale()) return;
-    setTrace((t) => [...t, "Pulling fans' top artists, brands, shows, films, places, podcasts"]);
-    try {
-      const [data] = await Promise.all([req, sleep(500)]);
-      if (stale()) return;
-      if (!name) setEntity(data.entity);
-      setTrace((t) => [...t, `Ranking ${data.cities.marketCount} US markets from ${data.cities.cellCount.toLocaleString()} heatmap cells`]);
-      await sleep(450);
-      if (stale()) return;
-      setSlate({ state: "ready", data });
-    } catch (err) {
-      if (!stale()) setSlate({ state: "error", message: (err as Error).message });
-    }
+    setRanking(null);
+    setOpen(null);
+    setTrace([]);
+    setRunning(true);
+    const es = new EventSource(`/api/run?entity=${id}${type ? `&type=${encodeURIComponent(type)}` : ""}`);
+    source.current = es;
+    const fail = (message: string) => {
+      stop();
+      setSlate((s) => (s.state === "ready" ? s : { state: "error", message })); // keep a slate that already arrived
+    };
+    es.onmessage = (m) => {
+      if (source.current !== es) return;
+      const ev = JSON.parse(m.data);
+      if (ev.type === "trace") setTrace((t) => [...t, ev.text]);
+      else if (ev.type === "slate") {
+        if (!name) setEntity(ev.data.entity);
+        setSlate({ state: "ready", data: ev.data });
+      } else if (ev.type === "ranking") setRanking(ev.data);
+      else if (ev.type === "done") stop();
+      else if (ev.type === "error") fail(ev.message);
+    };
+    es.onerror = () => source.current === es && fail("Lost the connection while building the slate");
   }
 
   function choose(card: Card, others: Card[] = []) {
@@ -82,7 +95,7 @@ export default function Crossover({ initialId }: { initialId?: string }) {
     q = q.trim();
     if (!q) return;
     setQuery(q);
-    run.current++; // cancel any slate in flight
+    stop(); // cancel any run in flight
     window.history.pushState(null, "", "/"); // the old /s/<id> no longer describes the page
     setEntity(null);
     setSlate({ state: "idle" });
@@ -98,7 +111,7 @@ export default function Crossover({ initialId }: { initialId?: string }) {
   }
 
   function notIt() {
-    run.current++;
+    stop();
     setEntity(null);
     setSlate({ state: "idle" });
     setTrace([]);
@@ -109,7 +122,7 @@ export default function Crossover({ initialId }: { initialId?: string }) {
   // A shared /s/<id> link starts straight at the slate. loadSlate sets loading state up front, which is the point here.
   useEffect(() => {
     if (initialId) loadSlate(initialId); // eslint-disable-line react-hooks/set-state-in-effect
-  }, [initialId]);
+  }, [initialId]); // eslint-disable-line react-hooks/exhaustive-deps -- run once per shared id, not per render
 
   return (
     <main className="mx-auto max-w-[1100px] px-4 py-10 sm:py-14">
@@ -182,7 +195,10 @@ export default function Crossover({ initialId }: { initialId?: string }) {
           )}
         </div>
       )}
-      {slate.state === "ready" && <Results data={slate.data} />}
+      {slate.state === "ready" && (
+        <Results data={slate.data} ranking={ranking} ranking_pending={running && !ranking} onOpen={(pick, domain) => setOpen({ pick, domain })} />
+      )}
+      {open && slate.state === "ready" && <BriefPanel seed={slate.data.entity} pick={open.pick} domain={open.domain} onClose={closeBrief} />}
     </main>
   );
 }
@@ -221,24 +237,62 @@ function NotFound({ compact }: { compact?: boolean }) {
   );
 }
 
-function Results({ data }: { data: SlateData }) {
+// With a ranking: the shortlist first (with why-lines), then picks the agent neither kept nor dropped,
+// dropped picks hidden behind a toggle. Without one: Qloo's order.
+function arrange(picks: Pick[], r?: Ranking[Domain]) {
+  if (!r) return { rows: picks.map((pick) => ({ pick, why: undefined as string | undefined })), dropped: [] };
+  const byId = new Map(picks.map((p) => [p.entity_id, p]));
+  const kept = r.kept.flatMap((k) => (byId.has(k.entity_id) ? [{ pick: byId.get(k.entity_id)!, why: k.why as string | undefined }] : []));
+  const used = new Set([...r.kept.map((k) => k.entity_id), ...r.dropped.map((d) => d.entity_id)]);
+  return { rows: [...kept, ...picks.filter((p) => !used.has(p.entity_id)).map((pick) => ({ pick, why: undefined }))], dropped: r.dropped };
+}
+
+function Results({
+  data,
+  ranking,
+  ranking_pending,
+  onOpen,
+}: {
+  data: SlateData;
+  ranking: Ranking | null;
+  ranking_pending: boolean;
+  onOpen: (pick: Pick, domain: Domain) => void;
+}) {
   const [hovered, setHovered] = useState<string | null>(null);
   return (
     <div className="mt-8 space-y-8">
-      {data.domains.map(({ domain, picks }) => (
-        <section key={domain}>
-          <h2 className="mb-3 text-lg font-semibold">{DOMAIN_LABEL[domain]}</h2>
-          {picks.length ? (
-            <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2">
-              {picks.map((p) => (
-                <PickCard key={p.entity_id} pick={p} />
-              ))}
+      {ranking_pending && <p className="animate-pulse text-sm text-zinc-500">Claude is shortlisting partners and writing why each one fits...</p>}
+      {data.domains.map(({ domain, picks }) => {
+        const { rows, dropped } = arrange(picks, ranking?.[domain]);
+        return (
+          <section key={domain}>
+            <div className="mb-3 flex items-baseline justify-between gap-4">
+              <h2 className="text-lg font-semibold">{DOMAIN_LABEL[domain]}</h2>
+              {dropped.length > 0 && (
+                <details className="relative text-sm text-zinc-500">
+                  <summary className="cursor-pointer select-none hover:text-zinc-900">{dropped.length} dropped</summary>
+                  <ul className="absolute right-0 z-10 mt-1 w-72 space-y-1.5 rounded-lg border border-zinc-200 bg-white p-3 text-zinc-700 shadow-lg">
+                    {dropped.map((d) => (
+                      <li key={d.entity_id}>
+                        <span className="font-medium">{d.name}</span>: {d.reason}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
             </div>
-          ) : (
-            <p className="text-sm text-zinc-500">Nothing here for this audience.</p>
-          )}
-        </section>
-      ))}
+            {rows.length ? (
+              <div className="-mx-4 flex items-start gap-3 overflow-x-auto px-4 pb-2">
+                {rows.map(({ pick, why }) => (
+                  <PickCard key={pick.entity_id} pick={pick} why={why} onOpen={() => onOpen(pick, domain)} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-zinc-500">Nothing here for this audience.</p>
+            )}
+          </section>
+        );
+      })}
 
       <section className="grid items-start gap-6 md:grid-cols-[3fr_2fr]">
         <UsMap cells={data.cities.cells} metros={data.cities.metros} hovered={hovered} />
@@ -270,9 +324,9 @@ function Results({ data }: { data: SlateData }) {
   );
 }
 
-function PickCard({ pick }: { pick: Pick }) {
+function PickCard({ pick, why, onOpen }: { pick: Pick; why?: string; onOpen: () => void }) {
   return (
-    <div className="w-40 shrink-0 sm:w-44">
+    <button onClick={onOpen} className="flex w-40 shrink-0 flex-col rounded-lg text-left outline-offset-4 hover:opacity-90 sm:w-44">
       <Thumb src={pick.image} name={pick.name} className="aspect-square w-full rounded-lg" />
       <h3 className="mt-2 line-clamp-2 text-sm font-medium leading-snug">{pick.name}</h3>
       <div className="mt-1 flex items-center gap-2" title="Affinity: how much this audience over-indexes on it">
@@ -290,7 +344,8 @@ function PickCard({ pick }: { pick: Pick }) {
           ))}
         </div>
       )}
-    </div>
+      {why && <p className="mt-2 text-[13px] leading-snug text-zinc-700">{why}</p>}
+    </button>
   );
 }
 

@@ -30,18 +30,22 @@ const toPick = (e: Entity): Pick => ({
 });
 
 // seed: one resolved entity id, or weighted proxies when Qloo doesn't know the brand.
-// All six calls start at once; the client's 4/s bucket spaces them out.
-export async function getSlate(seed: string | Signal[]): Promise<Slate> {
+// All six calls start at once; the client's 4/s bucket spaces them out. onDomain fires as each one lands.
+export async function getSlate(seed: string | Signal[], onDomain?: (d: Domain, picks: Pick[]) => void): Promise<Slate> {
   const lists = await Promise.all(
-    DOMAINS.map((d) => {
+    DOMAINS.map(async (d) => {
       const params = { take: 10, "feature.explainability": "true" };
       const type = `urn:entity:${d}`;
-      return typeof seed === "string"
-        ? insights({ "filter.type": type, "signal.interests.entities": seed, "filter.exclude.entities": seed, ...params })
-        : insightsPost(type, seed, params);
+      const raw =
+        typeof seed === "string"
+          ? await insights({ "filter.type": type, "signal.interests.entities": seed, "filter.exclude.entities": seed, ...params })
+          : await insightsPost(type, seed, params);
+      const picks = raw.map(toPick);
+      onDomain?.(d, picks);
+      return picks;
     }),
   );
-  return Object.fromEntries(DOMAINS.map((d, i) => [d, lists[i].map(toPick)])) as Slate;
+  return Object.fromEntries(DOMAINS.map((d, i) => [d, lists[i]])) as Slate;
 }
 
 // Brands first, then strongest evidence: domains by the mean affinity of their top three picks, places always last

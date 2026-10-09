@@ -108,7 +108,8 @@ const trimEntities = (body: Raw): Entity[] => {
   return (Array.isArray(r) ? r : (r?.entities ?? [])).map(trimEntity);
 };
 
-function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promise<R>) {
+// 30-day data cache. Also used by the agent (rankings, briefs) so repeat demos are identical and free.
+export function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promise<R>) {
   const c = unstable_cache(fn, ["qloo", name], { revalidate: THIRTY_DAYS });
   // plain node scripts (fixture recording) have no Next cache; call straight through
   return (...args: A) => (process.env.NEXT_RUNTIME ? c(...args) : fn(...args));

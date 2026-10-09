@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test --disable-warning=ExperimentalWarning lib/*.test.ts"
+    "test": "node --test --disable-warning=ExperimentalWarning 'lib/**/*.test.ts'"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.78",
