@@ -78,4 +78,9 @@ export function buildCities(cells: HeatCell[], states?: string[] | null): Cities
   };
 }
 
+// Cache-only: the top market for share-link previews, or null when the heatmap isn't cached. Never calls Qloo.
+export const peekTopMarket = async (seed: string) => {
+  const cells = await heatmap.peek(seed, "United States");
+  return cells ? (buildCities(cells).metros[0] ?? null) : null;
+};
 export const getCities = async (seed: string | Signal[], states?: string[] | null) => buildCities(await heatmap(seed, "United States"), states);

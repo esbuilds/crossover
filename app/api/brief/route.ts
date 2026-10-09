@@ -1,12 +1,12 @@
 import { type NextRequest } from "next/server";
-import { brief, CapReached } from "@/lib/agent/brief.ts";
+import { brief, CapReached, venuesFor } from "@/lib/agent/brief.ts";
 import { loadPair, type PairBody } from "@/lib/pair.ts";
 import { QuotaError } from "@/lib/qloo.ts";
 import { sse } from "@/lib/sse.ts";
 
 // POST /api/brief {entity, type?, pick, domain} or {proxy: {name, d, p, t?}, pick, domain}
 // -> server-sent events: {type:"trace", text} per tool call, {type:"text", delta} as the brief streams, then
-//   {type:"done", cached} or {type:"error", message} (text that already streamed stays on screen).
+//   {type:"venues", market, venues} (price level for the panel), then {type:"done", cached} or {type:"error", message} (text that already streamed stays on screen).
 export async function POST(request: NextRequest) {
   const pair = await loadPair((await request.json().catch(() => ({}))) as PairBody);
   if ("error" in pair) return Response.json({ error: pair.error }, { status: pair.status });
@@ -25,6 +25,8 @@ export async function POST(request: NextRequest) {
         for (const text of result.trace) send({ type: "trace", text });
         send({ type: "text", delta: result.text });
       }
+      const v = await venuesFor(pair, result.trace).catch(() => null);
+      if (v?.venues.length) send({ type: "venues", market: v.market, venues: v.venues });
       console.log(`[brief] ${pair.seed.name} x ${pair.pick.name} ${result.ran ? "generated" : "cached"}`, result.ran ? JSON.stringify(result.usage) : "");
       send({ type: "done", cached: !result.ran });
     } catch (err) {

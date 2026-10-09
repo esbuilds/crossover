@@ -120,7 +120,7 @@ const SYSTEM = `You turn a partnerships lead's one-line constraints into filters
 
 Express each constraint with exactly one field:
 - include / exclude: a kind of partner, as short tag search phrases ("beer", "wine", "cannabis", "outdoor gear"). "No alcohol" means excluding each relevant kind (beer, wine, spirits) as separate entries. Pick applies_to domains where the kind makes sense (alcohol applies to brand).
-- Sponsorship and audience intents ("brands that sponsor live music", "brands that back sports teams", "festival partners") are not categories in the tag vocabulary. Map them to the brand categories that typically do that, as one include with several tag_queries (any of them qualifies). For live music: drinks, apparel, audio, telecom. For sports: sports drinks, athletic apparel, automotive, betting. Say in the phrase what the user wrote.
+- Sponsorship and audience intents ("brands that sponsor live music", "brands that back sports teams", "festival partners") are not categories in the tag vocabulary. Map them to the brand categories that typically do that, as one include with several tag_queries (any of them qualifies). For live music: drinks, beer, fashion, headphones. For sports: sport drinks, athletic, automotive. Write tag_queries in Qloo's own brand category words (Drinks, Beer, Spirits, Energy Drink, Fashion, Casual, Athletic, Footwear, Electronics, Headphones, Automotive): "apparel", "audio" and "telecom" match no brand tag. Say in the phrase what the user wrote.
 - region: a US region ("Texas", "the Southeast", "West Coast") with its states and one representative place for location search.
 - domains: when they limit which kinds of partner to show ("brands and artists only").
 - popularity_min: when they ask for well-known or big names.
@@ -244,12 +244,19 @@ async function interpretUncached(seedName: string, seedKind: string, sentence: s
 }
 
 // Cached 30 days per (seed, sentence).
+// ponytail: guidance changed Oct 21 without a label bump, so warm refines stay warm (zero Qloo calls). Bump when re-interpreting is worth the tag lookups.
 export const interpret = (seedName: string, seedKind: string, sentence: string) => interpretCached("refine-v2", seedName, seedKind, sentence.trim().slice(0, 200));
 const interpretCached = cached("refine", (_v: string, seedName: string, seedKind: string, sentence: string) => interpretUncached(seedName, seedKind, sentence));
 
 // The applied constraints as one sentence for the ranking prompt. Unmapped phrases are left out on purpose: the UI
 // says they couldn't be applied, so the ranker must not quietly apply them from its own guesses.
-export const appliedSentence = (c: ConstraintSet) => c.applied.map((a) => a.phrase).join(", ");
+// Regions are left out too (Oct 21): they already filter markets and domain calls, and the ranker read "West Coast"
+// as where a brand is based.
+export const appliedSentence = (c: ConstraintSet) =>
+  c.applied
+    .filter((a) => a.kind !== "region")
+    .map((a) => a.phrase)
+    .join(", ");
 
 // Include tags as soft signals instead of hard filters, for a domain that came back empty under the filter.
 export function relaxedParams(c: ConstraintSet, d: Domain): Record<string, string | number> | null {

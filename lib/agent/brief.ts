@@ -147,6 +147,15 @@ async function placesInCity(input: BriefInput, market: string) {
   return { market, venues: [], note: `Qloo returned no restaurant or bar venues in ${tried.join(" or ")}.` };
 }
 
+// Venue details (price level, affinity) for the panel, from the same lookup the brief's tool made. The trace names
+// the market the tool settled on, so for any brief that found venues this is a cache hit: 0 Qloo calls.
+export async function venuesFor(input: BriefInput, trace: string[]) {
+  const market = trace.map((t) => /^Found \d+ venues in (.+)$/.exec(t)?.[1] ?? /so these are in (.+), the seed's next market\.$/.exec(t)?.[1]).find(Boolean);
+  if (!market) return null;
+  const r = await placesInCity(input, market);
+  return r.market === market ? r : null; // a different market would mean fresh calls happened; never show those
+}
+
 // --- generation ---
 
 async function generate(input: BriefInput, say: (t: string) => void, write: (d: string) => void): Promise<BriefResult> {

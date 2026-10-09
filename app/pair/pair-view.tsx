@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @next/next/no-img-element -- Qloo images are remote and already sized */
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -7,13 +6,17 @@ import type { Card, Pick } from "@/lib/slate.ts";
 import type { Pair } from "@/lib/pairing.ts";
 import type { Direction } from "@/lib/fit.ts";
 import type { City } from "@/lib/cities.ts";
-import UsMap, { ACCENT } from "../map";
-import BriefPanel from "../brief-panel";
+import UsMap from "../map";
+import BriefPanel, { Skeleton } from "../brief-panel";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, type ChipKind, field, MatchCard, SiteHeader, TYPE_LABEL } from "../ui";
 
 type Side = { query: string; state: "idle" | "loading" | "picked" | "ambiguous" | "not_found" | "error"; card?: Card; candidates?: Card[]; message?: string };
 const empty: Side = { query: "", state: "idle" };
-const KIND: Record<Pair["kind"], string> = { affinity: "Affinity play", "one-way": "One-way", contrast: "Contrast play" };
-const TYPE: Record<string, string> = { "urn:entity:brand": "Brand", "urn:entity:artist": "Artist", "urn:entity:tv_show": "TV show", "urn:entity:movie": "Film", "urn:entity:person": "Person" };
+const KIND: Record<Pair["kind"], { label: string; chip: ChipKind }> = {
+  affinity: { label: "Affinity play", chip: "mutual" },
+  "one-way": { label: "One-way", chip: "oneway" },
+  contrast: { label: "Contrast play", chip: "note" },
+};
 
 async function resolveName(q: string): Promise<Side> {
   try {
@@ -31,8 +34,9 @@ async function resolveName(q: string): Promise<Side> {
 export default function PairView({ initial }: { initial?: { a: string; b: string; ta?: string; tb?: string } }) {
   const [a, setA] = useState<Side>(empty);
   const [b, setB] = useState<Side>(empty);
-  const [pair, setPair] = useState<{ state: "idle" | "loading" | "ready" | "error"; data?: Pair; message?: string }>({ state: "idle" });
+  const [pair, setPair] = useState<{ state: "idle" | "loading" | "ready" | "error"; data?: Pair; message?: string }>({ state: initial ? "loading" : "idle" });
   const [brief, setBrief] = useState(false);
+  const [copied, setCopied] = useState(false);
   const closeBrief = useCallback(() => setBrief(false), []);
 
   async function check(cardA: Card, cardB: Card, push = true) {
@@ -42,6 +46,7 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
 
   async function load(idA: string, idB: string, ta?: string, tb?: string) {
     setPair({ state: "loading" });
+    setCopied(false);
     try {
       const res = await fetch(`/api/pair?a=${idA}&b=${idB}${ta ? `&ta=${encodeURIComponent(ta)}` : ""}${tb ? `&tb=${encodeURIComponent(tb)}` : ""}`);
       const data = await res.json();
@@ -80,107 +85,115 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
 
   const p = pair.data;
   const partner: Pick | null = p ? { entity_id: p.b.entity_id, name: p.b.name, type: p.b.type, affinity: p.bAmongA.affinity ?? 0, popularity: p.b.popularity, image: p.b.image, short_description: p.b.short_description, tags: p.bAmongA.tags.slice(0, 5) } : null;
+  const ready = p && pair.state === "ready";
 
   return (
-    <main className="mx-auto max-w-[1100px] px-4 py-10 sm:py-14">
-      <header className="mb-6">
-        <Link href="/" className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
-          Crossover
-        </Link>
-        <h1 className="mt-1 text-2xl font-semibold sm:text-3xl">Check a pairing</h1>
-        <p className="mt-1 text-zinc-600">Two names in: does each audience like the other, where do they overlap, and what kind of collab is it?</p>
-      </header>
+    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+      <SiteHeader href="/" label="Find partners" />
 
-      <form onSubmit={submit} className="grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-end">
-        <NameInput label="First" side={a} onChange={(q) => setA({ query: q, state: "idle" })} />
-        <span className="hidden pb-3 text-center text-2xl text-zinc-400 sm:block">&times;</span>
-        <NameInput label="Second" side={b} onChange={(q) => setB({ query: q, state: "idle" })} />
-        <button className="rounded-xl bg-zinc-900 px-5 py-3 text-white disabled:opacity-50" disabled={!a.query.trim() || !b.query.trim()}>
-          Check
-        </button>
-      </form>
+      <section className="pt-8">
+        <h1 className="font-display text-2xl sm:text-3xl">Check a pairing</h1>
+        <p className="mt-2 max-w-[60ch] text-base text-ink-2">Two names in: does each audience like the other, where do they overlap, and what kind of collab is it?</p>
+        <form onSubmit={submit} className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-end">
+          <NameInput label="First" side={a} onChange={(q) => setA({ query: q, state: "idle" })} />
+          <span aria-hidden className="hidden pb-2 text-center font-display text-2xl text-ink-3 sm:block">
+            &times;
+          </span>
+          <NameInput label="Second" side={b} onChange={(q) => setB({ query: q, state: "idle" })} />
+          <button className={ready ? btnSecondary : btnPrimary} disabled={!a.query.trim() || !b.query.trim()}>
+            Check
+          </button>
+        </form>
+      </section>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <SideStatus side={a} onChoose={(c) => choose("a", c)} />
         <SideStatus side={b} onChoose={(c) => choose("b", c)} />
       </div>
 
-      {pair.state === "loading" && <p className="mt-8 animate-pulse text-zinc-500">Checking both audiences in Qloo and writing the verdict...</p>}
-      {pair.state === "error" && <p className="mt-8 rounded-lg bg-red-50 p-3 text-red-800">{pair.message}</p>}
+      {pair.state === "loading" && (
+        <div aria-live="polite">
+          <p className="mt-10 font-mono text-sm text-ink-3 motion-safe:animate-pulse">Checking both audiences in Qloo and writing the verdict...</p>
+          <Skeleton lines={4} />
+        </div>
+      )}
+      {pair.state === "error" && <p className="mt-8 rounded-md bg-danger-tint px-4 py-3 text-base text-danger">{pair.message}</p>}
 
-      {p && pair.state === "ready" && (
-        <div className="mt-8 space-y-8">
-          <section className="rounded-xl border border-zinc-200 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: ACCENT }}>
-              {KIND[p.kind]}
-            </p>
-            <p className="mt-2 text-[15px] leading-relaxed text-zinc-900">{p.verdict}</p>
-            <button onClick={() => setBrief(true)} className="mt-4 rounded-lg px-4 py-2 text-sm font-medium text-white" style={{ background: ACCENT }}>
+      {p && ready && (
+        <div className="mt-10">
+          <section className="border-b border-ink pb-8">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Chip kind={KIND[p.kind].chip}>{KIND[p.kind].label}</Chip>
+              <button onClick={() => navigator.clipboard.writeText(window.location.href).then(() => setCopied(true))} className={`${btnQuiet} text-sm`}>
+                {copied ? "Link copied" : "Copy link to this pairing"}
+              </button>
+            </div>
+            <p className="mt-3 max-w-[60ch] font-display text-xl text-pretty">{p.verdict}</p>
+            <button onClick={() => setBrief(true)} className={`${btnPrimary} mt-6`}>
               Write the full brief
             </button>
           </section>
 
-          <section className="grid gap-4 sm:grid-cols-2">
-            <RankBar label={`${p.b.name} among ${p.a.name} fans`} d={p.bAmongA} kind={TYPE[p.b.type] ?? "entities"} />
-            <RankBar label={`${p.a.name} among ${p.b.name} fans`} d={p.aAmongB} kind={TYPE[p.a.type] ?? "entities"} />
+          <section className="grid gap-x-10 border-b border-rule sm:grid-cols-2">
+            <RankBar who={p.b.name} among={p.a.name} d={p.bAmongA} kind={TYPE_LABEL[p.b.type] ?? "entity"} />
+            <RankBar who={p.a.name} among={p.b.name} d={p.aAmongB} kind={TYPE_LABEL[p.a.type] ?? "entity"} />
           </section>
 
-          <section className="grid items-start gap-6 md:grid-cols-[3fr_2fr]">
-            <UsMap
-              cells={p.cells}
-              metros={p.overlap.map((o): City => ({ name: o.market, lat: o.lat, lon: o.lon, score: 0, overIndex: o.combined, cells: 0 }))}
-              hovered={null}
-            />
-            <div>
-              <h2 className="mb-1 text-lg font-semibold">Where both run hot</h2>
-              <p className="mb-3 text-sm text-zinc-500">
-                Markets in both top tens. Over-index vs. the US average (100 = average): {p.a.name} / {p.b.name}
-              </p>
+          <section className="border-b border-rule py-10">
+            <h2 className="font-display text-xl">Where both run hot</h2>
+            <p className="mt-1 text-base text-ink-2">Markets in both top tens, over-index against the US average (100 is average).</p>
+            <div className="mt-6 grid items-start gap-8 md:grid-cols-[3fr_2fr]">
+              <UsMap
+                cells={p.cells}
+                metros={p.overlap.map((o): City => ({ name: o.market, lat: o.lat, lon: o.lon, score: 0, overIndex: o.combined, cells: 0 }))}
+                hovered={null}
+              />
               {p.overlap.length ? (
-                <ol className="divide-y divide-zinc-100">
-                  {p.overlap.map((o, i) => (
-                    <li key={o.market} className={`flex items-center gap-3 py-2 ${i < 3 ? "font-semibold" : "text-zinc-700"}`}>
-                      <span className="w-7 text-sm text-zinc-400">{i + 1}</span>
-                      <span className="flex-1">{o.market}</span>
-                      <span className="text-sm tabular-nums">
-                        {o.seed_over_index} / {o.partner_over_index}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-sm text-ink-3">
+                      <th className="w-6 pb-2 font-normal" />
+                      <th className="pb-2 font-normal">Market</th>
+                      <th className="max-w-[9ch] truncate pb-2 text-right font-normal">{p.a.name}</th>
+                      <th className="max-w-[9ch] truncate pb-2 pl-3 text-right font-normal">{p.b.name}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {p.overlap.map((o, i) => (
+                      <tr key={o.market} className={`border-t border-rule ${i < 3 ? "text-lg font-semibold" : "text-base text-ink-2"}`}>
+                        <td className="py-2.5 pr-3 text-right font-mono text-sm font-normal text-ink-3 tabular-nums">{i + 1}</td>
+                        <td className="py-2.5">{o.market}</td>
+                        <td className="py-2.5 text-right tabular-nums">{o.seed_over_index}</td>
+                        <td className="py-2.5 pl-3 text-right tabular-nums">{o.partner_over_index}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               ) : (
-                <p className="text-sm text-zinc-500">No market is in both top tens.</p>
+                <p className="text-base text-ink-2">No market is in both top tens, so there is no shared launch city to point to.</p>
               )}
             </div>
           </section>
 
-          <section>
-            <h2 className="mb-2 text-lg font-semibold">Shared taste</h2>
+          <section className="py-10">
+            <h2 className="font-display text-xl">Shared taste</h2>
             {p.sharedTags.length ? (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {p.sharedTags.map((t) => (
-                  <span key={t} className="rounded bg-zinc-100 px-2 py-1 text-sm text-zinc-700">
+                  <span key={t} className="rounded-sm border border-rule px-2.5 py-1 text-sm text-ink-2">
                     {t}
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-zinc-500">No Qloo tags in common.</p>
+              <p className="mt-2 text-base text-ink-2">The two carry no Qloo tags in common.</p>
             )}
           </section>
         </div>
       )}
 
       {brief && p && partner && (
-        <BriefPanel
-          seed={p.a}
-          proxy={null}
-          basedOn={[]}
-          pick={partner}
-          domain={p.b.type.replace("urn:entity:", "")}
-          onDecide={() => {}}
-          onClose={closeBrief}
-        />
+        <BriefPanel seed={p.a} proxy={null} basedOn={[]} pick={partner} domain={p.b.type.replace("urn:entity:", "")} onDecide={() => {}} onClose={closeBrief} />
       )}
     </main>
   );
@@ -188,28 +201,22 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
 
 function NameInput({ label, side, onChange }: { label: string; side: Side; onChange: (q: string) => void }) {
   return (
-    <label className="grid gap-1 text-sm">
-      <span className="text-zinc-500">{label}</span>
-      <input
-        value={side.query}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="A brand, artist, show, or person"
-        className="rounded-xl border border-zinc-300 px-4 py-3 text-base outline-none focus:border-zinc-900"
-        maxLength={100}
-      />
+    <label className="grid gap-1.5">
+      <span className="text-sm font-semibold text-ink">{label}</span>
+      <input value={side.query} onChange={(e) => onChange(e.target.value)} placeholder="A brand, artist, show, or person" className={field} maxLength={100} />
     </label>
   );
 }
 
 function SideStatus({ side, onChoose }: { side: Side; onChoose: (c: Card) => void }) {
-  if (side.state === "loading") return <p className="text-sm text-zinc-500">Looking for &ldquo;{side.query}&rdquo;...</p>;
-  if (side.state === "error") return <p className="text-sm text-red-700">{side.message}</p>;
+  if (side.state === "loading") return <p className="font-mono text-sm text-ink-3">Looking for &ldquo;{side.query}&rdquo;...</p>;
+  if (side.state === "error") return <p className="rounded-md bg-danger-tint px-4 py-3 text-base text-danger">{side.message}</p>;
   if (side.state === "not_found")
     return (
-      <p className="rounded-lg border border-dashed border-zinc-300 p-3 text-sm text-zinc-600">
-        Qloo doesn&apos;t know &ldquo;{side.query}&rdquo;. Pairing needs two names Qloo knows; for a brand it doesn&apos;t, build a slate from stand-in brands in{" "}
-        <Link href="/" className="underline">
-          the main flow
+      <p className="rounded-lg border border-rule px-4 py-3 text-base text-ink-2">
+        Qloo doesn&apos;t know &ldquo;{side.query}&rdquo;. Pairing needs two names Qloo knows. For a brand it doesn&apos;t, build a slate from stand-in brands{" "}
+        <Link href="/" className="underline underline-offset-4">
+          on the main page
         </Link>
         .
       </p>
@@ -217,46 +224,44 @@ function SideStatus({ side, onChoose }: { side: Side; onChoose: (c: Card) => voi
   if (side.state === "ambiguous")
     return (
       <div>
-        <p className="mb-2 text-sm text-zinc-600">Which &ldquo;{side.query}&rdquo;?</p>
+        <p className="mb-2 text-base text-ink-2">Which &ldquo;{side.query}&rdquo;?</p>
         <div className="grid gap-2">
           {side.candidates!.map((c) => (
-            <button key={c.entity_id} onClick={() => onChoose(c)} className="text-left">
-              <SmallCard card={c} />
+            <button key={c.entity_id} onClick={() => onChoose(c)} className="rounded-lg text-left hover:[&>div]:border-ink">
+              <MatchCard card={c} />
             </button>
           ))}
         </div>
       </div>
     );
-  if (side.card) return <SmallCard card={side.card} />;
+  if (side.card) return <MatchCard card={side.card} />;
   return null;
 }
 
-function SmallCard({ card }: { card: Card }) {
-  return (
-    <div className="flex gap-3 rounded-xl border border-zinc-200 p-3">
-      {card.image ? <img src={card.image} alt="" className="h-14 w-14 shrink-0 rounded-lg bg-zinc-100 object-cover" /> : <div className="h-14 w-14 shrink-0 rounded-lg bg-zinc-100" />}
-      <div className="min-w-0">
-        <p className="truncate font-semibold">{card.name}</p>
-        <p className="text-xs uppercase tracking-wide text-zinc-500">{TYPE[card.type] ?? "Entity"}</p>
-        {card.short_description && <p className="mt-0.5 line-clamp-2 text-sm text-zinc-600">{card.short_description}</p>}
-      </div>
-    </div>
-  );
-}
-
-// Rank bar: full at #1, empty outside the top 50, with the top-10 zone marked.
-function RankBar({ label, d, kind }: { label: string; d: Direction; kind: string }) {
+// Rank bar: full at #1, empty outside the top 50. The top-10 zone is shaded and labeled, and the result is in words.
+function RankBar({ who, among, d, kind }: { who: string; among: string; d: Direction; kind: string }) {
   const width = d.rank ? ((51 - d.rank) / 50) * 100 : 0;
+  const words = !d.rank ? "Outside their top 50" : d.rank <= 10 ? "In their top 10" : "In their top 50";
   return (
-    <div className="rounded-xl border border-zinc-200 p-4">
-      <p className="text-sm text-zinc-600">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums">{d.rank ? `#${d.rank}` : "Outside top 50"}</p>
-      <div className="relative mt-2 h-2 rounded bg-zinc-100">
-        <div className="absolute inset-y-0 right-0 border-l border-dashed border-zinc-400" style={{ left: "80%" }} title="top 10" />
-        <div className="h-2 rounded" style={{ width: `${width}%`, background: ACCENT }} />
+    <div className="py-8">
+      <p className="text-base text-ink-2">
+        {who} among {among} fans
+      </p>
+      <p className="mt-1 flex items-baseline gap-3">
+        <span className="text-3xl font-semibold tabular-nums">{d.rank ? `#${d.rank}` : "Not ranked"}</span>
+        <span className="text-base text-ink">{words}</span>
+      </p>
+      <div className="relative mt-3 h-2 rounded-full bg-rule">
+        <div className="absolute inset-y-0 right-0 left-[80%] rounded-r-full bg-rule-strong" />
+        <div className="relative h-2 rounded-full bg-accent" style={{ width: `${width}%` }} />
       </div>
-      <p className="mt-2 text-xs text-zinc-500">
-        Among their fans&apos; top 50 {kind.toLowerCase()}s. Affinity {d.affinity?.toFixed(2) ?? "n/a"}; top-10 cutoff {d.top10Cutoff?.toFixed(2) ?? "n/a"}, top-50 cutoff {d.top50Cutoff?.toFixed(2) ?? "n/a"}.
+      <div className="mt-1.5 flex justify-between text-xs text-ink-3">
+        <span>#50</span>
+        <span>Top 10</span>
+      </div>
+      <p className="mt-3 text-sm text-ink-2 tabular-nums">
+        Among their fans&apos; top 50 {kind.toLowerCase()}s. Affinity {d.affinity?.toFixed(2) ?? "n/a"}; top-10 cutoff {d.top10Cutoff?.toFixed(2) ?? "n/a"}, top-50 cutoff{" "}
+        {d.top50Cutoff?.toFixed(2) ?? "n/a"}.
       </p>
     </div>
   );

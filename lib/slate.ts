@@ -122,6 +122,13 @@ export const toCard = (e: Entity, type = e.types[0]): Card => ({
 // cache). Public routes and share links must pass the type (Oct 19): an untyped lookup tries all five types, and
 // a stream of random ids could burn the daily cap. Only internal callers without a type fall back to the loop.
 export const isEntityType = (t: string | null | undefined): t is string => RESOLVE_TYPES.includes(t ?? "");
+// Cache-only card lookup for crawlers (share-link metadata and OG images): never spends a Qloo call.
+export async function peekCard(id: string, type: string): Promise<Card | null> {
+  if (!isEntityType(type)) return null;
+  const hits = await insights.peek({ "filter.type": type, "filter.results.entities": id, take: 1 });
+  return hits?.[0] ? toCard(hits[0], type) : null;
+}
+
 export async function getCard(id: string, typeHint?: string | null): Promise<Card | null> {
   const types = isEntityType(typeHint) ? [typeHint] : RESOLVE_TYPES;
   for (const type of types) {

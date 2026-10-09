@@ -157,15 +157,18 @@ const trimEntities = (body: Raw): Entity[] => {
 // deploy rebuilt it, so each deploy started cold and re-spent Qloo calls.
 // Also used by the agent (rankings, briefs, proposals) so repeat demos are identical and free.
 export function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promise<R>) {
+  const keyOf = (args: A) => `cx:${name}:${createHash("sha1").update(JSON.stringify(args)).digest("hex")}`;
   const run = async (...args: A): Promise<R> => {
-    const key = `cx:${name}:${createHash("sha1").update(JSON.stringify(args)).digest("hex")}`;
+    const key = keyOf(args);
     const hit = await getJson<R>(key);
     if (hit !== null) return hit;
     const result = await fn(...args);
     await setJson(key, result, THIRTY_DAYS);
     return result;
   };
-  return process.env.NODE_ENV === "development" ? devFileCache(name, run) : run;
+  // peek: the cached value or null, never a Qloo call (for crawlers: OG images, metadata)
+  const peek = (...args: A) => getJson<R>(keyOf(args));
+  return Object.assign(process.env.NODE_ENV === "development" ? devFileCache(name, run) : run, { peek });
 }
 
 // Development only: a read-through file layer in front of Redis, so local work doesn't touch the shared cache's

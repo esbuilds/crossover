@@ -82,3 +82,20 @@ summary {
 summary::-webkit-details-marker {
   display: none;
 }
+
+/* Brief sheet (phones) and panel (desktop) entrances. Utilities apply them under motion-safe only. */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes panel-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}

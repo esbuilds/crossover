@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @next/next/no-img-element -- Qloo images are remote and already sized; next/image adds config for nothing in v1 */
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -10,7 +9,7 @@ import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ConstraintSet } from "@/lib/refine.ts";
 import UsMap from "./map";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, field, panel } from "./ui";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, field, MatchCard, SiteHeader, Thumb } from "./ui";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 
@@ -47,14 +46,6 @@ const DOMAIN_LABEL: Record<Domain, string> = {
   movie: "Films",
   podcast: "Podcasts",
   place: "Places",
-};
-const TYPE_LABEL: Record<string, string> = {
-  "urn:entity:brand": "Brand",
-  "urn:entity:artist": "Artist",
-  "urn:entity:tv_show": "TV show",
-  "urn:entity:movie": "Film",
-  "urn:entity:person": "Person",
-  proxy: "Brand, not in Qloo yet",
 };
 async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -260,14 +251,7 @@ export default function Crossover({
   const home = !entity && !proxy && !draft && resolved.state === "idle" && slate.state === "idle";
   return (
     <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
-      <header className="flex items-center justify-between gap-4 border-b border-rule py-3">
-        <Link href="/" className="font-display text-xl">
-          Crossover
-        </Link>
-        <Link href="/pair" className={btnQuiet}>
-          Check a pairing
-        </Link>
-      </header>
+      <SiteHeader href="/pair" label="Check a pairing" />
 
       <section className={home ? "pt-14 pb-6 sm:pt-24" : "pt-6"}>
         {home && (
@@ -343,7 +327,7 @@ export default function Crossover({
 
       {trace.length > 0 && <TraceLog lines={trace} running={running} />}
 
-      {slate.state === "loading" && <p className="mt-6 font-mono text-sm text-ink-3 motion-safe:animate-pulse">Building the slate...</p>}
+      {slate.state === "loading" && <SlateSkeleton />}
       {slate.state === "error" && (
         <div className="mt-6 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
           <span className="py-2">Couldn&apos;t build the slate: {slate.message}</span>
@@ -376,6 +360,8 @@ export default function Crossover({
           basedOn={slate.data.basedOn}
           pick={open.pick}
           domain={open.domain}
+          rank={rankOf(slate.data, open.pick, open.domain)}
+          badge={badges[open.pick.entity_id]}
           decision={decisions[open.pick.entity_id]}
           onDecide={(d) => {
             const next = { ...decisions, [open.pick.entity_id]: d };
@@ -389,30 +375,18 @@ export default function Crossover({
   );
 }
 
-// The small confirmation of who the slate is for. Also the picker's option and the proxy run's header.
-function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void }) {
-  return (
-    <div className={`${panel} flex items-center gap-4 p-3 sm:p-4`}>
-      <Thumb src={card.image} name={card.name} className="h-14 w-14 rounded-md" />
-      <div className="min-w-0 flex-1">
-        <p className="text-sm text-ink-3">{TYPE_LABEL[card.type] ?? "Entity"}</p>
-        <h2 className="truncate font-display text-xl">{card.name}</h2>
-        {card.short_description && <p className="line-clamp-1 text-base text-ink-2">{card.short_description}</p>}
-      </div>
-      {onNotIt && (
-        <button onClick={onNotIt} className={btnSecondary}>
-          Not it
-        </button>
-      )}
-    </div>
-  );
+// The pick's place in its domain's Qloo order, for the brief's scorecard.
+function rankOf(data: SlateData, pick: Pick, domain: Domain) {
+  const picks = data.domains.find((d) => d.domain === domain)?.picks ?? [];
+  const i = picks.findIndex((p) => p.entity_id === pick.entity_id);
+  return i < 0 ? undefined : { n: i + 1, of: picks.length };
 }
 
 // The agent's work as a log. Open while the run streams, folded once it's done. The constraints reading sits apart,
 // above the log, because it changes what the slate means.
 const CONSTRAINT_LINE = /^(Reading your constraints|Applying: |Couldn't apply: )/;
 function TraceLog({ lines, running }: { lines: string[]; running: boolean }) {
-  const read = lines.filter((l) => CONSTRAINT_LINE.test(l));
+  const read = lines.filter((l) => CONSTRAINT_LINE.test(l)).filter((l, _, all) => l !== "Reading your constraints" || all.length === 1); // the status line goes once the reading lands
   const log = lines.filter((l) => !CONSTRAINT_LINE.test(l));
   return (
     <div className="mt-6">
@@ -421,7 +395,7 @@ function TraceLog({ lines, running }: { lines: string[]; running: boolean }) {
           <h2 className="text-sm font-semibold text-ink">Your constraints</h2>
           <ul className="mt-1 space-y-1 text-base text-ink-2">
             {read.map((l) => (
-              <li key={l}>{l === "Reading your constraints" && read.length === 1 ? "Reading your constraints..." : l}</li>
+              <li key={l}>{l === "Reading your constraints" ? "Reading your constraints..." : l}</li>
             ))}
           </ul>
         </div>
@@ -430,7 +404,7 @@ function TraceLog({ lines, running }: { lines: string[]; running: boolean }) {
         <details open={running || undefined} className="group border-y border-rule">
           <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-mono text-sm text-ink-2 hover:text-ink">
             <span>
-              Agent log <span className="text-ink-3">&middot; {log.length} steps</span>
+              Agent log <span className="text-ink-3">&middot; {log.length} step{log.length === 1 ? "" : "s"}</span>
             </span>
             <span className="text-ink-3 group-open:hidden">Show</span>
             <span className="hidden text-ink-3 group-open:inline">Hide</span>
@@ -445,6 +419,33 @@ function TraceLog({ lines, running }: { lines: string[]; running: boolean }) {
           </ol>
         </details>
       )}
+    </div>
+  );
+}
+
+// Calm placeholder in the slate's own shape while retrieval runs: heading, a rule, ruled rows.
+function SlateSkeleton() {
+  const bar = "rounded-sm bg-surface-2 motion-safe:animate-pulse";
+  return (
+    <div className="mt-10" aria-live="polite">
+      <p className="sr-only">Building the slate</p>
+      <div className={`${bar} h-8 w-72 max-w-full`} />
+      <div className={`${bar} mt-3 h-4 w-96 max-w-full`} />
+      <div className="mt-6 border-t border-ink" />
+      <div className={`${bar} mt-8 h-6 w-24`} />
+      <div className="mt-3 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className={`flex gap-4 border-t border-rule pt-4 pb-6 ${i ? "max-sm:hidden" : ""}`}>
+            <div className={`${bar} h-16 w-16 shrink-0`} />
+            <div className="flex-1 space-y-2.5">
+              <div className={`${bar} h-4 w-3/4`} />
+              <div className={`${bar} h-1.5 w-full`} />
+              <div className={`${bar} h-4 w-full`} />
+              <div className={`${bar} h-4 w-5/6`} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -587,7 +588,14 @@ function Results({
                 <ul className="max-w-[75ch] space-y-2 text-base text-ink-2">
                   {dropped.map((d) => (
                     <li key={d.entity_id}>
-                      <span className="font-semibold text-ink">{d.name}</span>: {d.reason}
+                      <span className="font-semibold text-ink">{d.name}</span>{" "}
+                      {d.reason.startsWith("You declined: ") ? (
+                        <>
+                          <Chip kind="declined" /> {d.reason.slice(14)}
+                        </>
+                      ) : (
+                        <>: {d.reason}</>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -700,14 +708,6 @@ function PickRow({
         </Link>
       )}
     </li>
-  );
-}
-
-function Thumb({ src, name, className }: { src?: string; name: string; className: string }) {
-  return src ? (
-    <img src={src} alt="" loading="lazy" className={`${className} shrink-0 bg-surface-2 object-cover`} />
-  ) : (
-    <div className={`${className} flex shrink-0 items-center justify-center bg-surface-2 font-display text-xl text-ink-3`}>{name.slice(0, 1)}</div>
   );
 }
 
