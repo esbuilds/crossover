@@ -22,7 +22,7 @@ async function spend(ip: string) {
   if ((shared ?? local) > DAILY_CAP) throw new CapReached();
 }
 
-export function streamCache<I, R extends Streamed>(name: string, version: string, keyOf: (i: I) => string, gen: (i: I, say: (t: string) => void, write: (d: string) => void) => Promise<R>) {
+export function streamCache<I, R extends Streamed>(name: string, version: string | ((i: I) => string), keyOf: (i: I) => string, gen: (i: I, say: (t: string) => void, write: (d: string) => void) => Promise<R>) {
   const listeners = new Map<string, Listener>();
   const run = cached(name, async (_v: string, input: I): Promise<R> => {
     const l = listeners.get(keyOf(input));
@@ -40,7 +40,7 @@ export function streamCache<I, R extends Streamed>(name: string, version: string
     const key = keyOf(input);
     listeners.set(key, l);
     try {
-      return { ...(await run(version, input)), ran: l.ran };
+      return { ...(await run(typeof version === "string" ? version : version(input), input)), ran: l.ran };
     } finally {
       if (listeners.get(key) === l) listeners.delete(key);
     }

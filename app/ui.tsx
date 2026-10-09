@@ -13,7 +13,7 @@ export const field =
 export const panel = "rounded-lg border border-rule bg-surface";
 
 // The one chip system: status on a pick or a market. Text always says what the color means.
-export type ChipKind = "mutual" | "partial" | "oneway" | "competitor" | "excluded" | "lower" | "approved" | "declined" | "durable" | "trending" | "note";
+export type ChipKind = "mutual" | "partial" | "oneway" | "competitor" | "excluded" | "lower" | "approved" | "declined" | "note";
 const CHIP: Record<ChipKind, string> = {
   mutual: "bg-accent-tint text-accent-strong",
   partial: "border border-rule-strong text-ink-2",
@@ -23,8 +23,6 @@ const CHIP: Record<ChipKind, string> = {
   lower: "bg-surface-2 text-ink-2 border border-rule",
   approved: "bg-success-tint text-success",
   declined: "bg-danger-tint text-danger",
-  durable: "border border-ink-3 text-ink",
-  trending: "bg-surface-2 text-ink border border-rule-strong",
   note: "text-ink-2 border border-rule",
 };
 export const CHIP_LABEL: Partial<Record<ChipKind, string>> = {
@@ -36,8 +34,6 @@ export const CHIP_LABEL: Partial<Record<ChipKind, string>> = {
   lower: "Ranked lower",
   approved: "Approved",
   declined: "Declined",
-  durable: "Durable",
-  trending: "Trending",
 };
 
 export function Chip({ kind, title, children }: { kind: ChipKind; title?: string; children?: React.ReactNode }) {

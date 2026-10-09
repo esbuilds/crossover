@@ -27,6 +27,7 @@ export type BriefInput = {
   anchor?: Card;
   basedOn?: string[];
   region?: { label: string; states: string[] }; // refined runs: the markets tools only return markets in these states
+  constraints?: string; // refined runs: the applied constraints (appliedSentence), so venues that break them are skipped
 };
 export type BriefResult = Streamed & { usage: LanguageModelUsage | null };
 
@@ -68,8 +69,9 @@ One or two sentences: what ${p.outreachFrom} should propose to ${p.outreachTo} f
 Style: written for a partnerships lead, not an engineer. Short sentences. No bold, no emoji, no other headings, no preamble before "## The idea", nothing after the ask. Refer to brands, shows, films, podcasts and places as "it" or "its fans" or by name, never "he" or "she"; refer to people and artists by name.`;
 };
 
-function userTurn({ seed, pick, domain, slateRank, slateSize, fromSlate = true, anchor, basedOn, region }: BriefInput) {
+function userTurn({ seed, pick, domain, slateRank, slateSize, fromSlate = true, anchor, basedOn, region, constraints }: BriefInput) {
   return [
+    ...(constraints ? [`The user's constraints: ${constraints}. The venue tool returns up to eight with their tags; skip any venue that breaks a constraint (for example a cocktail bar under "no alcohol") and name three that don't.`] : []),
     ...(region ? [`Launch region: the user asked to launch in ${region.label}. The market tools only return markets there; choose the launch market from them.`] : []),
     anchor
       ? `Seed: ${seed.name} (brand, not in Qloo yet). ${seed.short_description ?? ""}\nThe slate was built from fans of: ${basedOn?.join(", ")}. Stand-in for the reverse check: ${anchor.name}.`
@@ -142,8 +144,8 @@ async function placesInCity(input: BriefInput, market: string) {
       .flat()
       .filter((v, i, all) => all.findIndex((x) => x.entity_id === v.entity_id) === i)
       .sort((a, b) => (b.affinity ?? 0) - (a.affinity ?? 0))
-      .slice(0, 5)
-      .map((v) => ({ name: v.name, address: v.address ?? null, city: v.city ?? null, price_level: v.price_level ?? null, affinity: v.affinity ?? null }));
+      .slice(0, 8) // eight with their tags, so the brief can skip venues that break a constraint (brief-v4.2)
+      .map((v) => ({ name: v.name, address: v.address ?? null, city: v.city ?? null, price_level: v.price_level ?? null, affinity: v.affinity ?? null, tags: [...new Set(v.tags.map((t) => t.name))].slice(0, 6) }));
     if (venues.length) return { market: m, venues, ...(m !== market ? { note: `No venues came back for ${market}, so these are in ${m}, the seed's next market.` } : {}) };
   }
   return { market, venues: [], note: `Qloo returned no restaurant or bar venues in ${tried.join(" or ")}.` };
@@ -184,7 +186,7 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
         execute: async () => heatmapOverlap(input),
       }),
       qloo_places_in_city: tool({
-        description: "Venues (restaurants and bars, plus music venues for artists) that both the seed's and the partner's fans over-index on, in one US market. Returns up to 5 with address, price level, and affinity.",
+        description: "Venues (restaurants and bars, plus music venues for artists) that both the seed's and the partner's fans over-index on, in one US market. Returns up to 8 with address, price level, affinity, and tags.",
         inputSchema: jsonSchema<{ market: string }>({
           type: "object",
           properties: { market: { type: "string", description: "A market name exactly as qloo_heatmap_overlap returned it" } },
@@ -249,5 +251,7 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
 const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
 
 // Cached 30 days per (seed, pick). Bump the version to regenerate every brief after a prompt change.
-export const brief = streamCache("brief", "brief-v4.1", keyOf, generate);
+// Refined briefs (with constraints) are brief-v4.2: the venue-skipping line (Oct 23). Unrefined briefs keep brief-v4.1, so
+// the warm demo briefs stay cached; their prompt is unchanged apart from the venue tool returning eight.
+export const brief = streamCache("brief", (i: BriefInput) => (i.constraints ? "brief-v4.2" : "brief-v4.1"), keyOf, generate);
 export { CapReached } from "./stream-cache.ts";

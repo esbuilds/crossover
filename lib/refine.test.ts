@@ -51,17 +51,20 @@ test("anything unmappable becomes a visible note, never a silent no-op", () => {
       ...none,
       exclude: [{ phrase: "no beer", tag_queries: ["beer"], applies_to: ["brand"] }],
       exclude_names: [{ phrase: "no Zzqx", name: "Zzqx" }],
-      unmapped: [{ phrase: "only brands founded by women", why: "Qloo has no founder data" }],
+      unmapped: [{ phrase: "only brands founded by women", why: "Qloo has no founder data", kind: "attribute" }],
     },
     new Map([["beer|brand", null]]), // the tag search found nothing
     new Map([["Zzqx", null]]), // the name didn't resolve
   );
-  assert.equal(c.applied.length, 0);
-  assert.equal(c.notes.length, 3);
+  // a kind of partner with no tag goes to the agent (refine-v4); attributes and unknown names stay notes
+  assert.deepEqual(c.applied, [{ kind: "agent", phrase: "no beer", label: "No beer" }]);
+  assert.equal(c.notes.length, 2);
   assert.match(c.notes.join(" "), /founded by women/);
-  assert.match(c.notes.join(" "), /no matching tag for beer/);
   assert.match(c.notes.join(" "), /couldn't find Zzqx/);
-  assert.equal(c.summary, "Reading your constraints: nothing here maps to a filter.");
+  assert.equal(appliedSentence(c), "no beer"); // the ranker gets the category, never the attribute
+  assert.match(c.summary, /the agent checks "no beer" itself/);
+  const cat = buildConstraintSet("no cookware", { ...none, unmapped: [{ phrase: "no cookware", why: "no tag", kind: "category" }] }, new Map(), new Map());
+  assert.deepEqual(cat.applied, [{ kind: "agent", phrase: "no cookware", label: "No cookware" }]);
 });
 
 test("an empty hard-filtered domain relaxes to a soft signal; only applied phrases reach the ranker", () => {
@@ -71,7 +74,7 @@ test("an empty hard-filtered domain relaxes to a soft signal; only applied phras
     {
       ...none,
       include: [{ phrase: "brands that sponsor live music", tag_queries: ["live music"], applies_to: ["brand"] }],
-      unmapped: [{ phrase: "founded by women", why: "no founder data" }],
+      unmapped: [{ phrase: "founded by women", why: "no founder data", kind: "attribute" }],
     },
     new Map([["live music|brand", MUSIC]]),
     new Map(),

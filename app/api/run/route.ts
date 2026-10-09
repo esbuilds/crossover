@@ -239,8 +239,9 @@ export async function GET(request: NextRequest) {
         }
       }
       // Moment vs durable: the brand list again with trend lift off and at very high. 2 Qloo calls per seed, cached.
-      // Unrefined runs only: refine filters would change the list being compared.
-      if (!constraints && keptBrands.length) {
+      // Off by default since Oct 23: on the hackathon API, trends off returned the default list for every demo seed,
+      // so the chips said nothing. CROSSOVER_TRENDS=on brings it back. Unrefined runs only.
+      if (process.env.CROSSOVER_TRENDS === "on" && !constraints && keptBrands.length) {
         trace("Checking which brands hold up without trend lift");
         try {
           send({ type: "trends", data: await brandTrends(proxies ?? id, keptBrands, slate.brand.map((p) => p.entity_id), tag) });

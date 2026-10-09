@@ -1,6 +1,6 @@
 // "Who does this land with?" (PLAN.md section 2 step 6, Oct 22): the partner's affinity among the seed's fans, one
 // age bracket at a time. 6 Qloo calls on first use, then one Haiku sentence naming the strongest bracket. The whole
-// result is cached under cohort-v1; peekCohort reads it without ever calling Qloo or Claude.
+// result is cached under cohort-v2; peekCohort reads it without ever calling Qloo or Claude.
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { cached, insights, insightsPost, type Signal } from "./qloo.ts";
@@ -38,14 +38,15 @@ async function compute(i: CohortInput): Promise<Cohort> {
     maxOutputTokens: 1000,
     providerOptions: { anthropic: { effort: "low" } },
     prompt: `${i.partner.name}'s affinity among ${i.seedName}'s fans, by age bracket (0 to 1, higher means that bracket over-indexes more on ${i.partner.name}):
-${buckets.map((b) => `${AGE_LABEL[b.age]}: ${b.affinity?.toFixed(3) ?? "no data"}`).join("\n")}
+${buckets.map((b) => `${AGE_LABEL[b.age]}: ${b.affinity?.toFixed(2) ?? "no data"}`).join("\n")}
 
-Write one plain sentence, under 25 words, for a partnerships lead: name the bracket where this pairing lands hardest (${AGE_LABEL[strongest]}) and how the others compare. Use only these numbers. No preamble.`,
+Write one plain sentence of 25 words or fewer for a partnerships lead: name the bracket where this pairing lands hardest (${AGE_LABEL[strongest]}) and the one gap that matters most. At most two numbers, two decimals. No preamble.`,
   });
   console.log(`[cohort] ${i.seedName} x ${i.partner.name} usage`, JSON.stringify(usage));
   return { buckets, strongest, sentence: text.trim() };
 }
 
 const cohortCached = cached("cohort", (_v: string, i: CohortInput) => compute(i));
-export const getCohort = (i: CohortInput) => cohortCached("cohort-v1", i);
-export const peekCohort = (i: CohortInput) => cohortCached.peek("cohort-v1", i);
+// cohort-v2 (Oct 23): the sentence held to 25 words. The six bracket lookups are cached on their own, so a bump costs no Qloo calls.
+export const getCohort = (i: CohortInput) => cohortCached("cohort-v2", i);
+export const peekCohort = (i: CohortInput) => cohortCached.peek("cohort-v2", i);

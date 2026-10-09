@@ -64,7 +64,7 @@ const refsFor = (domain: Domain, picks: Pick[]) => new Map<string, PickRef>(pick
 
 function userTurn(seed: Seed, domain: Domain, refs: Map<string, PickRef>, constraints?: string) {
   const lines = [
-    ...(constraints ? [`The user refined this slate with: "${constraints}". Qloo filters already applied what they could; drop any pick that still clearly breaks the constraints, and let why-lines reflect them. A region means where to launch, never where a partner is based.`, ""] : []),
+    ...(constraints ? [`The user refined this slate with: "${constraints}". Qloo filters already applied what they could; drop any pick that still clearly breaks the constraints, and let why-lines reflect them. A region means where to launch, never where a partner is based. Some constraints are kinds of partner Qloo has no tag for, so nothing filtered them and you are the only check: mark a pick that clearly breaks one as excluded, naming the constraint.`, ""] : []),
     `Seed: ${seed.name} (${seed.kind}). ${seed.description ?? ""}`.trim(),
     ...(seed.basedOn?.length ? [`Qloo doesn't know ${seed.name} yet. This slate comes from fans of: ${seed.basedOn.join(", ")}.`] : []),
     "",
@@ -154,7 +154,7 @@ export async function rankDomainUncached(seed: Seed, domain: Domain, picks: Pick
 }
 
 // Cached 30 days per (seed, domain, picks). The slate is cached too, so this is effectively per entity and domain.
-const REFINED_VERSION = "rank-v3.4"; // refined runs only. v3.4: regions stripped, "where to launch" line. v3.3: "excluded by constraint" outcome
+const REFINED_VERSION = "rank-v3.5"; // refined runs only. v3.5: agent-applied categories (refine-v4). v3.4: regions stripped. v3.3: "excluded by constraint" outcome
 const PROMPT_VERSION = "rank-v3.2"; // v3.2: competitor outcome (demoted with a label). v3.1: demoted picks get their own list. bump to re-rank everything after a prompt change; freezes at checkpoint 2
 // constraints is only passed for refined runs, so unrefined cache keys are unchanged.
 const rankDomainCached = cached("rank-domain", (_v: string, seed: Seed, domain: Domain, picks: Pick[], effort: Effort, ...rest: [string?]) =>

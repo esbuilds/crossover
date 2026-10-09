@@ -10,7 +10,8 @@ import { DOMAINS, type Domain } from "./slate.ts";
 import { MODEL } from "./agent/rank.ts";
 
 export type TagRef = Tag & { domains: Domain[] };
-export type Applied = { kind: "include" | "exclude" | "region" | "domains" | "popularity" | "exclude_name"; phrase: string; label: string };
+// agent: a kind of partner Qloo has no tag for (refine-v4). No filter runs; the ranker applies it and labels what breaks it.
+export type Applied = { kind: "include" | "exclude" | "region" | "domains" | "popularity" | "exclude_name" | "agent"; phrase: string; label: string };
 export type ConstraintSet = {
   sentence: string;
   applied: Applied[]; // one chip each; removing one re-runs without its phrase
@@ -36,7 +37,7 @@ type Raw = {
   domains: { phrase: string; domains: Domain[] } | null;
   popularity_min: { phrase: string; value: number } | null;
   exclude_names: { phrase: string; name: string }[];
-  unmapped: { phrase: string; why: string }[];
+  unmapped: { phrase: string; why: string; kind: "category" | "attribute" }[];
 };
 
 const tagItem = {
@@ -111,7 +112,20 @@ const schema = jsonSchema<Raw>({
     unmapped: {
       type: "array",
       description: "Anything the user asked for that none of the fields above can express",
-      items: { type: "object", additionalProperties: false, required: ["phrase", "why"], properties: { phrase: { type: "string" }, why: { type: "string" } } },
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["phrase", "why", "kind"],
+        properties: {
+          phrase: { type: "string" },
+          why: { type: "string" },
+          kind: {
+            type: "string",
+            enum: ["category", "attribute"],
+            description: "category: a kind of partner a strategist can judge from what the partner is (cookware, fast fashion, gambling). attribute: a fact about the partner that needs data we don't have (founder, ownership, revenue, values, dates)",
+          },
+        },
+      },
     },
   },
 });
@@ -125,7 +139,7 @@ Express each constraint with exactly one field:
 - domains: when they limit which kinds of partner to show ("brands and artists only").
 - popularity_min: when they ask for well-known or big names.
 - exclude_names: specific entities to leave out.
-- unmapped: anything these can't express, such as founder attributes, ownership, revenue, values claims, dates, or budgets. Say briefly why.
+- unmapped: anything these can't express. Say briefly why, and mark its kind: "category" for a kind of partner anyone could judge from what the partner is (cookware, fast fashion, gambling apps), "attribute" for facts that need data we don't have (founder attributes, ownership, revenue, values claims, dates, budgets). Prefer include / exclude for kinds of partner; use unmapped category only when no tag search phrase could plausibly match.
 
 Keep each phrase as the user wrote it. Do not invent constraints the user didn't state. "Brands that sponsor live music" is an include on brands, with tag_query "live music" or "music sponsorship", not a domains restriction alone.`;
 
@@ -152,6 +166,7 @@ export function pickTag(tags: { id: string; name: string; type: string; parents?
 const tagFor = async (query: string, domains: Domain[]): Promise<Tag | null> =>
   pickTag(await tagSearch(query, domains.map((d) => `urn:entity:${d}`).join(",")), domains);
 
+const agentLabel = (phrase: string) => phrase.charAt(0).toUpperCase() + phrase.slice(1);
 const plural: Record<Domain, string> = { brand: "brands", artist: "artists", tv_show: "TV shows", movie: "films", place: "places", podcast: "podcasts" };
 const listJoin = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`);
 
@@ -171,8 +186,13 @@ export function buildConstraintSet(
       const domains = it.applies_to.filter((d) => DOMAINS.includes(d));
       const found = it.tag_queries.map((q) => tags.get(`${q}|${domains.join(",")}`) ?? null).filter((t): t is Tag => !!t);
       const unique = found.filter((t, i) => found.findIndex((x) => x.tag_id === t.tag_id) === i);
-      if (!unique.length || !domains.length) {
-        notes.push(`"${it.phrase}": Qloo has no matching tag for ${it.tag_queries.join(" or ")}`);
+      if (!domains.length) {
+        notes.push(`"${it.phrase}": couldn't tell which kinds of partner that applies to`);
+        return [];
+      }
+      if (!unique.length) {
+        // a kind of partner with no Qloo tag: the ranker applies it instead (refine-v4)
+        applied.push({ kind: "agent", phrase: it.phrase, label: agentLabel(it.phrase) });
         return [];
       }
       if (kind === "include" && unique.length > 1) includeUnion = true;
@@ -201,7 +221,10 @@ export function buildConstraintSet(
       applied.push({ kind: "exclude_name", phrase: n.phrase, label: `No ${hit.name}` });
     } else notes.push(`"${n.phrase}": couldn't find ${n.name} in Qloo`);
   }
-  for (const u of raw.unmapped) notes.push(`"${u.phrase}": ${u.why}`);
+  for (const u of raw.unmapped)
+    if (u.kind === "category") applied.push({ kind: "agent", phrase: u.phrase, label: agentLabel(u.phrase) });
+    else notes.push(`"${u.phrase}": ${u.why}`);
+  const agent = applied.filter((a) => a.kind === "agent");
 
   const parts = [
     ...excludeTags.map((t) => `excluding ${t.name}`),
@@ -210,6 +233,7 @@ export function buildConstraintSet(
     ...(domains.length ? [`${listJoin(domains.map((d) => plural[d]))} only`] : []),
     ...(popularityMin ? ["well-known names only"] : []),
     ...excludeIds.map((_, i) => applied.filter((a) => a.kind === "exclude_name")[i].label.toLowerCase()),
+    ...agent.map((a) => `the agent checks "${a.phrase}" itself (no Qloo tag)`),
   ];
   return {
     sentence,
@@ -245,11 +269,13 @@ async function interpretUncached(seedName: string, seedKind: string, sentence: s
 
 // Cached 30 days per (seed, sentence).
 // refine-v3 (Oct 22): tag_queries in Qloo's own brand category words (Fashion, Headphones), not "apparel", "audio".
-export const interpret = (seedName: string, seedKind: string, sentence: string) => interpretCached("refine-v3", seedName, seedKind, sentence.trim().slice(0, 200));
+// refine-v4 (Oct 23): kinds of partner with no Qloo tag are applied by the ranker ("Applied by the agent").
+export const interpret = (seedName: string, seedKind: string, sentence: string) => interpretCached("refine-v4", seedName, seedKind, sentence.trim().slice(0, 200));
 const interpretCached = cached("refine", (_v: string, seedName: string, seedKind: string, sentence: string) => interpretUncached(seedName, seedKind, sentence));
 
-// The applied constraints as one sentence for the ranking prompt. Unmapped phrases are left out on purpose: the UI
-// says they couldn't be applied, so the ranker must not quietly apply them from its own guesses.
+// The applied constraints as one sentence for the ranking prompt. Attribute phrases are left out on purpose: the UI
+// says they couldn't be applied, so the ranker must not quietly apply them from its own guesses. Category phrases
+// with no Qloo tag ("agent") are in: the ranker is the only check on them, and the chip says so.
 // Regions are left out too (Oct 21): they already filter markets and domain calls, and the ranker read "West Coast"
 // as where a brand is based.
 export const appliedSentence = (c: ConstraintSet) =>
