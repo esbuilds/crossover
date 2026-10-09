@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { toRanking, type Ranking } from "./rank.ts";
-import { DOMAINS, type Domain, type Pick, type Slate } from "../slate.ts";
+import { DOMAINS, type Pick, type Slate } from "../slate.ts";
 
 const dir = new URL("../../fixtures/demo/", import.meta.url);
 const recorded = existsSync(new URL("rank-liquid-death.json", dir));
@@ -26,25 +26,25 @@ test("Liquid Death ranking: shape, real picks only, Joe Rogan not kept", { skip:
   assert.ok(!podcasts.includes("The Joe Rogan Experience"), `kept podcasts: ${podcasts.join(", ")}`);
 });
 
-test("toRanking rejects invented, cross-domain, and duplicate ids, and caps kept at five", () => {
-  const pick = (id: string) => ({ entity_id: id, name: id, type: "", affinity: 0.9, popularity: 0.5, tags: [] });
-  const refs = new Map<string, { domain: Domain; pick: Pick }>([
-    ...[1, 2, 3, 4, 5, 6].map((i) => [`brand-${i}`, { domain: "brand" as const, pick: pick(`B${i}`) }] as const),
-    ["artist-1", { domain: "artist" as const, pick: pick("A1") }] as const,
-  ]);
-  const ranking = toRanking(
-    {
-      domains: [
-        {
-          domain: "brand",
-          kept: ["brand-1", "brand-9", "artist-1", "brand-1", "brand-2", "brand-3", "brand-4", "brand-5", "brand-6"].map((id) => ({ id, why: "w" })),
-          dropped: [{ id: "brand-6", reason: "already kept" }],
-        },
-      ],
-    },
-    refs,
-  );
-  assert.deepEqual(ranking.brand.kept.map((k) => k.entity_id), ["B1", "B2", "B3", "B4", "B5"]);
-  assert.equal(ranking.brand.dropped.length, 1); // brand-6 never made the capped kept list, so dropping it is allowed
-  assert.equal(ranking.artist.kept.length, 0);
+const pick = (id: string, affinity = 0.9): Pick => ({ entity_id: id, name: id, type: "", affinity, popularity: 0.5, tags: [] });
+const brands = [1, 2, 3, 4, 5, 6, 7].map((i) => pick(`B${i}`, 1 - i / 100)); // affinity order
+const d = (id: string, decision: "keep" | "demote" | "drop", reason = "", why = "w") => ({ id, decision, why, reason });
+
+test("code owns the order: affinity order, the model can't promote", () => {
+  // the model lists brand-7 first and keeps everything; the order still follows affinity
+  const r = toRanking("brand", brands, [d("brand-7", "keep"), d("brand-1", "keep"), d("brand-3", "keep"), d("brand-2", "keep")]);
+  assert.deepEqual(r.kept.map((k) => k.entity_id), ["B1", "B2", "B3", "B4", "B5"]);
+});
+
+test("demoted picks go after kept ones with their reason; drops leave the shortlist", () => {
+  const r = toRanking("brand", brands, [d("brand-1", "demote", "generic retailer"), d("brand-2", "drop", "polarizing", "")]);
+  assert.deepEqual(r.kept.map((k) => k.entity_id), ["B3", "B4", "B5", "B6", "B7"]);
+  assert.deepEqual(r.demoted.map((k) => [k.entity_id, k.demoted]), [["B1", "generic retailer"]]); // kept its reason even past the cut
+  assert.deepEqual(r.dropped, [{ entity_id: "B2", name: "B2", reason: "polarizing" }]);
+});
+
+test("unknown and duplicate ids are ignored, and a demote or drop without a reason counts as keep", () => {
+  const r = toRanking("brand", brands.slice(0, 3), [d("brand-9", "drop", "x"), d("artist-1", "drop", "x"), d("brand-1", "drop", ""), d("brand-2", "drop", "dup"), d("brand-2", "keep")]);
+  assert.deepEqual(r.kept.map((k) => k.entity_id), ["B1", "B3"]);
+  assert.deepEqual(r.dropped.map((x) => x.entity_id), ["B2"]);
 });

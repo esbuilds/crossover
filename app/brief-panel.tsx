@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Card, Domain, Pick } from "@/lib/slate.ts";
 import { briefMarkdown, exportFilename } from "@/lib/export.ts";
+import { playbookFor } from "@/lib/playbook.ts";
 import type { ProxySpec } from "./crossover";
 import { BasedOn } from "./proxy-form";
 
@@ -125,7 +126,7 @@ export default function BriefPanel({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-wide text-zinc-500">Partnership brief</p>
+            <p className="text-xs uppercase tracking-wide text-zinc-500">{playbookFor(seed.type).briefTitle}</p>
             <h2 className="mt-1 text-xl font-semibold leading-snug">
               {seed.name} &times; {pick.name}
             </h2>

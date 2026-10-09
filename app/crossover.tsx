@@ -7,6 +7,7 @@ import type { Card, Domain, Pick } from "@/lib/slate.ts";
 import type { Cities } from "@/lib/cities.ts";
 import type { Ranking } from "@/lib/agent/rank.ts";
 import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
+import { playbookFor } from "@/lib/playbook.ts";
 import UsMap, { ACCENT } from "./map";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
@@ -300,12 +301,14 @@ function arrange(picks: Pick[], r: Ranking[Domain] | undefined, decisions: Recor
   const declined = picks.filter((p) => decisions[p.entity_id]?.status === "declined");
   const mine = declined.map((p) => ({ entity_id: p.entity_id, name: p.name, reason: `You declined: ${decisions[p.entity_id].reason}` }));
   const live = picks.filter((p) => !declined.includes(p));
-  if (!r) return { rows: live.map((pick) => ({ pick, why: undefined as string | undefined })), dropped: mine };
+  if (!r) return { rows: live.map((pick) => ({ pick, why: undefined as string | undefined, demoted: undefined as string | undefined })), dropped: mine };
   const byId = new Map(live.map((p) => [p.entity_id, p]));
-  const kept = r.kept.flatMap((k) => (byId.has(k.entity_id) ? [{ pick: byId.get(k.entity_id)!, why: k.why as string | undefined }] : []));
-  const used = new Set([...r.kept.map((k) => k.entity_id), ...r.dropped.map((d) => d.entity_id)]);
+  const row = (k: { entity_id: string; why: string; demoted?: string }) =>
+    byId.has(k.entity_id) ? [{ pick: byId.get(k.entity_id)!, why: (k.why || undefined) as string | undefined, demoted: k.demoted }] : [];
+  const demoted = r.demoted ?? []; // rankings cached before rank-v3 have no demoted list
+  const used = new Set([...r.kept, ...demoted, ...r.dropped].map((d) => d.entity_id));
   return {
-    rows: [...kept, ...live.filter((p) => !used.has(p.entity_id)).map((pick) => ({ pick, why: undefined }))],
+    rows: [...r.kept.flatMap(row), ...live.filter((p) => !used.has(p.entity_id)).map((pick) => ({ pick, why: undefined, demoted: undefined })), ...demoted.flatMap(row)],
     dropped: [...mine, ...r.dropped.filter((d) => !decisions[d.entity_id])],
   };
 }
@@ -348,6 +351,10 @@ function Results({
   const even = top5.length === 5 && top5[0].overIndex - top5[4].overIndex < 3;
   return (
     <div className="mt-8 space-y-8">
+      <div>
+        <h2 className="text-xl font-semibold">Partners for {data.entity.name}</h2>
+        <p className="mt-0.5 text-sm text-zinc-500">{playbookFor(data.entity.type).slateSubtitle}</p>
+      </div>
       {data.domains.map(({ domain, picks }) => {
         const { rows, dropped } = arrange(picks, ranking[domain], decisions);
         return (
@@ -372,11 +379,12 @@ function Results({
             </div>
             {rows.length ? (
               <div className="-mx-4 flex items-start gap-3 overflow-x-auto px-4 pb-2">
-                {rows.map(({ pick, why }) => (
+                {rows.map(({ pick, why, demoted }) => (
                   <PickCard
                     key={pick.entity_id}
                     pick={pick}
                     why={why}
+                    demoted={demoted}
                     drivenBy={chipFor(pick)}
                     approved={decisions[pick.entity_id]?.status === "approved"}
                     onOpen={() => onOpen(pick, domain)}
@@ -421,7 +429,21 @@ function Results({
   );
 }
 
-function PickCard({ pick, why, drivenBy, approved, onOpen }: { pick: Pick; why?: string; drivenBy?: string; approved?: boolean; onOpen: () => void }) {
+function PickCard({
+  pick,
+  why,
+  demoted,
+  drivenBy,
+  approved,
+  onOpen,
+}: {
+  pick: Pick;
+  why?: string;
+  demoted?: string;
+  drivenBy?: string;
+  approved?: boolean;
+  onOpen: () => void;
+}) {
   return (
     <button onClick={onOpen} className="flex w-40 shrink-0 flex-col rounded-lg text-left outline-offset-4 hover:opacity-90 sm:w-44">
       <Thumb src={pick.image} name={pick.name} className="aspect-square w-full rounded-lg" />
@@ -444,6 +466,7 @@ function PickCard({ pick, why, drivenBy, approved, onOpen }: { pick: Pick; why?:
       {approved && <p className="mt-1.5 inline-block self-start rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-medium text-emerald-800">Approved</p>}
       {drivenBy && <p className="mt-1.5 text-[11px] text-orange-800">driven by {drivenBy}</p>}
       {why && <p className="mt-2 text-[13px] leading-snug text-zinc-700">{why}</p>}
+      {demoted && <p className="mt-1 text-[12px] leading-snug text-zinc-500">Ranked lower: {demoted}</p>}
     </button>
   );
 }

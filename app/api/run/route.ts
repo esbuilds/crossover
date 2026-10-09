@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         if (basedOn.length !== proxies.length) throw new Error("Qloo has no entity with one of those ids");
         trace(`Building ${name}'s slate from fans of ${basedOn.map((c) => c.name).join(", ")}`);
         entity = { entity_id: "proxy", name, type: "proxy", popularity: 0, short_description: description || undefined };
-        seed = { name, kind: "brand", description, basedOn: basedOn.map((c) => c.name) };
+        seed = { name, kind: "brand", type: "proxy", description, basedOn: basedOn.map((c) => c.name) };
         [slate, cities] = await Promise.all([getSlate(proxies, onDomain, tag), getCities(proxies).then((c) => (onCities(c), c))]);
       } else {
         const fx = fixtureById(id);

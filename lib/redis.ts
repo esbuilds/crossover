@@ -41,6 +41,10 @@ export async function incr(key: string, ttlSeconds: number): Promise<number | nu
   return typeof out?.[0] === "number" ? out[0] : null;
 }
 
+export async function decr(key: string) {
+  await pipeline([["DECR", key]]);
+}
+
 export async function getNumber(key: string): Promise<number | null> {
   const [v] = (await pipeline([["GET", key]])) ?? [null];
   return v == null ? null : Number(v);

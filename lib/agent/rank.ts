@@ -1,57 +1,71 @@
-// Ranking agent: Claude Opus 5.5 turns Qloo's raw slate into a partner shortlist with a why-line per pick, and
-// drops picks a brand couldn't or shouldn't sign (PLAN.md section 4: deterministic retrieval, agentic reasoning).
-// One call per domain, all six in parallel, so why-lines land row by row instead of after one long call.
+// Ranking agent: Claude Opus 5.5 reviews Qloo's raw slate one domain at a time, writes a why-line per pick, and
+// drops or demotes picks a partner couldn't or shouldn't sign (PLAN.md section 4: deterministic retrieval,
+// agentic reasoning). All six domains run in parallel, so why-lines land row by row.
+// rank-v3 (Oct 17): the order is Qloo's affinity order, set in code. The model can only drop or demote a pick,
+// always with a stated reason, never promote one, so the scorecard's "#N of 10" matches the card order.
 import { generateText, jsonSchema, Output, type LanguageModelUsage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { cached } from "../qloo.ts";
+import { playbookFor } from "../playbook.ts";
 import { DOMAINS, type Card, type Domain, type Pick, type Slate } from "../slate.ts";
 
 export const MODEL = "claude-opus-5-5";
 export type Effort = "low" | "medium";
 export const RANK_EFFORT: Effort = "medium"; // Oct 14: low kept a ski resort for Mt. Joy and missed a catski lodge for Liquid Death; medium caught both at similar speed
 
-export type Kept = { entity_id: string; why: string };
+export type Kept = { entity_id: string; why: string; demoted?: string };
 export type Dropped = { entity_id: string; name: string; reason: string };
-export type DomainRanking = { kept: Kept[]; dropped: Dropped[] };
+// kept: up to five, affinity order. demoted: workable but weaker, each with its reason, shown after the shortlist.
+export type DomainRanking = { kept: Kept[]; demoted: Kept[]; dropped: Dropped[] };
 export type Ranking = Record<Domain, DomainRanking>;
 
 // Who the slate is for. A Qloo entity, or in proxy mode a brand Qloo doesn't know, described by the user and
-// seeded by brands its customers also love.
-export type Seed = { name: string; kind: string; description?: string; basedOn?: string[] };
-export const seedFromCard = (c: Card): Seed => ({ name: c.name, kind: c.type.split(":").pop()!.replace("_", " "), description: c.short_description });
+// seeded by brands its customers also love. type picks the playbook (brand, artist, tv_show, movie, person).
+export type Seed = { name: string; kind: string; type: string; description?: string; basedOn?: string[] };
+export const seedFromCard = (c: Card): Seed => ({
+  name: c.name,
+  kind: playbookFor(c.type).noun,
+  type: c.type,
+  description: c.short_description,
+});
 
-// Stable instructions only, so the prefix is cacheable across all six calls. The picks go in the user turn.
-const SYSTEM = `You are the partnerships strategist inside Crossover, a tool that finds collaboration partners for a brand, artist, show, or person using Qloo taste data.
+// Stable per seed type, so the prefix caches across all six calls. The picks go in the user turn.
+const system = (type: string) => {
+  const p = playbookFor(type);
+  return `You are the partnerships strategist inside Crossover, a tool that finds collaboration partners using Qloo taste data.
 
-You get a seed and one domain of its slate (brands, artists, TV shows, films, podcasts, or places): up to ten entities that the seed's audience over-indexes on. Each pick has a short id, a name, Qloo affinity (0 to 1, how strongly the seed's fans over-index on it), popularity (0 to 1), a description, and Qloo tags. Some seeds are brands Qloo doesn't know yet; their slate comes from fans of similar brands, which the input names.
+${p.rankGuidance} A partner here is a ${p.partnerRole}.
 
-Sort the picks into two groups:
+You get a seed and one domain of its slate (brands, artists, TV shows, films, podcasts, or places): up to ten entities that the seed's audience over-indexes on, listed in Qloo's affinity order (highest first). Each pick has a short id, a name, Qloo affinity (0 to 1, how strongly the seed's fans over-index on it), popularity (0 to 1), a description, and Qloo tags. Some seeds are brands Qloo doesn't know yet; their slate comes from fans of similar brands, which the input names.
 
-kept: up to five picks, best first. A good pick is one a partnerships lead could actually sign and build a collab around: a real brand, creator, show, film, podcast, or venue with a clear audience overlap and a plausible joint idea. Prefer picks with a sharp, specific link to the seed over generic ones. Affinity is evidence, not the ranking: a slightly lower affinity pick that fits the brand beats a higher one that doesn't.
+Affinity is the order. Your job is to review each pick, not to re-rank. For every pick, give exactly one decision:
 
-dropped: picks that are off-brand or unworkable as a partner. Examples: a controversial or polarizing figure the seed's brand would not want to stand next to, a deceased artist, a generic place like a chain hotel or a ski resort when the seed is not a travel brand, a film that is decades old with no active brand, anything that would embarrass either side. Each dropped pick gets a reason of a few words.
+keep: a workable partner. Write a why-line.
+demote: workable but clearly weaker as a partner than its affinity suggests (for example a generic retailer, a weak fit for this kind of seed). Write a why-line and a short reason for the demotion. Demoted picks move below the kept ones.
+drop: off-brand or unworkable as a partner: a controversial or polarizing figure the seed would not want to stand next to, a deceased artist, a generic place like a chain hotel or a ski resort when the seed is not a travel brand, a film decades old with no active brand, anything that would embarrass either side. Give a reason of a few words.
 
-Picks you neither keep nor drop are fine to leave out; they stay visible below the shortlist without a why-line.
+Default to keep. Never demote a pick just because another one fits better; demote or drop only for a reason you can state about that pick.
 
-Each kept pick gets a why-line:
+Why-lines:
 - Written for a partnerships lead, not an engineer. Plain words, no jargon, no numbers.
 - Under 20 words.
-- Cites a specific Qloo tag the pick carries or a trait it plainly shares with the seed.
-- Says why the pairing works, not what the pick is.
+- Cite a specific Qloo tag the pick carries or a trait it plainly shares with the seed.
+- Say why the pairing works, not what the pick is.
 
 Use the short ids exactly as given. Do not invent picks.`;
+};
 
 type PickRef = { domain: Domain; pick: Pick };
 
 // Short ids ("brand-3") keep the prompt small and make hallucinated ids easy to reject.
-const refsFor = (domain: Domain, picks: Pick[]) => new Map(picks.map((pick, i) => [`${domain}-${i + 1}`, { domain, pick }] as const));
+const refsFor = (domain: Domain, picks: Pick[]) => new Map<string, PickRef>(picks.map((pick, i) => [`${domain}-${i + 1}`, { domain, pick }]));
 
 function userTurn(seed: Seed, domain: Domain, refs: Map<string, PickRef>) {
   const lines = [
     `Seed: ${seed.name} (${seed.kind}). ${seed.description ?? ""}`.trim(),
     ...(seed.basedOn?.length ? [`Qloo doesn't know ${seed.name} yet. This slate comes from fans of: ${seed.basedOn.join(", ")}.`] : []),
     "",
-    `## ${domain}`,
+    `## ${domain}, in affinity order`,
   ];
   for (const [id, { pick: p }] of refs)
     lines.push(
@@ -60,48 +74,54 @@ function userTurn(seed: Seed, domain: Domain, refs: Map<string, PickRef>) {
   return lines.join("\n");
 }
 
-type Raw = { domains: { domain: Domain; kept: { id: string; why: string }[]; dropped: { id: string; reason: string }[] }[] };
-type RawDomain = Omit<Raw["domains"][number], "domain">;
+type Decision = { id: string; decision: "keep" | "demote" | "drop"; why: string; reason: string };
+type RawDomain = { picks: Decision[] };
 
 const schema = jsonSchema<RawDomain>({
   type: "object",
   additionalProperties: false,
-  required: ["kept", "dropped"],
+  required: ["picks"],
   properties: {
-    kept: {
+    picks: {
       type: "array",
-      description: "Up to five, best first",
+      description: "One entry per pick",
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["id", "why"],
-        properties: { id: { type: "string" }, why: { type: "string", description: "Under 20 words, for a partnerships lead" } },
-      },
-    },
-    dropped: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["id", "reason"],
-        properties: { id: { type: "string" }, reason: { type: "string" } },
+        required: ["id", "decision", "why", "reason"],
+        properties: {
+          id: { type: "string" },
+          decision: { type: "string", enum: ["keep", "demote", "drop"] },
+          why: { type: "string", description: "Why-line for keep or demote, under 20 words. Empty for drop." },
+          reason: { type: "string", description: "Short reason for demote or drop. Empty for keep." },
+        },
       },
     },
   },
 });
 
-// Map the model's short ids back to entities. Unknown ids, cross-domain ids, and duplicates are discarded,
-// and kept is capped at five, so a sloppy response can't put a pick that Qloo never returned on screen.
-export function toRanking(raw: Raw, refs: Map<string, PickRef>): Ranking {
-  const ranking = Object.fromEntries(DOMAINS.map((d) => [d, { kept: [], dropped: [] }])) as unknown as Ranking;
-  const seen = new Set<string>();
-  for (const d of raw.domains) {
-    if (!DOMAINS.includes(d.domain)) continue;
-    const ok = (id: string) => refs.get(id)?.domain === d.domain && !seen.has(id) && seen.add(id);
-    for (const k of d.kept) if (ranking[d.domain].kept.length < 5 && ok(k.id)) ranking[d.domain].kept.push({ entity_id: refs.get(k.id)!.pick.entity_id, why: k.why });
-    for (const x of d.dropped) if (ok(x.id)) ranking[d.domain].dropped.push({ entity_id: refs.get(x.id)!.pick.entity_id, name: refs.get(x.id)!.pick.name, reason: x.reason });
-  }
-  return ranking;
+// Turn the model's decisions into the shortlist. Code owns the order: affinity order (the slate's order) with
+// demoted picks after kept ones, top five. Unknown and duplicate ids are discarded, and a demote or drop with no
+// reason counts as keep, so the model can't silently reorder.
+export function toRanking(domain: Domain, picks: Pick[], decisions: Decision[]): DomainRanking {
+  const refs = refsFor(domain, picks);
+  const byId = new Map<string, Decision>();
+  for (const d of decisions) if (refs.has(d.id) && !byId.has(d.id)) byId.set(d.id, d);
+  const order = [...refs.keys()]; // affinity order
+  const decided = order.map((id) => {
+    const d = byId.get(id);
+    const decision = d && d.decision !== "keep" && !d.reason.trim() ? "keep" : (d?.decision ?? "keep");
+    return { id, pick: refs.get(id)!.pick, decision, why: d?.why ?? "", reason: d?.reason ?? "" };
+  });
+  // A pick the model skipped stays as keep in its affinity place (shown without a why-line); otherwise a skip
+  // would let a lower pick move up, which is a promotion by omission.
+  const keep = decided.filter((d) => d.decision === "keep");
+  const demote = decided.filter((d) => d.decision === "demote");
+  return {
+    kept: keep.slice(0, 5).map((d) => ({ entity_id: d.pick.entity_id, why: d.why })),
+    demoted: demote.map((d) => ({ entity_id: d.pick.entity_id, why: d.why, demoted: d.reason })),
+    dropped: decided.filter((d) => d.decision === "drop").map((d) => ({ entity_id: d.pick.entity_id, name: d.pick.name, reason: d.reason })),
+  };
 }
 
 export type DomainResult = { ranking: DomainRanking; usage: LanguageModelUsage | null };
@@ -117,14 +137,14 @@ export async function rankDomainUncached(seed: Seed, domain: Domain, picks: Pick
       anthropic: { effort, fallbacks: "default" },
     },
     output: Output.object({ schema }),
-    instructions: { role: "system", content: SYSTEM, providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
+    instructions: { role: "system", content: system(seed.type), providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
     messages: [{ role: "user", content: userTurn(seed, domain, refs) }],
   });
-  return { ranking: toRanking({ domains: [{ domain, ...output }] }, refs)[domain], usage };
+  return { ranking: toRanking(domain, picks, output.picks), usage };
 }
 
 // Cached 30 days per (seed, domain, picks). The slate is cached too, so this is effectively per entity and domain.
-const PROMPT_VERSION = "rank-v2"; // bump to re-rank everything after a prompt change; freezes at checkpoint 2
+const PROMPT_VERSION = "rank-v3.1"; // v3.1: demoted picks get their own list. bump to re-rank everything after a prompt change; freezes at checkpoint 2
 const rankDomainCached = cached("rank-domain", (_v: string, seed: Seed, domain: Domain, picks: Pick[], effort: Effort) =>
   rankDomainUncached(seed, domain, picks, effort),
 );

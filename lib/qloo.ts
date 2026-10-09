@@ -1,7 +1,7 @@
 // Server-side Qloo client. Every Qloo call in the app goes through this file.
 import { createHash } from "node:crypto";
 import { forced } from "./force.ts";
-import { getJson, setJson, incr, getNumber, setNumber, today } from "./redis.ts";
+import { getJson, setJson, incr, decr, getNumber, setNumber, today } from "./redis.ts";
 
 // ponytail: env guard instead of the server-only package; the key is not NEXT_PUBLIC so it never reaches a bundle anyway
 if (typeof window !== "undefined") throw new Error("lib/qloo is server-only");
@@ -91,10 +91,16 @@ let localDay = "";
 let localCalls = 0;
 async function spendDaily() {
   const cap = Number(process.env.QLOO_DAILY_CAP) || 0;
-  const shared = await incr(`cx:count:qloo:${today()}`, 60 * 60 * 48);
+  const key = `cx:count:qloo:${today()}`;
+  const shared = await incr(key, 60 * 60 * 48);
   if (localDay !== today()) [localDay, localCalls] = [today(), 0];
   const n = shared ?? ++localCalls;
-  if (cap && n > cap) throw new QuotaError(`daily cap of ${cap} Qloo calls reached`);
+  if (cap && n > cap) {
+    // over the cap: undo the increment so the counter only ever counts calls that were made
+    if (shared !== null) await decr(key);
+    else localCalls--;
+    throw new QuotaError(`daily cap of ${cap} Qloo calls reached`);
+  }
 }
 
 export async function qlooToday() {
@@ -217,6 +223,13 @@ export const heatmap = cached("heatmap", async (seed: string | Signal[], locatio
     affinity_rank: r(c.query.affinity_rank, 3),
     popularity: r(c.query.popularity, 3),
   }));
+});
+
+// A place-category tag for a phrase ("live music venue"), for venue lookups. 1 call, cached.
+export const placeTag = cached("placeTag", async (query: string): Promise<Tag | null> => {
+  const body = await request("/v2/tags", { query: { "filter.query": query, "filter.parents.types": "urn:entity:place" } });
+  const t = (body.results?.tags ?? []).find((x: Raw) => String(x.id).startsWith("urn:tag:category:place:")) ?? (body.results?.tags ?? [])[0];
+  return t ? { tag_id: t.id, name: t.name, type: t.type } : null;
 });
 
 // A brand-category tag for a product phrase ("seafood" -> Meat, Seafood, & Substitutes). Without the parents

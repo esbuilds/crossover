@@ -2,10 +2,15 @@
 import { streamText, type LanguageModelUsage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { MODEL } from "./rank.ts";
+import { playbookFor } from "../playbook.ts";
 import { brief, type BriefInput } from "./brief.ts";
 import { streamCache, type Streamed } from "./stream-cache.ts";
 
-const SYSTEM = `You write the first outreach email from a brand's partnerships lead to a potential collab partner's partnerships team. You get the approved partnership brief. Write from the seed's side to the partner's team.
+// Who writes and who receives depends on the seed type (lib/playbook.ts): a brand to a brand, an artist's
+// management to a sponsor, a studio's consumer products team to a licensee, a person's management to a brand.
+const system = (seedType: string) => {
+  const p = playbookFor(seedType);
+  return `You write the first outreach email from ${p.outreachFrom} to ${p.outreachTo}, proposing a partnership where the partner is a ${p.partnerRole}. You get the approved brief.
 
 Format, plain text:
 Subject: <a specific subject line, under 10 words>
@@ -17,6 +22,7 @@ Then exactly four short paragraphs:
 4. A concrete ask with a next step (a 20-minute call next week, a small test, a specific date range).
 
 Rules: under 170 words after the subject line. Warm, direct, no hype words, no bold, no emoji. Use only facts from the brief. If the brief says the seed isn't in Qloo yet, don't mention Qloo stand-ins to the partner; describe the audience instead. Sign off as "[Your name]".`;
+};
 
 export type OutreachResult = Streamed & { usage: LanguageModelUsage | null };
 
@@ -28,8 +34,8 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
     model: anthropic(MODEL),
     maxOutputTokens: 4000,
     providerOptions: { anthropic: { effort: "medium", fallbacks: "default" } },
-    instructions: { role: "system", content: SYSTEM, providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
-    messages: [{ role: "user", content: `From: ${input.seed.name}\nTo: ${input.pick.name}'s partnerships team\n\nApproved brief:\n${b.text}` }],
+    instructions: { role: "system", content: system(input.seed.type), providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
+    messages: [{ role: "user", content: `From: ${playbookFor(input.seed.type).outreachFrom} for ${input.seed.name}\nTo: ${input.pick.name}'s partnerships team\n\nApproved brief:\n${b.text}` }],
   });
   let text = "";
   for await (const part of result.stream) {
@@ -44,4 +50,4 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
 }
 
 const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
-export const outreach = streamCache("outreach", "outreach-v1", keyOf, generate);
+export const outreach = streamCache("outreach", "outreach-v2", keyOf, generate);

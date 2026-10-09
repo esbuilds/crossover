@@ -2,7 +2,8 @@
 // audiences run hot and where to launch, then writes a partnership one-pager (PLAN.md section 2, step 6).
 import { streamText, jsonSchema, tool, isStepCount, type LanguageModelUsage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { insights, insightsPost, tags, type Signal } from "../qloo.ts";
+import { insights, insightsPost, placeTag, tags, type Signal } from "../qloo.ts";
+import { playbookFor } from "../playbook.ts";
 import { getCities } from "../cities.ts";
 import { overlapMarkets } from "../overlap.ts";
 import type { Card, Domain, Pick } from "../slate.ts";
@@ -24,21 +25,24 @@ export type BriefInput = {
 };
 export type BriefResult = Streamed & { usage: LanguageModelUsage | null };
 
-const SYSTEM = `You are the partnerships strategist inside Crossover. A partnerships lead picked a potential collab partner from a slate Qloo built for their brand (the seed). Your job: check the fit both ways with Qloo, find where to launch, then write a one-page partnership brief they could forward to their boss.
+// One prompt shape for every seed type; the playbook (lib/playbook.ts) fills in what a partner and a launch mean.
+const system = (seedType: string) => {
+  const p = playbookFor(seedType);
+  return `You are the partnerships strategist inside Crossover. A partnerships lead picked a potential partner from a slate Qloo built for a ${p.noun} (the seed). Here a partner is a ${p.partnerRole}. Your job: check the fit both ways with Qloo, find where to launch, then write a one-page brief they could forward to their boss.
 
 Playbook, in this order:
 1. Call qloo_reverse_affinity. Forward fit (how much the seed's fans over-index on the partner) is already given to you as a slate rank. The reverse call tells you whether the partner's fans like the seed back: where the seed lands among the partner's own top 50 in the seed's category, plus both entities' tags. A pairing that works one way only is a weaker pitch; say so.
-2. Call qloo_heatmap_overlap. It returns the US markets in both audiences' top tens with each side's over-index (100 is the US average). Pick the launch market: the overlap market with the highest combined over-index. If there is no overlap, or the partner has no heatmap, use the seed's top market and say so in the launch plan.
+2. Call qloo_heatmap_overlap. It returns the US markets in both audiences' top tens with each side's over-index (100 is the US average). Pick the market: the overlap market with the highest combined over-index. If there is no overlap, or the partner has no heatmap, use the seed's top market and say so.
 3. Call qloo_places_in_city for that market. It returns venues both audiences over-index on. If it reports it fell back to another market, use that market and say why.
 4. Optionally call qloo_tags once if a shared theme needs grounding in Qloo's tag vocabulary.
-5. Write the brief. Use only facts from the input and the tool results. Never invent numbers, sales figures, past collabs, venues, or quotes.
+5. Write the brief. Use only facts from the input and the tool results. Never invent numbers, sales figures, past collabs, venues, tour dates, or quotes.
 
 Some seeds are brands Qloo doesn't know yet. Then the input says so, names the brands whose fans the slate was built from, and names one of them as the stand-in. In that case: say "based on fans of" those brands where you cite the slate rank, and write the mutual fit line as "- Mutual fit, measured against <stand-in> fans: ..." using the stand-in's name, because the reverse check measured the stand-in, not the seed.
 
 Write the brief in plain text with these exact headings, in this order, each on its own line starting with "## ":
 
 ## The idea
-Two sentences: the collab and why now. Concrete enough to picture (a product, a drop, an event, content), not "a partnership".
+Two sentences: the partnership and why now. Concrete enough to picture, not "a partnership".
 
 ## Fit scorecard
 Four lines, each starting with "- " and a label:
@@ -50,15 +54,14 @@ Four lines, each starting with "- " and a label:
 ## The evidence
 Two to four lines starting with "- ", each a number or tag from Qloo and what it shows.
 
-## Launch plan
-- Market: the launch market with both over-index numbers (for example "Austin: 140 for the seed's fans, 131 for the partner's").
-- Three lines, each starting with "- Venue: ", naming one venue from qloo_places_in_city and one short reason it fits.
-- Activation: the moment (when and what happens), the channel, and one KPI to judge it by.
+## ${p.launchHeading}
+Lines starting with "- ": ${p.launchGuidance} Start the market line with "- Market: " and each venue line with "- Venue: ".
 
 ## The ask
-One or two sentences: what the seed's team should propose to the partner's team first.
+One or two sentences: what ${p.outreachFrom} should propose to ${p.outreachTo} first.
 
 Style: written for a partnerships lead, not an engineer. Short sentences. No bold, no emoji, no other headings, no preamble before "## The idea", nothing after the ask.`;
+};
 
 function userTurn({ seed, pick, domain, slateRank, slateSize, anchor, basedOn }: BriefInput) {
   return [
@@ -107,17 +110,21 @@ async function heatmapOverlap(input: BriefInput) {
   };
 }
 
-const PLACE_TAGS = ["urn:tag:category:place:restaurant", "urn:tag:category:place:bar"]; // restaurants, then bars
+const PLACE_TAGS = ["urn:tag:category:place:restaurant", "urn:tag:category:place:bar"]; // restaurants and bars, every seed type
 
 // Venues both audiences over-index on in a market: restaurants plus bars (1 Qloo call each), union, top 5.
 // If the market has none, falls back to the seed's next top market and says so.
 async function placesInCity(input: BriefInput, market: string) {
   const seedTop = (await getCities(input.seedSignal)).metros.map((m) => m.name);
+  // artists add live-music venues (tag looked up once via /v2/tags, cached); every type gets restaurants and bars
+  const extra = playbookFor(input.seed.type).venueQuery;
+  const extraTag = extra ? await placeTag(extra).catch(() => null) : null;
+  const placeTags = extraTag ? [extraTag.tag_id, ...PLACE_TAGS] : PLACE_TAGS;
   const tried: string[] = [];
   for (const m of [market, ...seedTop.filter((x) => x !== market)].slice(0, 2)) {
     tried.push(m);
     const lists = await Promise.all(
-      PLACE_TAGS.map((tag) => {
+      placeTags.map((tag) => {
         if (forced("novenues") && m === market) return Promise.resolve([]);
         const params = { "filter.type": "urn:entity:place", "filter.location.query": m, "filter.tags": tag, take: 8 };
         return (
@@ -164,7 +171,7 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
         execute: async () => heatmapOverlap(input),
       }),
       qloo_places_in_city: tool({
-        description: "Restaurants and bars that both the seed's and the partner's fans over-index on, in one US market. Returns up to 5 with address, price level, and affinity.",
+        description: "Venues (restaurants and bars, plus music venues for artists) that both the seed's and the partner's fans over-index on, in one US market. Returns up to 5 with address, price level, and affinity.",
         inputSchema: jsonSchema<{ market: string }>({
           type: "object",
           properties: { market: { type: "string", description: "A market name exactly as qloo_heatmap_overlap returned it" } },
@@ -184,7 +191,7 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
         execute: async ({ query }) => (await tags(query.slice(0, 60))).slice(0, 10).map((t) => t.name),
       }),
     },
-    instructions: { role: "system", content: SYSTEM, providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
+    instructions: { role: "system", content: system(input.seed.type), providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
     messages: [{ role: "user", content: userTurn(input) }],
   });
 
@@ -229,5 +236,5 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
 const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
 
 // Cached 30 days per (seed, pick). Bump the version to regenerate every brief after a prompt change.
-export const brief = streamCache("brief", "brief-v3", keyOf, generate);
+export const brief = streamCache("brief", "brief-v4", keyOf, generate);
 export { CapReached } from "./stream-cache.ts";
