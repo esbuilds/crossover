@@ -56,6 +56,7 @@ async function request(path: string, init: { query?: Record<string, string | num
   };
 
   if (forced("qloo429")) throw new QuotaError("forced 429");
+  spendDaily();
   for (let attempt = 0; ; attempt++) {
     await slot();
     calls++;
@@ -79,6 +80,19 @@ export const qlooCallCount = () => calls;
 // Rate limit hit twice in a row, or the month's quota is gone. Routes turn this into a friendly message;
 // anything already in the 30-day cache still loads.
 export class QuotaError extends Error {}
+
+// Hard daily ceiling on live Qloo calls (QLOO_DAILY_CAP, unset = no cap). Cached responses never count.
+// ponytail: per instance and in memory, so the true ceiling is cap x live instances; it exists to stop a runaway
+// script or retry loop, not to meter judges. Upgrade path: a KV counter keyed by date.
+let today = "";
+let todayCalls = 0;
+function spendDaily() {
+  const cap = Number(process.env.QLOO_DAILY_CAP) || 0;
+  const day = new Date().toISOString().slice(0, 10);
+  if (day !== today) [today, todayCalls] = [day, 0];
+  if (cap && todayCalls >= cap) throw new QuotaError(`daily cap of ${cap} Qloo calls reached`);
+  todayCalls++;
+}
 // ponytail: per process. On Vercel each instance counts its own calls; the month header is the real total.
 export const qlooUsage = () => ({ calls, monthRemaining });
 
