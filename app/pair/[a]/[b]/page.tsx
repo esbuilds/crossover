@@ -3,12 +3,14 @@ import { PerRequest } from "@/app/dynamic";
 import { notFound } from "next/navigation";
 import PairView from "../../pair-view";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { isEntityType, peekCard } from "@/lib/slate.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Shareable pairing: /pair/<idA>/<idB>?ta=<type>&tb=<type>. Checked here before any Qloo call; anything else 404s.
 export async function generateMetadata({ params, searchParams }: PageProps<"/pair/[a]/[b]">): Promise<Metadata> {
+  await connection(); // request time only: the prerender pass would cut the Redis read short
   const { a, b } = await params;
   const q = await searchParams;
   const [ca, cb] = await Promise.all([peekCard(a, String(q.ta ?? "")).catch(() => null), peekCard(b, String(q.tb ?? "")).catch(() => null)]);

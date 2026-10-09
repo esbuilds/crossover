@@ -3,6 +3,7 @@ import { PerRequest } from "@/app/dynamic";
 import { notFound } from "next/navigation";
 import Crossover from "../../crossover";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { isEntityType, peekCard } from "@/lib/slate.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -11,6 +12,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // checked here, before any Qloo call; anything else is a 404.
 // Title and preview card from the cache only, so a crawler never spends a Qloo call.
 export async function generateMetadata({ params, searchParams }: PageProps<"/s/[id]">): Promise<Metadata> {
+  await connection(); // request time only: the prerender pass would cut the Redis read short
   const { id } = await params;
   const q = await searchParams;
   const t = typeof q.t === "string" ? q.t : "";
