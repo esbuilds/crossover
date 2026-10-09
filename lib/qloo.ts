@@ -158,14 +158,14 @@ export type Signal = { id: string; weight: number };
 
 // Proxy seeding: weighted entities via POST. The field is "id", not "entity" as the docs show.
 // The proxies themselves are always excluded from results.
-export const proxyBody = (type: string, signals: Signal[], params: Record<string, string | number> = {}) => ({
+export const proxyBody = (type: string, signals: Signal[], params: Record<string, unknown> = {}) => ({
   "filter.type": type,
   "signal.interests.entities": signals,
   ...params,
   "filter.exclude.entities": [...signals.map((s) => s.id), params["filter.exclude.entities"]].filter(Boolean).join(","),
 });
 
-export const insightsPost = cached("insightsPost", async (type: string, signals: Signal[], params: Record<string, string | number> = {}) =>
+export const insightsPost = cached("insightsPost", async (type: string, signals: Signal[], params: Record<string, unknown> = {}) =>
   trimEntities(await request("/v2/insights", { body: proxyBody(type, signals, params) })),
 );
 
@@ -181,6 +181,14 @@ export const heatmap = cached("heatmap", async (seed: string | Signal[], locatio
     affinity_rank: r(c.query.affinity_rank, 3),
     popularity: r(c.query.popularity, 3),
   }));
+});
+
+// A brand-category tag for a product phrase ("seafood" -> Meat, Seafood, & Substitutes). Without the parents
+// filter, /v2/tags returns place tags (restaurant menus), which do nothing for brand results. 1 call, cached.
+export const brandTag = cached("brandTag", async (query: string): Promise<Tag | null> => {
+  const body = await request("/v2/tags", { query: { "filter.query": query, "filter.parents.types": "urn:entity:brand" } });
+  const t = (body.results?.tags ?? [])[0];
+  return t ? { tag_id: t.id, name: t.name, type: t.type } : null;
 });
 
 export const tags = cached("tags", async (query: string): Promise<Tag[]> => {

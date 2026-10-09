@@ -3,6 +3,7 @@ import { DOMAINS, getSlate, getCard, toCard, type Domain, type Slate, type Card 
 import { fixtureById } from "@/lib/fixtures.ts";
 import { brief, CapReached } from "@/lib/agent/brief.ts";
 import { parseProxies } from "@/lib/proxy.ts";
+import { parseTag } from "@/lib/proxy-params.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     type?: string;
     pick?: string;
     domain?: Domain;
-    proxy?: { name?: string; d?: string; p?: string };
+    proxy?: { name?: string; d?: string; p?: string; t?: string };
   };
   const signals = parseProxies(typeof proxy?.p === "string" ? proxy.p : null);
   const proxyName = typeof proxy?.name === "string" ? proxy.name.trim().slice(0, 80) : "";
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
     anchor = cards[0]!;
     basedOn = cards.map((c) => c!.name);
     seed = { entity_id: "proxy", name: proxyName, type: "proxy", popularity: 0, short_description: typeof proxy?.d === "string" ? proxy.d.trim().slice(0, 300) : undefined };
-    slate = await getSlate(signals);
+    slate = await getSlate(signals, undefined, parseTag(typeof proxy?.t === "string" ? proxy.t : null)); // same args as the run, so cached
   } else {
     const fx = fixtureById(entity!);
     if (fx && fx.resolution.status === "confident") [seed, slate] = [toCard(fx.resolution.match), fx.slate];

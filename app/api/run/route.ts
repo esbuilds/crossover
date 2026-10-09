@@ -4,12 +4,13 @@ import { getCities, buildCities, type Cities } from "@/lib/cities.ts";
 import { fixtureById } from "@/lib/fixtures.ts";
 import { rank, seedFromCard, type Seed } from "@/lib/agent/rank.ts";
 import { parseProxies } from "@/lib/proxy.ts";
+import { parseTag } from "@/lib/proxy-params.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LABEL: Record<Domain, string> = { brand: "brands", artist: "artists", tv_show: "TV shows", movie: "films", podcast: "podcasts", place: "places" };
 
 // GET /api/run?entity=<id>[&type=<hint>]                        a Qloo entity
-// GET /api/run?name=<typed name>&d=<description>&p=<id:10,id:5>  proxy mode: a brand Qloo doesn't know
+// GET /api/run?name=<typed name>&d=<description>&p=<id:10,id:7>[&t=<brand tag>]  proxy mode: a brand Qloo doesn't know
 // -> server-sent events, each a JSON object:
 //   {type:"trace", text} as each step happens; {type:"slate", data} once retrieval is done (the UI renders it right
 //   away); {type:"ranking", domain, data} per domain as each ranking call lands; then {type:"done"} or {type:"error"}.
@@ -19,6 +20,7 @@ export async function GET(request: NextRequest) {
   const proxies = parseProxies(q.get("p"));
   const name = (q.get("name") ?? "").trim().slice(0, 80);
   const description = (q.get("d") ?? "").trim().slice(0, 300);
+  const tag = parseTag(q.get("t")); // proxy mode: brand-category tag
   if (!UUID.test(id) && !(proxies && name))
     return Response.json({ error: "Pass entity=<Qloo id>, or name and p=<id:weight,...> for proxy mode" }, { status: 400 });
 
@@ -52,7 +54,7 @@ export async function GET(request: NextRequest) {
         trace(`Building ${name}'s slate from fans of ${basedOn.map((c) => c.name).join(", ")}`);
         entity = { entity_id: "proxy", name, type: "proxy", popularity: 0, short_description: description || undefined };
         seed = { name, kind: "brand", description, basedOn: basedOn.map((c) => c.name) };
-        [slate, cities] = await Promise.all([getSlate(proxies, onDomain), getCities(proxies).then((c) => (onCities(c), c))]);
+        [slate, cities] = await Promise.all([getSlate(proxies, onDomain, tag), getCities(proxies).then((c) => (onCities(c), c))]);
       } else {
         const fx = fixtureById(id);
         if (fx && fx.resolution.status === "confident") {

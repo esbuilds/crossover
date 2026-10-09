@@ -35,3 +35,11 @@ test("markets are one per market: centers at least 100 km apart, 45 to 55 of the
       assert.ok(km >= 100, `${a.name} and ${b.name} are ${Math.round(km)} km apart`);
     }
 });
+
+test("ties on over-index go to the market with more qualifying cells", () => {
+  const ranked = rankMetros([
+    cell(30.27, -97.74, 0.8), cell(30.3, -97.7, 0.8), // Austin: 2 popular cells
+    cell(40.71, -74.0, 0.8), cell(40.75, -73.98, 0.8), cell(40.65, -73.95, 0.8), // New York: 3 popular cells
+  ]);
+  assert.deepEqual(ranked.map((m) => [m.name, m.overIndex]), [["New York", 100], ["Austin", 100]]);
+});

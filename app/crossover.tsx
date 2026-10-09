@@ -14,8 +14,8 @@ import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 type ResolveResult = { status: "confident" | "ambiguous" | "not_found"; candidates: Card[] };
 type SlateData = { entity: Card; basedOn: Card[]; domains: { domain: Domain; picks: Pick[] }[]; cities: Cities };
 // proxy mode: a brand Qloo doesn't know, its description, and weighted stand-ins ("id:10,id:5")
-export type ProxySpec = { name: string; d: string; p: string };
-const proxyQuery = (s: ProxySpec) => new URLSearchParams({ name: s.name, d: s.d, p: s.p }).toString();
+export type ProxySpec = { name: string; d: string; p: string; t?: string };
+const proxyQuery = (s: ProxySpec) => new URLSearchParams({ name: s.name, d: s.d, p: s.p, ...(s.t ? { t: s.t } : {}) }).toString();
 type Load<T> = { state: "idle" } | { state: "loading" } | { state: "error"; message: string } | { state: "ready"; data: T };
 
 const CHIPS = ["Liquid Death", "Olipop", "Mt. Joy", "Somebody Feed Phil"];
@@ -148,8 +148,8 @@ export default function Crossover({ initialId, initialProxy }: { initialId?: str
     window.history.pushState(null, "", "/");
   }
 
-  function buildFromProxies(d: ProxyDraft, proxies: Card[]) {
-    const spec = { name: d.name.trim(), d: d.description.trim(), p: formatProxies(weightsFor(proxies.map((p) => p.entity_id))) };
+  function buildFromProxies(d: ProxyDraft, proxies: Card[], tag?: string) {
+    const spec = { name: d.name.trim(), d: d.description.trim(), p: formatProxies(weightsFor(proxies.map((p) => p.entity_id))), t: tag };
     window.history.pushState(null, "", `/s/p?${proxyQuery(spec)}`);
     loadProxy(spec);
   }
@@ -298,7 +298,13 @@ function Results({
   onOpen: (pick: Pick, domain: Domain) => void;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
+  // "driven by" chips (proxy mode): only on picks a stand-in other than the top one drove; none if they all agree
   const proxyNames = new Map(data.basedOn.map((c) => [c.entity_id, c.name]));
+  const top = data.basedOn[0]?.entity_id;
+  const anyOther = data.domains.some((d) => d.picks.some((p) => p.driven_by && p.driven_by !== top));
+  const chipFor = (p: Pick) => (anyOther && p.driven_by && p.driven_by !== top ? proxyNames.get(p.driven_by) : undefined);
+  const top5 = data.cities.metros.slice(0, 5);
+  const even = top5.length === 5 && top5[0].overIndex - top5[4].overIndex < 3;
   return (
     <div className="mt-8 space-y-8">
       {data.domains.map(({ domain, picks }) => {
@@ -326,7 +332,7 @@ function Results({
             {rows.length ? (
               <div className="-mx-4 flex items-start gap-3 overflow-x-auto px-4 pb-2">
                 {rows.map(({ pick, why }) => (
-                  <PickCard key={pick.entity_id} pick={pick} why={why} drivenBy={proxyNames.size > 1 ? proxyNames.get(pick.driven_by ?? "") : undefined} onOpen={() => onOpen(pick, domain)} />
+                  <PickCard key={pick.entity_id} pick={pick} why={why} drivenBy={chipFor(pick)} onOpen={() => onOpen(pick, domain)} />
                 ))}
               </div>
             ) : (
@@ -341,6 +347,7 @@ function Results({
         <div>
           <h2 className="mb-1 text-lg font-semibold">Where to launch</h2>
           <p className="mb-3 text-sm text-zinc-500">Over-index vs. the US average (100 = average)</p>
+          {even && <p className="mb-3 rounded-lg bg-zinc-50 p-2.5 text-sm text-zinc-600">Fans are spread evenly across these markets, so any of the top five is a fair place to start.</p>}
           {data.cities.metros.length ? (
             <ol className="divide-y divide-zinc-100">
               {data.cities.metros.slice(0, 10).map((m, i) => (

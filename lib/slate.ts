@@ -1,5 +1,6 @@
 // Partner slate: what the entity's fans over-index on, across six Qloo domains (PLAN.md section 3).
 import { insights, insightsPost, RESOLVE_TYPES, type Entity, type Signal } from "./qloo.ts";
+import { TAG_WEIGHT } from "./proxy-params.ts";
 
 export const DOMAINS = ["brand", "artist", "tv_show", "movie", "place", "podcast"] as const;
 export type Domain = (typeof DOMAINS)[number];
@@ -33,15 +34,18 @@ const toPick = (e: Entity): Pick => ({
 
 // seed: one resolved entity id, or weighted proxies when Qloo doesn't know the brand.
 // All six calls start at once; the client's 4/s bucket spaces them out. onDomain fires as each one lands.
-export async function getSlate(seed: string | Signal[], onDomain?: (d: Domain, picks: Pick[]) => void): Promise<Slate> {
+// tag (proxy mode only): a brand-category tag applied to the brand call, so a tinned-fish brand's stand-ins
+// (cookware) don't turn its brand row into home goods. Brand domain only: it's a brand tag.
+export async function getSlate(seed: string | Signal[], onDomain?: (d: Domain, picks: Pick[]) => void, tag?: string | null): Promise<Slate> {
   const lists = await Promise.all(
     DOMAINS.map(async (d) => {
       const params = { take: 10, "feature.explainability": "true" };
       const type = `urn:entity:${d}`;
+      const tagged = tag && d === "brand" ? { "signal.interests.tags": [{ tag, weight: TAG_WEIGHT }] } : {};
       const raw =
         typeof seed === "string"
           ? await insights({ "filter.type": type, "signal.interests.entities": seed, "filter.exclude.entities": seed, ...params })
-          : await insightsPost(type, seed, params);
+          : await insightsPost(type, seed, { ...params, ...tagged });
       const picks = raw.map(toPick);
       onDomain?.(d, picks);
       return picks;

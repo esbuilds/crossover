@@ -55,7 +55,9 @@ export function rankMetros(cells: HeatCell[]): City[] {
       };
     })
     .filter((m) => m.popular >= MIN_POPULAR_CELLS)
-    .sort((a, b) => b.score - a.score)
+    // ties on the shown over-index go to the market with more qualifying cells (larger markets win ties);
+    // proxy heatmaps from broad national brands often put five markets within a point of each other
+    .sort((a, b) => b.overIndex - a.overIndex || b.popular - a.popular || b.score - a.score)
     .map(({ popular: _, ...m }) => m); // eslint-disable-line @typescript-eslint/no-unused-vars
 }
 

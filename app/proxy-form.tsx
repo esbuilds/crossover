@@ -5,12 +5,20 @@ import { useState } from "react";
 import type { Card } from "@/lib/slate.ts";
 
 export type ProxyDraft = { name: string; description: string; brands: string[] };
-type Checked = { proxies: Card[]; rejected: { name: string; reason: string }[]; proposed: string[] };
+type Checked = { proxies: Card[]; rejected: { name: string; reason: string }[]; proposed: string[]; tag: { tag_id: string; name: string } | null; guessed: boolean };
 
 // "Qloo doesn't know this one yet": the user describes the brand and names brands their customers love.
 // /api/proxies verifies them (and Haiku suggests more); the user then confirms, removes, or reorders.
 // The first proxy carries the most weight.
-export default function ProxyForm({ draft, compact, onBuild }: { draft: ProxyDraft; compact?: boolean; onBuild: (d: ProxyDraft, proxies: Card[]) => void }) {
+export default function ProxyForm({
+  draft,
+  compact,
+  onBuild,
+}: {
+  draft: ProxyDraft;
+  compact?: boolean;
+  onBuild: (d: ProxyDraft, proxies: Card[], tag?: string) => void;
+}) {
   const [name, setName] = useState(draft.name);
   const [description, setDescription] = useState(draft.description);
   const [brands, setBrands] = useState([...draft.brands, "", "", ""].slice(0, 3));
@@ -19,9 +27,14 @@ export default function ProxyForm({ draft, compact, onBuild }: { draft: ProxyDra
   const [checked, setChecked] = useState<Checked | null>(null);
   const [proxies, setProxies] = useState<Card[]>([]);
 
+  // Gate (PLAN.md section 8, Oct 14): one named brand, or a description of eight words or more.
+  const named = brands.filter((b) => b.trim()).length;
+  const words = description.trim().split(/\s+/).filter(Boolean).length;
+  const ready = name.trim() && (named > 0 || words >= 8);
+
   async function check(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!ready) return;
     setState("checking");
     try {
       const res = await fetch("/api/proxies", {
@@ -50,7 +63,9 @@ export default function ProxyForm({ draft, compact, onBuild }: { draft: ProxyDra
   return (
     <div className={`rounded-xl border border-dashed border-zinc-300 p-5 ${compact ? "mt-4" : ""}`}>
       <h2 className="font-semibold">{compact ? "None of these?" : "Qloo doesn't know this one yet"}</h2>
-      <p className="mt-1 text-sm text-zinc-600">Describe it and name brands your customers also love. Crossover builds the slate from their fans.</p>
+      <p className="mt-1 text-sm text-zinc-600">
+        Describe it and name brands your customers also love. Crossover builds the slate from their fans, so the brands you pick steer what comes back.
+      </p>
 
       <form onSubmit={check} className="mt-4 grid gap-3">
         <label className="grid gap-1 text-sm">
@@ -83,7 +98,8 @@ export default function ProxyForm({ draft, compact, onBuild }: { draft: ProxyDra
           </div>
         </fieldset>
         <div>
-          <button disabled={state === "checking" || !name.trim()} className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50">
+          {!ready && name.trim() && <p className="mb-2 text-sm text-zinc-500">Name one brand your customers love, or describe the brand in at least eight words.</p>}
+          <button disabled={state === "checking" || !ready} className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50">
             {state === "checking" ? "Checking brands in Qloo..." : checked ? "Check again" : "Find stand-in brands"}
           </button>
         </div>
@@ -93,6 +109,10 @@ export default function ProxyForm({ draft, compact, onBuild }: { draft: ProxyDra
 
       {checked && (
         <div className="mt-5">
+          {checked.guessed && checked.proxies.length > 0 && (
+            <p className="mb-3 rounded-lg bg-zinc-50 p-3 text-sm text-zinc-700">These are guesses. Name a brand your customers love for better stand-ins.</p>
+          )}
+          {checked.tag && <p className="mb-3 text-sm text-zinc-500">Brands will lean toward Qloo&apos;s &ldquo;{checked.tag.name}&rdquo; category.</p>}
           {checked.rejected.length > 0 && (
             <p className="mb-3 text-sm text-zinc-500">
               Skipped: {checked.rejected.map((r) => `${r.name} (${r.reason})`).join(", ")}
@@ -131,7 +151,7 @@ export default function ProxyForm({ draft, compact, onBuild }: { draft: ProxyDra
             </p>
           ) : (
             <button
-              onClick={() => onBuild({ name, description, brands: proxies.map((p) => p.name) }, proxies)}
+              onClick={() => onBuild({ name, description, brands: proxies.map((p) => p.name) }, proxies, checked.tag?.tag_id)}
               className="mt-4 rounded-lg px-4 py-2 text-sm font-medium text-white"
               style={{ background: "#ea580c" }}
             >
