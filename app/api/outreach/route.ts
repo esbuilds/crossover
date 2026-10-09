@@ -1,6 +1,6 @@
 import { type NextRequest } from "next/server";
 import { outreach } from "@/lib/agent/outreach.ts";
-import { CapReached } from "@/lib/agent/stream-cache.ts";
+import { CapReached, generationKey } from "@/lib/agent/stream-cache.ts";
 import { loadPair, type PairBody } from "@/lib/pair.ts";
 import { sse } from "@/lib/sse.ts";
 
@@ -9,7 +9,7 @@ import { sse } from "@/lib/sse.ts";
 export async function POST(request: NextRequest) {
   const pair = await loadPair((await request.json().catch(() => ({}))) as PairBody);
   if ("error" in pair) return Response.json({ error: pair.error }, { status: pair.status });
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
+  const ip = generationKey(request);
 
   return sse(async (send) => {
     try {

@@ -6,6 +6,7 @@
 //
 //   node scripts/warm.ts <baseUrl> <list.json> [--reserve 40] [--state scripts/warm-state.json] [--no-cohort]
 //   list.json: [{ "name": "Liquid Death", "type": "urn:entity:brand" }, ...]
+//   WARM_TOKEN in the environment (same value as on Vercel) keeps briefs off the per-IP limit of 20 a day.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
 type Item = { name: string; type: string };
@@ -75,7 +76,8 @@ for (const item of list) {
 
   if (topBrand) {
     const body = JSON.stringify({ entity: card.entity_id, type: card.type, pick: topBrand, domain: "brand" });
-    const post = (path: string) => fetch(`${base}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body });
+    const post = (path: string) =>
+      fetch(`${base}${path}`, { method: "POST", headers: { "Content-Type": "application/json", ...(process.env.WARM_TOKEN ? { "x-warm-token": process.env.WARM_TOKEN } : {}) }, body });
     await guard();
     const brief = await events(await post("/api/brief"));
     const err = brief.find((e) => e.type === "error");

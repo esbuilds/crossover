@@ -12,6 +12,14 @@ export type Streamed = { text: string; trace: string[] };
 // 20 fresh generations per IP per day, counted in Redis across instances (cached replays are free).
 // Falls back to a per-instance count when Redis is unavailable.
 const DAILY_CAP = 20;
+// The cache warmer (scripts/warm.ts) sends x-warm-token matching WARM_TOKEN and counts against its own larger budget,
+// so warming never eats a visitor's 20. The Qloo daily cap still applies to it.
+const WARM_CAP = 200;
+export function generationKey(request: Request): string {
+  const token = process.env.WARM_TOKEN;
+  if (token && token.length >= 24 && request.headers.get("x-warm-token") === token) return "warm";
+  return request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
+}
 const localByIp = new Map<string, { day: string; n: number }>();
 export class CapReached extends Error {}
 async function spend(ip: string) {
@@ -19,7 +27,7 @@ async function spend(ip: string) {
   const u = localByIp.get(ip);
   const local = (u?.day === today() ? u.n : 0) + 1;
   localByIp.set(ip, { day: today(), n: local });
-  if ((shared ?? local) > DAILY_CAP) throw new CapReached();
+  if ((shared ?? local) > (ip === "warm" ? WARM_CAP : DAILY_CAP)) throw new CapReached();
 }
 
 export function streamCache<I, R extends Streamed>(name: string, version: string | ((i: I) => string), keyOf: (i: I) => string, gen: (i: I, say: (t: string) => void, write: (d: string) => void) => Promise<R>) {
