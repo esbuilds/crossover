@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="640" viewBox="0 0 1000 640" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Crossover architecture</title>
+  <desc>The browser streams a run from /api/run over server-sent events. Retrieval against Qloo is deterministic code; a ranking agent reviews each domain; a brief agent with four Qloo tools writes the brief from /api/brief. Upstash Redis caches every Qloo response and model output.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#514c49"/>
+    </marker>
+    <style>
+      .box { fill: #ffffff; stroke: #cfcbca; stroke-width: 1.5; }
+      .code { fill: #f8f6f6; stroke: #cfcbca; stroke-width: 1.5; }
+      .model { fill: #ffefe3; stroke: #bd4510; stroke-width: 1.5; }
+      .ext { fill: #ffffff; stroke: #1b1716; stroke-width: 1.5; }
+      .h { font-size: 15px; font-weight: 600; fill: #1b1716; }
+      .t { font-size: 12.5px; fill: #514c49; }
+      .k { font-size: 12px; fill: #6d6865; }
+      .line { stroke: #514c49; stroke-width: 1.4; fill: none; }
+      .dash { stroke: #6d6865; stroke-width: 1.2; fill: none; stroke-dasharray: 4 4; }
+    </style>
+  </defs>
+  <rect width="1000" height="640" fill="#ffffff"/>
+
+  <!-- browser -->
+  <rect class="box" x="24" y="40" width="200" height="96" rx="8"/>
+  <text class="h" x="40" y="68">Browser</text>
+  <text class="t" x="40" y="90">Next.js 16 app, Vercel</text>
+  <text class="t" x="40" y="108">EventSource / fetch streams</text>
+  <text class="t" x="40" y="126">decisions in localStorage</text>
+
+  <!-- api run -->
+  <rect class="box" x="300" y="40" width="300" height="96" rx="8"/>
+  <text class="h" x="316" y="68">/api/run (server-sent events)</text>
+  <text class="t" x="316" y="90">streams the trace, the slate, then one</text>
+  <text class="t" x="316" y="108">ranking per domain, badges, done</text>
+  <text class="t" x="316" y="126">/api/brief, /api/pair, /api/cohort alike</text>
+  <path class="line" d="M224 88 H298" marker-end="url(#a)"/>
+
+  <!-- retrieval (code) -->
+  <rect class="code" x="300" y="172" width="300" height="150" rx="8"/>
+  <text class="h" x="316" y="200">Retrieval: deterministic code</text>
+  <text class="t" x="316" y="222">resolve + match validation (exact name,</text>
+  <text class="t" x="316" y="240">popularity floor, Haiku only when unsure)</text>
+  <text class="t" x="316" y="262">six domain calls in parallel, take 10 each</text>
+  <text class="t" x="316" y="280">national heatmap to 55 US markets</text>
+  <text class="t" x="316" y="302">refine: tags, region, domains as filters</text>
+  <path class="line" d="M450 136 V170" marker-end="url(#a)"/>
+
+  <!-- ranking agent -->
+  <rect class="model" x="300" y="358" width="300" height="118" rx="8"/>
+  <text class="h" x="316" y="386">Ranking agent: Opus 5.5</text>
+  <text class="t" x="316" y="408">one call per domain, in parallel</text>
+  <text class="t" x="316" y="426">keep, demote, competitor, excluded, drop,</text>
+  <text class="t" x="316" y="444">each with a reason; Qloo's order is kept</text>
+  <text class="t" x="316" y="462">by code, never re-ranked by the model</text>
+  <path class="line" d="M450 322 V356" marker-end="url(#a)"/>
+
+  <!-- brief agent -->
+  <rect class="model" x="300" y="512" width="300" height="104" rx="8"/>
+  <text class="h" x="316" y="540">Brief agent: Opus 5.5 with tools</text>
+  <text class="t" x="316" y="562">reverse affinity, heatmap overlap,</text>
+  <text class="t" x="316" y="580">places in city, Qloo tags; a failed tool</text>
+  <text class="t" x="316" y="598">stops the brief instead of guessing</text>
+  <path class="dash" d="M124 136 V564 H298" marker-end="url(#a)"/>
+  <text class="k" x="132" y="556">open a pick: /api/brief</text>
+
+  <!-- qloo -->
+  <rect class="ext" x="700" y="172" width="276" height="150" rx="8"/>
+  <text class="h" x="716" y="200">Qloo Insights API</text>
+  <text class="t" x="716" y="222">/search</text>
+  <text class="t" x="716" y="240">/v2/insights (GET; POST for weighted</text>
+  <text class="t" x="716" y="258">stand-in signals; urn:heatmap)</text>
+  <text class="t" x="716" y="276">/v2/tags</text>
+  <text class="k" x="716" y="302">client paced to 4/s, retries 429 and 5xx</text>
+  <path class="line" d="M600 246 H698" marker-end="url(#a)"/>
+  <path class="line" d="M600 560 H650 V290 H698" marker-end="url(#a)"/>
+  <text class="k" x="608" y="552">tools</text>
+
+  <!-- anthropic -->
+  <rect class="ext" x="700" y="358" width="276" height="118" rx="8"/>
+  <text class="h" x="716" y="386">Anthropic API</text>
+  <text class="t" x="716" y="408">Opus 5.5: ranking, brief, outreach,</text>
+  <text class="t" x="716" y="426">refine reading, pairing verdict</text>
+  <text class="t" x="716" y="444">Haiku 5.5: match judge, stand-ins,</text>
+  <text class="t" x="716" y="462">age-bracket sentence</text>
+
+  <!-- redis -->
+  <rect class="code" x="700" y="512" width="276" height="104" rx="8"/>
+  <text class="h" x="716" y="540">Upstash Redis</text>
+  <text class="t" x="716" y="562">30-day cache: every Qloo response and</text>
+  <text class="t" x="716" y="580">model output, keyed by args + version</text>
+  <text class="t" x="716" y="598">sits in front of both APIs; daily caps</text>
+
+  <text class="k" x="24" y="30">Crossover: how a run flows</text>
+  <rect x="560" y="19" width="12" height="12" rx="2" class="code"/><text class="k" x="578" y="30">code</text>
+  <rect x="620" y="19" width="12" height="12" rx="2" class="model"/><text class="k" x="638" y="30">model (calls the Anthropic API)</text>
+  <rect x="840" y="19" width="12" height="12" rx="2" class="ext"/><text class="k" x="858" y="30">external API</text>
+</svg>
