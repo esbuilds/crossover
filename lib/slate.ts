@@ -48,6 +48,14 @@ export type RefineHook = {
 };
 const DOMAIN_LABEL: Record<Domain, string> = { brand: "brands", artist: "artists", tv_show: "TV shows", movie: "films", place: "places", podcast: "podcasts" };
 
+// Proxy (POST) place calls ignore signal.location.query (Oct 22: a Northeast refine on Graza returned San Francisco
+// restaurants); filter.location.query is honored. GET calls keep the signal, so entity-mode caches are untouched.
+const postLocation = (d: Domain, p: Record<string, string | number>) => {
+  if (d !== "place" || !("signal.location.query" in p)) return p;
+  const { "signal.location.query": where, ...rest } = p;
+  return { ...rest, "filter.location.query": where };
+};
+
 export async function getSlate(seed: string | Signal[], onDomain?: (d: Domain, picks: Pick[]) => void, tag?: string | null, refine?: RefineHook | null): Promise<Slate> {
   const lists = await Promise.all(
     DOMAINS.map(async (d) => {
@@ -63,7 +71,7 @@ export async function getSlate(seed: string | Signal[], onDomain?: (d: Domain, p
       const call = (p: Record<string, string | number>) =>
         typeof seed === "string"
           ? insights({ "filter.type": type, "signal.interests.entities": seed, "filter.exclude.entities": exclude, ...p })
-          : insightsPost(type, seed, { ...p, ...tagged, ...(refine?.excludeIds.length ? { "filter.exclude.entities": refine.excludeIds.join(",") } : {}) });
+          : insightsPost(type, seed, { ...postLocation(d, p), ...tagged, ...(refine?.excludeIds.length ? { "filter.exclude.entities": refine.excludeIds.join(",") } : {}) });
       let raw: Entity[];
       if (!refine) raw = await call(params);
       else {
