@@ -36,6 +36,16 @@ export async function rankAmongFans(target: Target, fansOf: string): Promise<Dir
   };
 }
 
+// Tags the seed and partner share, read from the cache the brief's reverse check filled (the same two lookups as
+// rankAmongFans(seed, partner)). Never calls Qloo; [] when that check isn't cached.
+export async function peekSharedTags(seed: Target, partner: { entity_id: string; tags: string[] }): Promise<string[]> {
+  const list = await insights.peek({ "filter.type": seed.type, "signal.interests.entities": partner.entity_id, take: 50 });
+  const me =
+    list?.find((e) => e.entity_id === seed.entity_id) ??
+    (await insights.peek({ "filter.type": seed.type, "signal.interests.entities": partner.entity_id, "filter.results.entities": seed.entity_id, take: 1 }))?.[0];
+  return me ? [...new Set(me.tags.map((t) => t.name))].filter((t) => partner.tags.includes(t)) : [];
+}
+
 // Slate badge: does the partner's audience like the seed back?
 export const badgeFor = (rank: number | null): "mutual" | "partial" | null => (rank === null ? null : rank <= 10 ? "mutual" : "partial");
 

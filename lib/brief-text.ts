@@ -54,3 +54,14 @@ export function reverseFigure(body: string): string | null {
   if (/not in .*top 50/i.test(body)) return "Outside their top 50";
   return null;
 }
+
+// The log line behind an evidence claim, for the hover: reverse-rank claims come from the "like you back" check,
+// market claims from the heatmap overlap, venue claims from the venue lookup.
+export function sourceFor(bullet: string, trace: string[]): string | null {
+  const find = (re: RegExp) => trace.find((t) => re.test(t)) ?? null;
+  if (/revers|their fans|top.?50|top.?10|like .* back/i.test(bullet)) return find(/isn't in|is #\d+ among/) ?? find(/like .* back/); // the result line over the "Checking" line
+  if (/market|over-index|run hot|\b1\d\d\b/i.test(bullet)) return find(/run hot|markets where both/);
+  if (/venue/i.test(bullet)) return find(/^Found \d+ venues|venues in/);
+  if (/slate|affinity/i.test(bullet)) return "Qloo insights: the seed's slate, the brands its fans over-index on";
+  return null;
+}

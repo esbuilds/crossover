@@ -20,6 +20,7 @@ import { parseTag } from "@/lib/proxy-params.ts";
 import { QuotaError } from "@/lib/qloo.ts";
 import { interpret, refineParams, relaxedParams, appliedSentence, type ConstraintSet } from "@/lib/refine.ts";
 import { rankAmongFans, badgeFor } from "@/lib/fit.ts";
+import { brandTrends } from "@/lib/trends.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LABEL: Record<Domain, string> = {
@@ -189,12 +190,15 @@ export async function GET(request: NextRequest) {
       let dropped = 0;
       let failed = 0;
       let topBrands: string[] = [];
+      let keptBrands: string[] = [];
       await rank(
         seed,
         slate,
         (d, r) => {
-          if (d === "brand" && r)
+          if (d === "brand" && r) {
             topBrands = r.ranking.kept.slice(0, 3).map((k) => k.entity_id);
+            keptBrands = r.ranking.kept.map((k) => k.entity_id);
+          }
           if (!r) {
             failed++;
             trace(
@@ -232,6 +236,16 @@ export async function GET(request: NextRequest) {
           send({ type: "mutual", data: badges });
         } catch (err) {
           console.error("[run] mutual badges failed", err); // badges are a bonus; the slate stands without them
+        }
+      }
+      // Moment vs durable: the brand list again with trend lift off and at very high. 2 Qloo calls per seed, cached.
+      // Unrefined runs only: refine filters would change the list being compared.
+      if (!constraints && keptBrands.length) {
+        trace("Checking which brands hold up without trend lift");
+        try {
+          send({ type: "trends", data: await brandTrends(proxies ?? id, keptBrands, tag) });
+        } catch (err) {
+          console.error("[run] trends failed", err); // a bonus, like the badges
         }
       }
       send({ type: "done" });

@@ -244,8 +244,8 @@ async function interpretUncached(seedName: string, seedKind: string, sentence: s
 }
 
 // Cached 30 days per (seed, sentence).
-// ponytail: guidance changed Oct 21 without a label bump, so warm refines stay warm (zero Qloo calls). Bump when re-interpreting is worth the tag lookups.
-export const interpret = (seedName: string, seedKind: string, sentence: string) => interpretCached("refine-v2", seedName, seedKind, sentence.trim().slice(0, 200));
+// refine-v3 (Oct 22): tag_queries in Qloo's own brand category words (Fashion, Headphones), not "apparel", "audio".
+export const interpret = (seedName: string, seedKind: string, sentence: string) => interpretCached("refine-v3", seedName, seedKind, sentence.trim().slice(0, 200));
 const interpretCached = cached("refine", (_v: string, seedName: string, seedKind: string, sentence: string) => interpretUncached(seedName, seedKind, sentence));
 
 // The applied constraints as one sentence for the ranking prompt. Unmapped phrases are left out on purpose: the UI

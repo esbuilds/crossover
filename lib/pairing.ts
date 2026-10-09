@@ -31,7 +31,7 @@ const SYSTEM = `You write the verdict for a pairing check inside Crossover, a pa
 
 Then one sentence on where to launch: the overlap market with the highest combined over-index, with both numbers; if there is no overlap, say so and name A's top market.
 
-Under 120 words. Plain text, no headings, no bold, no bullet points. Start with the class in a few words (for example "One-way: Liquid Death fans love Metallica, not the reverse."). Use only the numbers given.`;
+About 70 words, never more than 80. Plain text, no headings, no bold, no bullet points. Start with the class in a few words (for example "One-way: Liquid Death fans love Metallica, not the reverse."). Use only the numbers given.`;
 
 const fmt = (d: Direction, who: string, fans: string) =>
   d.rank
@@ -82,6 +82,6 @@ export async function getPair(a: { id: string; type?: string | null }, b: { id: 
   const sharedTags = aAmongB.tags.filter((t) => bAmongA.tags.includes(t));
   const { kind, strongSide } = classify(aAmongB.rank, bAmongA.rank);
   const input: VerdictInput = { a: A, b: B, aAmongB, bAmongA, overlap, sharedTags, kind, strongSide };
-  const { text } = await verdictCached("pair-v1", input);
+  const { text } = await verdictCached("pair-v2", input);
   return { ...input, cells: citiesA.cells, verdict: text };
 }

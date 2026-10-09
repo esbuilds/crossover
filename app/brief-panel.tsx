@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { Card, Pick } from "@/lib/slate.ts";
 import { briefMarkdown, exportFilename } from "@/lib/export.ts";
 import { playbookFor } from "@/lib/playbook.ts";
-import { figureLead, labelled, reverseFigure, sections, venueLine, type Section } from "@/lib/brief-text.ts";
+import { figureLead, labelled, reverseFigure, sections, sourceFor, venueLine, type Section } from "@/lib/brief-text.ts";
+import { AGE_LABEL, type Cohort } from "@/lib/cohort.ts";
 import type { ProxySpec } from "./crossover";
 import { BasedOn } from "./proxy-form";
 import { btnPrimary, btnQuiet, btnSecondary, Chip, field } from "./ui";
@@ -14,6 +15,7 @@ type Event =
   | { type: "trace"; text: string }
   | { type: "text"; delta: string }
   | { type: "venues"; market: string; venues: Venue[] }
+  | { type: "fit"; sharedTags: string[] }
   | { type: "done"; cached: boolean }
   | { type: "error"; message: string };
 export type Decision = { status: "approved" | "declined"; reason?: string; name: string; domain: string };
@@ -37,6 +39,7 @@ function useStream(url: string | null, body: object, attempt: number) {
   const [trace, setTrace] = useState<string[]>([]);
   const [text, setText] = useState("");
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [sharedTags, setSharedTags] = useState<string[] | null>(null);
   const [status, setStatus] = useState<"idle" | "writing" | "done" | "error">("idle");
   const [error, setError] = useState("");
   const payload = JSON.stringify(body);
@@ -47,6 +50,7 @@ function useStream(url: string | null, body: object, attempt: number) {
     setTrace([]); // eslint-disable-line react-hooks/set-state-in-effect -- reset for a new request or a retry
     setText("");
     setVenues([]);
+    setSharedTags(null);
     setStatus("writing");
     (async () => {
       try {
@@ -56,6 +60,7 @@ function useStream(url: string | null, body: object, attempt: number) {
           if (e.type === "trace") setTrace((t) => [...t, e.text]);
           else if (e.type === "text") setText((t) => t + e.delta);
           else if (e.type === "venues") setVenues(e.venues);
+          else if (e.type === "fit") setSharedTags(e.sharedTags);
           else if (e.type === "done") setStatus("done");
           else if (e.type === "error") {
             setError(e.message);
@@ -72,7 +77,7 @@ function useStream(url: string | null, body: object, attempt: number) {
     return () => abort.abort();
   }, [url, payload, attempt]);
 
-  return { trace, text, venues, status, error };
+  return { trace, text, venues, sharedTags, status, error };
 }
 
 export default function BriefPanel({
@@ -201,7 +206,8 @@ export default function BriefPanel({
           {proxy && <BasedOn cards={basedOn} />}
           <BriefLog trace={b.trace} writing={b.status === "writing"} hasText={!!b.text} />
           {!b.text && b.status === "writing" && <Skeleton lines={9} />}
-          <BriefBody text={b.text} pick={pick} rank={rank} badge={badge} venues={b.venues} done={ready} />
+          <BriefBody text={b.text} pick={pick} rank={rank} badge={badge} venues={b.venues} sharedTags={b.sharedTags} trace={b.trace} done={ready} />
+          {ready && <CohortBlock body={body} partner={pick.name} />}
 
           {b.status === "error" && (
             <div className="mt-6 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
@@ -341,8 +347,12 @@ function BriefBody({
   rank,
   badge,
   venues,
+  sharedTags,
+  trace,
   done,
 }: {
+  sharedTags: string[] | null;
+  trace: string[];
   done: boolean;
   text: string;
   pick: Pick;
@@ -356,9 +366,9 @@ function BriefBody({
         <section key={i} className="mt-8">
           {s.heading && <h3 className="font-display text-xl">{s.heading}</h3>}
           {s.heading === "Fit scorecard" ? (
-            <Scorecard s={s} pick={pick} rank={rank} badge={badge} />
+            <Scorecard s={s} pick={pick} rank={rank} badge={badge} sharedTags={sharedTags} />
           ) : s.heading === "The evidence" ? (
-            <Evidence s={s} />
+            <Evidence s={s} trace={trace} />
           ) : s.bullets.some((b) => /^(Market|Venue): /.test(b)) ? (
             <Launch s={s} venues={venues} done={done} />
           ) : (
@@ -390,7 +400,7 @@ function Prose({ s, lead }: { s: Section; lead?: boolean }) {
 }
 
 // A small table: label, figure (tabular) with the fit chip, then the model's sentence.
-function Scorecard({ s, pick, rank, badge }: { s: Section; pick: Pick; rank?: { n: number; of: number }; badge?: "mutual" | "partial" | null }) {
+function Scorecard({ s, pick, rank, badge, sharedTags }: { s: Section; pick: Pick; rank?: { n: number; of: number }; badge?: "mutual" | "partial" | null; sharedTags: string[] | null }) {
   return (
     <dl className="mt-3 border-b border-rule">
       {s.bullets.map((b, i) => {
@@ -415,6 +425,15 @@ function Scorecard({ s, pick, rank, badge }: { s: Section; pick: Pick; rank?: { 
                 </dd>
               )}
             </div>
+            {label === "Shared taste" && sharedTags?.length ? (
+              <dd className="mt-2 flex flex-wrap gap-1.5" title="Qloo tags both carry">
+                {sharedTags.map((t) => (
+                  <span key={t} className="rounded-sm border border-rule-strong px-2 py-0.5 text-sm text-ink">
+                    {t}
+                  </span>
+                ))}
+              </dd>
+            ) : null}
             <dd className="mt-1 text-base text-ink-2">{body}</dd>
           </div>
         );
@@ -423,14 +442,21 @@ function Scorecard({ s, pick, rank, badge }: { s: Section; pick: Pick; rank?: { 
   );
 }
 
-function Evidence({ s }: { s: Section }) {
+function Evidence({ s, trace }: { s: Section; trace: string[] }) {
   return (
     <ul className="mt-3 space-y-4">
       {s.bullets.map((b, i) => {
         const { lead, rest } = figureLead(b);
+        const source = sourceFor(b, trace); // the log line of the Qloo check behind this number
         return (
           <li key={i}>
-            {lead && <p className="text-lg font-semibold tabular-nums text-ink">{lead}</p>}
+            {lead && (
+              <p className="text-lg font-semibold tabular-nums text-ink">
+                <span title={source ? `From the Qloo check: ${source}` : undefined} className={source ? "cursor-help underline decoration-rule-strong decoration-dotted underline-offset-4" : undefined}>
+                  {lead}
+                </span>
+              </p>
+            )}
             <p className={`text-base ${lead ? "text-ink-2" : "text-ink"}`}>{rest}</p>
           </li>
         );
@@ -496,5 +522,80 @@ function Launch({ s, venues, done }: { s: Section; venues: Venue[]; done: boolea
           </div>
         ))}
     </div>
+  );
+}
+
+// "Who does this land with?": the partner's affinity among the seed's fans by age bracket. A brief that was already
+// run shows its chart on open (cache-only peek, 0 Qloo calls); otherwise one tap runs it (6 Qloo calls, cached).
+function CohortBlock({ body, partner }: { body: object; partner: string }) {
+  const [state, setState] = useState<"peeking" | "idle" | "loading" | "error">("peeking");
+  const [cohort, setCohort] = useState<Cohort | null>(null);
+  const [error, setError] = useState("");
+  const payload = JSON.stringify(body);
+  const ask = async (peek: boolean) => {
+    setState(peek ? "peeking" : "loading");
+    try {
+      const res = await fetch("/api/cohort", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...JSON.parse(payload), peek }) });
+      const r = await res.json();
+      if (!res.ok) throw new Error(r.error ?? "Couldn't break this down by age right now.");
+      setCohort(r.cohort);
+      setState("idle");
+    } catch (err) {
+      setError((err as Error).message);
+      setState(peek ? "idle" : "error");
+    }
+  };
+  useEffect(() => {
+    ask(true); // eslint-disable-line react-hooks/set-state-in-effect -- one cache-only read when the brief is ready
+  }, [payload]); // eslint-disable-line react-hooks/exhaustive-deps -- ask closes over payload only
+  return (
+    <section className="mt-10 max-w-[65ch] border-t border-rule pt-6">
+      <h3 className="font-display text-xl">Who does this land with?</h3>
+      {cohort ? (
+        <CohortChart cohort={cohort} partner={partner} />
+      ) : state === "loading" ? (
+        <Skeleton lines={6} />
+      ) : state === "peeking" ? null : (
+        <>
+          <p className="mt-1 text-base text-ink-2">{partner}&apos;s pull among these fans, one age bracket at a time.</p>
+          {state === "error" && <p className="mt-3 rounded-md bg-danger-tint px-4 py-3 text-base text-danger">{error}</p>}
+          <button onClick={() => ask(false)} className={`${btnSecondary} mt-3`}>
+            Break it down by age
+          </button>
+        </>
+      )}
+    </section>
+  );
+}
+
+// Six bars from a zero baseline, values labeled in ink, the strongest bracket in the accent. One series: no legend.
+function CohortChart({ cohort, partner }: { cohort: Cohort; partner: string }) {
+  return (
+    <figure className="mt-3">
+      <figcaption className="text-base text-ink">{cohort.sentence}</figcaption>
+      <table className="mt-4 w-full border-collapse text-left">
+        <caption className="sr-only">{partner} affinity among these fans by age bracket, 0 to 1</caption>
+        <tbody>
+          {cohort.buckets.map((b) => {
+            const top = b.age === cohort.strongest;
+            const label = `${AGE_LABEL[b.age]}: ${b.affinity === null ? "no data" : b.affinity.toFixed(2)}`;
+            return (
+              <tr key={b.age} title={label}>
+                <th scope="row" className={`w-28 py-1.5 pr-3 text-sm font-normal whitespace-nowrap ${top ? "font-semibold text-ink" : "text-ink-2"}`}>
+                  {AGE_LABEL[b.age]}
+                </th>
+                <td className="py-1.5">
+                  <div className="h-3 w-full">
+                    {b.affinity !== null && <div className={`h-3 rounded-r-[4px] ${top ? "bg-accent" : "bg-rule-strong"}`} style={{ width: `${Math.max(1, b.affinity * 100)}%` }} />}
+                  </div>
+                </td>
+                <td className={`w-14 py-1.5 pl-3 text-right text-sm tabular-nums ${top ? "font-semibold text-ink" : "text-ink-2"}`}>{b.affinity === null ? "n/a" : b.affinity.toFixed(2)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p className="mt-2 text-sm text-ink-3">Affinity, 0 to 1. Six Qloo checks, one per bracket.</p>
+    </figure>
   );
 }

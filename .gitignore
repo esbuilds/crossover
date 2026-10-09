@@ -49,3 +49,4 @@ next-env.d.ts
 
 # scratch screen recordings
 /docs/*.mp4
+scripts/warm-state.json

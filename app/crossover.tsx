@@ -8,6 +8,7 @@ import type { Ranking } from "@/lib/agent/rank.ts";
 import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ConstraintSet } from "@/lib/refine.ts";
+import type { Trend } from "@/lib/trends.ts";
 import UsMap from "./map";
 import { btnPrimary, btnQuiet, btnSecondary, Chip, field, MatchCard, SiteHeader, Thumb } from "./ui";
 import BriefPanel, { type Decision } from "./brief-panel";
@@ -77,6 +78,7 @@ export default function Crossover({
   const [badges, setBadges] = useState<
     Record<string, "mutual" | "partial" | null>
   >({});
+  const [trends, setTrends] = useState<Record<string, Trend>>({}); // durable / trending, brands only
   const [proxy, setProxy] = useState<ProxySpec | null>(null); // the proxy run on screen, if any
   const [draft, setDraft] = useState<ProxyDraft | null>(null); // the proxy form, when it's showing
   const [running, setRunning] = useState(false); // the run stream is still open (ranking may still arrive)
@@ -131,6 +133,7 @@ export default function Crossover({
     setSlate({ state: "loading" });
     setRanking({});
     setBadges({});
+    setTrends({});
     setConstraints(null);
     setOpen(null);
     setTrace([]);
@@ -152,6 +155,7 @@ export default function Crossover({
       } else if (ev.type === "ranking")
         setRanking((r) => ({ ...r, [ev.domain]: ev.data }));
       else if (ev.type === "mutual") setBadges(ev.data);
+      else if (ev.type === "trends") setTrends(ev.data);
       else if (ev.type === "constraints") setConstraints(ev.data);
       else if (ev.type === "done") stop();
       else if (ev.type === "error") fail(ev.message);
@@ -343,6 +347,7 @@ export default function Crossover({
           data={slate.data}
           ranking={ranking}
           badges={badges}
+          trends={trends}
           running={running}
           decisions={decisions}
           constraints={constraints}
@@ -503,6 +508,7 @@ function Results({
   data,
   ranking,
   badges,
+  trends,
   running,
   decisions,
   constraints,
@@ -510,6 +516,7 @@ function Results({
   onRefine,
   onOpen,
 }: {
+  trends: Record<string, Trend>;
   constraints: ConstraintSet | null;
   refineText: string;
   onRefine: (c: string) => void;
@@ -531,6 +538,7 @@ function Results({
   const rowProps = (row: Row, domain: Domain) => ({
     ...row,
     badge: badges[row.pick.entity_id],
+    trend: trends[row.pick.entity_id],
     pairHref:
       data.entity.type === "proxy"
         ? undefined
@@ -545,7 +553,7 @@ function Results({
         <h2 className="font-display text-2xl sm:text-3xl">Partners for {data.entity.name}</h2>
         <p className="mt-1 max-w-[65ch] text-base text-ink-2">{playbookFor(data.entity.type).slateSubtitle}</p>
         <RefineBar key={refineText} refineText={refineText} constraints={constraints} running={running} onRefine={onRefine} />
-        {Object.values(badges).some(Boolean) && (
+        {(Object.values(badges).some(Boolean) || Object.keys(trends).length > 0) && (
           <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-2">
             <span className="flex items-center gap-2">
               <Chip kind="mutual" /> their fans rank you in their top 10 too
@@ -553,12 +561,24 @@ function Results({
             <span className="flex items-center gap-2">
               <Chip kind="partial" /> in their top 50
             </span>
+            {Object.keys(trends).length > 0 && (
+              <>
+                <span className="flex items-center gap-2">
+                  <Chip kind="durable" /> holds its place with trend lift off
+                </span>
+                <span className="flex items-center gap-2">
+                  <Chip kind="trending" /> only shows up when trends count most
+                </span>
+              </>
+            )}
           </p>
         )}
       </header>
 
       {data.domains.map(({ domain, picks }) => {
         const { rows, lower, dropped } = arrange(picks, ranking[domain], decisions);
+        // the shortlist is what the ranker kept (Qloo's top five before it lands); the rest sit behind "Show all"
+        const shortlist = ranking[domain] ? Math.max(1, ranking[domain].kept.filter((k) => !decisions[k.entity_id] || decisions[k.entity_id].status !== "declined").length) : 5;
         return (
           <section key={domain} className="border-b border-rule py-8">
             <div className="flex items-baseline justify-between gap-4">
@@ -567,12 +587,21 @@ function Results({
             </div>
             {rows.length ? (
               <ol className="mt-3 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
-                {rows.map((row) => (
+                {rows.slice(0, shortlist).map((row) => (
                   <PickRow key={row.pick.entity_id} {...rowProps(row, domain)} />
                 ))}
               </ol>
             ) : (
               <p className="mt-3 text-base text-ink-2">Nothing here for this audience.</p>
+            )}
+            {rows.length > shortlist && (
+              <Disclosure label={`Show ${rows.length - shortlist} more`}>
+                <ol className="grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+                  {rows.slice(shortlist).map((row) => (
+                    <PickRow key={row.pick.entity_id} {...rowProps(row, domain)} />
+                  ))}
+                </ol>
+              </Disclosure>
             )}
             {lower.length > 0 && (
               <Disclosure label={`Ranked lower (${lower.length})`}>
@@ -663,12 +692,14 @@ function PickRow({
   reason,
   flag,
   badge,
+  trend,
   pairHref,
   drivenBy,
   approved,
   onOpen,
 }: Row & {
   badge?: "mutual" | "partial" | null;
+  trend?: Trend;
   pairHref?: string;
   drivenBy?: string;
   approved?: boolean;
@@ -688,11 +719,12 @@ function PickRow({
               </div>
               <span className="text-sm tabular-nums text-ink-3">{pick.affinity.toFixed(2)}</span>
             </div>
-            {(badge || approved || flag || drivenBy) && (
+            {(badge || approved || flag || drivenBy || trend) && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {badge && <Chip kind={badge} title={badge === "mutual" ? "Their fans rank you in their top 10 too" : "Their fans rank you in their top 50"} />}
                 {approved && <Chip kind="approved" />}
                 {flag && <Chip kind={flag} />}
+                {trend && <Chip kind={trend} />}
                 {drivenBy && <Chip kind="note">Driven by {drivenBy}</Chip>}
               </div>
             )}
