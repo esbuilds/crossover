@@ -73,6 +73,11 @@ async function request(path: string, init: { query?: Record<string, string | num
       await sleep(Math.min(reset, 5) * 1000);
       continue;
     }
+    // Qloo's gateway sometimes times out on heavily filtered calls (a 504 on Oct 19); one retry, then give up
+    if ((res.status === 502 || res.status === 503 || res.status === 504) && attempt === 0) {
+      await sleep(1000);
+      continue;
+    }
     if (!res.ok && (res.status === 429 || monthRemaining === 0)) throw new QuotaError(`Qloo ${res.status} ${path}`);
     if (!res.ok) throw new Error(`Qloo ${res.status} ${path}: ${(await res.text()).slice(0, 200)}`);
     return res.json();

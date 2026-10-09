@@ -18,7 +18,7 @@ import { rank, seedFromCard, type Seed } from "@/lib/agent/rank.ts";
 import { parseProxies } from "@/lib/proxy.ts";
 import { parseTag } from "@/lib/proxy-params.ts";
 import { QuotaError } from "@/lib/qloo.ts";
-import { interpret, refineParams, type ConstraintSet } from "@/lib/refine.ts";
+import { interpret, refineParams, relaxedParams, appliedSentence, type ConstraintSet } from "@/lib/refine.ts";
 import { rankAmongFans, badgeFor } from "@/lib/fit.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -93,7 +93,9 @@ export async function GET(request: NextRequest) {
         send({ type: "constraints", data: set });
         return {
           paramsFor: (d) => refineParams(set, d),
+          relaxedFor: (d) => relaxedParams(set, d),
           excludeIds: set.excludeIds,
+          onNote: trace,
         };
       };
 
@@ -207,7 +209,8 @@ export async function GET(request: NextRequest) {
           );
         },
         undefined,
-        refineText || undefined,
+        // only what actually applied: unmapped phrases were reported as not applied, so the ranker doesn't see them
+        (constraints as ConstraintSet | null) ? appliedSentence(constraints as unknown as ConstraintSet) || undefined : undefined,
       );
       trace(
         `Shortlisted ${kept} partners and dropped ${dropped} that don't fit${failed ? ` (${failed} categories unranked)` : ""}`,

@@ -6,7 +6,7 @@ import { fixtureById } from "./fixtures.ts";
 import { parseProxies, parseTag } from "./proxy-params.ts";
 import type { BriefInput } from "./agent/brief.ts";
 import { rankAmongFans } from "./fit.ts";
-import { interpret, refineParams } from "./refine.ts";
+import { interpret, refineParams, relaxedParams } from "./refine.ts";
 import { playbookFor } from "./playbook.ts";
 
 // Partners can be any slate domain, plus people (pairing mode: "Liquid Death x Martha Stewart").
@@ -23,7 +23,7 @@ export async function loadPair(body: PairBody): Promise<BriefInput | { error: st
   const hookFor = async (name: string, kind: string): Promise<RefineHook | null> => {
     if (!refineText) return null;
     const set = await interpret(name, kind, refineText);
-    return { paramsFor: (d) => refineParams(set, d), excludeIds: set.excludeIds };
+    return { paramsFor: (d) => refineParams(set, d), relaxedFor: (d) => relaxedParams(set, d), excludeIds: set.excludeIds };
   };
   const signals = parseProxies(typeof proxy?.p === "string" ? proxy.p : null);
   const proxyName = typeof proxy?.name === "string" ? proxy.name.trim().slice(0, 80) : "";

@@ -235,6 +235,18 @@ async function interpretUncached(seedName: string, seedKind: string, sentence: s
 export const interpret = (seedName: string, seedKind: string, sentence: string) => interpretCached("refine-v1", seedName, seedKind, sentence.trim().slice(0, 200));
 const interpretCached = cached("refine", (_v: string, seedName: string, seedKind: string, sentence: string) => interpretUncached(seedName, seedKind, sentence));
 
+// The applied constraints as one sentence for the ranking prompt. Unmapped phrases are left out on purpose: the UI
+// says they couldn't be applied, so the ranker must not quietly apply them from its own guesses.
+export const appliedSentence = (c: ConstraintSet) => c.applied.map((a) => a.phrase).join(", ");
+
+// Include tags as soft signals instead of hard filters, for a domain that came back empty under the filter.
+export function relaxedParams(c: ConstraintSet, d: Domain): Record<string, string | number> | null {
+  const strict = refineParams(c, d);
+  if (!strict || !strict["filter.tags"]) return null;
+  const { "filter.tags": tags, ...rest } = strict;
+  return { ...rest, "signal.interests.tags": tags };
+}
+
 // Per-domain insights params for a constraint set (merged into the slate call for that domain).
 export function refineParams(c: ConstraintSet | null | undefined, d: Domain): Record<string, string | number> | null {
   if (!c) return {};

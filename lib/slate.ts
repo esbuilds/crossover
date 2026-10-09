@@ -1,5 +1,5 @@
 // Partner slate: what the entity's fans over-index on, across six Qloo domains (PLAN.md section 3).
-import { insights, insightsPost, RESOLVE_TYPES, type Entity, type Signal } from "./qloo.ts";
+import { insights, insightsPost, QuotaError, RESOLVE_TYPES, type Entity, type Signal } from "./qloo.ts";
 import { TAG_WEIGHT } from "./proxy-params.ts";
 
 export const DOMAINS = ["brand", "artist", "tv_show", "movie", "place", "podcast"] as const;
@@ -38,7 +38,15 @@ const toPick = (e: Entity): Pick => ({
 // (cookware) don't turn its brand row into home goods. Brand domain only: it's a brand tag.
 // refine (Oct 19): per-domain extra params from a constraint set (lib/refine.ts refineParams); null skips the
 // domain. Without refine the params are exactly what they always were, so unrefined runs keep their cache hits.
-export type RefineHook = { paramsFor: (d: Domain) => Record<string, string | number> | null; excludeIds: string[] };
+// relaxedFor: the same params with hard include-tag filters turned into soft signals, used when a domain comes
+// back empty under the filter. onNote reports what happened to a domain in plain words (trace).
+export type RefineHook = {
+  paramsFor: (d: Domain) => Record<string, string | number> | null;
+  relaxedFor?: (d: Domain) => Record<string, string | number> | null;
+  excludeIds: string[];
+  onNote?: (text: string) => void;
+};
+const DOMAIN_LABEL: Record<Domain, string> = { brand: "brands", artist: "artists", tv_show: "TV shows", movie: "films", place: "places", podcast: "podcasts" };
 
 export async function getSlate(seed: string | Signal[], onDomain?: (d: Domain, picks: Pick[]) => void, tag?: string | null, refine?: RefineHook | null): Promise<Slate> {
   const lists = await Promise.all(
@@ -52,10 +60,29 @@ export async function getSlate(seed: string | Signal[], onDomain?: (d: Domain, p
       const type = `urn:entity:${d}`;
       const tagged = tag && d === "brand" ? { "signal.interests.tags": [{ tag, weight: TAG_WEIGHT }] } : {};
       const exclude = [typeof seed === "string" ? seed : null, ...(refine?.excludeIds ?? [])].filter(Boolean).join(",");
-      const raw =
+      const call = (p: Record<string, string | number>) =>
         typeof seed === "string"
-          ? await insights({ "filter.type": type, "signal.interests.entities": seed, "filter.exclude.entities": exclude, ...params })
-          : await insightsPost(type, seed, { ...params, ...tagged, ...(refine?.excludeIds.length ? { "filter.exclude.entities": refine.excludeIds.join(",") } : {}) });
+          ? insights({ "filter.type": type, "signal.interests.entities": seed, "filter.exclude.entities": exclude, ...p })
+          : insightsPost(type, seed, { ...p, ...tagged, ...(refine?.excludeIds.length ? { "filter.exclude.entities": refine.excludeIds.join(",") } : {}) });
+      let raw: Entity[];
+      if (!refine) raw = await call(params);
+      else {
+        // refined runs: one domain failing (a Qloo timeout) or coming back empty under a hard filter shouldn't sink
+        // the whole slate. Quota errors still propagate.
+        try {
+          raw = await call(params);
+          const relaxed = raw.length ? null : refine.relaxedFor?.(d);
+          if (relaxed) {
+            raw = await call({ take: 10, "feature.explainability": "true", ...relaxed });
+            refine.onNote?.(`No ${DOMAIN_LABEL[d]} carry that tag in Qloo, so ${DOMAIN_LABEL[d]} lean toward it instead of requiring it`);
+          }
+        } catch (err) {
+          if (err instanceof QuotaError) throw err;
+          console.error(`[slate] ${d} failed`, err);
+          refine.onNote?.(`Qloo didn't answer for ${DOMAIN_LABEL[d]} with these filters; skipped them`);
+          raw = [];
+        }
+      }
       const picks = raw.map(toPick);
       onDomain?.(d, picks);
       return picks;

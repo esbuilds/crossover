@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { buildConstraintSet, pickTag, refineParams } from "./refine.ts";
+import { buildConstraintSet, pickTag, refineParams, relaxedParams, appliedSentence } from "./refine.ts";
 
 const tags = JSON.parse(readFileSync(new URL("../fixtures/tags-sample.json", import.meta.url), "utf8")).tags;
 const BEER = { tag_id: "urn:tag:genre:brand:beer", name: "Beer", type: "urn:tag:genre:brand" };
@@ -57,4 +57,22 @@ test("anything unmappable becomes a visible note, never a silent no-op", () => {
   assert.match(c.notes.join(" "), /no matching tag for beer/);
   assert.match(c.notes.join(" "), /couldn't find Zzqx/);
   assert.equal(c.summary, "Reading your constraints: nothing here maps to a filter.");
+});
+
+test("an empty hard-filtered domain relaxes to a soft signal; only applied phrases reach the ranker", () => {
+  const MUSIC = { tag_id: "urn:tag:audience:music", name: "Music Enthusiasts", type: "urn:tag:audience" };
+  const c = buildConstraintSet(
+    "brands that sponsor live music, founded by women",
+    {
+      ...none,
+      include: [{ phrase: "brands that sponsor live music", tag_query: "live music", applies_to: ["brand"] }],
+      unmapped: [{ phrase: "founded by women", why: "no founder data" }],
+    },
+    new Map([["live music|brand", MUSIC]]),
+    new Map(),
+  );
+  assert.deepEqual(refineParams(c, "brand"), { "filter.tags": MUSIC.tag_id });
+  assert.deepEqual(relaxedParams(c, "brand"), { "signal.interests.tags": MUSIC.tag_id });
+  assert.equal(relaxedParams(c, "artist"), null); // nothing to relax where no include filter applies
+  assert.equal(appliedSentence(c), "brands that sponsor live music"); // the unmapped phrase stays out
 });
