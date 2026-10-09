@@ -5,16 +5,9 @@ import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { cached, insights, insightsPost, type Signal } from "./qloo.ts";
 
-export const AGES = ["24_and_younger", "25_to_29", "30_to_34", "35_to_44", "45_to_54", "55_and_older"] as const;
-export type Age = (typeof AGES)[number];
-export const AGE_LABEL: Record<Age, string> = {
-  "24_and_younger": "24 and under",
-  "25_to_29": "25 to 29",
-  "30_to_34": "30 to 34",
-  "35_to_44": "35 to 44",
-  "45_to_54": "45 to 54",
-  "55_and_older": "55 and over",
-};
+import { AGES, AGE_LABEL, type Age } from "./ages.ts";
+
+export { AGES, AGE_LABEL, type Age };
 export type Cohort = { buckets: { age: Age; affinity: number | null }[]; strongest: Age | null; sentence: string };
 
 // Pure: the bracket with the highest affinity, or null when Qloo returned nothing for any of them.
