@@ -1,5 +1,5 @@
 import { type NextRequest } from "next/server";
-import { search, RESOLVE_TYPES } from "@/lib/qloo.ts";
+import { search, RESOLVE_TYPES, QuotaError } from "@/lib/qloo.ts";
 import { resolve, type Resolution } from "@/lib/resolve.ts";
 import { toCard } from "@/lib/slate.ts";
 import { fixtureByQuery } from "@/lib/fixtures.ts";
@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
     return Response.json({ ...shape(r), source: "qloo" }, { headers: { "Cache-Control": "public, s-maxage=2592000" } });
   } catch (err) {
     console.error("[resolve]", err);
+    if (err instanceof QuotaError)
+      return Response.json({ error: "Qloo's taste data is busy right now. Names you've already looked up still work; try a new one in a minute." }, { status: 503 });
     return Response.json({ error: "Qloo request failed" }, { status: 502 });
   }
 }

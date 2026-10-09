@@ -5,6 +5,7 @@ import { fixtureById } from "@/lib/fixtures.ts";
 import { rank, seedFromCard, type Seed } from "@/lib/agent/rank.ts";
 import { parseProxies } from "@/lib/proxy.ts";
 import { parseTag } from "@/lib/proxy-params.ts";
+import { QuotaError } from "@/lib/qloo.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LABEL: Record<Domain, string> = { brand: "brands", artist: "artists", tv_show: "TV shows", movie: "films", podcast: "podcasts", place: "places" };
@@ -98,7 +99,15 @@ export async function GET(request: NextRequest) {
       send({ type: "done" });
     } catch (err) {
       console.error("[run]", err);
-      send({ type: "error", message: err instanceof Error && err.message.startsWith("Qloo has no") ? err.message : "Something failed while building the slate" });
+      send({
+        type: "error",
+        message:
+          err instanceof QuotaError
+            ? "Qloo's taste data is busy right now. Names you've already looked up still load; try a new one in a minute."
+            : err instanceof Error && err.message.startsWith("Qloo has no")
+              ? err.message
+              : "Something failed while building the slate",
+      });
     } finally {
       controller.close();
     }

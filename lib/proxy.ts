@@ -54,7 +54,7 @@ async function propose(name: string, description: string, named: string[]): Prom
       named.length ? ` They say their customers also love: ${named.join(", ")}.` : ""
     }
 
-Suggest ${PROPOSE} brands its customers most likely also buy, best first. The taste database behind this knows national lifestyle and direct-to-consumer brands well (kitchen and home, food and drink, apparel, beauty, wellness) and knows grocery staples and store labels poorly. For calibration, these are the kind of brand it knows: ${KNOWN.join(", ")}. Don't suggest those just because they're listed; suggest them only if ${name}'s customer would really buy them. Prefer brands with a strong identity and a national following, in the same or adjacent categories, over same-shelf grocery labels. Do not repeat the brands the owner already named, and do not suggest ${name} itself. If the description is too vague to tell what ${name} sells, suggest fewer or none rather than guessing.
+Suggest ${PROPOSE} brands its customers most likely also buy, best first. The taste database behind this knows national lifestyle and direct-to-consumer brands well (kitchen and home, food and drink, apparel, beauty, wellness) and knows grocery staples and store labels poorly. For calibration only, these are the kind of brand it knows: ${KNOWN.join(", ")}. Most of your suggestions should NOT come from that list; name other brands of that kind that fit ${name}'s customer specifically. Prefer brands with a strong identity and a national following, in the same or adjacent categories, over same-shelf grocery labels. Do not repeat the brands the owner already named, and do not suggest ${name} itself. If the description is too vague to tell what ${name} sells, suggest fewer or none rather than guessing.
 
 Also give up to three category phrases for what ${name} sells, broadest first (a broad aisle like "seafood", "snacks", "beverages", "skincare" before anything specific).`,
   });
@@ -75,7 +75,12 @@ async function verify(c: string): Promise<Card | { name: string; reason: string 
 async function proposeUncached(name: string, description: string, named: string[]): Promise<ProxyResult> {
   const mine = [...new Set(named.map((n) => n.trim()).filter(Boolean))].slice(0, 3);
   const proposal = await propose(name, description, mine);
-  const queue = [...mine, ...proposal.candidates.map((s) => s.name)]
+  // Haiku tends to copy the calibration list wholesale (8 of 8 on Fishwife, Oct 15). Keep at most two of those,
+  // so most stand-ins are its own picks for this brand, verified like any other.
+  const known = new Set(KNOWN.map((k) => k.toLowerCase()));
+  let fromList = 0;
+  const theirs = proposal.candidates.map((s) => s.name).filter((c) => !known.has(c.toLowerCase()) || ++fromList <= 2);
+  const queue = [...mine, ...theirs]
     .filter((c, i, all) => all.findIndex((x) => x.toLowerCase() === c.toLowerCase()) === i && c.toLowerCase() !== name.toLowerCase())
     .slice(0, MAX_SEARCHES);
 
@@ -100,7 +105,7 @@ async function proposeUncached(name: string, description: string, named: string[
 }
 
 // Cached 30 days per (name, description, named brands) so "Check again" and share links are stable.
-const PROPOSAL_VERSION = "proxies-v3";
+const PROPOSAL_VERSION = "proxies-v4";
 const proposeCached = cached("proxies", (_v: string, name: string, description: string, named: string[]) => proposeUncached(name, description, named));
 export const proposeProxies = (name: string, description: string, named: string[]) =>
   proposeCached(PROPOSAL_VERSION, name.trim(), description.trim(), named.map((n) => n.trim()).filter(Boolean));

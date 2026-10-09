@@ -1,5 +1,6 @@
 // Server-side Qloo client. Every Qloo call in the app goes through this file.
 import { unstable_cache } from "next/cache.js"; // .js so plain node scripts resolve it too
+import { forced } from "./force.ts";
 
 // ponytail: env guard instead of the server-only package; the key is not NEXT_PUBLIC so it never reaches a bundle anyway
 if (typeof window !== "undefined") throw new Error("lib/qloo is server-only");
@@ -54,6 +55,7 @@ async function request(path: string, init: { query?: Record<string, string | num
     cache: "no-store", // unstable_cache owns caching; don't double-store raw responses
   };
 
+  if (forced("qloo429")) throw new QuotaError("forced 429");
   for (let attempt = 0; ; attempt++) {
     await slot();
     calls++;
@@ -66,12 +68,17 @@ async function request(path: string, init: { query?: Record<string, string | num
       await sleep(Math.min(reset, 5) * 1000);
       continue;
     }
+    if (!res.ok && (res.status === 429 || monthRemaining === 0)) throw new QuotaError(`Qloo ${res.status} ${path}`);
     if (!res.ok) throw new Error(`Qloo ${res.status} ${path}: ${(await res.text()).slice(0, 200)}`);
     return res.json();
   }
 }
 
 export const qlooCallCount = () => calls;
+
+// Rate limit hit twice in a row, or the month's quota is gone. Routes turn this into a friendly message;
+// anything already in the 30-day cache still loads.
+export class QuotaError extends Error {}
 // ponytail: per process. On Vercel each instance counts its own calls; the month header is the real total.
 export const qlooUsage = () => ({ calls, monthRemaining });
 

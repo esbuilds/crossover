@@ -1,25 +1,39 @@
-// Brief agent: a tool-using Claude Opus 5.5 loop that checks a pairing both ways in Qloo, then writes a
-// partnership one-pager (PLAN.md section 2, step 6). Wednesday adds venues and map overlap.
+// Brief agent: a tool-using Claude Opus 5.5 loop that checks a pairing both ways in Qloo, finds where both
+// audiences run hot and where to launch, then writes a partnership one-pager (PLAN.md section 2, step 6).
 import { streamText, jsonSchema, tool, isStepCount, type LanguageModelUsage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { cached, insights, tags } from "../qloo.ts";
+import { insights, insightsPost, tags, type Signal } from "../qloo.ts";
+import { getCities } from "../cities.ts";
+import { overlapMarkets } from "../overlap.ts";
 import type { Card, Domain, Pick } from "../slate.ts";
 import { MODEL } from "./rank.ts";
+import { streamCache, type Streamed } from "./stream-cache.ts";
+import { forced } from "../force.ts";
 
-// In proxy mode the seed is synthetic (Qloo doesn't know it); anchor is the top-weighted proxy, which stands in
-// for the seed in the reverse check, and basedOn names every proxy.
-export type BriefInput = { seed: Card; pick: Pick; domain: Domain; slateRank: number; slateSize: number; anchor?: Card; basedOn?: string[] };
-export type BriefResult = { text: string; trace: string[]; usage: LanguageModelUsage | null };
-type Listener = { ip: string; ran: boolean; trace: (t: string) => void; text: (d: string) => void };
+// seedSignal: the seed's entity id, or its weighted proxies. In proxy mode the seed is synthetic (Qloo doesn't
+// know it); anchor is the top-weighted proxy, which stands in for the seed in the reverse check.
+export type BriefInput = {
+  seed: Card;
+  seedSignal: string | Signal[];
+  pick: Pick;
+  domain: Domain;
+  slateRank: number;
+  slateSize: number;
+  anchor?: Card;
+  basedOn?: string[];
+};
+export type BriefResult = Streamed & { usage: LanguageModelUsage | null };
 
-const SYSTEM = `You are the partnerships strategist inside Crossover. A partnerships lead picked a potential collab partner from a slate Qloo built for their brand (the seed). Your job: check the fit both ways with Qloo, then write a one-page partnership brief they could forward to their boss.
+const SYSTEM = `You are the partnerships strategist inside Crossover. A partnerships lead picked a potential collab partner from a slate Qloo built for their brand (the seed). Your job: check the fit both ways with Qloo, find where to launch, then write a one-page partnership brief they could forward to their boss.
 
-Playbook:
-1. Call qloo_reverse_affinity first. Forward fit (how much the seed's fans over-index on the partner) is already given to you as a slate rank. The reverse call tells you whether the partner's fans like the seed back: where the seed lands among the partner's own top 50 in the seed's category, plus both entities' tags. A pairing that works one way only is a weaker pitch; say so.
-2. Optionally call qloo_tags once if a shared theme needs grounding in Qloo's tag vocabulary.
-3. Write the brief. Use only facts from the input and the tool results. Never invent numbers, sales figures, past collabs, or quotes.
+Playbook, in this order:
+1. Call qloo_reverse_affinity. Forward fit (how much the seed's fans over-index on the partner) is already given to you as a slate rank. The reverse call tells you whether the partner's fans like the seed back: where the seed lands among the partner's own top 50 in the seed's category, plus both entities' tags. A pairing that works one way only is a weaker pitch; say so.
+2. Call qloo_heatmap_overlap. It returns the US markets in both audiences' top tens with each side's over-index (100 is the US average). Pick the launch market: the overlap market with the highest combined over-index. If there is no overlap, or the partner has no heatmap, use the seed's top market and say so in the launch plan.
+3. Call qloo_places_in_city for that market. It returns venues both audiences over-index on. If it reports it fell back to another market, use that market and say why.
+4. Optionally call qloo_tags once if a shared theme needs grounding in Qloo's tag vocabulary.
+5. Write the brief. Use only facts from the input and the tool results. Never invent numbers, sales figures, past collabs, venues, or quotes.
 
-Some seeds are brands Qloo doesn't know yet. Then the input says so, names the brands whose fans the slate was built from, and names one of them as the stand-in for the reverse check. In that case: say "based on fans of" those brands where you cite the slate rank, and write the mutual fit line as "- Mutual fit, measured against <stand-in> fans: ..." using the stand-in's name, because the reverse check measured the stand-in, not the seed.
+Some seeds are brands Qloo doesn't know yet. Then the input says so, names the brands whose fans the slate was built from, and names one of them as the stand-in. In that case: say "based on fans of" those brands where you cite the slate rank, and write the mutual fit line as "- Mutual fit, measured against <stand-in> fans: ..." using the stand-in's name, because the reverse check measured the stand-in, not the seed.
 
 Write the brief in plain text with these exact headings, in this order, each on its own line starting with "## ":
 
@@ -36,12 +50,15 @@ Four lines, each starting with "- " and a label:
 ## The evidence
 Two to four lines starting with "- ", each a number or tag from Qloo and what it shows.
 
+## Launch plan
+- Market: the launch market with both over-index numbers (for example "Austin: 140 for the seed's fans, 131 for the partner's").
+- Three lines, each starting with "- Venue: ", naming one venue from qloo_places_in_city and one short reason it fits.
+- Activation: the moment (when and what happens), the channel, and one KPI to judge it by.
+
 ## The ask
 One or two sentences: what the seed's team should propose to the partner's team first.
 
-Launch plan: Wednesday
-
-Style: written for a partnerships lead, not an engineer. Short sentences. No bold, no emoji, no other headings, no preamble before "## The idea", nothing after "Launch plan: Wednesday".`;
+Style: written for a partnerships lead, not an engineer. Short sentences. No bold, no emoji, no other headings, no preamble before "## The idea", nothing after the ask.`;
 
 function userTurn({ seed, pick, domain, slateRank, slateSize, anchor, basedOn }: BriefInput) {
   return [
@@ -53,6 +70,8 @@ function userTurn({ seed, pick, domain, slateRank, slateSize, anchor, basedOn }:
     `Forward fit: #${slateRank} of ${slateSize} ${domain} picks in the seed's slate, affinity ${pick.affinity.toFixed(2)}, partner popularity ${pick.popularity.toFixed(2)}.`,
   ].join("\n");
 }
+
+// --- tools ---
 
 // Reverse direction (PLAN.md section 3, pairing row): raw pairwise affinity is inflated by popularity, so report
 // where the seed lands in the partner's own top 50 for the seed's category, not just the raw number. 2 Qloo calls.
@@ -73,46 +92,86 @@ async function reverseAffinity(seed: Card, pick: Pick) {
   };
 }
 
-// --- caching a streamed generation ---
-// unstable_cache can't hold a stream, so the cached function does the generation itself and forwards tokens to
-// whichever request is waiting on that pair (looked up by key). A cache hit skips the function and the route
-// replays the stored result. ponytail: one listener per pair, so two simultaneous first-time requests for the
-// same pair stream to the later one only; the earlier gets the full text when it finishes. Fine for a demo.
-const listeners = new Map<string, Listener>();
-const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
-
-// ponytail: per-instance, in-memory, resets on cold start, so the real ceiling is 20 x live instances per IP.
-// Upgrade path: a KV counter (Upstash or Vercel KV) keyed by ip:date.
-const DAILY_CAP = 20;
-const usageByIp = new Map<string, { day: string; n: number }>();
-export class CapReached extends Error {}
-function spend(ip: string) {
-  const day = new Date().toISOString().slice(0, 10);
-  const u = usageByIp.get(ip);
-  const n = u?.day === day ? u.n : 0;
-  if (n >= DAILY_CAP) throw new CapReached();
-  usageByIp.set(ip, { day, n: n + 1 });
+// Markets in both top tens. The seed's heatmap is cached from the run; the partner's is 1 Qloo call, cached.
+async function heatmapOverlap(input: BriefInput) {
+  const [seed, partner] = await Promise.all([
+    getCities(input.seedSignal),
+    forced("noheatmap") ? Promise.resolve({ metros: [], cellCount: 0 }) : getCities(input.pick.entity_id).catch(() => ({ metros: [], cellCount: 0 })),
+  ]);
+  if (!partner.cellCount)
+    return { overlap: [], seed_top_markets: seed.metros.slice(0, 3).map((m) => ({ market: m.name, over_index: m.overIndex })), note: `Qloo has no US heatmap for ${input.pick.name}, so there is no overlap to measure.` };
+  return {
+    overlap: overlapMarkets(seed.metros, partner.metros),
+    seed_top_markets: seed.metros.slice(0, 3).map((m) => ({ market: m.name, over_index: m.overIndex })),
+    partner_top_markets: partner.metros.slice(0, 3).map((m) => ({ market: m.name, over_index: m.overIndex })),
+  };
 }
 
-async function generate(input: BriefInput): Promise<BriefResult> {
-  const l = listeners.get(keyOf(input));
-  if (l) l.ran = true;
-  spend(l?.ip ?? "unknown"); // only fresh generations count toward the cap; cached briefs are free
+const PLACE_TAGS = ["urn:tag:category:place:restaurant", "urn:tag:category:place:bar"]; // restaurants, then bars
+
+// Venues both audiences over-index on in a market: restaurants plus bars (1 Qloo call each), union, top 5.
+// If the market has none, falls back to the seed's next top market and says so.
+async function placesInCity(input: BriefInput, market: string) {
+  const seedTop = (await getCities(input.seedSignal)).metros.map((m) => m.name);
+  const tried: string[] = [];
+  for (const m of [market, ...seedTop.filter((x) => x !== market)].slice(0, 2)) {
+    tried.push(m);
+    const lists = await Promise.all(
+      PLACE_TAGS.map((tag) => {
+        if (forced("novenues") && m === market) return Promise.resolve([]);
+        const params = { "filter.type": "urn:entity:place", "filter.location.query": m, "filter.tags": tag, take: 8 };
+        return (
+          typeof input.seedSignal === "string"
+            ? insights({ ...params, "signal.interests.entities": `${input.seedSignal},${input.pick.entity_id}` })
+            : insightsPost("urn:entity:place", [...input.seedSignal, { id: input.pick.entity_id, weight: 10 }], params)
+        ).catch(() => []); // a tag Qloo rejects just contributes nothing
+      }),
+    );
+    const venues = lists
+      .flat()
+      .filter((v, i, all) => all.findIndex((x) => x.entity_id === v.entity_id) === i)
+      .sort((a, b) => (b.affinity ?? 0) - (a.affinity ?? 0))
+      .slice(0, 5)
+      .map((v) => ({ name: v.name, address: v.address ?? null, city: v.city ?? null, price_level: v.price_level ?? null, affinity: v.affinity ?? null }));
+    if (venues.length) return { market: m, venues, ...(m !== market ? { note: `No venues came back for ${market}, so these are in ${m}, the seed's next market.` } : {}) };
+  }
+  return { market, venues: [], note: `Qloo returned no restaurant or bar venues in ${tried.join(" or ")}.` };
+}
+
+// --- generation ---
+
+async function generate(input: BriefInput, say: (t: string) => void, write: (d: string) => void): Promise<BriefResult> {
   const trace: string[] = [];
-  const say = (t: string) => (trace.push(t), l?.trace(t));
+  const log = (t: string) => (trace.push(t), say(t));
+  const who = (input.anchor ?? input.seed).name;
   let text = "";
 
   const result = streamText({
     model: anthropic(MODEL),
     maxOutputTokens: 16000,
     providerOptions: { anthropic: { effort: "medium", fallbacks: "default" } },
-    stopWhen: isStepCount(5),
+    stopWhen: isStepCount(7),
     tools: {
       qloo_reverse_affinity: tool({
         description:
           "Check the pairing from the partner's side: where the seed lands among the partner's fans' top 50 in the seed's category, the seed's raw affinity with those fans, cutoffs for context, and both entities' Qloo tags.",
         inputSchema: jsonSchema<Record<string, never>>({ type: "object", properties: {}, additionalProperties: false }),
         execute: async () => reverseAffinity(input.anchor ?? input.seed, input.pick),
+      }),
+      qloo_heatmap_overlap: tool({
+        description: "US markets in both the seed's and the partner's top ten, with each side's over-index (100 = US average), highest combined first. Also each side's top three markets.",
+        inputSchema: jsonSchema<Record<string, never>>({ type: "object", properties: {}, additionalProperties: false }),
+        execute: async () => heatmapOverlap(input),
+      }),
+      qloo_places_in_city: tool({
+        description: "Restaurants and bars that both the seed's and the partner's fans over-index on, in one US market. Returns up to 5 with address, price level, and affinity.",
+        inputSchema: jsonSchema<{ market: string }>({
+          type: "object",
+          properties: { market: { type: "string", description: "A market name exactly as qloo_heatmap_overlap returned it" } },
+          required: ["market"],
+          additionalProperties: false,
+        }),
+        execute: async ({ market }) => placesInCity(input, market.slice(0, 60)),
       }),
       qloo_tags: tool({
         description: "Search Qloo's tag vocabulary for a theme (for example 'sustainability' or 'skate culture'). Returns up to 10 matching tags.",
@@ -126,41 +185,49 @@ async function generate(input: BriefInput): Promise<BriefResult> {
       }),
     },
     instructions: { role: "system", content: SYSTEM, providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
-    messages: [
-      { role: "user", content: userTurn(input) },
-    ],
+    messages: [{ role: "user", content: userTurn(input) }],
   });
 
   for await (const part of result.stream) {
     if (part.type === "tool-call") {
-      say(part.toolName === "qloo_reverse_affinity" ? `Checking whether ${input.pick.name} fans like ${(input.anchor ?? input.seed).name} back` : `Looking up Qloo tags for "${(part.input as { query?: string }).query}"`);
-    } else if (part.type === "tool-result" && part.toolName === "qloo_reverse_affinity") {
-      const r = part.output as Awaited<ReturnType<typeof reverseAffinity>>;
-      const who = (input.anchor ?? input.seed).name;
-      say(r.seed_rank_in_partner_top50 ? `${who} is #${r.seed_rank_in_partner_top50} among ${input.pick.name} fans` : `${who} isn't in ${input.pick.name} fans' top 50`);
+      const q = part.input as { query?: string; market?: string };
+      log(
+        {
+          qloo_reverse_affinity: `Checking whether ${input.pick.name} fans like ${who} back`,
+          qloo_heatmap_overlap: `Finding the markets where both audiences run hot`,
+          qloo_places_in_city: `Looking for venues in ${q.market} that both audiences love`,
+          qloo_tags: `Looking up Qloo tags for "${q.query}"`,
+        }[part.toolName] ?? `Calling ${part.toolName}`,
+      );
+    } else if (part.type === "tool-result") {
+      const out = part.output as Record<string, unknown>;
+      if (part.toolName === "qloo_reverse_affinity")
+        log(out.seed_rank_in_partner_top50 ? `${who} is #${out.seed_rank_in_partner_top50} among ${input.pick.name} fans` : `${who} isn't in ${input.pick.name} fans' top 50`);
+      if (part.toolName === "qloo_heatmap_overlap") {
+        const o = out.overlap as { market: string }[];
+        log(out.note ? String(out.note) : o.length ? `Both run hot in ${o.slice(0, 3).map((m) => m.market).join(", ")}` : "No market is in both top tens");
+      }
+      if (part.toolName === "qloo_places_in_city") log(out.note ? String(out.note) : `Found ${(out.venues as unknown[]).length} venues in ${out.market}`);
     } else if (part.type === "text-delta") {
       text += part.text;
-      l?.text(part.text);
+      write(part.text);
+      if (forced("anthropic") && text.length > 300) throw new Error("forced mid-stream failure");
+    } else if (part.type === "tool-error") {
+      // A failed Qloo tool would leave the model writing without evidence. Stop instead; the user can retry,
+      // and anything already streamed stays on screen.
+      throw part.error;
     } else if (part.type === "error") {
       throw part.error;
+    } else if (part.type === "finish" && part.finishReason === "content-filter") {
+      throw new Error("refused");
     }
   }
   if (!text.trim()) throw new Error("empty brief");
   return { text, trace, usage: await result.totalUsage };
 }
 
-const PROMPT_VERSION = "brief-v2"; // bump to regenerate every cached brief after a prompt change
-const briefCached = cached("brief", (_v: string, input: BriefInput) => generate(input));
+const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
 
-// Runs or replays a brief. Live tokens go to onTrace/onText; on a cache hit the caller gets the stored result
-// with ran=false and replays it.
-export async function brief(input: BriefInput, ip: string, onTrace: (t: string) => void, onText: (d: string) => void) {
-  const l: Listener = { ip, ran: false, trace: onTrace, text: onText };
-  listeners.set(keyOf(input), l);
-  try {
-    const result = await briefCached(PROMPT_VERSION, input);
-    return { ...result, ran: l.ran };
-  } finally {
-    if (listeners.get(keyOf(input)) === l) listeners.delete(keyOf(input));
-  }
-}
+// Cached 30 days per (seed, pick). Bump the version to regenerate every brief after a prompt change.
+export const brief = streamCache("brief", "brief-v3", keyOf, generate);
+export { CapReached } from "./stream-cache.ts";

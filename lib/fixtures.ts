@@ -16,7 +16,8 @@ function all(): Fixture[] {
     try {
       loaded = readdirSync(dir)
         .filter((f) => f.endsWith(".json"))
-        .map((f) => JSON.parse(readFileSync(join(dir, f), "utf8")));
+        .map((f) => JSON.parse(readFileSync(join(dir, f), "utf8")))
+        .filter((f) => f.query && f.slate); // the dir also holds recorded rankings (rank-*.json)
     } catch {
       loaded = []; // fresh clone: no fixtures, fall through to live Qloo
     }
