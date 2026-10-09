@@ -15,4 +15,6 @@ test("nearest metro within 40 km, mean affinity_rank, at least 2 popular cells",
   assert.deepEqual(ranked.map((m) => m.name), ["Austin", "New York"]);
   assert.equal(ranked[0].score, 0.8);
   assert.equal(ranked[0].cells, 2);
+  // national mean of all 7 cells is 0.826, so Austin (0.8) indexes at 97
+  assert.equal(ranked[0].overIndex, 97);
 });

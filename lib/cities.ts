@@ -3,8 +3,12 @@
 import metros from "../data/metros.json" with { type: "json" };
 import { heatmap, type HeatCell } from "./qloo.ts";
 
-export type City = { name: string; lat: number; lon: number; score: number; cells: number };
-export type Cities = { top: City[]; cells: Omit<HeatCell, "affinity_rank">[] };
+// overIndex: metro score / national mean of all cells x 100. 130 reads "30% above the country" (PLAN.md section 8).
+export type City = { name: string; lat: number; lon: number; score: number; overIndex: number; cells: number };
+export type MapCell = [lat: number, lon: number, affinity: number, popularity: number];
+export type Cities = { metros: City[]; cells: MapCell[]; cellCount: number };
+
+const MAP_CELLS = 1500; // the map gets the hottest cells only; ranking still uses all of them
 
 const RADIUS_KM = 40;
 const MIN_POPULAR_CELLS = 2; // cells with popularity above 0.5; keeps empty desert cells from crowning a metro
@@ -29,21 +33,33 @@ export function rankMetros(cells: HeatCell[]): City[] {
     });
     if (best >= 0) buckets[best].push(c);
   }
+  const national = cells.reduce((s, c) => s + c.affinity_rank, 0) / (cells.length || 1);
   return metros
     .map((m, i) => {
       const b = buckets[i];
       const score = b.reduce((s, c) => s + c.affinity_rank, 0) / (b.length || 1);
-      return { ...m, score: Math.round(score * 1000) / 1000, cells: b.length, popular: b.filter((c) => c.popularity > 0.5).length };
+      return {
+        ...m,
+        score: Math.round(score * 1000) / 1000,
+        overIndex: Math.round((score / national) * 100),
+        cells: b.length,
+        popular: b.filter((c) => c.popularity > 0.5).length,
+      };
     })
     .filter((m) => m.popular >= MIN_POPULAR_CELLS)
     .sort((a, b) => b.score - a.score)
     .map(({ popular: _, ...m }) => m); // eslint-disable-line @typescript-eslint/no-unused-vars
 }
 
-export async function getCities(entityId: string): Promise<Cities> {
-  const cells = await heatmap(entityId, "United States");
+export function buildCities(cells: HeatCell[]): Cities {
   return {
-    top: rankMetros(cells).slice(0, 10),
-    cells: cells.map(({ lat, lon, affinity, popularity }) => ({ lat, lon, affinity, popularity })),
+    metros: rankMetros(cells),
+    cells: [...cells]
+      .sort((a, b) => b.affinity - a.affinity)
+      .slice(0, MAP_CELLS)
+      .map((c): MapCell => [c.lat, c.lon, c.affinity, c.popularity]),
+    cellCount: cells.length,
   };
 }
+
+export const getCities = async (entityId: string) => buildCities(await heatmap(entityId, "United States"));

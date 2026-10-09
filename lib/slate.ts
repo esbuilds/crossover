@@ -1,5 +1,5 @@
 // Partner slate: what the entity's fans over-index on, across six Qloo domains (PLAN.md section 3).
-import { insights, insightsPost, type Entity, type Signal } from "./qloo.ts";
+import { insights, insightsPost, RESOLVE_TYPES, type Entity, type Signal } from "./qloo.ts";
 
 export const DOMAINS = ["brand", "artist", "tv_show", "movie", "place", "podcast"] as const;
 export type Domain = (typeof DOMAINS)[number];
@@ -42,4 +42,35 @@ export async function getSlate(seed: string | Signal[]): Promise<Slate> {
     }),
   );
   return Object.fromEntries(DOMAINS.map((d, i) => [d, lists[i].map(toPick)])) as Slate;
+}
+
+// Strongest evidence first: domains by the mean affinity of their top three picks, places always last
+// (PLAN.md section 8: place picks skew to hotels and ski resorts until the agent filters them).
+export function orderSlate(slate: Slate): { domain: Domain; picks: Pick[] }[] {
+  const strength = (picks: Pick[]) => picks.slice(0, 3).reduce((s, p) => s + p.affinity, 0) / 3;
+  return DOMAINS.map((domain) => ({ domain, picks: slate[domain] }))
+    .filter((d) => d.picks.length)
+    .sort((a, b) => Number(a.domain === "place") - Number(b.domain === "place") || strength(b.picks) - strength(a.picks));
+}
+
+// What a match card shows. Shared by /api/resolve candidates and the /api/slate header.
+export type Card = { entity_id: string; name: string; type: string; popularity: number; image?: string; short_description?: string };
+
+export const toCard = (e: Entity, type = e.types[0]): Card => ({
+  entity_id: e.entity_id,
+  name: e.name,
+  type,
+  popularity: e.popularity,
+  image: e.image,
+  short_description: e.short_description,
+});
+
+// A shared /s/<id> link has only the id and the hackathon host has no /v2/entities. A filter-only insights call
+// returns the entity when the type matches; try types in order. Usually 1 call (brands first), at most 5, cached 30 days.
+export async function getCard(id: string): Promise<Card | null> {
+  for (const type of RESOLVE_TYPES) {
+    const [hit] = await insights({ "filter.type": type, "filter.results.entities": id, take: 1 });
+    if (hit) return toCard(hit, type);
+  }
+  return null;
 }

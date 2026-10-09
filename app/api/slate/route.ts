@@ -1,20 +1,29 @@
 import { type NextRequest } from "next/server";
-import { getSlate } from "@/lib/slate.ts";
-import { getCities } from "@/lib/cities.ts";
+import { getSlate, orderSlate, getCard, toCard } from "@/lib/slate.ts";
+import { getCities, buildCities } from "@/lib/cities.ts";
+import { fixtureById } from "@/lib/fixtures.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// GET /api/slate?entity=<qloo entity id> -> { slate, cities }
+// GET /api/slate?entity=<qloo entity id> -> { entity, domains, cities }
 // Qloo responses are cached 30 days in the data cache; the CDN holds the whole response for 30 days too.
 export async function GET(request: NextRequest) {
-  const entity = request.nextUrl.searchParams.get("entity") ?? "";
-  if (!UUID.test(entity)) return Response.json({ error: "entity must be a Qloo entity id" }, { status: 400 });
+  const id = request.nextUrl.searchParams.get("entity") ?? "";
+  if (!UUID.test(id)) return Response.json({ error: "entity must be a Qloo entity id" }, { status: 400 });
 
+  const fx = fixtureById(id);
+  if (fx && fx.resolution.status === "confident") {
+    console.log(`[slate] ${id} from fixture (${fx.query})`);
+    const body = { entity: toCard(fx.resolution.match), domains: orderSlate(fx.slate), cities: buildCities(fx.heatmap), source: "fixture" };
+    return Response.json(body, { headers: { "Cache-Control": "no-store" } });
+  }
+
+  console.log(`[slate] ${id} from Qloo`);
   try {
-    const started = Date.now();
-    const [slate, cities] = await Promise.all([getSlate(entity), getCities(entity)]);
+    const [entity, slate, cities] = await Promise.all([getCard(id), getSlate(id), getCities(id)]);
+    if (!entity) return Response.json({ error: "Qloo has no entity with that id" }, { status: 404 });
     return Response.json(
-      { entity, slate, cities, ms: Date.now() - started },
+      { entity, domains: orderSlate(slate), cities, source: "qloo" },
       { headers: { "Cache-Control": "public, s-maxage=2592000, stale-while-revalidate=86400" } },
     );
   } catch (err) {
