@@ -468,7 +468,13 @@ function Evidence({ s, trace }: { s: Section; trace: string[] }) {
 
 function Launch({ s, venues, done }: { s: Section; venues: Venue[]; done: boolean }) {
   const rows = s.bullets.map(labelled);
-  const venueRows = rows.filter((r) => r.label === "Venue").slice(0, 3);
+  // A "Venue:" line that names no venue Qloo returned is the brief explaining a skip (refined briefs, brief-v4.2):
+  // show it as a note under the rows, not as a venue.
+  const match = (name: string) => venues.find((x) => norm(x.name).startsWith(norm(name)) || norm(name).startsWith(norm(x.name)));
+  const venueLines = rows.filter((r) => r.label === "Venue");
+  const isNote = (r: { body: string }) => venues.length > 0 && !match(venueLine(r.body).name);
+  const venueRows = venueLines.filter((r) => !isNote(r)).slice(0, 3);
+  const venueNotes = venueLines.filter(isNote);
   return (
     <div className="mt-3">
       {s.paras.map((p, i) => (
@@ -490,12 +496,12 @@ function Launch({ s, venues, done }: { s: Section; venues: Venue[]; done: boolea
             </div>
           );
         })}
-      {done && !venueRows.length && <p className="border-t border-rule py-3 text-base text-ink-2">Qloo found no venues both audiences favor in this market.</p>}
+      {done && !venueRows.length && !venueNotes.length && <p className="border-t border-rule py-3 text-base text-ink-2">Qloo found no venues both audiences favor in this market.</p>}
       {venueRows.length > 0 && (
         <ul className="border-t border-rule">
           {venueRows.map((r, i) => {
             const v = venueLine(r.body);
-            const hit = venues.find((x) => norm(x.name).startsWith(norm(v.name)) || norm(v.name).startsWith(norm(x.name)));
+            const hit = match(v.name);
             return (
               <li key={i} className="border-b border-rule py-3 last:border-b-0">
                 <p className="flex items-baseline justify-between gap-4">
@@ -514,6 +520,11 @@ function Launch({ s, venues, done }: { s: Section; venues: Venue[]; done: boolea
           })}
         </ul>
       )}
+      {venueNotes.map((r, i) => (
+        <p key={i} className="border-t border-rule py-3 text-base text-ink-2">
+          {r.body}
+        </p>
+      ))}
       {rows
         .filter((r) => r.label !== "Market" && r.label !== "Venue")
         .map((r, i) => (
