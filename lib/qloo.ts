@@ -18,7 +18,7 @@ export type Entity = {
   akas: string[];
   tags: Tag[];
   affinity?: number;
-  explainability?: unknown;
+  explainability?: number; // how much the seed drove this pick (0-1); max across seeds
   // places only
   address?: string;
   city?: string;
@@ -32,6 +32,7 @@ export type HeatCell = { lat: number; lon: number; affinity: number; affinity_ra
 // ponytail: bucket of size 1 (one slot every 250ms), per process. Bursting is never worth a 429.
 let nextSlot = 0;
 let calls = 0;
+let monthRemaining: number | null = null;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function slot() {
@@ -57,6 +58,8 @@ async function request(path: string, init: { query?: Record<string, string | num
     calls++;
     console.log(`[qloo] call #${calls} ${opts.method} ${path}`);
     const res = await fetch(BASE + path + qs, opts);
+    const left = res.headers.get("X-Month-RateLimit-Remaining");
+    if (left !== null) monthRemaining = Number(left);
     if (res.status === 429 && attempt === 0) {
       const reset = Number(res.headers.get("X-Second-RateLimit-Reset")) || 1;
       await sleep(Math.min(reset, 5) * 1000);
@@ -68,6 +71,8 @@ async function request(path: string, init: { query?: Record<string, string | num
 }
 
 export const qlooCallCount = () => calls;
+// ponytail: per process. On Vercel each instance counts its own calls; the month header is the real total.
+export const qlooUsage = () => ({ calls, monthRemaining });
 
 // --- trimming: keep only what the app uses (PLAN.md section 3), so cache entries stay small ---
 type Raw = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -85,13 +90,17 @@ function trimEntity(e: Raw): Entity {
     akas,
     tags: (e.tags ?? []).slice(0, 12).map((t: Raw) => ({ tag_id: t.tag_id ?? t.id, name: t.name, type: t.type })),
     affinity: e.query?.affinity,
-    explainability: e.query?.explainability,
+    explainability: maxScore(e.query?.explainability?.["signal.interests.entities"]),
     address: p.address,
     city: p.geocode?.city,
     price_level: p.price_level,
     lat: e.location?.lat,
     lon: e.location?.lon,
   };
+}
+
+function maxScore(signals: Raw[] | undefined) {
+  return signals?.length ? Math.max(...signals.map((s) => s.score ?? 0)) : undefined;
 }
 
 const trimEntities = (body: Raw): Entity[] => {
@@ -119,20 +128,37 @@ export const insights = cached("insights", async (params: Record<string, string 
   trimEntities(await request("/v2/insights", { query: params })),
 );
 
-export const insightsPost = cached("insightsPost", async (body: Record<string, unknown>) =>
-  trimEntities(await request("/v2/insights", { body })),
+export type Signal = { id: string; weight: number };
+
+// Proxy seeding: weighted entities via POST. The field is "id", not "entity" as the docs show.
+// The proxies themselves are always excluded from results.
+export const insightsPost = cached(
+  "insightsPost",
+  async (type: string, signals: Signal[], params: Record<string, string | number> = {}) =>
+    trimEntities(
+      await request("/v2/insights", {
+        body: {
+          "filter.type": type,
+          "signal.interests.entities": signals,
+          ...params,
+          "filter.exclude.entities": [...signals.map((s) => s.id), params["filter.exclude.entities"]].filter(Boolean).join(","),
+        },
+      }),
+    ),
 );
 
 export const heatmap = cached("heatmap", async (entityId: string, locationQuery: string): Promise<HeatCell[]> => {
   const body = await request("/v2/insights", {
     query: { "filter.type": "urn:heatmap", "signal.interests.entities": entityId, "filter.location.query": locationQuery },
   });
+  // rounded: up to 11k cells per entity and the cache entry limit is 2 MB
+  const r = (n: number, d: number) => Math.round(n * 10 ** d) / 10 ** d;
   return (body.results?.heatmap ?? []).map((c: Raw) => ({
-    lat: c.location.latitude,
-    lon: c.location.longitude,
-    affinity: c.query.affinity,
-    affinity_rank: c.query.affinity_rank,
-    popularity: c.query.popularity,
+    lat: r(c.location.latitude, 4),
+    lon: r(c.location.longitude, 4),
+    affinity: r(c.query.affinity, 3),
+    affinity_rank: r(c.query.affinity_rank, 3),
+    popularity: r(c.query.popularity, 3),
   }));
 });
 
