@@ -64,7 +64,7 @@ Lines starting with "- ": ${p.launchGuidance} Start the market line with "- Mark
 ## The ask
 One or two sentences: what ${p.outreachFrom} should propose to ${p.outreachTo} first.
 
-Style: written for a partnerships lead, not an engineer. Short sentences. No bold, no emoji, no other headings, no preamble before "## The idea", nothing after the ask.`;
+Style: written for a partnerships lead, not an engineer. Short sentences. No bold, no emoji, no other headings, no preamble before "## The idea", nothing after the ask. Refer to brands, shows, films, podcasts and places as "it" or "its fans" or by name, never "he" or "she"; refer to people and artists by name.`;
 };
 
 function userTurn({ seed, pick, domain, slateRank, slateSize, fromSlate = true, anchor, basedOn }: BriefInput) {
@@ -238,5 +238,5 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
 const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
 
 // Cached 30 days per (seed, pick). Bump the version to regenerate every brief after a prompt change.
-export const brief = streamCache("brief", "brief-v4", keyOf, generate);
+export const brief = streamCache("brief", "brief-v4.1", keyOf, generate);
 export { CapReached } from "./stream-cache.ts";

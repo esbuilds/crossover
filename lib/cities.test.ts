@@ -19,6 +19,15 @@ test("nearest metro within 40 km, mean affinity_rank, at least 2 popular cells",
   assert.equal(ranked[0].overIndex, 97);
 });
 
+test("refine regions keep only markets in the listed states, over-index unchanged", async () => {
+  const { inStates } = await import("./cities.ts");
+  const ranked = rankMetros([cell(30.27, -97.74, 0.9), cell(30.3, -97.7, 0.7), cell(40.71, -74.0, 0.6), cell(40.75, -73.98, 0.6)]);
+  const tx = inStates(ranked, ["TX"]);
+  assert.deepEqual(tx.map((m) => m.name), ["Austin"]);
+  assert.equal(tx[0].overIndex, ranked.find((m) => m.name === "Austin")!.overIndex);
+  assert.equal(inStates(ranked, null).length, 2);
+});
+
 test("satellite cities fold into their market", () => {
   const ranked = rankMetros([cell(33.98, -117.37, 0.9), cell(33.95, -117.4, 0.9)]); // Riverside
   assert.deepEqual(ranked.map((m) => m.name), ["Los Angeles"]);

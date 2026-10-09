@@ -1,6 +1,7 @@
 import { type NextRequest } from "next/server";
 import { getPair } from "@/lib/pairing.ts";
 import { QuotaError } from "@/lib/qloo.ts";
+import { isEntityType } from "@/lib/slate.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -10,7 +11,8 @@ export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams;
   const a = q.get("a") ?? "";
   const b = q.get("b") ?? "";
-  if (!UUID.test(a) || !UUID.test(b) || a === b) return Response.json({ error: "a and b must be two different Qloo entity ids" }, { status: 400 });
+  if (!UUID.test(a) || !UUID.test(b) || a === b || !isEntityType(q.get("ta")) || !isEntityType(q.get("tb")))
+    return Response.json({ error: "a and b must be two different Qloo entity ids, with their types as ta and tb" }, { status: 400 });
   try {
     const started = Date.now();
     const pair = await getPair({ id: a, type: q.get("ta") }, { id: b, type: q.get("tb") });

@@ -66,6 +66,7 @@ function useStream(url: string | null, body: object, attempt: number) {
 
 export default function BriefPanel({
   seed,
+  refine,
   proxy,
   basedOn,
   pick,
@@ -75,6 +76,7 @@ export default function BriefPanel({
   onClose,
 }: {
   seed: Card;
+  refine?: string; // the run's refine sentence, so the brief finds picks in the refined slate
   proxy: ProxySpec | null;
   basedOn: Card[];
   pick: Pick;
@@ -83,7 +85,12 @@ export default function BriefPanel({
   onDecide: (d: Decision) => void;
   onClose: () => void;
 }) {
-  const body = proxy ? { proxy, pick: pick.entity_id, domain } : { entity: seed.entity_id, type: seed.type, pick: pick.entity_id, domain };
+  const body = {
+    ...(proxy ? { proxy: { name: proxy.name, d: proxy.d, p: proxy.p, t: proxy.t } } : { entity: seed.entity_id, type: seed.type }),
+    pick: pick.entity_id,
+    domain,
+    ...(refine ? { c: refine } : {}),
+  };
   const [attempt, setAttempt] = useState(0);
   const [approved, setApproved] = useState(decision?.status === "approved");
   const [declining, setDeclining] = useState(false);

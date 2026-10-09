@@ -61,8 +61,9 @@ type PickRef = { domain: Domain; pick: Pick };
 // Short ids ("brand-3") keep the prompt small and make hallucinated ids easy to reject.
 const refsFor = (domain: Domain, picks: Pick[]) => new Map<string, PickRef>(picks.map((pick, i) => [`${domain}-${i + 1}`, { domain, pick }]));
 
-function userTurn(seed: Seed, domain: Domain, refs: Map<string, PickRef>) {
+function userTurn(seed: Seed, domain: Domain, refs: Map<string, PickRef>, constraints?: string) {
   const lines = [
+    ...(constraints ? [`The user refined this slate with: "${constraints}". Qloo filters already applied what they could; drop any pick that still clearly breaks the constraints, and let why-lines reflect them.`, ""] : []),
     `Seed: ${seed.name} (${seed.kind}). ${seed.description ?? ""}`.trim(),
     ...(seed.basedOn?.length ? [`Qloo doesn't know ${seed.name} yet. This slate comes from fans of: ${seed.basedOn.join(", ")}.`] : []),
     "",
@@ -128,7 +129,7 @@ export function toRanking(domain: Domain, picks: Pick[], decisions: Decision[]):
 
 export type DomainResult = { ranking: DomainRanking; usage: LanguageModelUsage | null };
 
-export async function rankDomainUncached(seed: Seed, domain: Domain, picks: Pick[], effort: Effort): Promise<DomainResult> {
+export async function rankDomainUncached(seed: Seed, domain: Domain, picks: Pick[], effort: Effort, constraints?: string): Promise<DomainResult> {
   const refs = refsFor(domain, picks);
   const { output, usage } = await generateText({
     model: anthropic(MODEL),
@@ -140,23 +141,24 @@ export async function rankDomainUncached(seed: Seed, domain: Domain, picks: Pick
     },
     output: Output.object({ schema }),
     instructions: { role: "system", content: system(seed.type), providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
-    messages: [{ role: "user", content: userTurn(seed, domain, refs) }],
+    messages: [{ role: "user", content: userTurn(seed, domain, refs, constraints) }],
   });
   return { ranking: toRanking(domain, picks, output.picks), usage };
 }
 
 // Cached 30 days per (seed, domain, picks). The slate is cached too, so this is effectively per entity and domain.
 const PROMPT_VERSION = "rank-v3.2"; // v3.2: competitor outcome (demoted with a label). v3.1: demoted picks get their own list. bump to re-rank everything after a prompt change; freezes at checkpoint 2
-const rankDomainCached = cached("rank-domain", (_v: string, seed: Seed, domain: Domain, picks: Pick[], effort: Effort) =>
-  rankDomainUncached(seed, domain, picks, effort),
+// constraints is only passed for refined runs, so unrefined cache keys are unchanged.
+const rankDomainCached = cached("rank-domain", (_v: string, seed: Seed, domain: Domain, picks: Pick[], effort: Effort, ...rest: [string?]) =>
+  rankDomainUncached(seed, domain, picks, effort, rest[0]),
 );
 
 // All six domains in parallel. onDomain fires as each lands; a failed domain reports null and stays in Qloo's order.
-export async function rank(seed: Seed, slate: Slate, onDomain: (d: Domain, r: DomainResult | null) => void, effort: Effort = RANK_EFFORT) {
+export async function rank(seed: Seed, slate: Slate, onDomain: (d: Domain, r: DomainResult | null) => void, effort: Effort = RANK_EFFORT, constraints?: string) {
   await Promise.all(
     DOMAINS.filter((d) => slate[d].length).map(async (d) => {
       try {
-        onDomain(d, await rankDomainCached(PROMPT_VERSION, seed, d, slate[d], effort));
+        onDomain(d, await (constraints ? rankDomainCached(PROMPT_VERSION, seed, d, slate[d], effort, constraints) : rankDomainCached(PROMPT_VERSION, seed, d, slate[d], effort)));
       } catch (err) {
         console.error(`[rank] ${d} failed`, err);
         onDomain(d, null);

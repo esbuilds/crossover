@@ -63,6 +63,7 @@ async function writeVerdict(p: VerdictInput): Promise<{ text: string; usage: Lan
       },
     ],
   });
+  console.log(`[pair] verdict ${p.a.name} x ${p.b.name} usage`, JSON.stringify(usage)); // logged only when generated, not on cache hits
   return { text: text.trim(), usage };
 }
 const verdictCached = cached("pair-verdict", (_v: string, p: VerdictInput) => writeVerdict(p));

@@ -5,12 +5,12 @@ import markets from "../data/metros.json" with { type: "json" };
 import { heatmap, type HeatCell, type Signal } from "./qloo.ts";
 
 // overIndex: metro score / national mean of all cells x 100. 130 reads "30% above the country" (PLAN.md section 8).
-export type City = { name: string; lat: number; lon: number; score: number; overIndex: number; cells: number };
+export type City = { name: string; state?: string; lat: number; lon: number; score: number; overIndex: number; cells: number };
 export type MapCell = [lat: number, lon: number, affinity: number, popularity: number];
 export type Cities = { metros: City[]; cells: MapCell[]; cellCount: number; marketCount: number };
 
 type Point = { lat: number; lon: number };
-const metros = markets as (Point & { name: string; also?: (Point & { name: string })[] })[];
+const metros = markets as (Point & { name: string; state: string; also?: (Point & { name: string })[] })[];
 
 const MAP_CELLS = 1500; // the map gets the hottest cells only; ranking still uses all of them
 
@@ -46,6 +46,7 @@ export function rankMetros(cells: HeatCell[]): City[] {
       const score = b.reduce((s, c) => s + c.affinity_rank, 0) / (b.length || 1);
       return {
         name: m.name,
+        state: m.state,
         lat: m.lat,
         lon: m.lon,
         score: Math.round(score * 1000) / 1000,
@@ -61,9 +62,13 @@ export function rankMetros(cells: HeatCell[]): City[] {
     .map(({ popular: _, ...m }) => m); // eslint-disable-line @typescript-eslint/no-unused-vars
 }
 
-export function buildCities(cells: HeatCell[]): Cities {
+// states (refine, e.g. "Texas only"): keep only markets in those states. Over-index stays measured against the whole
+// US, so a Texas market at 130 still means 30% above the national average.
+export const inStates = (cities: City[], states?: string[] | null) => (states?.length ? cities.filter((c) => c.state && states.includes(c.state)) : cities);
+
+export function buildCities(cells: HeatCell[], states?: string[] | null): Cities {
   return {
-    metros: rankMetros(cells),
+    metros: inStates(rankMetros(cells), states),
     cells: [...cells]
       .sort((a, b) => b.affinity - a.affinity)
       .slice(0, MAP_CELLS)
@@ -73,4 +78,4 @@ export function buildCities(cells: HeatCell[]): Cities {
   };
 }
 
-export const getCities = async (seed: string | Signal[]) => buildCities(await heatmap(seed, "United States"));
+export const getCities = async (seed: string | Signal[], states?: string[] | null) => buildCities(await heatmap(seed, "United States"), states);

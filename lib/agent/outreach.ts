@@ -21,7 +21,7 @@ Then exactly four short paragraphs:
 3. What the first version looks like: the market, a venue or two, the moment.
 4. A concrete ask with a next step (a 20-minute call next week, a small test, a specific date range).
 
-Rules: under 170 words after the subject line. Warm, direct, no hype words, no bold, no emoji. Use only facts from the brief. If the brief says the seed isn't in Qloo yet, don't mention Qloo stand-ins to the partner; describe the audience instead. Sign off as "[Your name]".`;
+Rules: under 170 words after the subject line. Warm, direct, no hype words, no bold, no emoji. Use only facts from the brief. If the brief says the seed isn't in Qloo yet, don't mention Qloo stand-ins to the partner; describe the audience instead. Refer to brands, shows and films as "it" or by name, never "he" or "she". Sign off as "[Your name]".`;
 };
 
 export type OutreachResult = Streamed & { usage: LanguageModelUsage | null };
@@ -50,4 +50,4 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
 }
 
 const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
-export const outreach = streamCache("outreach", "outreach-v2", keyOf, generate);
+export const outreach = streamCache("outreach", "outreach-v2.1", keyOf, generate);

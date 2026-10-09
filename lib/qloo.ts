@@ -225,6 +225,13 @@ export const heatmap = cached("heatmap", async (seed: string | Signal[], locatio
   }));
 });
 
+// Tag search restricted to parent entity types (csv of urn:entity:...), with parents kept so callers can choose.
+// 1 call, cached. Used by refine to turn "no beer" into a tag id.
+export const tagSearch = cached("tagSearch", async (query: string, parentTypes: string) => {
+  const body = await request("/v2/tags", { query: { "filter.query": query, "filter.parents.types": parentTypes } });
+  return (body.results?.tags ?? []).slice(0, 20).map((t: Raw) => ({ id: t.id as string, name: t.name as string, type: t.type as string, parents: (t.parents ?? []) as { type: string }[] }));
+});
+
 // A place-category tag for a phrase ("live music venue"), for venue lookups. 1 call, cached.
 export const placeTag = cached("placeTag", async (query: string): Promise<Tag | null> => {
   const body = await request("/v2/tags", { query: { "filter.query": query, "filter.parents.types": "urn:entity:place" } });

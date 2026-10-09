@@ -8,5 +8,6 @@ export default function ProxyLink() {
   const q = useSearchParams();
   const name = q.get("name") ?? "";
   const p = q.get("p") ?? "";
-  return <Crossover initialProxy={name && p ? { name, d: q.get("d") ?? "", p } : undefined} />;
+  // t: the category tag and c: refine constraints travel with the link too (t was dropped before Oct 19)
+  return <Crossover initialProxy={name && p ? { name, d: q.get("d") ?? "", p, t: q.get("t") ?? undefined, c: q.get("c")?.slice(0, 200) ?? undefined } : undefined} />;
 }

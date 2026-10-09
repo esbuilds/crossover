@@ -8,6 +8,7 @@ import type { Cities } from "@/lib/cities.ts";
 import type { Ranking } from "@/lib/agent/rank.ts";
 import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
+import type { ConstraintSet } from "@/lib/refine.ts";
 import UsMap, { ACCENT } from "./map";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
@@ -23,7 +24,7 @@ type SlateData = {
   cities: Cities;
 };
 // proxy mode: a brand Qloo doesn't know, its description, and weighted stand-ins ("id:10,id:5")
-export type ProxySpec = { name: string; d: string; p: string; t?: string };
+export type ProxySpec = { name: string; d: string; p: string; t?: string; c?: string };
 const proxyQuery = (s: ProxySpec) =>
   new URLSearchParams({
     name: s.name,
@@ -63,9 +64,13 @@ async function getJson<T>(url: string): Promise<T> {
 
 export default function Crossover({
   initialId,
+  initialType,
+  initialConstraints,
   initialProxy,
 }: {
   initialId?: string;
+  initialType?: string;
+  initialConstraints?: string;
   initialProxy?: ProxySpec;
 }) {
   const [query, setQuery] = useState("");
@@ -85,6 +90,8 @@ export default function Crossover({
   const [running, setRunning] = useState(false); // the run stream is still open (ranking may still arrive)
   const [open, setOpen] = useState<{ pick: Pick; domain: Domain } | null>(null);
   const [decisions, setDecisions] = useState<Record<string, Decision>>({}); // approve/decline per pick, this browser only
+  const [refineText, setRefineText] = useState(""); // the constraints sentence of the run on screen
+  const [constraints, setConstraints] = useState<ConstraintSet | null>(null); // how the server read it
   const source = useRef<EventSource | null>(null); // newest run wins; starting another closes this one
   const closeBrief = useCallback(() => setOpen(null), []);
 
@@ -96,20 +103,35 @@ export default function Crossover({
 
   // Real trace: /api/run streams each Qloo step as it lands, the slate as soon as retrieval is done, then the
   // ranking one domain at a time.
-  function loadSlate(id: string, name?: string, type?: string) {
+  // c: refine sentence ("no alcohol partners, Texas only"); same stream, re-planned retrieval.
+  function loadSlate(id: string, name?: string, type?: string, c = "") {
     setProxy(null);
+    setRefineText(c);
     startRun(
-      `/api/run?entity=${id}${type ? `&type=${encodeURIComponent(type)}` : ""}`,
+      `/api/run?entity=${id}${type ? `&type=${encodeURIComponent(type)}` : ""}${c ? `&c=${encodeURIComponent(c)}` : ""}`,
       !name,
     );
   }
 
-  function loadProxy(spec: ProxySpec) {
+  function loadProxy(spec: ProxySpec, c = "") {
     setProxy(spec);
     setEntity(null);
     setDraft(null);
     setResolved({ state: "idle" });
-    startRun(`/api/run?${proxyQuery(spec)}`, true);
+    setRefineText(c);
+    startRun(`/api/run?${proxyQuery(spec)}${c ? `&c=${encodeURIComponent(c)}` : ""}`, true);
+  }
+
+  // Re-run the slate on screen with a new constraints sentence ("" clears it), and keep the share link in step.
+  function refine(c: string) {
+    c = c.trim().slice(0, 200);
+    if (proxy) {
+      window.history.pushState(null, "", `/s/p?${proxyQuery(proxy)}${c ? `&c=${encodeURIComponent(c)}` : ""}`);
+      loadProxy(proxy, c);
+    } else if (entity) {
+      window.history.pushState(null, "", `/s/${entity.entity_id}?t=${encodeURIComponent(entity.type)}${c ? `&c=${encodeURIComponent(c)}` : ""}`);
+      loadSlate(entity.entity_id, entity.name, entity.type, c);
+    }
   }
 
   function startRun(url: string, takeEntity: boolean) {
@@ -117,6 +139,7 @@ export default function Crossover({
     setSlate({ state: "loading" });
     setRanking({});
     setBadges({});
+    setConstraints(null);
     setOpen(null);
     setTrace([]);
     setRunning(true);
@@ -137,6 +160,7 @@ export default function Crossover({
       } else if (ev.type === "ranking")
         setRanking((r) => ({ ...r, [ev.domain]: ev.data }));
       else if (ev.type === "mutual") setBadges(ev.data);
+      else if (ev.type === "constraints") setConstraints(ev.data);
       else if (ev.type === "done") stop();
       else if (ev.type === "error") fail(ev.message);
     };
@@ -150,7 +174,7 @@ export default function Crossover({
     setAlternates(others);
     setResolved({ state: "idle" });
     setDraft(null);
-    window.history.pushState(null, "", `/s/${card.entity_id}`);
+    window.history.pushState(null, "", `/s/${card.entity_id}?t=${encodeURIComponent(card.type)}`);
     loadSlate(card.entity_id, card.name, card.type);
   }
 
@@ -227,8 +251,8 @@ export default function Crossover({
   // A shared /s/<id> link starts straight at the slate. loadSlate sets loading state up front, which is the point here.
   useEffect(() => {
     if (initialId)
-      loadSlate(initialId); // eslint-disable-line react-hooks/set-state-in-effect
-    else if (initialProxy) loadProxy(initialProxy);
+      loadSlate(initialId, undefined, initialType, initialConstraints ?? ""); // eslint-disable-line react-hooks/set-state-in-effect
+    else if (initialProxy) loadProxy(initialProxy, initialProxy.c ?? "");
   }, [initialId, initialProxy?.p]); // eslint-disable-line react-hooks/exhaustive-deps -- run once per shared link, not per render
 
   return (
@@ -363,6 +387,9 @@ export default function Crossover({
           badges={badges}
           running={running}
           decisions={decisions}
+          constraints={constraints}
+          refineText={refineText}
+          onRefine={refine}
           onOpen={(pick, domain) => setOpen({ pick, domain })}
         />
       )}
@@ -370,6 +397,7 @@ export default function Crossover({
         <BriefPanel
           key={open.pick.entity_id}
           seed={slate.data.entity}
+          refine={refineText}
           proxy={proxy}
           basedOn={slate.data.basedOn}
           pick={open.pick}
@@ -508,8 +536,14 @@ function Results({
   badges,
   running,
   decisions,
+  constraints,
+  refineText,
+  onRefine,
   onOpen,
 }: {
+  constraints: ConstraintSet | null;
+  refineText: string;
+  onRefine: (c: string) => void;
   data: SlateData;
   ranking: Partial<Ranking>;
   badges: Record<string, "mutual" | "partial" | null>;
@@ -539,6 +573,14 @@ function Results({
         <p className="mt-0.5 text-sm text-zinc-500">
           {playbookFor(data.entity.type).slateSubtitle}
         </p>
+        <RefineBar key={refineText} refineText={refineText} constraints={constraints} running={running} onRefine={onRefine} />
+        {Object.values(badges).some(Boolean) && (
+          <p className="mt-2 text-xs text-zinc-500">
+            <span className="rounded bg-sky-100 px-1.5 py-0.5 font-medium text-sky-800">mutual</span> their fans rank you in their top 10 too
+            <span className="mx-2 text-zinc-300">|</span>
+            <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-medium text-zinc-600">partial</span> in their top 50
+          </p>
+        )}
       </div>
       {data.domains.map(({ domain, picks }) => {
         const { rows, dropped } = arrange(picks, ranking[domain], decisions);
@@ -789,6 +831,73 @@ function Thumb({
       className={`${className} flex shrink-0 items-center justify-center bg-zinc-100 text-xl font-semibold text-zinc-400`}
     >
       {name.slice(0, 1)}
+    </div>
+  );
+}
+
+// Refine (PLAN.md section 2 step 8): one sentence of constraints re-plans the run. Applied constraints show as
+// chips; removing one re-runs without its phrase. Anything the server couldn't map is listed, never dropped silently.
+function RefineBar({
+  refineText,
+  constraints,
+  running,
+  onRefine,
+}: {
+  refineText: string;
+  constraints: ConstraintSet | null;
+  running: boolean;
+  onRefine: (c: string) => void;
+}) {
+  const [value, setValue] = useState(refineText);
+  const without = (phrase: string) =>
+    (constraints?.applied ?? [])
+      .map((a) => a.phrase)
+      .filter((p) => p !== phrase)
+      .join(", ");
+  return (
+    <div className="mt-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onRefine(value);
+        }}
+        className="flex gap-2"
+      >
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Refine: for example non-alcoholic partners only, launch in Texas, brands and artists only"
+          aria-label="Refine the slate"
+          maxLength={200}
+          className="min-w-0 flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+        />
+        <button disabled={running || !value.trim()} className="shrink-0 rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50">
+          Refine
+        </button>
+      </form>
+      {constraints && (constraints.applied.length > 0 || constraints.notes.length > 0) && (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          {constraints.applied.map((a) => (
+            <button
+              key={a.phrase + a.label}
+              onClick={() => onRefine(without(a.phrase))}
+              disabled={running}
+              className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-xs text-orange-900 hover:bg-orange-100"
+              title={`Remove "${a.phrase}" and re-run`}
+            >
+              {a.label} <span aria-hidden>&times;</span>
+            </button>
+          ))}
+          {refineText && (
+            <button onClick={() => onRefine("")} disabled={running} className="text-xs text-zinc-500 underline">
+              Clear all
+            </button>
+          )}
+        </div>
+      )}
+      {constraints?.notes.length ? (
+        <p className="mt-2 text-xs text-zinc-500">Couldn&apos;t apply: {constraints.notes.join("; ")}</p>
+      ) : null}
     </div>
   );
 }
