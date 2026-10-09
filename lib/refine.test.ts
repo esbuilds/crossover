@@ -20,7 +20,7 @@ test("a full constraint set: tags, region, domains, chips, and the trace summary
     "no beer, Texas only, brands and artists only",
     {
       ...none,
-      exclude: [{ phrase: "no beer", tag_query: "beer", applies_to: ["brand", "place"] }],
+      exclude: [{ phrase: "no beer", tag_queries: ["beer"], applies_to: ["brand", "place"] }],
       region: { phrase: "Texas only", label: "Texas", states: ["tx"], location_query: "Texas" },
       domains: { phrase: "brands and artists only", domains: ["brand", "artist"] },
     },
@@ -34,9 +34,12 @@ test("a full constraint set: tags, region, domains, chips, and the trace summary
   assert.deepEqual(c.applied.map((a) => a.label), ["No Beer", "Texas", "brands and artists only"]);
   assert.equal(c.summary, "Reading your constraints: excluding Beer; restricting to Texas; brands and artists only.");
   assert.deepEqual(c.notes, []);
-  // per-domain params: places get the exclusion and location, films are skipped entirely
+  // per-domain params: brands get the exclusion and location; places and films are outside the whitelist
   assert.deepEqual(refineParams(c, "brand"), { "filter.exclude.tags": BEER.tag_id, "signal.location.query": "Texas" });
+  assert.equal(refineParams(c, "place"), null);
   assert.equal(refineParams(c, "movie"), null);
+  // without a whitelist, places get only the location, never the tag stack (Qloo timed out on that, Oct 19)
+  assert.deepEqual(refineParams({ ...c, domains: null }, "place"), { "signal.location.query": "Texas" });
 });
 
 test("anything unmappable becomes a visible note, never a silent no-op", () => {
@@ -44,7 +47,7 @@ test("anything unmappable becomes a visible note, never a silent no-op", () => {
     "only brands founded by women, no beer, no Zzqx",
     {
       ...none,
-      exclude: [{ phrase: "no beer", tag_query: "beer", applies_to: ["brand"] }],
+      exclude: [{ phrase: "no beer", tag_queries: ["beer"], applies_to: ["brand"] }],
       exclude_names: [{ phrase: "no Zzqx", name: "Zzqx" }],
       unmapped: [{ phrase: "only brands founded by women", why: "Qloo has no founder data" }],
     },
@@ -65,7 +68,7 @@ test("an empty hard-filtered domain relaxes to a soft signal; only applied phras
     "brands that sponsor live music, founded by women",
     {
       ...none,
-      include: [{ phrase: "brands that sponsor live music", tag_query: "live music", applies_to: ["brand"] }],
+      include: [{ phrase: "brands that sponsor live music", tag_queries: ["live music"], applies_to: ["brand"] }],
       unmapped: [{ phrase: "founded by women", why: "no founder data" }],
     },
     new Map([["live music|brand", MUSIC]]),
@@ -75,4 +78,19 @@ test("an empty hard-filtered domain relaxes to a soft signal; only applied phras
   assert.deepEqual(relaxedParams(c, "brand"), { "signal.interests.tags": MUSIC.tag_id });
   assert.equal(relaxedParams(c, "artist"), null); // nothing to relax where no include filter applies
   assert.equal(appliedSentence(c), "brands that sponsor live music"); // the unmapped phrase stays out
+});
+
+test("a sponsorship intent maps to several brand categories joined as a union", () => {
+  const DRINKS = { tag_id: "urn:tag:genre:brand:drinks", name: "Drinks", type: "urn:tag:genre:brand" };
+  const APPAREL = { tag_id: "urn:tag:genre:brand:fashion", name: "Fashion", type: "urn:tag:genre:brand" };
+  const c = buildConstraintSet(
+    "brands that sponsor live music",
+    { ...none, include: [{ phrase: "brands that sponsor live music", tag_queries: ["drinks", "apparel", "telecom"], applies_to: ["brand"] }] },
+    new Map([["drinks|brand", DRINKS], ["apparel|brand", APPAREL], ["telecom|brand", null]]),
+    new Map(),
+  );
+  assert.equal(c.includeUnion, true);
+  assert.deepEqual(refineParams(c, "brand"), { "filter.tags": `${DRINKS.tag_id},${APPAREL.tag_id}`, "operator.filter.tags": "union" });
+  assert.deepEqual(relaxedParams(c, "brand"), { "signal.interests.tags": `${DRINKS.tag_id},${APPAREL.tag_id}` });
+  assert.equal(c.applied[0].label, "Only Drinks or Fashion");
 });

@@ -1,18 +1,20 @@
 "use client";
 
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { ComposableMap, Geographies, Geography, useMapContext } from "react-simple-maps";
 import type { GeoJsonObject } from "geojson";
 import states from "@/data/us-states-10m.json"; // us-atlas 3.0.1, ISC, vendored (no runtime CDN)
 import type { City, MapCell } from "@/lib/cities.ts";
 
-export const ACCENT = "#ea580c"; // shared with the affinity bars
+export const ACCENT = "#bd4510"; // --color-accent in globals.css; SVG presentation attributes take no CSS vars
+const INK = "#1b1716"; // --color-ink
+const LAND = "#e9e7e6"; // --color-land
 
 const W = 960;
 const H = 600;
 const BANDS = [0.15, 0.3, 0.5, 0.7, 0.9]; // fill opacity per affinity band; hot cells read darker
 const R = 2.6;
-const FONT = 21; // map units; the SVG usually renders at about 2/3 scale
+const LABEL_PX = 14; // on-screen label size at any map width (was 7.8 px on phones)
 
 // States never change, so render them once and never again (memo with no props).
 const StatesLayer = memo(function StatesLayer() {
@@ -23,7 +25,7 @@ const StatesLayer = memo(function StatesLayer() {
           <Geography
             key={g.rsmKey}
             geography={g}
-            fill="#e4e4e7"
+            fill={LAND}
             stroke="#ffffff"
             strokeWidth={0.75}
             style={{ outline: "none" }}
@@ -63,7 +65,7 @@ const overlaps = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y <
 
 // Top five plus whatever the list is hovering. Greedy placement: right, left, above, below,
 // first spot that doesn't collide with an earlier label wins.
-function Labels({ metros, hovered }: { metros: City[]; hovered: string | null }) {
+function Labels({ metros, hovered, font }: { metros: City[]; hovered: string | null; font: number }) {
   const { projection } = useMapContext();
   const placed = useMemo(() => {
     const shown = metros.slice(0, 5);
@@ -73,20 +75,21 @@ function Labels({ metros, hovered }: { metros: City[]; hovered: string | null })
       const p = projection([m.lon, m.lat]);
       if (!p) return [];
       const [x, y] = p;
-      const w = m.name.length * FONT * 0.56 + 4;
-      const h = FONT + 2;
+      const w = m.name.length * font * 0.5 + 4;
+      const h = font + 2;
       const spots: (Box & { anchor: "start" | "end" | "middle" })[] = [
         { x: x + 11, y: y - h / 2, w, h, anchor: "start" },
         { x: x - 11 - w, y: y - h / 2, w, h, anchor: "end" },
         { x: x - w / 2, y: y - 12 - h, w, h, anchor: "middle" },
         { x: x - w / 2, y: y + 12, w, h, anchor: "middle" },
       ];
-      const spot = spots.find((s) => !boxes.some((b) => overlaps(s, b))) ?? spots[0];
+      const inside = spots.filter((s) => s.x >= 0 && s.x + s.w <= W && s.y >= 0 && s.y + s.h <= H); // never clip at the edge
+      const spot = inside.find((s) => !boxes.some((b) => overlaps(s, b))) ?? inside[0] ?? spots[0];
       boxes.push(spot);
       const tx = spot.anchor === "start" ? spot.x : spot.anchor === "end" ? spot.x + spot.w : spot.x + spot.w / 2;
       return [{ m, x, y, tx, ty: spot.y + h - 4, anchor: spot.anchor }];
     });
-  }, [metros, hovered, projection]);
+  }, [metros, hovered, projection, font]);
 
   return (
     <g>
@@ -94,16 +97,17 @@ function Labels({ metros, hovered }: { metros: City[]; hovered: string | null })
         const hot = m.name === hovered;
         return (
           <g key={m.name}>
-            <circle cx={x} cy={y} r={hot ? 9 : 6} fill="#18181b" stroke="#fff" strokeWidth={1.5} />
+            <circle cx={x} cy={y} r={(hot ? 4.5 : 3.5) * (font / LABEL_PX)} fill={INK} stroke="#fff" strokeWidth={font / 10} />
             <text
               x={tx}
               y={ty}
               textAnchor={anchor}
-              fontSize={FONT}
-              fontWeight={hot ? 700 : 600}
-              fill="#18181b"
+              fontSize={font}
+              fontWeight={600}
+              fill={INK}
               stroke="#fff"
-              strokeWidth={5}
+              strokeWidth={font / 4}
+              className="font-display"
               paintOrder="stroke"
               style={{ pointerEvents: "none" }}
             >
@@ -117,13 +121,23 @@ function Labels({ metros, hovered }: { metros: City[]; hovered: string | null })
 }
 
 export default function UsMap({ cells, metros, hovered }: { cells: MapCell[]; metros: City[]; hovered: string | null }) {
+  // labels stay LABEL_PX on screen: convert to map units from the rendered width
+  const box = useRef<HTMLDivElement>(null);
+  const [font, setFont] = useState(21);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => e.contentRect.width && setFont(Math.round((LABEL_PX * W) / e.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   return (
     // fixed aspect box: the SVG scales by viewBox, so resizing never re-lays out or jitters
-    <div className="aspect-[8/5] w-full">
+    <div ref={box} className="aspect-[8/5] w-full">
       <ComposableMap projection="geoAlbersUsa" width={W} height={H} className="h-full w-full" aria-label="US heatmap of where this audience over-indexes">
         <StatesLayer />
         <Cells cells={cells} />
-        <Labels metros={metros} hovered={hovered} />
+        <Labels metros={metros} hovered={hovered} font={font} />
       </ComposableMap>
     </div>
   );

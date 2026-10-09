@@ -180,7 +180,9 @@ export async function GET(request: NextRequest) {
       });
 
       trace(
-        "Asking Claude to shortlist partners a brand could actually sign, one category at a time",
+        constraints
+          ? "Checking each pick against your constraints"
+          : "Asking Claude to shortlist partners a brand could actually sign, one category at a time",
       );
       const started = Date.now();
       let kept = 0;

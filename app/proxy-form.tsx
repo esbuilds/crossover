@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import type { Card } from "@/lib/slate.ts";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, field, panel } from "./ui";
 
 export type ProxyDraft = { name: string; description: string; brands: string[] };
 type Checked = { proxies: Card[]; rejected: { name: string; reason: string }[]; proposed: string[]; tag: { tag_id: string; name: string } | null; guessed: boolean };
@@ -61,29 +62,30 @@ export default function ProxyForm({
     });
 
   return (
-    <div className={`rounded-xl border border-dashed border-zinc-300 p-5 ${compact ? "mt-4" : ""}`}>
-      <h2 className="font-semibold">{compact ? "None of these?" : "Qloo doesn't know this one yet"}</h2>
-      <p className="mt-1 text-sm text-zinc-600">
+    <div className={`${panel} p-4 sm:p-6 ${compact ? "mt-2" : ""}`}>
+      <h2 className="font-display text-xl">{compact ? "None of these?" : "Qloo doesn't know this one yet"}</h2>
+      <p className="mt-1 max-w-[65ch] text-base text-ink-2">
         Describe it and name brands your customers also love. Crossover builds the slate from their fans, so the brands you pick steer what comes back.
       </p>
 
-      <form onSubmit={check} className="mt-4 grid gap-3">
-        <label className="grid gap-1 text-sm">
-          <span className="text-zinc-600">Brand</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="rounded-lg border border-zinc-300 px-3 py-2" maxLength={80} />
+      <form onSubmit={check} className="mt-5 grid max-w-[760px] gap-4">
+        <label className="grid gap-1.5">
+          <span className="text-sm font-semibold text-ink">Brand</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} className={field} maxLength={80} />
         </label>
-        <label className="grid gap-1 text-sm">
-          <span className="text-zinc-600">What is it?</span>
-          <input
+        <label className="grid gap-1.5">
+          <span className="text-sm font-semibold text-ink">What is it?</span>
+          <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Single-origin olive oil in squeeze bottles, priced for everyday cooking"
-            className="rounded-lg border border-zinc-300 px-3 py-2"
+            rows={3}
+            className={`${field} resize-y py-2.5`}
             maxLength={300}
           />
         </label>
-        <fieldset className="grid gap-1 text-sm">
-          <legend className="mb-1 text-zinc-600">Brands your customers also love (optional, up to three)</legend>
+        <fieldset className="grid gap-1.5">
+          <legend className="mb-1.5 text-sm font-semibold text-ink">Brands your customers also love (optional, up to three)</legend>
           <div className="grid gap-2 sm:grid-cols-3">
             {brands.map((b, i) => (
               <input
@@ -91,53 +93,53 @@ export default function ProxyForm({
                 value={b}
                 onChange={(e) => setBrands((all) => all.map((x, j) => (j === i ? e.target.value : x)))}
                 aria-label={`Brand ${i + 1}`}
-                className="rounded-lg border border-zinc-300 px-3 py-2"
+                className={field}
                 maxLength={80}
               />
             ))}
           </div>
         </fieldset>
         <div>
-          {!ready && name.trim() && <p className="mb-2 text-sm text-zinc-500">Name one brand your customers love, or describe the brand in at least eight words.</p>}
-          <button disabled={state === "checking" || !ready} className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50">
+          {!ready && name.trim() && <p className="mb-2 text-base text-ink-2">Name one brand your customers love, or describe the brand in at least eight words.</p>}
+          <button disabled={state === "checking" || !ready} className={checked ? btnSecondary : btnPrimary}>
             {state === "checking" ? "Checking brands in Qloo..." : checked ? "Check again" : "Find stand-in brands"}
           </button>
         </div>
       </form>
 
-      {state === "error" && <p className="mt-3 text-sm text-red-700">{error}</p>}
+      {state === "error" && <p className="mt-3 rounded-md bg-danger-tint px-4 py-3 text-base text-danger">{error}</p>}
 
       {checked && (
-        <div className="mt-5">
+        <div className="mt-6 border-t border-rule pt-5">
           {checked.guessed && checked.proxies.length > 0 && (
-            <p className="mb-3 rounded-lg bg-zinc-50 p-3 text-sm text-zinc-700">These are guesses. Name a brand your customers love for better stand-ins.</p>
+            <p className="mb-3 rounded-md bg-surface-2 px-4 py-3 text-base text-ink-2">These are guesses. Name a brand your customers love for better stand-ins.</p>
           )}
-          {checked.tag && <p className="mb-3 text-sm text-zinc-500">Brands will lean toward Qloo&apos;s &ldquo;{checked.tag.name}&rdquo; category.</p>}
+          {checked.tag && <p className="mb-3 text-base text-ink-2">Brands will lean toward Qloo&apos;s &ldquo;{checked.tag.name}&rdquo; category.</p>}
           {checked.rejected.length > 0 && (
-            <p className="mb-3 text-sm text-zinc-500">
+            <p className="mb-3 text-base text-ink-2">
               Skipped: {checked.rejected.map((r) => `${r.name} (${r.reason})`).join(", ")}
             </p>
           )}
           {proxies.length > 0 && (
             <>
-              <p className="mb-2 text-sm text-zinc-600">Stand-ins Qloo knows. The first one counts most; reorder or remove as you like.</p>
-              <ol className="grid gap-2">
+              <p className="mb-2 text-base text-ink-2">Stand-ins Qloo knows. The first one counts most; reorder or remove as you like.</p>
+              <ol className="grid max-w-[760px]">
                 {proxies.map((p, i) => (
-                  <li key={p.entity_id} className="flex items-center gap-3 rounded-lg border border-zinc-200 p-2">
-                    {p.image ? <img src={p.image} alt="" className="h-10 w-10 rounded object-cover" /> : <div className="h-10 w-10 rounded bg-zinc-100" />}
+                  <li key={p.entity_id} className="flex items-center gap-3 border-t border-rule py-2">
+                    {p.image ? <img src={p.image} alt="" className="h-11 w-11 shrink-0 rounded-md object-cover" /> : <div className="h-11 w-11 shrink-0 rounded-md bg-surface-2" />}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {p.name} {i === 0 && <span className="ml-1 rounded bg-orange-100 px-1.5 py-0.5 text-[11px] text-orange-800">counts most</span>}
+                      <p className="flex items-center gap-2 text-base font-semibold">
+                        <span className="truncate">{p.name}</span> {i === 0 && <Chip kind="note">Counts most</Chip>}
                       </p>
-                      {p.short_description && <p className="truncate text-xs text-zinc-500">{p.short_description}</p>}
+                      {p.short_description && <p className="truncate text-sm text-ink-3">{p.short_description}</p>}
                     </div>
-                    <button type="button" disabled={i === 0} onClick={() => move(i, -1)} className="px-1 text-zinc-500 disabled:opacity-30" aria-label={`Move ${p.name} up`}>
+                    <button type="button" disabled={i === 0} onClick={() => move(i, -1)} className="min-h-11 min-w-11 rounded-md text-ink-2 hover:bg-surface-2 disabled:opacity-30" aria-label={`Move ${p.name} up`}>
                       &uarr;
                     </button>
-                    <button type="button" disabled={i === proxies.length - 1} onClick={() => move(i, 1)} className="px-1 text-zinc-500 disabled:opacity-30" aria-label={`Move ${p.name} down`}>
+                    <button type="button" disabled={i === proxies.length - 1} onClick={() => move(i, 1)} className="min-h-11 min-w-11 rounded-md text-ink-2 hover:bg-surface-2 disabled:opacity-30" aria-label={`Move ${p.name} down`}>
                       &darr;
                     </button>
-                    <button type="button" onClick={() => setProxies((all) => all.filter((x) => x !== p))} className="px-1 text-sm text-zinc-500 hover:text-red-700">
+                    <button type="button" onClick={() => setProxies((all) => all.filter((x) => x !== p))} className={`${btnQuiet} px-1 text-sm`}>
                       Remove
                     </button>
                   </li>
@@ -146,14 +148,13 @@ export default function ProxyForm({
             </>
           )}
           {proxies.length < 2 ? (
-            <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+            <p className="mt-3 rounded-md bg-surface-2 px-4 py-3 text-base text-ink">
               {proxies.length === 0 ? "None of those are in Qloo." : "Only one stand-in checked out."} A slate needs at least two. Add another brand your customers love, or describe the brand in more detail, then check again.
             </p>
           ) : (
             <button
               onClick={() => onBuild({ name, description, brands: proxies.map((p) => p.name) }, proxies, checked.tag?.tag_id)}
-              className="mt-4 rounded-lg px-4 py-2 text-sm font-medium text-white"
-              style={{ background: "#ea580c" }}
+              className={`${btnPrimary} mt-4`}
             >
               Build the slate from these
             </button>
@@ -167,12 +168,12 @@ export default function ProxyForm({
 // Proxy mode: who the slate is really built from. Stays on screen (and in the brief panel); Edit goes back to the form.
 export function BasedOn({ cards, onEdit }: { cards: Card[]; onEdit?: () => void }) {
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-orange-50 px-4 py-2.5 text-sm text-orange-950">
-      <span>
+    <div className="mt-3 flex flex-wrap items-center gap-x-4 rounded-md bg-surface-2 px-4 text-base text-ink">
+      <span className="py-2.5">
         Based on fans of <strong className="font-semibold">{cards.map((c) => c.name).join(", ")}</strong>
       </span>
       {onEdit && (
-        <button onClick={onEdit} className="text-orange-800 underline hover:text-orange-950">
+        <button onClick={onEdit} className={btnQuiet}>
           Edit
         </button>
       )}

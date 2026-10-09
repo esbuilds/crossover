@@ -28,7 +28,7 @@ test("Liquid Death ranking: shape, real picks only, Joe Rogan not kept", { skip:
 
 const pick = (id: string, affinity = 0.9): Pick => ({ entity_id: id, name: id, type: "", affinity, popularity: 0.5, tags: [] });
 const brands = [1, 2, 3, 4, 5, 6, 7].map((i) => pick(`B${i}`, 1 - i / 100)); // affinity order
-const d = (id: string, decision: "keep" | "demote" | "competitor" | "drop", reason = "", why = "w") => ({ id, decision, why, reason });
+const d = (id: string, decision: "keep" | "demote" | "competitor" | "excluded" | "drop", reason = "", why = "w") => ({ id, decision, why, reason });
 
 test("code owns the order: affinity order, the model can't promote", () => {
   // the model lists brand-7 first and keeps everything; the order still follows affinity
@@ -48,6 +48,12 @@ test("competitors are demoted with a label, not dropped", () => {
   assert.deepEqual(r.kept.map((k) => k.entity_id), ["B2", "B3"]);
   assert.deepEqual(r.demoted, [{ entity_id: "B1", why: "w", demoted: "same shelf", competitor: true }]);
   assert.equal(r.dropped.length, 0);
+});
+
+test("picks that break the user's constraints are demoted with the excluded label", () => {
+  const r = toRanking("brand", brands.slice(0, 2), [d("brand-1", "excluded", "beer, and you said no alcohol")]);
+  assert.deepEqual(r.kept.map((k) => k.entity_id), ["B2"]);
+  assert.deepEqual(r.demoted, [{ entity_id: "B1", why: "w", demoted: "beer, and you said no alcohol", excluded: true }]);
 });
 
 test("unknown and duplicate ids are ignored, and a demote or drop without a reason counts as keep", () => {

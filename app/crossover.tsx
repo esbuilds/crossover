@@ -9,7 +9,8 @@ import type { Ranking } from "@/lib/agent/rank.ts";
 import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ConstraintSet } from "@/lib/refine.ts";
-import UsMap, { ACCENT } from "./map";
+import UsMap from "./map";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, field, panel } from "./ui";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 
@@ -255,73 +256,73 @@ export default function Crossover({
     else if (initialProxy) loadProxy(initialProxy, initialProxy.c ?? "");
   }, [initialId, initialProxy?.p]); // eslint-disable-line react-hooks/exhaustive-deps -- run once per shared link, not per render
 
+  // Home is the empty page: the promise, the input, the examples. Anything in flight collapses it to a search bar.
+  const home = !entity && !proxy && !draft && resolved.state === "idle" && slate.state === "idle";
   return (
-    <main className="mx-auto max-w-[1100px] px-4 py-10 sm:py-14">
-      <header className="mb-6">
-        <Link
-          href="/"
-          className="text-sm font-semibold uppercase tracking-wider text-zinc-500"
-        >
+    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+      <header className="flex items-center justify-between gap-4 border-b border-rule py-3">
+        <Link href="/" className="font-display text-xl">
           Crossover
         </Link>
-        <h1 className="mt-1 text-2xl font-semibold sm:text-3xl">
-          Who should you collab with, and where?
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Already have a pairing in mind?{" "}
-          <Link href="/pair" className="underline hover:text-zinc-900">
-            Check a pairing
-          </Link>
-        </p>
+        <Link href="/pair" className={btnQuiet}>
+          Check a pairing
+        </Link>
       </header>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          lookup(query);
-        }}
-      >
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="A brand, artist, show, or person"
-          aria-label="A brand, artist, show, or person"
-          className="w-full rounded-xl border border-zinc-300 px-5 py-4 text-lg outline-none focus:border-zinc-900"
-        />
-      </form>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {CHIPS.map((c) => (
-          <button
-            key={c}
-            onClick={() => lookup(c)}
-            className="rounded-full border border-zinc-300 px-3 py-1 text-sm hover:border-zinc-900"
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-
-      <section className="mt-6">
-        {resolved.state === "loading" && (
-          <p className="text-zinc-500">
-            Looking for &ldquo;{query}&rdquo; in Qloo...
-          </p>
+      <section className={home ? "pt-14 pb-6 sm:pt-24" : "pt-6"}>
+        {home && (
+          <>
+            <h1 className="max-w-[16ch] font-display text-3xl sm:text-4xl">Who should you collab with, and where?</h1>
+            <p className="mt-4 max-w-[58ch] text-lg text-ink-2">
+              Name a brand, artist, show or person. Crossover finds what their fans already love, the US markets where those fans live, and
+              writes the brief.
+            </p>
+          </>
         )}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            lookup(query);
+          }}
+          className={`flex gap-2 ${home ? "mt-8 max-w-[680px] flex-col sm:flex-row" : ""}`}
+        >
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="A brand, artist, show, or person"
+            aria-label="A brand, artist, show, or person"
+            className={`${field} ${home ? "min-h-13 text-lg" : ""}`}
+          />
+          <button className={home ? `${btnPrimary} min-h-13` : btnSecondary}>
+            Find partners
+          </button>
+        </form>
+        {home && (
+          <>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="mr-1 text-base text-ink-3">Try</span>
+              {CHIPS.map((c) => (
+                <button key={c} onClick={() => lookup(c)} className="min-h-11 rounded-full border border-rule-strong px-4 text-base text-ink hover:border-ink">
+                  {c}
+                </button>
+              ))}
+            </div>
+            <p className="mt-16 border-t border-rule pt-4 text-sm text-ink-3">Built on Qloo&apos;s taste graph</p>
+          </>
+        )}
+      </section>
+
+      <section className="mt-4 space-y-4 empty:hidden">
+        {resolved.state === "loading" && <p className="font-mono text-sm text-ink-3">Looking for &ldquo;{query}&rdquo; in Qloo...</p>}
         {resolved.state === "error" && (
-          <p className="text-red-700">
-            Couldn&apos;t search Qloo: {resolved.message}
-          </p>
+          <p className="rounded-md bg-danger-tint px-4 py-3 text-base text-danger">Couldn&apos;t search Qloo: {resolved.message}</p>
         )}
         {resolved.state === "ready" && resolved.data.status === "ambiguous" && (
           <div>
-            <p className="mb-3 text-zinc-600">Which one did you mean?</p>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <h2 className="font-display text-xl">Which one did you mean?</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
               {resolved.data.candidates.map((c) => (
-                <button
-                  key={c.entity_id}
-                  onClick={() => choose(c)}
-                  className="text-left"
-                >
+                <button key={c.entity_id} onClick={() => choose(c)} className="rounded-lg text-left hover:[&>div]:border-ink">
                   <MatchCard card={c} />
                 </button>
               ))}
@@ -332,49 +333,22 @@ export default function Crossover({
           <ProxyForm
             key={`${draft.name}|${draft.brands.join("|")}`}
             draft={draft}
-            compact={
-              resolved.state === "ready" && resolved.data.status === "ambiguous"
-            }
+            compact={resolved.state === "ready" && resolved.data.status === "ambiguous"}
             onBuild={buildFromProxies}
           />
         )}
-        {entity && (
-          <MatchCard
-            card={entity}
-            onNotIt={entity.type === "proxy" ? undefined : notIt}
-          />
-        )}
-        {proxy && slate.state === "ready" && (
-          <BasedOn
-            cards={slate.data.basedOn}
-            onEdit={() => editProxies(slate.data.basedOn)}
-          />
-        )}
+        {entity && <MatchCard card={entity} onNotIt={entity.type === "proxy" ? undefined : notIt} />}
+        {proxy && slate.state === "ready" && <BasedOn cards={slate.data.basedOn} onEdit={() => editProxies(slate.data.basedOn)} />}
       </section>
 
-      {trace.length > 0 && (
-        <ol className="mt-6 space-y-1 text-sm text-zinc-600">
-          {trace.map((line) => (
-            <li key={line}>&rarr; {line}</li>
-          ))}
-        </ol>
-      )}
+      {trace.length > 0 && <TraceLog lines={trace} running={running} />}
 
-      {slate.state === "loading" && (
-        <p className="mt-6 animate-pulse text-zinc-400">
-          Building the slate...
-        </p>
-      )}
+      {slate.state === "loading" && <p className="mt-6 font-mono text-sm text-ink-3 motion-safe:animate-pulse">Building the slate...</p>}
       {slate.state === "error" && (
-        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
-          Couldn&apos;t build the slate: {slate.message}
+        <div className="mt-6 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
+          <span className="py-2">Couldn&apos;t build the slate: {slate.message}</span>
           {entity && (
-            <button
-              onClick={() =>
-                loadSlate(entity.entity_id, entity.name, entity.type)
-              }
-              className="ml-3 underline"
-            >
+            <button onClick={() => loadSlate(entity.entity_id, entity.name, entity.type)} className={btnQuiet}>
               Try again
             </button>
           )}
@@ -406,13 +380,7 @@ export default function Crossover({
           onDecide={(d) => {
             const next = { ...decisions, [open.pick.entity_id]: d };
             setDecisions(next);
-            saveDecisions(
-              decisionKey(
-                slate.data.entity,
-                proxy ? `/api/run?${proxyQuery(proxy)}` : "",
-              ),
-              next,
-            );
+            saveDecisions(decisionKey(slate.data.entity, proxy ? `/api/run?${proxyQuery(proxy)}` : ""), next);
           }}
           onClose={closeBrief}
         />
@@ -421,102 +389,102 @@ export default function Crossover({
   );
 }
 
+// The small confirmation of who the slate is for. Also the picker's option and the proxy run's header.
 function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void }) {
   return (
-    <div className="flex gap-4 rounded-xl border border-zinc-200 p-4">
-      <Thumb
-        src={card.image}
-        name={card.name}
-        className="h-20 w-20 rounded-lg"
-      />
+    <div className={`${panel} flex items-center gap-4 p-3 sm:p-4`}>
+      <Thumb src={card.image} name={card.name} className="h-14 w-14 rounded-md" />
       <div className="min-w-0 flex-1">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 className="truncate text-lg font-semibold">{card.name}</h2>
-          {onNotIt && (
-            <button
-              onClick={onNotIt}
-              className="shrink-0 text-sm text-zinc-500 underline hover:text-zinc-900"
-            >
-              Not it
-            </button>
-          )}
-        </div>
-        <p className="text-xs uppercase tracking-wide text-zinc-500">
-          {TYPE_LABEL[card.type] ?? "Entity"}
-        </p>
-        {card.short_description && (
-          <p className="mt-1 line-clamp-2 text-sm text-zinc-700">
-            {card.short_description}
-          </p>
-        )}
+        <p className="text-sm text-ink-3">{TYPE_LABEL[card.type] ?? "Entity"}</p>
+        <h2 className="truncate font-display text-xl">{card.name}</h2>
+        {card.short_description && <p className="line-clamp-1 text-base text-ink-2">{card.short_description}</p>}
       </div>
+      {onNotIt && (
+        <button onClick={onNotIt} className={btnSecondary}>
+          Not it
+        </button>
+      )}
     </div>
   );
 }
 
-// With a ranking: the shortlist first (with why-lines), then picks the agent neither kept nor dropped,
-// dropped picks hidden behind a toggle. Without one: Qloo's order.
-// Picks you declined join the dropped list with your reason.
-function arrange(
-  picks: Pick[],
-  r: Ranking[Domain] | undefined,
-  decisions: Record<string, Decision>,
-) {
-  const declined = picks.filter(
-    (p) => decisions[p.entity_id]?.status === "declined",
+// The agent's work as a log. Open while the run streams, folded once it's done. The constraints reading sits apart,
+// above the log, because it changes what the slate means.
+const CONSTRAINT_LINE = /^(Reading your constraints|Applying: |Couldn't apply: )/;
+function TraceLog({ lines, running }: { lines: string[]; running: boolean }) {
+  const read = lines.filter((l) => CONSTRAINT_LINE.test(l));
+  const log = lines.filter((l) => !CONSTRAINT_LINE.test(l));
+  return (
+    <div className="mt-6">
+      {read.length > 0 && (
+        <div className="mb-4 rounded-md bg-surface-2 px-4 py-3">
+          <h2 className="text-sm font-semibold text-ink">Your constraints</h2>
+          <ul className="mt-1 space-y-1 text-base text-ink-2">
+            {read.map((l) => (
+              <li key={l}>{l === "Reading your constraints" && read.length === 1 ? "Reading your constraints..." : l}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {log.length > 0 && (
+        <details open={running || undefined} className="group border-y border-rule">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-mono text-sm text-ink-2 hover:text-ink">
+            <span>
+              Agent log <span className="text-ink-3">&middot; {log.length} steps</span>
+            </span>
+            <span className="text-ink-3 group-open:hidden">Show</span>
+            <span className="hidden text-ink-3 group-open:inline">Hide</span>
+          </summary>
+          <ol className="space-y-1 pb-3 font-mono text-sm text-ink-2">
+            {log.map((l, i) => (
+              <li key={l} className="flex gap-3">
+                <span className="w-5 shrink-0 text-right tabular-nums text-ink-3">{i + 1}</span>
+                <span>{l}</span>
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
+    </div>
   );
+}
+
+type Row = { pick: Pick; why?: string; reason?: string; flag?: "competitor" | "excluded" | "lower" };
+
+// With a ranking: the shortlist (with why-lines), then picks the agent neither kept nor dropped; ranked-lower and
+// dropped picks go behind quiet disclosures. Without one: Qloo's order. Picks you declined join the dropped list.
+function arrange(picks: Pick[], r: Ranking[Domain] | undefined, decisions: Record<string, Decision>) {
+  const declined = picks.filter((p) => decisions[p.entity_id]?.status === "declined");
   const mine = declined.map((p) => ({
     entity_id: p.entity_id,
     name: p.name,
     reason: `You declined: ${decisions[p.entity_id].reason}`,
   }));
   const live = picks.filter((p) => !declined.includes(p));
-  if (!r)
-    return {
-      rows: live.map((pick) => ({
-        pick,
-        why: undefined as string | undefined,
-        demoted: undefined as string | undefined,
-      })),
-      dropped: mine,
-    };
+  if (!r) return { rows: live.map((pick): Row => ({ pick })), lower: [] as Row[], dropped: mine };
   const byId = new Map(live.map((p) => [p.entity_id, p]));
-  const row = (k: {
-    entity_id: string;
-    why: string;
-    demoted?: string;
-    competitor?: true;
-  }) =>
+  const row = (k: Ranking[Domain]["kept"][number]): Row[] =>
     byId.has(k.entity_id)
       ? [
           {
             pick: byId.get(k.entity_id)!,
-            why: (k.why || undefined) as string | undefined,
-            demoted:
-              k.demoted &&
-              (k.competitor ? `competitor. ${k.demoted}` : k.demoted),
+            why: k.why || undefined,
+            reason: k.demoted,
+            flag: k.excluded ? "excluded" : k.competitor ? "competitor" : k.demoted ? "lower" : undefined,
           },
         ]
       : [];
   const demoted = r.demoted ?? []; // rankings cached before rank-v3 have no demoted list
-  const used = new Set(
-    [...r.kept, ...demoted, ...r.dropped].map((d) => d.entity_id),
-  );
+  const used = new Set([...r.kept, ...demoted, ...r.dropped].map((d) => d.entity_id));
   return {
-    rows: [
-      ...r.kept.flatMap(row),
-      ...live
-        .filter((p) => !used.has(p.entity_id))
-        .map((pick) => ({ pick, why: undefined, demoted: undefined })),
-      ...demoted.flatMap(row),
-    ],
+    rows: [...r.kept.flatMap(row), ...live.filter((p) => !used.has(p.entity_id)).map((pick): Row => ({ pick }))],
+    lower: demoted.flatMap(row),
     dropped: [...mine, ...r.dropped.filter((d) => !decisions[d.entity_id])],
   };
 }
 
 // Approve/decline decisions live in localStorage per entity (or per proxy set). Nothing leaves the browser.
-const decisionKey = (entity: Card, runUrl: string) =>
-  `crossover:decisions:${entity.entity_id === "proxy" ? runUrl : entity.entity_id}`;
+const decisionKey = (entity: Card, runUrl: string) => `crossover:decisions:${entity.entity_id === "proxy" ? runUrl : entity.entity_id}`;
 function loadDecisions(key: string): Record<string, Decision> {
   try {
     return JSON.parse(localStorage.getItem(key) ?? "{}");
@@ -555,288 +523,196 @@ function Results({
   // "driven by" chips (proxy mode): only on picks a stand-in other than the top one drove; none if they all agree
   const proxyNames = new Map(data.basedOn.map((c) => [c.entity_id, c.name]));
   const top = data.basedOn[0]?.entity_id;
-  const anyOther = data.domains.some((d) =>
-    d.picks.some((p) => p.driven_by && p.driven_by !== top),
-  );
-  const chipFor = (p: Pick) =>
-    anyOther && p.driven_by && p.driven_by !== top
-      ? proxyNames.get(p.driven_by)
-      : undefined;
+  const anyOther = data.domains.some((d) => d.picks.some((p) => p.driven_by && p.driven_by !== top));
+  const chipFor = (p: Pick) => (anyOther && p.driven_by && p.driven_by !== top ? proxyNames.get(p.driven_by) : undefined);
   const top5 = data.cities.metros.slice(0, 5);
   const even = top5.length === 5 && top5[0].overIndex - top5[4].overIndex < 3;
+  const rowProps = (row: Row, domain: Domain) => ({
+    ...row,
+    badge: badges[row.pick.entity_id],
+    pairHref:
+      data.entity.type === "proxy"
+        ? undefined
+        : `/pair/${data.entity.entity_id}/${row.pick.entity_id}?ta=${encodeURIComponent(data.entity.type)}&tb=${encodeURIComponent(row.pick.type || `urn:entity:${domain}`)}`,
+    drivenBy: chipFor(row.pick),
+    approved: decisions[row.pick.entity_id]?.status === "approved",
+    onOpen: () => onOpen(row.pick, domain),
+  });
   return (
-    <div className="mt-8 space-y-8">
-      <div>
-        <h2 className="text-xl font-semibold">
-          Partners for {data.entity.name}
-        </h2>
-        <p className="mt-0.5 text-sm text-zinc-500">
-          {playbookFor(data.entity.type).slateSubtitle}
-        </p>
+    <div className="mt-10">
+      <header className="border-b border-ink pb-6">
+        <h2 className="font-display text-2xl sm:text-3xl">Partners for {data.entity.name}</h2>
+        <p className="mt-1 max-w-[65ch] text-base text-ink-2">{playbookFor(data.entity.type).slateSubtitle}</p>
         <RefineBar key={refineText} refineText={refineText} constraints={constraints} running={running} onRefine={onRefine} />
         {Object.values(badges).some(Boolean) && (
-          <p className="mt-2 text-xs text-zinc-500">
-            <span className="rounded bg-sky-100 px-1.5 py-0.5 font-medium text-sky-800">mutual</span> their fans rank you in their top 10 too
-            <span className="mx-2 text-zinc-300">|</span>
-            <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-medium text-zinc-600">partial</span> in their top 50
+          <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-2">
+            <span className="flex items-center gap-2">
+              <Chip kind="mutual" /> their fans rank you in their top 10 too
+            </span>
+            <span className="flex items-center gap-2">
+              <Chip kind="partial" /> in their top 50
+            </span>
           </p>
         )}
-      </div>
+      </header>
+
       {data.domains.map(({ domain, picks }) => {
-        const { rows, dropped } = arrange(picks, ranking[domain], decisions);
+        const { rows, lower, dropped } = arrange(picks, ranking[domain], decisions);
         return (
-          <section key={domain}>
-            <div className="mb-3 flex items-baseline justify-between gap-4">
-              <h2 className="text-lg font-semibold">
-                {DOMAIN_LABEL[domain]}
-                {running && !ranking[domain] && (
-                  <span className="ml-3 animate-pulse text-sm font-normal text-zinc-400">
-                    Claude is shortlisting...
-                  </span>
-                )}
-              </h2>
-              {dropped.length > 0 && (
-                <details className="relative text-sm text-zinc-500">
-                  <summary className="cursor-pointer select-none hover:text-zinc-900">
-                    {dropped.length} dropped
-                  </summary>
-                  <ul className="absolute right-0 z-10 mt-1 w-72 space-y-1.5 rounded-lg border border-zinc-200 bg-white p-3 text-zinc-700 shadow-lg">
-                    {dropped.map((d) => (
-                      <li key={d.entity_id}>
-                        <span className="font-medium">{d.name}</span>:{" "}
-                        {d.reason}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              )}
+          <section key={domain} className="border-b border-rule py-8">
+            <div className="flex items-baseline justify-between gap-4">
+              <h3 className="font-display text-xl">{DOMAIN_LABEL[domain]}</h3>
+              {running && !ranking[domain] && <span className="font-mono text-sm text-ink-3 motion-safe:animate-pulse">shortlisting</span>}
             </div>
             {rows.length ? (
-              <div className="-mx-4 flex items-start gap-3 overflow-x-auto px-4 pb-2">
-                {rows.map(({ pick, why, demoted }) => (
-                  <PickCard
-                    key={pick.entity_id}
-                    pick={pick}
-                    why={why}
-                    demoted={demoted}
-                    badge={badges[pick.entity_id]}
-                    pairHref={
-                      data.entity.type === "proxy"
-                        ? undefined
-                        : `/pair/${data.entity.entity_id}/${pick.entity_id}?ta=${encodeURIComponent(data.entity.type)}&tb=${encodeURIComponent(pick.type || `urn:entity:${domain}`)}`
-                    }
-                    drivenBy={chipFor(pick)}
-                    approved={decisions[pick.entity_id]?.status === "approved"}
-                    onOpen={() => onOpen(pick, domain)}
-                  />
+              <ol className="mt-3 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+                {rows.map((row) => (
+                  <PickRow key={row.pick.entity_id} {...rowProps(row, domain)} />
                 ))}
-              </div>
+              </ol>
             ) : (
-              <p className="text-sm text-zinc-500">
-                Nothing here for this audience.
-              </p>
+              <p className="mt-3 text-base text-ink-2">Nothing here for this audience.</p>
+            )}
+            {lower.length > 0 && (
+              <Disclosure label={`Ranked lower (${lower.length})`}>
+                <ol className="grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+                  {lower.map((row) => (
+                    <PickRow key={row.pick.entity_id} {...rowProps(row, domain)} />
+                  ))}
+                </ol>
+              </Disclosure>
+            )}
+            {dropped.length > 0 && (
+              <Disclosure label={`Dropped (${dropped.length})`}>
+                <ul className="max-w-[75ch] space-y-2 text-base text-ink-2">
+                  {dropped.map((d) => (
+                    <li key={d.entity_id}>
+                      <span className="font-semibold text-ink">{d.name}</span>: {d.reason}
+                    </li>
+                  ))}
+                </ul>
+              </Disclosure>
             )}
           </section>
         );
       })}
 
-      <section className="grid items-start gap-6 md:grid-cols-[3fr_2fr]">
-        <UsMap
-          cells={data.cities.cells}
-          metros={data.cities.metros}
-          hovered={hovered}
-        />
-        <div>
-          <h2 className="mb-1 text-lg font-semibold">Where to launch</h2>
-          <p className="mb-3 text-sm text-zinc-500">
-            Over-index vs. the US average (100 = average)
-          </p>
-          {even && (
-            <p className="mb-3 rounded-lg bg-zinc-50 p-2.5 text-sm text-zinc-600">
-              Fans are spread evenly across these markets, so any of the top
-              five is a fair place to start.
-            </p>
-          )}
-          {data.cities.metros.length ? (
-            <ol className="divide-y divide-zinc-100">
-              {data.cities.metros.slice(0, 10).map((m, i) => (
-                <li
-                  key={m.name}
-                  onMouseEnter={() => setHovered(m.name)}
-                  onMouseLeave={() => setHovered(null)}
-                  onClick={() =>
-                    setHovered((h) => (h === m.name ? null : m.name))
-                  } // tap to highlight on touch screens
-                  className={`flex cursor-default items-center gap-3 px-1 py-2 ${i < 3 ? "font-semibold" : "text-zinc-700"} ${hovered === m.name ? "bg-orange-50" : ""}`}
-                >
-                  <span
-                    className={`w-7 text-sm ${i < 3 ? "text-zinc-900" : "text-zinc-400"}`}
+      <section className="py-10">
+        <h3 className="font-display text-xl">Where to launch</h3>
+        <p className="mt-1 text-base text-ink-2">Over-index against the US average, where 100 is average.</p>
+        <div className="mt-6 grid items-start gap-8 md:grid-cols-[3fr_2fr]">
+          <UsMap cells={data.cities.cells} metros={data.cities.metros} hovered={hovered} />
+          <div>
+            {even && (
+              <p className="mb-4 rounded-md bg-surface-2 px-4 py-3 text-base text-ink-2">
+                <span className="font-semibold text-ink">Close race.</span> Fans are spread evenly across these markets, so any of the top five
+                is a fair place to start.
+              </p>
+            )}
+            {data.cities.metros.length ? (
+              <ol>
+                {data.cities.metros.slice(0, 10).map((m, i) => (
+                  <li
+                    key={m.name}
+                    onMouseEnter={() => setHovered(m.name)}
+                    onMouseLeave={() => setHovered(null)}
+                    onClick={() => setHovered((h) => (h === m.name ? null : m.name))} // tap to highlight on touch screens
+                    className={`flex min-h-11 cursor-default items-center gap-3 border-t border-rule px-1 ${hovered === m.name ? "bg-surface-2" : ""}`}
                   >
-                    {i + 1}
-                  </span>
-                  <span className="flex-1">{m.name}</span>
-                  <span
-                    className={`rounded px-2 py-0.5 text-sm tabular-nums ${i < 3 ? "bg-zinc-900 text-white" : "bg-zinc-100"}`}
-                  >
-                    {m.overIndex}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="text-sm text-zinc-500">
-              Not enough heatmap data to rank US cities for this one.
-            </p>
-          )}
+                    <span className="w-6 shrink-0 text-right font-mono text-sm tabular-nums text-ink-3">{i + 1}</span>
+                    <span className={`flex-1 ${i < 3 ? "text-lg font-semibold" : "text-base text-ink-2"}`}>{m.name}</span>
+                    <span className={`tabular-nums ${i < 3 ? "text-lg font-semibold" : "text-base text-ink-2"}`}>{m.overIndex}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-base text-ink-2">Not enough heatmap data to rank US cities for this one.</p>
+            )}
+          </div>
         </div>
       </section>
     </div>
   );
 }
 
-function PickCard({
+function Disclosure({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <details className="group mt-4">
+      <summary className="inline-flex min-h-11 cursor-pointer items-center gap-2 text-base text-ink-2 hover:text-ink">
+        <span aria-hidden className="inline-block text-ink-3 transition-transform group-open:rotate-90 motion-reduce:transition-none">
+          &#9656;
+        </span>
+        {label}
+      </summary>
+      <div className="mt-2">{children}</div>
+    </details>
+  );
+}
+
+function PickRow({
   pick,
   why,
-  demoted,
+  reason,
+  flag,
   badge,
   pairHref,
   drivenBy,
   approved,
   onOpen,
-}: {
-  pick: Pick;
-  why?: string;
-  demoted?: string;
+}: Row & {
   badge?: "mutual" | "partial" | null;
   pairHref?: string;
   drivenBy?: string;
   approved?: boolean;
   onOpen: () => void;
 }) {
+  const tags = [...new Set(pick.tags)].slice(0, 2);
   return (
-    <div className="flex w-40 shrink-0 flex-col sm:w-44">
-      <button
-        onClick={onOpen}
-        className="flex flex-col rounded-lg text-left outline-offset-4 hover:opacity-90"
-      >
-        <Thumb
-          src={pick.image}
-          name={pick.name}
-          className="aspect-square w-full rounded-lg"
-        />
-        <h3 className="mt-2 line-clamp-2 text-sm font-medium leading-snug">
-          {pick.name}
-        </h3>
-        <div
-          className="mt-1 flex items-center gap-2"
-          title="Affinity: how much this audience over-indexes on it"
-        >
-          <div className="h-1 flex-1 rounded bg-zinc-200">
-            <div
-              className="h-1 rounded"
-              style={{
-                width: `${Math.round(pick.affinity * 100)}%`,
-                background: ACCENT,
-              }}
-            />
-          </div>
-          <span className="text-xs tabular-nums text-zinc-500">
-            {pick.affinity.toFixed(2)}
-          </span>
-        </div>
-        {pick.tags.length > 0 && (
-          <div className="mt-1.5 flex flex-wrap gap-1">
-            {[...new Set(pick.tags)].slice(0, 2).map((t) => (
-              <span
-                key={t}
-                className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-600"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
-        {approved && (
-          <p className="mt-1.5 inline-block self-start rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-medium text-emerald-800">
-            Approved
-          </p>
-        )}
-        {badge && (
-          <p
-            className={`mt-1.5 inline-block self-start rounded px-1.5 py-0.5 text-[11px] font-medium ${badge === "mutual" ? "bg-sky-100 text-sky-800" : "bg-zinc-100 text-zinc-600"}`}
-            title={
-              badge === "mutual"
-                ? "Their fans rank you in their top 10 too"
-                : "Their fans rank you in their top 50"
-            }
-          >
-            {badge}
-          </p>
-        )}
-        {drivenBy && (
-          <p className="mt-1.5 text-[11px] text-orange-800">
-            driven by {drivenBy}
-          </p>
-        )}
-        {why && (
-          <p className="mt-2 text-[13px] leading-snug text-zinc-700">{why}</p>
-        )}
-        {demoted && (
-          <p className="mt-1 text-[12px] leading-snug text-zinc-500">
-            Ranked lower
-            {demoted.startsWith("competitor. ") ? (
-              <>
-                {" "}
-                <span className="rounded bg-zinc-200 px-1 text-[11px] font-medium text-zinc-700">
-                  competitor
-                </span>{" "}
-                {demoted.slice(12)}
-              </>
-            ) : (
-              `: ${demoted}`
+    <li className="flex flex-col border-t border-rule pt-4 pb-2">
+      <button onClick={onOpen} className="group flex flex-col rounded-md text-left">
+        <div className="flex gap-4">
+          <Thumb src={pick.image} name={pick.name} className="h-16 w-16 rounded-md" />
+          <div className="min-w-0 flex-1">
+            <h4 className="line-clamp-2 text-base font-semibold leading-snug group-hover:underline">{pick.name}</h4>
+            <div className="mt-1.5 flex items-center gap-2" title="Affinity: how much this audience over-indexes on it">
+              <div className="h-1 flex-1 rounded-full bg-rule">
+                <div className="h-1 rounded-full bg-accent" style={{ width: `${Math.round(pick.affinity * 100)}%` }} />
+              </div>
+              <span className="text-sm tabular-nums text-ink-3">{pick.affinity.toFixed(2)}</span>
+            </div>
+            {(badge || approved || flag || drivenBy) && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {badge && <Chip kind={badge} title={badge === "mutual" ? "Their fans rank you in their top 10 too" : "Their fans rank you in their top 50"} />}
+                {approved && <Chip kind="approved" />}
+                {flag && <Chip kind={flag} />}
+                {drivenBy && <Chip kind="note">Driven by {drivenBy}</Chip>}
+              </div>
             )}
-          </p>
-        )}
+          </div>
+        </div>
+        {why && <p className="mt-3 text-base text-ink">{why}</p>}
+        {reason && <p className="mt-1 text-base text-ink-2">{reason}</p>}
+        {tags.length > 0 && <p className="mt-2 text-sm text-ink-3">{tags.join(" · ")}</p>}
       </button>
       {pairHref && (
-        <Link
-          href={pairHref}
-          className="mt-1.5 self-start text-[12px] text-zinc-500 underline hover:text-zinc-900"
-        >
+        <Link href={pairHref} className={`${btnQuiet} self-start text-sm`}>
           Check this pairing
         </Link>
       )}
-    </div>
+    </li>
   );
 }
 
-function Thumb({
-  src,
-  name,
-  className,
-}: {
-  src?: string;
-  name: string;
-  className: string;
-}) {
+function Thumb({ src, name, className }: { src?: string; name: string; className: string }) {
   return src ? (
-    <img
-      src={src}
-      alt=""
-      loading="lazy"
-      className={`${className} shrink-0 bg-zinc-100 object-cover`}
-    />
+    <img src={src} alt="" loading="lazy" className={`${className} shrink-0 bg-surface-2 object-cover`} />
   ) : (
-    <div
-      className={`${className} flex shrink-0 items-center justify-center bg-zinc-100 text-xl font-semibold text-zinc-400`}
-    >
-      {name.slice(0, 1)}
-    </div>
+    <div className={`${className} flex shrink-0 items-center justify-center bg-surface-2 font-display text-xl text-ink-3`}>{name.slice(0, 1)}</div>
   );
 }
 
 // Refine (PLAN.md section 2 step 8): one sentence of constraints re-plans the run. Applied constraints show as
-// chips; removing one re-runs without its phrase. Anything the server couldn't map is listed, never dropped silently.
+// chips; removing one re-runs without its phrase. What couldn't be mapped shows in the constraints box above the log.
 function RefineBar({
   refineText,
   constraints,
@@ -855,7 +731,7 @@ function RefineBar({
       .filter((p) => p !== phrase)
       .join(", ");
   return (
-    <div className="mt-4">
+    <div className="mt-5 max-w-[760px]">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -866,38 +742,38 @@ function RefineBar({
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Refine: for example non-alcoholic partners only, launch in Texas, brands and artists only"
+          placeholder="Refine: non-alcoholic only, launch in Texas, brands and artists only"
           aria-label="Refine the slate"
           maxLength={200}
-          className="min-w-0 flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+          className={field}
         />
-        <button disabled={running || !value.trim()} className="shrink-0 rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50">
+        <button disabled={running || !value.trim()} className={btnSecondary}>
           Refine
         </button>
       </form>
-      {constraints && (constraints.applied.length > 0 || constraints.notes.length > 0) && (
-        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+      {constraints && constraints.applied.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           {constraints.applied.map((a) => (
             <button
               key={a.phrase + a.label}
               onClick={() => onRefine(without(a.phrase))}
               disabled={running}
-              className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-xs text-orange-900 hover:bg-orange-100"
+              className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-rule-strong bg-surface-2 px-3 text-sm text-ink hover:border-ink disabled:opacity-50 sm:min-h-9"
               title={`Remove "${a.phrase}" and re-run`}
             >
-              {a.label} <span aria-hidden>&times;</span>
+              {a.label}
+              <span aria-hidden className="text-ink-3">
+                &times;
+              </span>
             </button>
           ))}
           {refineText && (
-            <button onClick={() => onRefine("")} disabled={running} className="text-xs text-zinc-500 underline">
+            <button onClick={() => onRefine("")} disabled={running} className={`${btnQuiet} text-sm`}>
               Clear all
             </button>
           )}
         </div>
       )}
-      {constraints?.notes.length ? (
-        <p className="mt-2 text-xs text-zinc-500">Couldn&apos;t apply: {constraints.notes.join("; ")}</p>
-      ) : null}
     </div>
   );
 }

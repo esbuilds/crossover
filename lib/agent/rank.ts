@@ -13,7 +13,7 @@ export const MODEL = "claude-opus-5-5";
 export type Effort = "low" | "medium";
 export const RANK_EFFORT: Effort = "medium"; // Oct 14: low kept a ski resort for Mt. Joy and missed a catski lodge for Liquid Death; medium caught both at similar speed
 
-export type Kept = { entity_id: string; why: string; demoted?: string; competitor?: true };
+export type Kept = { entity_id: string; why: string; demoted?: string; competitor?: true; excluded?: true };
 export type Dropped = { entity_id: string; name: string; reason: string };
 // kept: up to five, affinity order. demoted: workable but weaker, each with its reason, shown after the shortlist.
 export type DomainRanking = { kept: Kept[]; demoted: Kept[]; dropped: Dropped[] };
@@ -43,6 +43,7 @@ Affinity is the order. Your job is to review each pick, not to re-rank. For ever
 keep: a workable partner. Write a why-line.
 demote: workable but clearly weaker as a partner than its affinity suggests (for example a generic retailer, a weak fit for this kind of seed). Write a why-line and a short reason for the demotion. Demoted picks move below the kept ones.
 competitor: a direct competitor of the seed (same category, same shelf, same customer). Still useful to see, so it is shown below the shortlist with a competitor label. Write a why-line (what the overlap tells the seed) and a short reason.
+excluded: only when the user gave constraints. The pick breaks one of them (for example a beer brand when the user said no alcohol) even though Qloo's filters let it through. It is shown below the shortlist labeled "excluded by constraint". Give the reason naming the constraint.
 drop: off-brand or unworkable as a partner: a controversial or polarizing figure the seed would not want to stand next to, a deceased artist, a generic place like a chain hotel or a ski resort when the seed is not a travel brand, a film decades old with no active brand, anything that would embarrass either side. Give a reason of a few words.
 
 Default to keep. Never demote a pick just because another one fits better; demote or drop only for a reason you can state about that pick.
@@ -76,7 +77,7 @@ function userTurn(seed: Seed, domain: Domain, refs: Map<string, PickRef>, constr
   return lines.join("\n");
 }
 
-type Decision = { id: string; decision: "keep" | "demote" | "competitor" | "drop"; why: string; reason: string };
+type Decision = { id: string; decision: "keep" | "demote" | "competitor" | "excluded" | "drop"; why: string; reason: string };
 type RawDomain = { picks: Decision[] };
 
 const schema = jsonSchema<RawDomain>({
@@ -93,7 +94,7 @@ const schema = jsonSchema<RawDomain>({
         required: ["id", "decision", "why", "reason"],
         properties: {
           id: { type: "string" },
-          decision: { type: "string", enum: ["keep", "demote", "competitor", "drop"] },
+          decision: { type: "string", enum: ["keep", "demote", "competitor", "excluded", "drop"] },
           why: { type: "string", description: "Why-line for keep or demote, under 20 words. Empty for drop." },
           reason: { type: "string", description: "Short reason for demote, competitor, or drop. Empty for keep." },
         },
@@ -119,10 +120,16 @@ export function toRanking(domain: Domain, picks: Pick[], decisions: Decision[]):
   // would let a lower pick move up, which is a promotion by omission.
   const keep = decided.filter((d) => d.decision === "keep");
   // competitors are demotions with a label: visible below the shortlist, never dropped
-  const demote = decided.filter((d) => d.decision === "demote" || d.decision === "competitor");
+  const demote = decided.filter((d) => d.decision === "demote" || d.decision === "competitor" || d.decision === "excluded");
   return {
     kept: keep.slice(0, 5).map((d) => ({ entity_id: d.pick.entity_id, why: d.why })),
-    demoted: demote.map((d) => ({ entity_id: d.pick.entity_id, why: d.why, demoted: d.reason, ...(d.decision === "competitor" ? { competitor: true as const } : {}) })),
+    demoted: demote.map((d) => ({
+      entity_id: d.pick.entity_id,
+      why: d.why,
+      demoted: d.reason,
+      ...(d.decision === "competitor" ? { competitor: true as const } : {}),
+      ...(d.decision === "excluded" ? { excluded: true as const } : {}),
+    })),
     dropped: decided.filter((d) => d.decision === "drop").map((d) => ({ entity_id: d.pick.entity_id, name: d.pick.name, reason: d.reason })),
   };
 }
@@ -147,6 +154,7 @@ export async function rankDomainUncached(seed: Seed, domain: Domain, picks: Pick
 }
 
 // Cached 30 days per (seed, domain, picks). The slate is cached too, so this is effectively per entity and domain.
+const REFINED_VERSION = "rank-v3.3"; // refined runs only: adds the "excluded by constraint" outcome
 const PROMPT_VERSION = "rank-v3.2"; // v3.2: competitor outcome (demoted with a label). v3.1: demoted picks get their own list. bump to re-rank everything after a prompt change; freezes at checkpoint 2
 // constraints is only passed for refined runs, so unrefined cache keys are unchanged.
 const rankDomainCached = cached("rank-domain", (_v: string, seed: Seed, domain: Domain, picks: Pick[], effort: Effort, ...rest: [string?]) =>
@@ -158,7 +166,8 @@ export async function rank(seed: Seed, slate: Slate, onDomain: (d: Domain, r: Do
   await Promise.all(
     DOMAINS.filter((d) => slate[d].length).map(async (d) => {
       try {
-        onDomain(d, await (constraints ? rankDomainCached(PROMPT_VERSION, seed, d, slate[d], effort, constraints) : rankDomainCached(PROMPT_VERSION, seed, d, slate[d], effort)));
+        // refined runs use their own label (the "excluded" outcome, Oct 20) so unrefined rankings stay cached
+        onDomain(d, await (constraints ? rankDomainCached(REFINED_VERSION, seed, d, slate[d], effort, constraints) : rankDomainCached(PROMPT_VERSION, seed, d, slate[d], effort)));
       } catch (err) {
         console.error(`[rank] ${d} failed`, err);
         onDomain(d, null);

@@ -15,6 +15,7 @@ export type ConstraintSet = {
   sentence: string;
   applied: Applied[]; // one chip each; removing one re-runs without its phrase
   includeTags: TagRef[];
+  includeUnion: boolean; // an include phrase mapped to several tags (any of them qualifies)
   excludeTags: TagRef[];
   states: string[] | null; // markets kept (two-letter codes)
   locationQuery: string | null; // signal.location.query on the domain calls
@@ -27,9 +28,10 @@ export type ConstraintSet = {
 
 // --- interpretation (Opus, structured output) ---
 
+type TagIntent = { phrase: string; tag_queries: string[]; applies_to: Domain[] };
 type Raw = {
-  include: { phrase: string; tag_query: string; applies_to: Domain[] }[];
-  exclude: { phrase: string; tag_query: string; applies_to: Domain[] }[];
+  include: TagIntent[];
+  exclude: TagIntent[];
   region: { phrase: string; label: string; states: string[]; location_query: string } | null;
   domains: { phrase: string; domains: Domain[] } | null;
   popularity_min: { phrase: string; value: number } | null;
@@ -40,10 +42,14 @@ type Raw = {
 const tagItem = {
   type: "object" as const,
   additionalProperties: false,
-  required: ["phrase", "tag_query", "applies_to"],
+  required: ["phrase", "tag_queries", "applies_to"],
   properties: {
     phrase: { type: "string" as const, description: "The user's words for this constraint, verbatim" },
-    tag_query: { type: "string" as const, description: "A short phrase to search Qloo's tag vocabulary with, e.g. 'beer', 'live music', 'vegan'" },
+    tag_queries: {
+      type: "array" as const,
+      items: { type: "string" as const },
+      description: "One or more short phrases to search Qloo's tag vocabulary with, e.g. ['beer']; several mean any of them qualifies",
+    },
     applies_to: { type: "array" as const, items: { type: "string" as const, enum: [...DOMAINS] } },
   },
 };
@@ -113,7 +119,8 @@ const schema = jsonSchema<Raw>({
 const SYSTEM = `You turn a partnerships lead's one-line constraints into filters for a taste-data tool (Qloo). The tool finds partners across six domains: brand, artist, tv_show, movie, place, podcast.
 
 Express each constraint with exactly one field:
-- include / exclude: a kind of partner, as a short tag search phrase ("beer", "wine", "cannabis", "live music", "outdoor gear"). "No alcohol" means excluding each relevant kind (beer, wine, spirits) as separate entries. Pick applies_to domains where the kind makes sense (alcohol applies to brand and place).
+- include / exclude: a kind of partner, as short tag search phrases ("beer", "wine", "cannabis", "outdoor gear"). "No alcohol" means excluding each relevant kind (beer, wine, spirits) as separate entries. Pick applies_to domains where the kind makes sense (alcohol applies to brand).
+- Sponsorship and audience intents ("brands that sponsor live music", "brands that back sports teams", "festival partners") are not categories in the tag vocabulary. Map them to the brand categories that typically do that, as one include with several tag_queries (any of them qualifies). For live music: drinks, apparel, audio, telecom. For sports: sports drinks, athletic apparel, automotive, betting. Say in the phrase what the user wrote.
 - region: a US region ("Texas", "the Southeast", "West Coast") with its states and one representative place for location search.
 - domains: when they limit which kinds of partner to show ("brands and artists only").
 - popularity_min: when they ask for well-known or big names.
@@ -158,16 +165,20 @@ export function buildConstraintSet(
 ): ConstraintSet {
   const applied: Applied[] = [];
   const notes: string[] = [];
-  const resolveTags = (items: Raw["include"], kind: "include" | "exclude") =>
+  let includeUnion = false;
+  const resolveTags = (items: TagIntent[], kind: "include" | "exclude") =>
     items.flatMap((it) => {
       const domains = it.applies_to.filter((d) => DOMAINS.includes(d));
-      const t = tags.get(`${it.tag_query}|${domains.join(",")}`) ?? null;
-      if (!t || !domains.length) {
-        notes.push(`"${it.phrase}": Qloo has no matching tag for ${it.tag_query}`);
+      const found = it.tag_queries.map((q) => tags.get(`${q}|${domains.join(",")}`) ?? null).filter((t): t is Tag => !!t);
+      const unique = found.filter((t, i) => found.findIndex((x) => x.tag_id === t.tag_id) === i);
+      if (!unique.length || !domains.length) {
+        notes.push(`"${it.phrase}": Qloo has no matching tag for ${it.tag_queries.join(" or ")}`);
         return [];
       }
-      applied.push({ kind, phrase: it.phrase, label: `${kind === "include" ? "Only" : "No"} ${t.name}` });
-      return [{ ...t, domains }];
+      if (kind === "include" && unique.length > 1) includeUnion = true;
+      const names = unique.map((t) => t.name);
+      applied.push({ kind, phrase: it.phrase, label: kind === "include" ? `Only ${names.length > 1 ? names.join(" or ") : names[0]}` : `No ${names.join(", no ")}` });
+      return unique.map((t) => ({ ...t, domains }));
     });
   const includeTags = resolveTags(raw.include, "include");
   const excludeTags = resolveTags(raw.exclude, "exclude");
@@ -194,7 +205,7 @@ export function buildConstraintSet(
 
   const parts = [
     ...excludeTags.map((t) => `excluding ${t.name}`),
-    ...includeTags.map((t) => `only ${t.name}`),
+    ...(includeTags.length ? [`only ${includeTags.map((t) => t.name).join(includeUnion ? " or " : ", ")}`] : []),
     ...(states.length ? [`restricting to ${raw.region!.label}`] : []),
     ...(domains.length ? [`${listJoin(domains.map((d) => plural[d]))} only`] : []),
     ...(popularityMin ? ["well-known names only"] : []),
@@ -204,6 +215,7 @@ export function buildConstraintSet(
     sentence,
     applied,
     includeTags,
+    includeUnion,
     excludeTags,
     states: states.length ? states : null,
     locationQuery: states.length ? raw.region!.location_query : null,
@@ -217,9 +229,9 @@ export function buildConstraintSet(
 
 async function interpretUncached(seedName: string, seedKind: string, sentence: string) {
   const { raw, usage } = await interpretRaw(seedName, seedKind, sentence);
-  const tagQueries = [...raw.include, ...raw.exclude].map((it) => ({ key: `${it.tag_query}|${it.applies_to.join(",")}`, it }));
+  const tagQueries = [...raw.include, ...raw.exclude].flatMap((it) => it.tag_queries.slice(0, 5).map((q) => ({ key: `${q}|${it.applies_to.join(",")}`, q, it })));
   const [tagResults, nameResults] = await Promise.all([
-    Promise.all(tagQueries.map(async ({ key, it }) => [key, it.applies_to.length ? await tagFor(it.tag_query.slice(0, 60), it.applies_to) : null] as const)),
+    Promise.all(tagQueries.map(async ({ key, q, it }) => [key, it.applies_to.length ? await tagFor(q.slice(0, 60), it.applies_to) : null] as const)),
     Promise.all(
       raw.exclude_names.map(async (n) => {
         const r = await resolve(n.name, await search(n.name.slice(0, 80), RESOLVE_TYPES, 5));
@@ -232,7 +244,7 @@ async function interpretUncached(seedName: string, seedKind: string, sentence: s
 }
 
 // Cached 30 days per (seed, sentence).
-export const interpret = (seedName: string, seedKind: string, sentence: string) => interpretCached("refine-v1", seedName, seedKind, sentence.trim().slice(0, 200));
+export const interpret = (seedName: string, seedKind: string, sentence: string) => interpretCached("refine-v2", seedName, seedKind, sentence.trim().slice(0, 200));
 const interpretCached = cached("refine", (_v: string, seedName: string, seedKind: string, sentence: string) => interpretUncached(seedName, seedKind, sentence));
 
 // The applied constraints as one sentence for the ranking prompt. Unmapped phrases are left out on purpose: the UI
@@ -243,7 +255,7 @@ export const appliedSentence = (c: ConstraintSet) => c.applied.map((a) => a.phra
 export function relaxedParams(c: ConstraintSet, d: Domain): Record<string, string | number> | null {
   const strict = refineParams(c, d);
   if (!strict || !strict["filter.tags"]) return null;
-  const { "filter.tags": tags, ...rest } = strict;
+  const { "filter.tags": tags, "operator.filter.tags": _op, ...rest } = strict; // eslint-disable-line @typescript-eslint/no-unused-vars
   return { ...rest, "signal.interests.tags": tags };
 }
 
@@ -251,10 +263,13 @@ export function relaxedParams(c: ConstraintSet, d: Domain): Record<string, strin
 export function refineParams(c: ConstraintSet | null | undefined, d: Domain): Record<string, string | number> | null {
   if (!c) return {};
   if (c.domains && !c.domains.includes(d)) return null; // domain not wanted: skip the call
+  // Places get only the location (Oct 20): tag stacks on places made Qloo time out (504s on Oct 19), and the
+  // ranker drops off-brand venues with an "excluded by constraint" label instead.
+  if (d === "place") return c.locationQuery ? { "signal.location.query": c.locationQuery } : {};
   const inc = c.includeTags.filter((t) => t.domains.includes(d)).map((t) => t.tag_id);
   const exc = c.excludeTags.filter((t) => t.domains.includes(d)).map((t) => t.tag_id);
   return {
-    ...(inc.length ? { "filter.tags": inc.join(",") } : {}),
+    ...(inc.length ? { "filter.tags": inc.join(","), ...(c.includeUnion ? { "operator.filter.tags": "union" } : {}) } : {}),
     ...(exc.length ? { "filter.exclude.tags": exc.join(",") } : {}),
     ...(c.locationQuery ? { "signal.location.query": c.locationQuery } : {}),
     ...(c.popularityMin ? { "filter.popularity.min": c.popularityMin } : {}),
