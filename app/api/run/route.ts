@@ -243,7 +243,7 @@ export async function GET(request: NextRequest) {
       if (!constraints && keptBrands.length) {
         trace("Checking which brands hold up without trend lift");
         try {
-          send({ type: "trends", data: await brandTrends(proxies ?? id, keptBrands, tag) });
+          send({ type: "trends", data: await brandTrends(proxies ?? id, keptBrands, slate.brand.map((p) => p.entity_id), tag) });
         } catch (err) {
           console.error("[run] trends failed", err); // a bonus, like the badges
         }

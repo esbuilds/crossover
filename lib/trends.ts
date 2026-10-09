@@ -5,11 +5,14 @@ import { TAG_WEIGHT } from "./proxy-params.ts";
 
 export type Trend = "durable" | "trending";
 
-// Pure. A kept brand that stays in the top ten with trends off is durable; one that only shows up with trends at
-// very high is trending. When both runs return the same ten, trends move nothing here and no brand gets a chip.
-export function classifyTrends(kept: string[], off: string[], high: string[]): Record<string, Trend> {
-  const same = off.length === high.length && off.every((id) => high.includes(id));
-  if (same) return {};
+// Pure. Chips only when trend lift actually reshapes this audience's list: if the trends-off ten match the slate's
+// own ten (base), trends move nothing here and no brand gets a chip. Otherwise a kept brand that stays with trends
+// off is durable, and one that drops out with trends off but shows up at very high is trending.
+// Oct 22 finding: on the hackathon API, trends off matched the default list for all four demo seeds, and very high
+// only prepended the same three global entities to every seed, so this returns {} for them.
+export function classifyTrends(kept: string[], base: string[], off: string[], high: string[]): Record<string, Trend> {
+  const unchanged = off.length === base.length && off.every((id, i) => base[i] === id);
+  if (unchanged) return {};
   const out: Record<string, Trend> = {};
   for (const id of kept) {
     if (off.includes(id)) out[id] = "durable";
@@ -33,7 +36,7 @@ const brandTrendLists = cached("trends", async (_v: string, seed: string | Signa
   high: await brandIds(seed, "very_high", tag),
 }));
 
-export async function brandTrends(seed: string | Signal[], kept: string[], tag?: string | null) {
+export async function brandTrends(seed: string | Signal[], kept: string[], base: string[], tag?: string | null) {
   const { off, high } = await brandTrendLists("trends-v1", seed, tag ?? null);
-  return classifyTrends(kept, off, high);
+  return classifyTrends(kept, base, off, high);
 }
