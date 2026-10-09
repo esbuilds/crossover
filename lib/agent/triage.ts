@@ -30,7 +30,9 @@ const SYSTEM = `You explain an inbound triage table for a partnerships lead. Nam
 
 For each row write one reason, under 20 words, in plain language for a partnerships lead: say which way the interest runs and the one fact that matters (a rank, the shared market with its numbers, a shared tag). No jargon, no hype, no numbers you were not given.
 
-Then a summary of exactly two sentences: name the calls to take, and the best maybe if one stands out. If no row is a take, say so plainly.`;
+Then a summary of exactly two sentences: name the calls to take, and the best maybe if one stands out. If no row is a take, say so plainly.
+
+Always call the seed by its name. Never write the words "seed", "bucket" or "row" in a reason or the summary.`;
 
 type Out = { summary: string; rows: { id: string; reason: string }[] };
 const schema = jsonSchema<Out>({
@@ -47,11 +49,11 @@ const schema = jsonSchema<Out>({
 });
 
 const rank = (r: number | null) => (r === null ? "outside the top 50" : `#${r} of 50`);
-const line = (r: TriageFact) =>
+const line = (r: TriageFact, seed: string) =>
   [
     `${r.id} | ${r.name} (${r.type.replace("urn:entity:", "")}) | ${BUCKET_LABEL[r.bucket]}${r.contrast ? " (contrast play)" : ""}`,
-    `among the seed's fans: ${rank(r.nameAmongSeed)}; the seed among its fans: ${rank(r.seedAmongName)}`,
-    r.topMarket ? `top shared market: ${r.topMarket.market} (seed ${r.topMarket.seed}, ${r.name} ${r.topMarket.name})` : "no shared market in both top tens",
+    `among ${seed}'s fans: ${rank(r.nameAmongSeed)}; ${seed} among its fans: ${rank(r.seedAmongName)}`,
+    r.topMarket ? `top shared market: ${r.topMarket.market} (${seed} ${r.topMarket.seed}, ${r.name} ${r.topMarket.name})` : "no shared market in both top tens",
     `shared tags: ${r.sharedTags.slice(0, 5).join(", ") || "none"}`,
   ].join(" | ");
 
@@ -62,7 +64,7 @@ async function generate(input: TriageInput): Promise<Streamed & { usage: Languag
     providerOptions: { anthropic: { effort: "medium", fallbacks: "default" } },
     output: Output.object({ schema }),
     instructions: { role: "system", content: SYSTEM, providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
-    messages: [{ role: "user", content: `Seed: ${input.seed.name} (${input.seed.type.replace("urn:entity:", "")}). ${input.seed.short_description ?? ""}\n\n${input.rows.map(line).join("\n")}` }],
+    messages: [{ role: "user", content: `Seed: ${input.seed.name} (${input.seed.type.replace("urn:entity:", "")}). ${input.seed.short_description ?? ""}\n\n${input.rows.map((r) => line(r, input.seed.name)).join("\n")}` }],
   });
   const table: TriageTable = { summary: output.summary.trim(), reasons: Object.fromEntries(output.rows.filter((r) => input.rows.some((x) => x.id === r.id)).map((r) => [r.id, r.reason.trim()])) };
   console.log(`[triage] ${input.seed.name} x ${input.rows.length} names usage`, JSON.stringify(usage));
@@ -70,4 +72,5 @@ async function generate(input: TriageInput): Promise<Streamed & { usage: Languag
 }
 
 const keyOf = (i: TriageInput) => `${i.seed.entity_id}:${i.rows.map((r) => r.id).sort().join(",")}`;
-export const triageTable = streamCache("triage", "triage-v1", keyOf, (i: TriageInput) => generate(i));
+// triage-v2 (Oct 9 real): the seed by name, none of the words seed, bucket or row.
+export const triageTable = streamCache("triage", "triage-v2", keyOf, (i: TriageInput) => generate(i));
