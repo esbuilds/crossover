@@ -1,5 +1,7 @@
 import { type NextRequest } from "next/server";
 import { proposeProxies } from "@/lib/proxy.ts";
+import { failCode } from "@/lib/failure.ts";
+import { FAIL_COPY } from "@/lib/fail-copy.ts";
 
 // POST /api/proxies {name, description, brands: string[]} -> { proxies: Card[], rejected: [{name, reason}], proposed }
 // The user's named brands are tried first; Haiku 5.5 proposes the rest; every candidate goes through match validation.
@@ -15,6 +17,8 @@ export async function POST(request: NextRequest) {
     return Response.json(result);
   } catch (err) {
     console.error("[proxies]", err);
+    const code = failCode(err);
+    if (code) return Response.json({ error: FAIL_COPY[code], code }, { status: 503 });
     return Response.json({ error: "Couldn't check those brands right now" }, { status: 502 });
   }
 }

@@ -28,6 +28,7 @@ export type BriefInput = {
   basedOn?: string[];
   region?: { label: string; states: string[] }; // refined runs: the markets tools only return markets in these states
   constraints?: string; // refined runs: the applied constraints (appliedSentence), so venues that break them are skipped
+  noBars?: boolean; // an applied exclusion covers alcohol: the venue tool asks for cafes and coffee shops instead of bars
 };
 export type BriefResult = Streamed & { usage: LanguageModelUsage | null };
 
@@ -125,7 +126,10 @@ async function placesInCity(input: BriefInput, market: string) {
   // artists add live-music venues (tag looked up once via /v2/tags, cached); every type gets restaurants and bars
   const extra = playbookFor(input.seed.type).venueQuery;
   const extraTag = extra ? await placeTag(extra).catch(() => null) : null;
-  const placeTags = extraTag ? [extraTag.tag_id, ...PLACE_TAGS] : PLACE_TAGS;
+  // no-alcohol refines (Oct 24): swap the bar tag for cafes and coffee shops, looked up once via /v2/tags (cached)
+  const dry = input.noBars ? (await Promise.all(["cafe", "coffee shop"].map((q) => placeTag(q).catch(() => null)))).filter((t) => t !== null).map((t) => t.tag_id) : [];
+  const base = input.noBars ? [PLACE_TAGS[0], ...new Set(dry)] : PLACE_TAGS;
+  const placeTags = extraTag ? [extraTag.tag_id, ...base] : base;
   const tried: string[] = [];
   for (const m of [market, ...seedTop.filter((x) => x !== market)].slice(0, 2)) {
     tried.push(m);

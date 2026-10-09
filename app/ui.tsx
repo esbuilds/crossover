@@ -94,3 +94,23 @@ export function SiteHeader({ href, label }: { href: string; label: string }) {
     </header>
   );
 }
+
+// The four warm examples: home chips, and the way out of a calm failure (out of credit, daily cap).
+export const EXAMPLES = [
+  { name: "Liquid Death", note: "canned water", href: "/s/4DF7C265-52D9-4A99-8803-F62C2302D561?t=urn%3Aentity%3Abrand" },
+  { name: "Olipop", note: "prebiotic soda", href: "/s/6647FB92-9390-4B58-885B-86D96FF5BB6D?t=urn%3Aentity%3Abrand" },
+  { name: "Mt. Joy", note: "indie folk band", href: "/s/A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A?t=urn%3Aentity%3Aartist" },
+  { name: "Somebody Feed Phil", note: "Netflix food show", href: "/s/02F34B14-E7B2-4AFA-B21E-AA9332CD9CC2?t=urn%3Aentity%3Atv_show" },
+];
+export function ExampleLinks() {
+  return (
+    <span className="flex flex-wrap items-center gap-x-4">
+      <span className="text-ink-2">Try:</span>
+      {EXAMPLES.map((e) => (
+        <a key={e.name} href={e.href} className={btnQuiet}>
+          {e.name}
+        </a>
+      ))}
+    </span>
+  );
+}

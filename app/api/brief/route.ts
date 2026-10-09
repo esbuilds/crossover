@@ -5,6 +5,8 @@ import { loadPair, type PairBody } from "@/lib/pair.ts";
 import { QuotaError } from "@/lib/qloo.ts";
 import { sse } from "@/lib/sse.ts";
 import { peekSharedTags } from "@/lib/fit.ts";
+import { failCode } from "@/lib/failure.ts";
+import { FAIL_COPY } from "@/lib/fail-copy.ts";
 
 // POST /api/brief {entity, type?, pick, domain} or {proxy: {name, d, p, t?}, pick, domain}
 // -> server-sent events: {type:"trace", text} per tool call, {type:"text", delta} as the brief streams, then
@@ -34,10 +36,13 @@ export async function POST(request: NextRequest) {
       send({ type: "done", cached: !result.ran });
     } catch (err) {
       console.error("[brief]", err);
+      const code = failCode(err);
       send({
         type: "error",
-        message:
-          err instanceof CapReached
+        ...(code ? { code } : {}),
+        message: code
+          ? FAIL_COPY[code]
+          : err instanceof CapReached
             ? "You've hit today's limit of 20 new briefs. Briefs you've already opened still work, and the limit resets tomorrow."
             : err instanceof QuotaError
               ? "Qloo's taste data is busy right now. Briefs you've already opened still work; try this one again in a minute."

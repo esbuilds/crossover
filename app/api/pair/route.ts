@@ -2,6 +2,8 @@ import { type NextRequest } from "next/server";
 import { getPair } from "@/lib/pairing.ts";
 import { QuotaError } from "@/lib/qloo.ts";
 import { isEntityType } from "@/lib/slate.ts";
+import { failCode } from "@/lib/failure.ts";
+import { FAIL_COPY } from "@/lib/fail-copy.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -21,6 +23,8 @@ export async function GET(request: NextRequest) {
     return Response.json(pair, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     console.error("[pair]", err);
+    const code = failCode(err);
+    if (code) return Response.json({ error: FAIL_COPY[code], code }, { status: 503 });
     if (err instanceof QuotaError) return Response.json({ error: "Qloo's taste data is busy right now. Pairs you've already checked still work; try this one again in a minute." }, { status: 503 });
     return Response.json({ error: "Couldn't check this pairing right now" }, { status: 502 });
   }

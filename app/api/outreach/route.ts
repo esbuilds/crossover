@@ -3,6 +3,8 @@ import { outreach } from "@/lib/agent/outreach.ts";
 import { CapReached, generationKey } from "@/lib/agent/stream-cache.ts";
 import { loadPair, type PairBody } from "@/lib/pair.ts";
 import { sse } from "@/lib/sse.ts";
+import { failCode } from "@/lib/failure.ts";
+import { FAIL_COPY } from "@/lib/fail-copy.ts";
 
 // POST /api/outreach, same body as /api/brief -> server-sent events with the email: {type:"text", delta}, then
 // {type:"done"} or {type:"error"}. Called only after a human approves the brief. Nothing is sent anywhere.
@@ -24,9 +26,11 @@ export async function POST(request: NextRequest) {
       send({ type: "done", cached: !result.ran });
     } catch (err) {
       console.error("[outreach]", err);
+      const code = failCode(err);
       send({
         type: "error",
-        message: err instanceof CapReached ? "You've hit today's limit of 20 new drafts. The limit resets tomorrow." : "The email stopped partway. Try again to finish it.",
+        ...(code ? { code } : {}),
+        message: code ? FAIL_COPY[code] : err instanceof CapReached ? "You've hit today's limit of 20 new drafts. The limit resets tomorrow." : "The email stopped partway. Try again to finish it.",
       });
     }
   });

@@ -8,7 +8,7 @@ import type { Direction } from "@/lib/fit.ts";
 import type { City } from "@/lib/cities.ts";
 import UsMap from "../map";
 import BriefPanel, { Skeleton } from "../brief-panel";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, type ChipKind, field, MatchCard, SiteHeader, TYPE_LABEL } from "../ui";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL } from "../ui";
 
 type Side = { query: string; state: "idle" | "loading" | "picked" | "ambiguous" | "not_found" | "error"; card?: Card; candidates?: Card[]; message?: string };
 const empty: Side = { query: "", state: "idle" };
@@ -34,7 +34,7 @@ async function resolveName(q: string): Promise<Side> {
 export default function PairView({ initial }: { initial?: { a: string; b: string; ta?: string; tb?: string } }) {
   const [a, setA] = useState<Side>(empty);
   const [b, setB] = useState<Side>(empty);
-  const [pair, setPair] = useState<{ state: "idle" | "loading" | "ready" | "error"; data?: Pair; message?: string }>({ state: initial ? "loading" : "idle" });
+  const [pair, setPair] = useState<{ state: "idle" | "loading" | "ready" | "error"; data?: Pair; message?: string; code?: string }>({ state: initial ? "loading" : "idle" });
   const [brief, setBrief] = useState(false);
   const [copied, setCopied] = useState(false);
   const closeBrief = useCallback(() => setBrief(false), []);
@@ -50,12 +50,12 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
     try {
       const res = await fetch(`/api/pair?a=${idA}&b=${idB}${ta ? `&ta=${encodeURIComponent(ta)}` : ""}${tb ? `&tb=${encodeURIComponent(tb)}` : ""}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Couldn't check this pairing");
+      if (!res.ok) throw Object.assign(new Error(data.error ?? "Couldn't check this pairing"), { code: data.code });
       setPair({ state: "ready", data });
       setA((s) => ({ ...s, state: "picked", card: data.a, query: s.query || data.a.name }));
       setB((s) => ({ ...s, state: "picked", card: data.b, query: s.query || data.b.name }));
     } catch (err) {
-      setPair({ state: "error", message: (err as Error).message });
+      setPair({ state: "error", message: (err as Error).message, code: (err as { code?: string }).code });
     }
   }
 
@@ -117,7 +117,15 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
           <Skeleton lines={4} />
         </div>
       )}
-      {pair.state === "error" && <p className="mt-8 rounded-md bg-danger-tint px-4 py-3 text-base text-danger">{pair.message}</p>}
+      {pair.state === "error" &&
+        (pair.code ? (
+          <div className="mt-8 rounded-md bg-surface-2 px-4 py-3 text-base text-ink">
+            <p>{pair.message}</p>
+            <ExampleLinks />
+          </div>
+        ) : (
+          <p className="mt-8 rounded-md bg-danger-tint px-4 py-3 text-base text-danger">{pair.message}</p>
+        ))}
 
       {p && ready && (
         <div className="mt-10">

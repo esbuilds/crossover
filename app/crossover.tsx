@@ -9,7 +9,7 @@ import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ConstraintSet } from "@/lib/refine.ts";
 import UsMap from "./map";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, field, MatchCard, SiteHeader, Thumb } from "./ui";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, EXAMPLES, ExampleLinks, field, MatchCard, SiteHeader, Thumb } from "./ui";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 
@@ -35,10 +35,9 @@ const proxyQuery = (s: ProxySpec) =>
 type Load<T> =
   | { state: "idle" }
   | { state: "loading" }
-  | { state: "error"; message: string }
+  | { state: "error"; message: string; code?: string }
   | { state: "ready"; data: T };
 
-const CHIPS = ["Liquid Death", "Olipop", "Mt. Joy", "Somebody Feed Phil"];
 const DOMAIN_LABEL: Record<Domain, string> = {
   brand: "Brands",
   artist: "Artists",
@@ -50,7 +49,7 @@ const DOMAIN_LABEL: Record<Domain, string> = {
 async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.error ?? `Request failed (${res.status})`);
+  if (!res.ok) throw Object.assign(new Error(body.error ?? `Request failed (${res.status})`), { code: body.code as string | undefined });
   return body;
 }
 
@@ -137,9 +136,9 @@ export default function Crossover({
     setRunning(true);
     const es = new EventSource(url);
     source.current = es;
-    const fail = (message: string) => {
+    const fail = (message: string, code?: string) => {
       stop();
-      setSlate((s) => (s.state === "ready" ? s : { state: "error", message })); // keep a slate that already arrived
+      setSlate((s) => (s.state === "ready" ? s : { state: "error", message, code })); // keep a slate that already arrived
     };
     es.onmessage = (m) => {
       if (source.current !== es) return;
@@ -154,7 +153,7 @@ export default function Crossover({
       else if (ev.type === "mutual") setBadges(ev.data);
       else if (ev.type === "constraints") setConstraints(ev.data);
       else if (ev.type === "done") stop();
-      else if (ev.type === "error") fail(ev.message);
+      else if (ev.type === "error") fail(ev.message, ev.code);
     };
     es.onerror = () =>
       source.current === es &&
@@ -193,7 +192,7 @@ export default function Crossover({
         setDraft({ name: q, description: "", brands: [] });
       }
     } catch (err) {
-      setResolved({ state: "error", message: (err as Error).message });
+      setResolved({ state: "error", message: (err as Error).message, code: (err as { code?: string }).code });
     }
   }
 
@@ -285,9 +284,10 @@ export default function Crossover({
           <>
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="mr-1 text-base text-ink-3">Try</span>
-              {CHIPS.map((c) => (
-                <button key={c} onClick={() => lookup(c)} className="min-h-11 rounded-full border border-rule-strong px-4 text-base text-ink hover:border-ink">
-                  {c}
+              {EXAMPLES.map((e) => (
+                <button key={e.name} onClick={() => lookup(e.name)} className="flex min-h-11 flex-col items-start rounded-lg border border-rule-strong px-4 py-1.5 text-left hover:border-ink">
+                  <span className="text-base text-ink">{e.name}</span>
+                  <span className="text-sm text-ink-3">{e.note}</span>
                 </button>
               ))}
             </div>
@@ -299,7 +299,14 @@ export default function Crossover({
       <section className="mt-4 space-y-4 empty:hidden">
         {resolved.state === "loading" && <p className="font-mono text-sm text-ink-3">Looking for &ldquo;{query}&rdquo; in Qloo...</p>}
         {resolved.state === "error" && (
-          <p className="rounded-md bg-danger-tint px-4 py-3 text-base text-danger">Couldn&apos;t search Qloo: {resolved.message}</p>
+          resolved.code ? (
+            <div className="rounded-md bg-surface-2 px-4 py-3 text-base text-ink">
+              <p>{resolved.message}</p>
+              <ExampleLinks />
+            </div>
+          ) : (
+            <p className="rounded-md bg-danger-tint px-4 py-3 text-base text-danger">Couldn&apos;t search Qloo: {resolved.message}</p>
+          )
         )}
         {resolved.state === "ready" && resolved.data.status === "ambiguous" && (
           <div>
@@ -328,7 +335,13 @@ export default function Crossover({
       {trace.length > 0 && <TraceLog lines={trace} running={running} />}
 
       {slate.state === "loading" && <SlateSkeleton />}
-      {slate.state === "error" && (
+      {slate.state === "error" && slate.code && (
+        <div className="mt-6 rounded-md bg-surface-2 px-4 py-3 text-base text-ink">
+          <p>{slate.message}</p>
+          <ExampleLinks />
+        </div>
+      )}
+      {slate.state === "error" && !slate.code && (
         <div className="mt-6 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
           <span className="py-2">Couldn&apos;t build the slate: {slate.message}</span>
           {entity && (
@@ -539,26 +552,7 @@ function Results({
     approved: decisions[row.pick.entity_id]?.status === "approved",
     onOpen: () => onOpen(row.pick, domain),
   });
-  return (
-    <div className="mt-10">
-      <header className="border-b border-ink pb-6">
-        <h2 className="font-display text-2xl sm:text-3xl">Partners for {data.entity.name}</h2>
-        <p className="mt-1 max-w-[65ch] text-base text-ink-2">{playbookFor(data.entity.type).slateSubtitle}</p>
-        <RefineBar key={refineText} refineText={refineText} constraints={constraints} running={running} onRefine={onRefine} />
-        {Object.values(badges).some(Boolean) && (
-          <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-2">
-            <span className="flex items-center gap-2">
-              <Chip kind="mutual" /> their fans rank you in their top 10 too
-            </span>
-            <span className="flex items-center gap-2">
-              <Chip kind="partial" /> in their top 50
-            </span>
-
-          </p>
-        )}
-      </header>
-
-      {data.domains.map(({ domain, picks }) => {
+  const renderDomain = ({ domain, picks }: SlateData["domains"][number]) => {
         const { rows, lower, dropped } = arrange(picks, ranking[domain], decisions);
         // the shortlist is what the ranker kept (Qloo's top five before it lands); the rest sit behind "Show all"
         const shortlist = ranking[domain] ? Math.max(1, ranking[domain].kept.filter((k) => !decisions[k.entity_id] || decisions[k.entity_id].status !== "declined").length) : 5;
@@ -615,7 +609,37 @@ function Results({
             )}
           </section>
         );
-      })}
+  };
+  // Places and podcasts sit under one "More domains" disclosure (Oct 24): the pitch is brands first. They stay in the
+  // response, the trace counts and the ranking.
+  const MORE: Domain[] = ["place", "podcast"];
+  const main = data.domains.filter((d) => !MORE.includes(d.domain));
+  const more = data.domains.filter((d) => MORE.includes(d.domain));
+  return (
+    <div className="mt-10">
+      <header className="border-b border-ink pb-6">
+        <h2 className="font-display text-2xl sm:text-3xl">Partners for {data.entity.name}</h2>
+        <p className="mt-1 max-w-[65ch] text-base text-ink-2">{playbookFor(data.entity.type).slateSubtitle}</p>
+        <RefineBar key={refineText} refineText={refineText} constraints={constraints} running={running} onRefine={onRefine} />
+        {Object.values(badges).some(Boolean) && (
+          <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-2">
+            <span className="flex items-center gap-2">
+              <Chip kind="mutual" /> their fans rank you in their top 10 too
+            </span>
+            <span className="flex items-center gap-2">
+              <Chip kind="partial" /> in their top 50
+            </span>
+
+          </p>
+        )}
+      </header>
+
+      {main.map(renderDomain)}
+      {more.length > 0 && (
+        <section className="border-b border-rule py-6">
+          <Disclosure label={`More domains: ${more.map((d) => DOMAIN_LABEL[d.domain].toLowerCase()).join(" and ")}`}>{more.map(renderDomain)}</Disclosure>
+        </section>
+      )}
 
       <section className="py-10">
         <h3 className="font-display text-xl">Where to launch</h3>

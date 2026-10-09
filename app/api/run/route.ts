@@ -21,6 +21,8 @@ import { QuotaError } from "@/lib/qloo.ts";
 import { interpret, refineParams, relaxedParams, appliedSentence, type ConstraintSet } from "@/lib/refine.ts";
 import { rankAmongFans, badgeFor } from "@/lib/fit.ts";
 import { brandTrends } from "@/lib/trends.ts";
+import { failCode } from "@/lib/failure.ts";
+import { FAIL_COPY } from "@/lib/fail-copy.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LABEL: Record<Domain, string> = {
@@ -182,8 +184,8 @@ export async function GET(request: NextRequest) {
 
       trace(
         constraints
-          ? "Checking each pick against your constraints"
-          : "Asking Claude to shortlist partners a brand could actually sign, one category at a time",
+          ? "Checking each pick against your constraints, usually 10 to 20 seconds"
+          : "Shortlisting, usually 10 to 20 seconds",
       );
       const started = Date.now();
       let kept = 0;
@@ -191,19 +193,22 @@ export async function GET(request: NextRequest) {
       let failed = 0;
       let topBrands: string[] = [];
       let keptBrands: string[] = [];
+      let creditNoted = false;
       await rank(
         seed,
         slate,
-        (d, r) => {
+        (d, r, err) => {
           if (d === "brand" && r) {
             topBrands = r.ranking.kept.slice(0, 3).map((k) => k.entity_id);
             keptBrands = r.ranking.kept.map((k) => k.entity_id);
           }
           if (!r) {
             failed++;
-            trace(
-              `Couldn't shortlist ${LABEL[d]} right now; showing Qloo's order`,
-            );
+            // out of credit: one calm line for the whole slate, not six
+            if (failCode(err) === "credit") {
+              if (!creditNoted) trace("The shortlisting agent is out of credit right now, so the slate shows Qloo's order");
+              creditNoted = true;
+            } else trace(`Couldn't shortlist ${LABEL[d]} right now; showing Qloo's order`);
             return;
           }
           kept += r.ranking.kept.length;
@@ -252,10 +257,13 @@ export async function GET(request: NextRequest) {
       send({ type: "done" });
     } catch (err) {
       console.error("[run]", err);
+      const code = failCode(err);
       send({
         type: "error",
-        message:
-          err instanceof QuotaError
+        ...(code ? { code } : {}),
+        message: code
+          ? FAIL_COPY[code]
+          : err instanceof QuotaError
             ? "Qloo's taste data is busy right now. Names you've already looked up still load; try a new one in a minute."
             : err instanceof Error && err.message.startsWith("Qloo has no")
               ? err.message

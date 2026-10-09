@@ -9,7 +9,7 @@ import { AGE_LABEL } from "@/lib/ages.ts";
 import type { Cohort } from "@/lib/cohort.ts";
 import type { ProxySpec } from "./crossover";
 import { BasedOn } from "./proxy-form";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, field } from "./ui";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, ExampleLinks, field } from "./ui";
 
 type Venue = { name: string; city: string | null; price_level: number | null; affinity: number | null };
 type Event =
@@ -18,7 +18,7 @@ type Event =
   | { type: "venues"; market: string; venues: Venue[] }
   | { type: "fit"; sharedTags: string[] }
   | { type: "done"; cached: boolean }
-  | { type: "error"; message: string };
+  | { type: "error"; message: string; code?: string };
 export type Decision = { status: "approved" | "declined"; reason?: string; name: string; domain: string };
 
 // Reads server-sent events from a POST response (EventSource only does GET).
@@ -43,12 +43,14 @@ function useStream(url: string | null, body: object, attempt: number) {
   const [sharedTags, setSharedTags] = useState<string[] | null>(null);
   const [status, setStatus] = useState<"idle" | "writing" | "done" | "error">("idle");
   const [error, setError] = useState("");
+  const [code, setCode] = useState<string | undefined>();
   const payload = JSON.stringify(body);
 
   useEffect(() => {
     if (!url) return;
     const abort = new AbortController();
     setTrace([]); // eslint-disable-line react-hooks/set-state-in-effect -- reset for a new request or a retry
+    setCode(undefined);
     setText("");
     setVenues([]);
     setSharedTags(null);
@@ -65,6 +67,7 @@ function useStream(url: string | null, body: object, attempt: number) {
           else if (e.type === "done") setStatus("done");
           else if (e.type === "error") {
             setError(e.message);
+            setCode(e.code);
             setStatus("error");
           }
         });
@@ -78,7 +81,7 @@ function useStream(url: string | null, body: object, attempt: number) {
     return () => abort.abort();
   }, [url, payload, attempt]);
 
-  return { trace, text, venues, sharedTags, status, error };
+  return { trace, text, venues, sharedTags, status, error, code };
 }
 
 export default function BriefPanel({
@@ -211,12 +214,19 @@ export default function BriefPanel({
           {ready && <CohortBlock body={body} partner={pick.name} />}
 
           {b.status === "error" && (
-            <div className="mt-6 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
-              <span className="py-2">{b.error}</span>
-              <button onClick={() => setAttempt((n) => n + 1)} className={btnQuiet}>
-                Try again
-              </button>
-            </div>
+            b.code ? (
+              <div className="mt-6 rounded-md bg-surface-2 px-4 py-3 text-base text-ink">
+                <p>{b.error}</p>
+                <ExampleLinks />
+              </div>
+            ) : (
+              <div className="mt-6 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
+                <span className="py-2">{b.error}</span>
+                <button onClick={() => setAttempt((n) => n + 1)} className={btnQuiet}>
+                  Try again
+                </button>
+              </div>
+            )
           )}
 
           {approved && ready && (

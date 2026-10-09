@@ -162,7 +162,7 @@ const rankDomainCached = cached("rank-domain", (_v: string, seed: Seed, domain: 
 );
 
 // All six domains in parallel. onDomain fires as each lands; a failed domain reports null and stays in Qloo's order.
-export async function rank(seed: Seed, slate: Slate, onDomain: (d: Domain, r: DomainResult | null) => void, effort: Effort = RANK_EFFORT, constraints?: string) {
+export async function rank(seed: Seed, slate: Slate, onDomain: (d: Domain, r: DomainResult | null, err?: unknown) => void, effort: Effort = RANK_EFFORT, constraints?: string) {
   await Promise.all(
     DOMAINS.filter((d) => slate[d].length).map(async (d) => {
       try {
@@ -170,7 +170,7 @@ export async function rank(seed: Seed, slate: Slate, onDomain: (d: Domain, r: Do
         onDomain(d, await (constraints ? rankDomainCached(REFINED_VERSION, seed, d, slate[d], effort, constraints) : rankDomainCached(PROMPT_VERSION, seed, d, slate[d], effort)));
       } catch (err) {
         console.error(`[rank] ${d} failed`, err);
-        onDomain(d, null);
+        onDomain(d, null, err);
       }
     }),
   );

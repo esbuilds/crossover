@@ -3,6 +3,8 @@ import { search, RESOLVE_TYPES, QuotaError } from "@/lib/qloo.ts";
 import { resolve, type Resolution } from "@/lib/resolve.ts";
 import { toCard } from "@/lib/slate.ts";
 import { fixtureByQuery } from "@/lib/fixtures.ts";
+import { failCode } from "@/lib/failure.ts";
+import { FAIL_COPY } from "@/lib/fail-copy.ts";
 
 // GET /api/resolve?q=<text> -> { status, candidates }
 // Confident: candidates[0] is the match, the rest are what "Not it" offers. Ambiguous: up to three to pick from.
@@ -27,6 +29,8 @@ export async function GET(request: NextRequest) {
     return Response.json({ ...shape(r), source: "qloo" }, { headers: { "Cache-Control": "public, s-maxage=2592000" } });
   } catch (err) {
     console.error("[resolve]", err);
+    const code = failCode(err);
+    if (code) return Response.json({ error: FAIL_COPY[code], code }, { status: 503 });
     if (err instanceof QuotaError)
       return Response.json({ error: "Qloo's taste data is busy right now. Names you've already looked up still work; try a new one in a minute." }, { status: 503 });
     return Response.json({ error: "Qloo request failed" }, { status: 502 });
