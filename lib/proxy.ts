@@ -21,13 +21,17 @@ const KNOWN = [
 
 // --- proposal: Haiku suggests brands Qloo likely knows; the user's own names always come first ---
 
-type Proposal = { category: string; candidates: { name: string; why: string }[] };
+type Proposal = { categories: string[]; candidates: { name: string; why: string }[] };
 const schema = jsonSchema<Proposal>({
   type: "object",
   additionalProperties: false,
-  required: ["category", "candidates"],
+  required: ["categories", "candidates"],
   properties: {
-    category: { type: "string", description: "One to three words for what the brand sells, as a store aisle would say it (for example 'seafood', 'olive oil', 'snacks'). Empty if unclear." },
+    categories: {
+      type: "array",
+      description: "Up to three short phrases for what the brand sells, broadest first, as a store aisle would say it (for example 'seafood', then 'canned fish'). Empty if unclear.",
+      items: { type: "string" },
+    },
     candidates: {
       type: "array",
       items: {
@@ -41,7 +45,7 @@ const schema = jsonSchema<Proposal>({
 });
 
 async function propose(name: string, description: string, named: string[]): Promise<Proposal> {
-  if (!process.env.ANTHROPIC_API_KEY) return { category: "", candidates: [] };
+  if (!process.env.ANTHROPIC_API_KEY) return { categories: [], candidates: [] };
   const { output } = await generateText({
     model: anthropic("claude-haiku-5-5"),
     providerOptions: { anthropic: { effort: "low" } },
@@ -52,9 +56,9 @@ async function propose(name: string, description: string, named: string[]): Prom
 
 Suggest ${PROPOSE} brands its customers most likely also buy, best first. The taste database behind this knows national lifestyle and direct-to-consumer brands well (kitchen and home, food and drink, apparel, beauty, wellness) and knows grocery staples and store labels poorly. For calibration, these are the kind of brand it knows: ${KNOWN.join(", ")}. Don't suggest those just because they're listed; suggest them only if ${name}'s customer would really buy them. Prefer brands with a strong identity and a national following, in the same or adjacent categories, over same-shelf grocery labels. Do not repeat the brands the owner already named, and do not suggest ${name} itself. If the description is too vague to tell what ${name} sells, suggest fewer or none rather than guessing.
 
-Also give the category: one to three words for what ${name} sells.`,
+Also give up to three category phrases for what ${name} sells, broadest first (a broad aisle like "seafood", "snacks", "beverages", "skincare" before anything specific).`,
   });
-  return { category: output.category.trim(), candidates: output.candidates.slice(0, PROPOSE) };
+  return { categories: output.categories.map((c) => c.trim()).filter(Boolean).slice(0, 3), candidates: output.candidates.slice(0, PROPOSE) };
 }
 
 export type ProxyResult = { proxies: Card[]; rejected: { name: string; reason: string }[]; proposed: string[]; tag: Tag | null; guessed: boolean };
@@ -75,7 +79,14 @@ async function proposeUncached(name: string, description: string, named: string[
     .filter((c, i, all) => all.findIndex((x) => x.toLowerCase() === c.toLowerCase()) === i && c.toLowerCase() !== name.toLowerCase())
     .slice(0, MAX_SEARCHES);
 
-  const tag = proposal.category ? brandTag(proposal.category).catch(() => null) : Promise.resolve(null);
+  // first category phrase that maps to a Qloo brand tag; at most 3 calls, usually 1
+  const tag = (async () => {
+    for (const c of proposal.categories) {
+      const t = await brandTag(c).catch(() => null);
+      if (t) return t;
+    }
+    return null;
+  })();
   const proxies: Card[] = [];
   const rejected: { name: string; reason: string }[] = [];
   while (queue.length && proxies.length < MAX_PROXIES) {
@@ -89,7 +100,7 @@ async function proposeUncached(name: string, description: string, named: string[
 }
 
 // Cached 30 days per (name, description, named brands) so "Check again" and share links are stable.
-const PROPOSAL_VERSION = "proxies-v2";
+const PROPOSAL_VERSION = "proxies-v3";
 const proposeCached = cached("proxies", (_v: string, name: string, description: string, named: string[]) => proposeUncached(name, description, named));
 export const proposeProxies = (name: string, description: string, named: string[]) =>
   proposeCached(PROPOSAL_VERSION, name.trim(), description.trim(), named.map((n) => n.trim()).filter(Boolean));
