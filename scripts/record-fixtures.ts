@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { search, qlooCallCount, RESOLVE_TYPES } from "../lib/qloo.ts";
 
-const brands = readFileSync(new URL("../../probe/brands.txt", import.meta.url), "utf8")
+const brands = readFileSync(new URL("../fixtures/brands.txt", import.meta.url), "utf8")
   .split("\n")
   .map((l) => l.trim())
   .filter((l) => l && !l.startsWith("#"));
