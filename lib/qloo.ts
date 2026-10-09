@@ -1,6 +1,7 @@
 // Server-side Qloo client. Every Qloo call in the app goes through this file.
-import { unstable_cache } from "next/cache.js"; // .js so plain node scripts resolve it too
+import { createHash } from "node:crypto";
 import { forced } from "./force.ts";
+import { getJson, setJson, incr, getNumber, setNumber, today } from "./redis.ts";
 
 // ponytail: env guard instead of the server-only package; the key is not NEXT_PUBLIC so it never reaches a bundle anyway
 if (typeof window !== "undefined") throw new Error("lib/qloo is server-only");
@@ -52,18 +53,21 @@ async function request(path: string, init: { query?: Record<string, string | num
     method: init.body ? "POST" : "GET",
     headers: { "X-Api-Key": key, ...(init.body ? { "Content-Type": "application/json" } : {}) },
     body: init.body ? JSON.stringify(init.body) : undefined,
-    cache: "no-store", // unstable_cache owns caching; don't double-store raw responses
+    cache: "no-store", // cached() owns caching; don't double-store raw responses
   };
 
   if (forced("qloo429")) throw new QuotaError("forced 429");
-  spendDaily();
+  await spendDaily();
   for (let attempt = 0; ; attempt++) {
     await slot();
     calls++;
     console.log(`[qloo] call #${calls} ${opts.method} ${path}`);
     const res = await fetch(BASE + path + qs, opts);
     const left = res.headers.get("X-Month-RateLimit-Remaining");
-    if (left !== null) monthRemaining = Number(left);
+    if (left !== null) {
+      monthRemaining = Number(left);
+      void setNumber("cx:qloo:monthRemaining", monthRemaining, THIRTY_DAYS); // shared, for /api/usage
+    }
     if (res.status === 429 && attempt === 0) {
       const reset = Number(res.headers.get("X-Second-RateLimit-Reset")) || 1;
       await sleep(Math.min(reset, 5) * 1000);
@@ -82,16 +86,19 @@ export const qlooCallCount = () => calls;
 export class QuotaError extends Error {}
 
 // Hard daily ceiling on live Qloo calls (QLOO_DAILY_CAP, unset = no cap). Cached responses never count.
-// ponytail: per instance and in memory, so the true ceiling is cap x live instances; it exists to stop a runaway
-// script or retry loop, not to meter judges. Upgrade path: a KV counter keyed by date.
-let today = "";
-let todayCalls = 0;
-function spendDaily() {
+// Counted in Redis per day, so it holds across every instance; falls back to a per-instance count without Redis.
+let localDay = "";
+let localCalls = 0;
+async function spendDaily() {
   const cap = Number(process.env.QLOO_DAILY_CAP) || 0;
-  const day = new Date().toISOString().slice(0, 10);
-  if (day !== today) [today, todayCalls] = [day, 0];
-  if (cap && todayCalls >= cap) throw new QuotaError(`daily cap of ${cap} Qloo calls reached`);
-  todayCalls++;
+  const shared = await incr(`cx:count:qloo:${today()}`, 60 * 60 * 48);
+  if (localDay !== today()) [localDay, localCalls] = [today(), 0];
+  const n = shared ?? ++localCalls;
+  if (cap && n > cap) throw new QuotaError(`daily cap of ${cap} Qloo calls reached`);
+}
+
+export async function qlooToday() {
+  return { today: (await getNumber(`cx:count:qloo:${today()}`)) ?? localCalls, cap: Number(process.env.QLOO_DAILY_CAP) || null, monthRemaining: (await getNumber("cx:qloo:monthRemaining")) ?? monthRemaining };
 }
 // ponytail: per process. On Vercel each instance counts its own calls; the month header is the real total.
 export const qlooUsage = () => ({ calls, monthRemaining });
@@ -134,16 +141,24 @@ const trimEntities = (body: Raw): Entity[] => {
   return (Array.isArray(r) ? r : (r?.entities ?? [])).map(trimEntity);
 };
 
-// 30-day data cache. Also used by the agent (rankings, briefs) so repeat demos are identical and free.
+// 30-day cache in Redis, keyed by name and a hash of the arguments only (version labels are arguments), so a deploy
+// never invalidates anything. unstable_cache was dropped Oct 16: its key includes the function's source, and every
+// deploy rebuilt it, so each deploy started cold and re-spent Qloo calls.
+// Also used by the agent (rankings, briefs, proposals) so repeat demos are identical and free.
 export function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promise<R>) {
-  const c = unstable_cache(fn, ["qloo", name], { revalidate: THIRTY_DAYS });
-  // plain node scripts (fixture recording) have no Next cache; call straight through
-  const run = (...args: A) => (process.env.NEXT_RUNTIME ? c(...args) : fn(...args));
+  const run = async (...args: A): Promise<R> => {
+    const key = `cx:${name}:${createHash("sha1").update(JSON.stringify(args)).digest("hex")}`;
+    const hit = await getJson<R>(key);
+    if (hit !== null) return hit;
+    const result = await fn(...args);
+    await setJson(key, result, THIRTY_DAYS);
+    return result;
+  };
   return process.env.NODE_ENV === "development" ? devFileCache(name, run) : run;
 }
 
-// Development only: the Next data cache resets on hot reload, which re-bills every Opus ranking and brief.
-// Results also persist to .cache/<name>/<hash>.json (gitignored), keyed by the same name and arguments.
+// Development only: a read-through file layer in front of Redis, so local work doesn't touch the shared cache's
+// quota and survives offline. Results persist to .cache/<name>/<hash>.json (gitignored).
 // ponytail: no expiry; delete .cache/ to start fresh.
 function devFileCache<A extends unknown[], R>(name: string, run: (...args: A) => Promise<R>) {
   return async (...args: A): Promise<R> => {

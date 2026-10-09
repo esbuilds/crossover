@@ -1,24 +1,25 @@
 // Caching a streamed generation (briefs, outreach emails).
-// unstable_cache can't hold a stream, so the cached function does the generation itself and forwards tokens to
+// A cache can't hold a stream, so the cached function does the generation itself and forwards tokens to
 // whichever request is waiting on that key. A cache hit skips the function; the caller replays the stored result.
 // ponytail: one listener per key, so two simultaneous first-time requests for the same key stream to the later
 // one only; the earlier gets the full text when it finishes. Fine for a demo.
 import { cached } from "../qloo.ts";
+import { incr, today } from "../redis.ts";
 
 export type Listener = { ip: string; ran: boolean; trace: (t: string) => void; text: (d: string) => void };
 export type Streamed = { text: string; trace: string[] };
 
-// ponytail: per-instance, in-memory, resets on cold start, so the real ceiling is 20 x live instances per IP.
-// Upgrade path: a KV counter (Upstash or Vercel KV) keyed by ip:date. Counts fresh generations only.
+// 20 fresh generations per IP per day, counted in Redis across instances (cached replays are free).
+// Falls back to a per-instance count when Redis is unavailable.
 const DAILY_CAP = 20;
-const usageByIp = new Map<string, { day: string; n: number }>();
+const localByIp = new Map<string, { day: string; n: number }>();
 export class CapReached extends Error {}
-function spend(ip: string) {
-  const day = new Date().toISOString().slice(0, 10);
-  const u = usageByIp.get(ip);
-  const n = u?.day === day ? u.n : 0;
-  if (n >= DAILY_CAP) throw new CapReached();
-  usageByIp.set(ip, { day, n: n + 1 });
+async function spend(ip: string) {
+  const shared = await incr(`cx:count:gen:${ip}:${today()}`, 60 * 60 * 48);
+  const u = localByIp.get(ip);
+  const local = (u?.day === today() ? u.n : 0) + 1;
+  localByIp.set(ip, { day: today(), n: local });
+  if ((shared ?? local) > DAILY_CAP) throw new CapReached();
 }
 
 export function streamCache<I, R extends Streamed>(name: string, version: string, keyOf: (i: I) => string, gen: (i: I, say: (t: string) => void, write: (d: string) => void) => Promise<R>) {
@@ -26,7 +27,7 @@ export function streamCache<I, R extends Streamed>(name: string, version: string
   const run = cached(name, async (_v: string, input: I): Promise<R> => {
     const l = listeners.get(keyOf(input));
     if (l) l.ran = true;
-    spend(l?.ip ?? "unknown");
+    await spend(l?.ip ?? "unknown");
     return gen(
       input,
       (t) => l?.trace(t),
