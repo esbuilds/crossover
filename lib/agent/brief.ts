@@ -26,6 +26,7 @@ export type BriefInput = {
   fromSlate?: boolean;
   anchor?: Card;
   basedOn?: string[];
+  region?: { label: string; states: string[] }; // refined runs: the markets tools only return markets in these states
 };
 export type BriefResult = Streamed & { usage: LanguageModelUsage | null };
 
@@ -67,8 +68,9 @@ One or two sentences: what ${p.outreachFrom} should propose to ${p.outreachTo} f
 Style: written for a partnerships lead, not an engineer. Short sentences. No bold, no emoji, no other headings, no preamble before "## The idea", nothing after the ask. Refer to brands, shows, films, podcasts and places as "it" or "its fans" or by name, never "he" or "she"; refer to people and artists by name.`;
 };
 
-function userTurn({ seed, pick, domain, slateRank, slateSize, fromSlate = true, anchor, basedOn }: BriefInput) {
+function userTurn({ seed, pick, domain, slateRank, slateSize, fromSlate = true, anchor, basedOn, region }: BriefInput) {
   return [
+    ...(region ? [`Launch region: the user asked to launch in ${region.label}. The market tools only return markets there; choose the launch market from them.`] : []),
     anchor
       ? `Seed: ${seed.name} (brand, not in Qloo yet). ${seed.short_description ?? ""}\nThe slate was built from fans of: ${basedOn?.join(", ")}. Stand-in for the reverse check: ${anchor.name}.`
       : `Seed: ${seed.name} (${seed.type.split(":").pop()}). ${seed.short_description ?? ""}`,
@@ -100,8 +102,8 @@ async function reverseAffinity(seed: Card, pick: Pick) {
 // Markets in both top tens. The seed's heatmap is cached from the run; the partner's is 1 Qloo call, cached.
 async function heatmapOverlap(input: BriefInput) {
   const [seed, partner] = await Promise.all([
-    getCities(input.seedSignal),
-    forced("noheatmap") ? Promise.resolve({ metros: [], cellCount: 0 }) : getCities(input.pick.entity_id).catch(() => ({ metros: [], cellCount: 0 })),
+    getCities(input.seedSignal, input.region?.states),
+    forced("noheatmap") ? Promise.resolve({ metros: [], cellCount: 0 }) : getCities(input.pick.entity_id, input.region?.states).catch(() => ({ metros: [], cellCount: 0 })),
   ]);
   if (!partner.cellCount)
     return { overlap: [], seed_top_markets: seed.metros.slice(0, 3).map((m) => ({ market: m.name, over_index: m.overIndex })), note: `Qloo has no US heatmap for ${input.pick.name}, so there is no overlap to measure.` };
@@ -117,7 +119,7 @@ const PLACE_TAGS = ["urn:tag:category:place:restaurant", "urn:tag:category:place
 // Venues both audiences over-index on in a market: restaurants plus bars (1 Qloo call each), union, top 5.
 // If the market has none, falls back to the seed's next top market and says so.
 async function placesInCity(input: BriefInput, market: string) {
-  const seedTop = (await getCities(input.seedSignal)).metros.map((m) => m.name);
+  const seedTop = (await getCities(input.seedSignal, input.region?.states)).metros.map((m) => m.name);
   // artists add live-music venues (tag looked up once via /v2/tags, cached); every type gets restaurants and bars
   const extra = playbookFor(input.seed.type).venueQuery;
   const extraTag = extra ? await placeTag(extra).catch(() => null) : null;

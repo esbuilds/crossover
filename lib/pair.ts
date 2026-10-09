@@ -20,9 +20,12 @@ export async function loadPair(body: PairBody): Promise<BriefInput | { error: st
   const { entity, type, pick, domain, proxy } = body;
   const refineText = typeof body.c === "string" ? body.c.trim().slice(0, 200) : "";
   // refined runs: rebuild the same refined slate (interpretation and Qloo calls are cached from the run)
+  let region: BriefInput["region"]; // the refine's launch region, so the brief's markets stay inside it
   const hookFor = async (name: string, kind: string): Promise<RefineHook | null> => {
     if (!refineText) return null;
     const set = await interpret(name, kind, refineText);
+    const label = set.applied.find((x) => x.kind === "region")?.label;
+    if (set.states?.length && label) region = { label, states: set.states };
     return { paramsFor: (d) => refineParams(set, d), relaxedFor: (d) => relaxedParams(set, d), excludeIds: set.excludeIds };
   };
   const signals = parseProxies(typeof proxy?.p === "string" ? proxy.p : null);
@@ -52,7 +55,7 @@ export async function loadPair(body: PairBody): Promise<BriefInput | { error: st
   if (!seed) return { error: "Unknown entity", status: 404 };
   const picks = slate[domain as Domain] ?? [];
   const at = picks.findIndex((p) => p.entity_id === pick);
-  if (at >= 0) return { seed, seedSignal: signals ?? entity!, pick: picks[at], domain, slateRank: at + 1, slateSize: picks.length, fromSlate: true, anchor, basedOn };
+  if (at >= 0) return { seed, seedSignal: signals ?? entity!, pick: picks[at], domain, slateRank: at + 1, slateSize: picks.length, fromSlate: true, anchor, basedOn, ...(region ? { region } : {}) };
 
   // Pairing mode: any partner, not only slate picks. Forward fit becomes its rank among the seed's fans' top 50
   // (lib/fit.ts, cached and shared with /api/pair). Proxy seeds have no Qloo id for that, so they stay slate-only.
