@@ -9,7 +9,7 @@
 //   WARM_TOKEN in the environment (same value as on Vercel) keeps briefs off the per-IP limit of 20 a day.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
-type Item = { name: string; type: string };
+type Item = { name: string; type: string; id?: string; note?: string }; // id: hand-picked when the name resolves wrong (see note)
 type Done = Record<string, { id: string; topBrand: string | null; calls: number; at: string }>;
 
 const [base, listPath, ...rest] = process.argv.slice(2);
@@ -56,9 +56,10 @@ for (const item of list) {
   }
   const start = await guard();
 
-  const r = await (await fetch(`${base}/api/resolve?q=${encodeURIComponent(item.name)}`)).json();
-  // Only a confident match of the asked-for type. Never guess between candidates.
-  const card = r.status === "confident" && r.candidates?.[0]?.type === item.type ? r.candidates[0] : null;
+  // A hand-picked id (recorded with a note in the list) skips the resolver; otherwise only a confident match of the
+  // asked-for type counts. Never guess between candidates.
+  const r = item.id ? { status: "picked" } : await (await fetch(`${base}/api/resolve?q=${encodeURIComponent(item.name)}`)).json();
+  const card = item.id ? { entity_id: item.id, type: item.type } : r.status === "confident" && r.candidates?.[0]?.type === item.type ? r.candidates[0] : null;
   if (!card) {
     const seen = (r.candidates ?? []).slice(0, 3).map((c: { name: string; type: string }) => `${c.name} (${c.type.replace("urn:entity:", "")})`).join(", ");
     console.log(`${item.name}: ${r.status ?? "error"}${seen ? `, candidates ${seen}` : ""}; skipped`);

@@ -45,7 +45,9 @@
  },
  {
   "name": "Stanley",
-  "type": "urn:entity:brand"
+  "type": "urn:entity:brand",
+  "id": "D3D8956E-4DE3-4C46-95E8-151CAB917DAA",
+  "note": "Hand-picked Oct 24: \"Stanley\" resolves confidently to Stan Lee and \"Stanley 1913\" finds nothing; this is the Stanley brand (bottles, tumblers, coolers) from the search candidates."
  },
  {
   "name": "e.l.f. Cosmetics",
@@ -57,7 +59,9 @@
  },
  {
   "name": "Poppi",
-  "type": "urn:entity:brand"
+  "type": "urn:entity:brand",
+  "id": "8D1C70F5-AECA-4309-8BBF-B2B5A5AEFE59",
+  "note": "Hand-picked Oct 24: \"Poppi\" resolves to Poppy (a person) and \"Poppi soda\" finds nothing; this is Poppi the prebiotic soda, from the Olipop slate."
  },
  {
   "name": "Erewhon",
@@ -114,5 +118,25 @@
  {
   "name": "The Bear",
   "type": "urn:entity:tv_show"
+ },
+ {
+  "name": "OpenAI",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Sony",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Arby's",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Rolling Stone",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "SXSW",
+  "type": "urn:entity:brand"
  }
 ]
