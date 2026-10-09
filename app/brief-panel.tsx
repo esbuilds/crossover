@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Card, Domain, Pick } from "@/lib/slate.ts";
+import type { Card, Pick } from "@/lib/slate.ts";
 import { briefMarkdown, exportFilename } from "@/lib/export.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ProxySpec } from "./crossover";
 import { BasedOn } from "./proxy-form";
 
 type Event = { type: "trace"; text: string } | { type: "text"; delta: string } | { type: "done"; cached: boolean } | { type: "error"; message: string };
-export type Decision = { status: "approved" | "declined"; reason?: string; name: string; domain: Domain };
+export type Decision = { status: "approved" | "declined"; reason?: string; name: string; domain: string };
 
 // Reads server-sent events from a POST response (EventSource only does GET).
 async function streamEvents(res: Response, onEvent: (e: Event) => void) {
@@ -78,7 +78,7 @@ export default function BriefPanel({
   proxy: ProxySpec | null;
   basedOn: Card[];
   pick: Pick;
-  domain: Domain;
+  domain: string;
   decision?: Decision;
   onDecide: (d: Decision) => void;
   onClose: () => void;

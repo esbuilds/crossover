@@ -11,5 +11,5 @@ const seed = seedFromCard(toCard(fx.resolution.match));
 const ranking = {} as Ranking;
 const started = Date.now();
 await rank(seed, fx.slate, (d, r) => r && (ranking[d] = r.ranking));
-writeFileSync(new URL(`../fixtures/demo/rank-${slug}.json`, import.meta.url), JSON.stringify({ version: "rank-v3.1", effort: RANK_EFFORT, seed, ranking }, null, 2) + "\n");
+writeFileSync(new URL(`../fixtures/demo/rank-${slug}.json`, import.meta.url), JSON.stringify({ version: "rank-v3.2", effort: RANK_EFFORT, seed, ranking }, null, 2) + "\n");
 console.log(`${seed.name} ranked in ${Date.now() - started} ms`);

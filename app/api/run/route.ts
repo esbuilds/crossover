@@ -6,6 +6,7 @@ import { rank, seedFromCard, type Seed } from "@/lib/agent/rank.ts";
 import { parseProxies } from "@/lib/proxy.ts";
 import { parseTag } from "@/lib/proxy-params.ts";
 import { QuotaError } from "@/lib/qloo.ts";
+import { rankAmongFans, badgeFor } from "@/lib/fit.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LABEL: Record<Domain, string> = { brand: "brands", artist: "artists", tv_show: "TV shows", movie: "films", podcast: "podcasts", place: "places" };
@@ -84,7 +85,9 @@ export async function GET(request: NextRequest) {
       let kept = 0;
       let dropped = 0;
       let failed = 0;
+      let topBrands: string[] = [];
       await rank(seed, slate, (d, r) => {
+        if (d === "brand" && r) topBrands = r.ranking.kept.slice(0, 3).map((k) => k.entity_id);
         if (!r) {
           failed++;
           trace(`Couldn't shortlist ${LABEL[d]} right now; showing Qloo's order`);
@@ -96,6 +99,19 @@ export async function GET(request: NextRequest) {
         console.log(`[run] ranked ${seed.name} ${d} at ${Date.now() - started} ms`, JSON.stringify(r.usage));
       });
       trace(`Shortlisted ${kept} partners and dropped ${dropped} that don't fit${failed ? ` (${failed} categories unranked)` : ""}`);
+
+      // Mutual badges: does each top brand's audience like the seed back? 1 Qloo call per brand, cached and shared
+      // with the brief's reverse check. Proxy seeds have no Qloo id to look for, so they get none.
+      if (!proxies && topBrands.length) {
+        trace("Checking whether the top brands' fans like you back");
+        try {
+          const ranks = await Promise.all(topBrands.map((b) => rankAmongFans(entity, b)));
+          const badges = Object.fromEntries(topBrands.map((b, i) => [b, badgeFor(ranks[i].rank)]));
+          send({ type: "mutual", data: badges });
+        } catch (err) {
+          console.error("[run] mutual badges failed", err); // badges are a bonus; the slate stands without them
+        }
+      }
       send({ type: "done" });
     } catch (err) {
       console.error("[run]", err);

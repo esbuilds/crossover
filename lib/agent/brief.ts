@@ -6,7 +6,8 @@ import { insights, insightsPost, placeTag, tags, type Signal } from "../qloo.ts"
 import { playbookFor } from "../playbook.ts";
 import { getCities } from "../cities.ts";
 import { overlapMarkets } from "../overlap.ts";
-import type { Card, Domain, Pick } from "../slate.ts";
+import { rankAmongFans } from "../fit.ts";
+import type { Card, Pick } from "../slate.ts";
 import { MODEL } from "./rank.ts";
 import { streamCache, type Streamed } from "./stream-cache.ts";
 import { forced } from "../force.ts";
@@ -17,9 +18,12 @@ export type BriefInput = {
   seed: Card;
   seedSignal: string | Signal[];
   pick: Pick;
-  domain: Domain;
-  slateRank: number;
+  domain: string; // a slate domain, or "person" for a pairing-mode partner
+  // fromSlate: the partner is in the seed's slate (#slateRank of slateSize). Otherwise it came from pairing mode and
+  // slateRank is its rank among the seed's fans' top 50 in its category, or null when outside it.
+  slateRank: number | null;
   slateSize: number;
+  fromSlate?: boolean;
   anchor?: Card;
   basedOn?: string[];
 };
@@ -63,14 +67,16 @@ One or two sentences: what ${p.outreachFrom} should propose to ${p.outreachTo} f
 Style: written for a partnerships lead, not an engineer. Short sentences. No bold, no emoji, no other headings, no preamble before "## The idea", nothing after the ask.`;
 };
 
-function userTurn({ seed, pick, domain, slateRank, slateSize, anchor, basedOn }: BriefInput) {
+function userTurn({ seed, pick, domain, slateRank, slateSize, fromSlate = true, anchor, basedOn }: BriefInput) {
   return [
     anchor
       ? `Seed: ${seed.name} (brand, not in Qloo yet). ${seed.short_description ?? ""}\nThe slate was built from fans of: ${basedOn?.join(", ")}. Stand-in for the reverse check: ${anchor.name}.`
       : `Seed: ${seed.name} (${seed.type.split(":").pop()}). ${seed.short_description ?? ""}`,
     `Partner: ${pick.name} (${domain}). ${pick.short_description ?? ""}`,
     `Partner tags: ${pick.tags.join(", ") || "none"}`,
-    `Forward fit: #${slateRank} of ${slateSize} ${domain} picks in the seed's slate, affinity ${pick.affinity.toFixed(2)}, partner popularity ${pick.popularity.toFixed(2)}.`,
+    fromSlate
+      ? `Forward fit: #${slateRank} of ${slateSize} ${domain} picks in the seed's slate, affinity ${pick.affinity.toFixed(2)}, partner popularity ${pick.popularity.toFixed(2)}.`
+      : `Forward fit: the user picked this partner directly. ${slateRank ? `It is #${slateRank} among the seed's fans' top ${slateSize} ${domain}s` : `It is outside the seed's fans' top ${slateSize} ${domain}s`}, affinity ${pick.affinity.toFixed(2)}, partner popularity ${pick.popularity.toFixed(2)}. Cite that instead of a slate rank.`,
   ].join("\n");
 }
 
@@ -79,18 +85,14 @@ function userTurn({ seed, pick, domain, slateRank, slateSize, anchor, basedOn }:
 // Reverse direction (PLAN.md section 3, pairing row): raw pairwise affinity is inflated by popularity, so report
 // where the seed lands in the partner's own top 50 for the seed's category, not just the raw number. 2 Qloo calls.
 async function reverseAffinity(seed: Card, pick: Pick) {
-  const [direct, top50] = await Promise.all([
-    insights({ "filter.type": seed.type, "signal.interests.entities": pick.entity_id, "filter.results.entities": seed.entity_id, take: 1 }),
-    insights({ "filter.type": seed.type, "signal.interests.entities": pick.entity_id, take: 50 }),
-  ]);
-  const at = top50.findIndex((e) => e.entity_id === seed.entity_id);
+  const d = await rankAmongFans(seed, pick.entity_id); // shared with the slate badges and pairing mode
   return {
-    seed_rank_in_partner_top50: at >= 0 ? at + 1 : null,
-    seed_affinity_among_partner_fans: direct[0]?.affinity ?? null,
-    partner_top10_cutoff_affinity: top50[9]?.affinity ?? null,
-    partner_top50_cutoff_affinity: top50.at(-1)?.affinity ?? null,
-    partner_top5_in_seed_category: top50.slice(0, 5).map((e) => e.name),
-    seed_tags: direct[0]?.tags.map((t) => t.name) ?? [],
+    seed_rank_in_partner_top50: d.rank,
+    seed_affinity_among_partner_fans: d.affinity,
+    partner_top10_cutoff_affinity: d.top10Cutoff,
+    partner_top50_cutoff_affinity: d.top50Cutoff,
+    partner_top5_in_seed_category: d.top5,
+    seed_tags: d.tags,
     partner_tags: pick.tags,
   };
 }
