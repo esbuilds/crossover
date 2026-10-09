@@ -39,7 +39,7 @@ async function propose(name: string, description: string, named: string[], want:
       named.length ? ` They say their customers also love: ${named.join(", ")}.` : ""
     }
 
-Suggest ${want} other well-known US consumer brands whose customers most likely overlap with ${name}'s: same category or the same lifestyle, price tier, and sensibility. Pick established brands with real national presence (a taste database will know them), not tiny startups. Do not repeat the brands the owner already named, and do not suggest ${name} itself. If the description is too vague to tell what ${name} sells, suggest fewer or none rather than guessing.`,
+Suggest ${want} brands its customers most likely also buy. The taste database behind this knows national lifestyle and direct-to-consumer brands well (kitchen and home, food and drink, apparel, beauty, wellness) and knows grocery staples and store labels poorly. So prefer brands with a strong identity and a national following, in adjacent categories that share ${name}'s customer, over same-shelf grocery labels. For example, an olive oil brand's customers also buy design-led cookware, premium pantry and drinks brands, and kitchen tools. Do not repeat the brands the owner already named, and do not suggest ${name} itself. If the description is too vague to tell what ${name} sells, suggest fewer or none rather than guessing.`,
   });
   return output.candidates.slice(0, want);
 }
