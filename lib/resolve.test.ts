@@ -49,3 +49,14 @@ for (const [q, id] of [
     assert.ok(r.match.types.includes("urn:entity:artist"));
   });
 }
+
+// Oct 9 (real): "Stanley" exactly names the drinkware brand and an artist, and Stan Lee carries it as an alias. The
+// exact primary names win over the alias, and Qloo's order puts the brand first.
+test("Stanley: the brand, not Stan Lee or the artist", async () => {
+  const fx = candidates("Stanley").map((c) => (c.name === "Stan Lee" ? { ...c, akas: ["Stanley"] } : c)); // the alias the live data carries
+  const r = await resolve("Stanley", fx, null);
+  assert.equal(r.status, "confident");
+  if (r.status !== "confident") return;
+  assert.equal(r.match.name, "Stanley");
+  assert.ok(r.match.types.includes("urn:entity:brand"));
+});

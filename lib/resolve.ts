@@ -44,7 +44,13 @@ export async function resolve(query: string, candidates: Entity[], judge: Judge 
   // Musicians come back twice with the exact name: a person and an artist, sometimes as separate entities with the
   // person first (Taylor Swift). Crossover means the act, and the artist is the one with a music audience (Oct 25).
   if (known.length) {
-    const pick = (known[0].types.includes("urn:entity:person") && known.find((c) => c.types.includes("urn:entity:artist"))) || known[0];
+    // A person matched only through an alias steps aside (Stan Lee carries the alias "Stanley"); brands keep their
+    // aliases ("Chelsea FC" is the club's alias).
+    const viaAlias = (c: Entity) => c.types.includes("urn:entity:person") && norm(c.name) !== q.join(" ");
+    const pool = known.some((c) => !viaAlias(c)) ? known.filter((c) => !viaAlias(c)) : known;
+    // Qloo's order decides among exact names (YETI the brand before Yeti the artist), except that a musician listed
+    // first as a person resolves to the artist entity (Taylor Swift, Oct 25).
+    const pick = (pool[0].types.includes("urn:entity:person") && pool.find((c) => c.types.includes("urn:entity:artist"))) || pool[0];
     return { status: "confident", match: pick, alternates: candidates.filter((c) => c !== pick).slice(0, 2), via: "exact" };
   }
   if (exact.length) return { status: "ambiguous", candidates: exact.slice(0, 3) };

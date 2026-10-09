@@ -68,7 +68,10 @@ async function writeVerdict(p: VerdictInput): Promise<{ text: string; usage: Lan
 }
 const verdictCached = cached("pair-verdict", (_v: string, p: VerdictInput) => writeVerdict(p));
 
-export async function getPair(a: { id: string; type?: string | null }, b: { id: string; type?: string | null }): Promise<Pair | null> {
+// The measured part of a pairing, no model call: both cards, each side's rank among the other's fans, the overlap
+// markets and shared tags. Shared by the pairing page and inbound triage. heatmapMissing: B has no US heatmap (or the
+// call failed), so overlap is empty for that reason rather than because the audiences don't meet.
+export async function fitPair(a: { id: string; type?: string | null }, b: { id: string; type?: string | null }) {
   const [A, B] = await Promise.all([getCard(a.id, a.type), getCard(b.id, b.type)]);
   if (!A || !B) return null;
   const [aAmongB, bAmongA, citiesA, citiesB] = await Promise.all([
@@ -82,6 +85,12 @@ export async function getPair(a: { id: string; type?: string | null }, b: { id: 
   const sharedTags = aAmongB.tags.filter((t) => bAmongA.tags.includes(t));
   const { kind, strongSide } = classify(aAmongB.rank, bAmongA.rank);
   const input: VerdictInput = { a: A, b: B, aAmongB, bAmongA, overlap, sharedTags, kind, strongSide };
-  const { text } = await verdictCached("pair-v2", input);
-  return { ...input, cells: citiesA.cells, verdict: text };
+  return { input, cells: citiesA.cells, heatmapMissing: !citiesB?.metros.length };
+}
+
+export async function getPair(a: { id: string; type?: string | null }, b: { id: string; type?: string | null }): Promise<Pair | null> {
+  const fit = await fitPair(a, b);
+  if (!fit) return null;
+  const { text } = await verdictCached("pair-v2", fit.input);
+  return { ...fit.input, cells: fit.cells, verdict: text };
 }

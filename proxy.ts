@@ -10,4 +10,4 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/s/:id", "/pair/:a/:b"] };
+export const config = { matcher: ["/s/:id", "/pair/:a/:b", "/triage/:id"] };

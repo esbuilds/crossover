@@ -15,6 +15,9 @@ test("share links: valid shapes pass, malformed ones fail, other paths are not s
   assert.equal(validShareLink("/pair/x/y", q("")), false);
   assert.equal(validShareLink(`/pair/${ID}/${ID}`, q("ta=urn:entity:brand&tb=urn:entity:brand")), false);
   assert.equal(validShareLink("/", q("")), null);
+  assert.equal(validShareLink(`/triage/${ID}`, q(`t=urn:entity:brand&n=${ID2}:artist`)), true);
+  assert.equal(validShareLink(`/triage/${ID}`, q("t=urn:entity:brand&n=junk")), false);
+  assert.equal(validShareLink("/triage", q("")), null); // the paste page itself
 });
 test("share-link types match the resolver's", () => {
   for (const t of RESOLVE_TYPES) assert.equal(validShareLink(`/s/${ID}`, new URLSearchParams(`t=${t}`)), true);
