@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Card, Domain, Pick } from "@/lib/slate.ts";
 import type { Cities } from "@/lib/cities.ts";
+import UsMap, { ACCENT } from "./map";
 
 type ResolveResult = { status: "confident" | "ambiguous" | "not_found"; candidates: Card[] };
 type SlateData = { entity: Card; domains: { domain: Domain; picks: Pick[] }[]; cities: Cities };
@@ -45,12 +46,12 @@ export default function Crossover({ initialId }: { initialId?: string }) {
   const run = useRef(0); // newest request wins; older ones bail out after each await
 
   // v1 fakes the trace timing client-side; the real streamed trace comes with the agent on Oct 13.
-  async function loadSlate(id: string, name?: string) {
+  async function loadSlate(id: string, name?: string, type?: string) {
     const token = ++run.current;
     const stale = () => token !== run.current;
     setSlate({ state: "loading" });
     setTrace(name ? [`Found ${name} in Qloo`] : ["Opening shared slate"]);
-    const req = getJson<SlateData>(`/api/slate?entity=${id}`);
+    const req = getJson<SlateData>(`/api/slate?entity=${id}${type ? `&type=${type}` : ""}`);
     req.catch(() => {}); // handled below; avoids an unhandled rejection while the trace animates
 
     await sleep(450);
@@ -60,7 +61,7 @@ export default function Crossover({ initialId }: { initialId?: string }) {
       const [data] = await Promise.all([req, sleep(500)]);
       if (stale()) return;
       if (!name) setEntity(data.entity);
-      setTrace((t) => [...t, `Ranking 60 US metros from ${data.cities.cellCount.toLocaleString()} heatmap cells`]);
+      setTrace((t) => [...t, `Ranking ${data.cities.marketCount} US markets from ${data.cities.cellCount.toLocaleString()} heatmap cells`]);
       await sleep(450);
       if (stale()) return;
       setSlate({ state: "ready", data });
@@ -74,7 +75,7 @@ export default function Crossover({ initialId }: { initialId?: string }) {
     setAlternates(others);
     setResolved({ state: "idle" });
     window.history.pushState(null, "", `/s/${card.entity_id}`);
-    loadSlate(card.entity_id, card.name);
+    loadSlate(card.entity_id, card.name, card.type);
   }
 
   async function lookup(q: string) {
@@ -174,7 +175,7 @@ export default function Crossover({ initialId }: { initialId?: string }) {
         <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
           Couldn&apos;t build the slate: {slate.message}
           {entity && (
-            <button onClick={() => loadSlate(entity.entity_id, entity.name)} className="ml-3 underline">
+            <button onClick={() => loadSlate(entity.entity_id, entity.name, entity.type)} className="ml-3 underline">
               Try again
             </button>
           )}
@@ -220,6 +221,7 @@ function NotFound({ name, compact }: { name: string; compact?: boolean }) {
 }
 
 function Results({ data }: { data: SlateData }) {
+  const [hovered, setHovered] = useState<string | null>(null);
   return (
     <div className="mt-8 space-y-8">
       {data.domains.map(({ domain, picks }) => (
@@ -237,17 +239,21 @@ function Results({ data }: { data: SlateData }) {
         </section>
       ))}
 
-      <section className="grid gap-6 md:grid-cols-2">
-        <div className="flex min-h-72 items-center justify-center rounded-xl bg-zinc-100 text-sm text-zinc-500">
-          Map of {data.cities.cells.length.toLocaleString()} hottest cells (coming Sunday)
-        </div>
+      <section className="grid items-start gap-6 md:grid-cols-[3fr_2fr]">
+        <UsMap cells={data.cities.cells} metros={data.cities.metros} hovered={hovered} />
         <div>
           <h2 className="mb-1 text-lg font-semibold">Where to launch</h2>
           <p className="mb-3 text-sm text-zinc-500">Over-index vs. the US average (100 = average)</p>
           {data.cities.metros.length ? (
             <ol className="divide-y divide-zinc-100">
               {data.cities.metros.slice(0, 10).map((m, i) => (
-                <li key={m.name} className={`flex items-center gap-3 py-2 ${i < 3 ? "font-semibold" : "text-zinc-700"}`}>
+                <li
+                  key={m.name}
+                  onMouseEnter={() => setHovered(m.name)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => setHovered((h) => (h === m.name ? null : m.name))} // tap to highlight on touch screens
+                  className={`flex cursor-default items-center gap-3 px-1 py-2 ${i < 3 ? "font-semibold" : "text-zinc-700"} ${hovered === m.name ? "bg-orange-50" : ""}`}
+                >
                   <span className={`w-7 text-sm ${i < 3 ? "text-zinc-900" : "text-zinc-400"}`}>{i + 1}</span>
                   <span className="flex-1">{m.name}</span>
                   <span className={`rounded px-2 py-0.5 text-sm tabular-nums ${i < 3 ? "bg-zinc-900 text-white" : "bg-zinc-100"}`}>{m.overIndex}</span>
@@ -270,13 +276,13 @@ function PickCard({ pick }: { pick: Pick }) {
       <h3 className="mt-2 line-clamp-2 text-sm font-medium leading-snug">{pick.name}</h3>
       <div className="mt-1 flex items-center gap-2" title="Affinity: how much this audience over-indexes on it">
         <div className="h-1 flex-1 rounded bg-zinc-200">
-          <div className="h-1 rounded bg-zinc-900" style={{ width: `${Math.round(pick.affinity * 100)}%` }} />
+          <div className="h-1 rounded" style={{ width: `${Math.round(pick.affinity * 100)}%`, background: ACCENT }} />
         </div>
         <span className="text-xs tabular-nums text-zinc-500">{pick.affinity.toFixed(2)}</span>
       </div>
       {pick.tags.length > 0 && (
         <div className="mt-1.5 flex flex-wrap gap-1">
-          {pick.tags.slice(0, 2).map((t) => (
+          {[...new Set(pick.tags)].slice(0, 2).map((t) => (
             <span key={t} className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-600">
               {t}
             </span>

@@ -1,12 +1,16 @@
 // Heatmap to launch cities (PLAN.md section 3). The locality boundary 500s on the hackathon host,
-// so geohash cells are aggregated to a static table of 60 US metros.
-import metros from "../data/metros.json" with { type: "json" };
+// so geohash cells are aggregated to a static table of US markets, one per market and at least 100 km apart.
+// A market can fold in satellite cities ("also"): a cell counts if it's within 40 km of any of its centers.
+import markets from "../data/metros.json" with { type: "json" };
 import { heatmap, type HeatCell } from "./qloo.ts";
 
 // overIndex: metro score / national mean of all cells x 100. 130 reads "30% above the country" (PLAN.md section 8).
 export type City = { name: string; lat: number; lon: number; score: number; overIndex: number; cells: number };
 export type MapCell = [lat: number, lon: number, affinity: number, popularity: number];
-export type Cities = { metros: City[]; cells: MapCell[]; cellCount: number };
+export type Cities = { metros: City[]; cells: MapCell[]; cellCount: number; marketCount: number };
+
+type Point = { lat: number; lon: number };
+const metros = markets as (Point & { name: string; also?: (Point & { name: string })[] })[];
 
 const MAP_CELLS = 1500; // the map gets the hottest cells only; ranking still uses all of them
 
@@ -24,12 +28,14 @@ const km = (aLat: number, aLon: number, bLat: number, bLon: number) => {
 export function rankMetros(cells: HeatCell[]): City[] {
   const buckets = metros.map(() => [] as HeatCell[]);
   for (const c of cells) {
-    // ponytail: 60 x 11k distance checks, about 1 ms. A spatial index is pointless at this size.
+    // ponytail: ~65 centers x 11k cells, about 1 ms. A spatial index is pointless at this size.
     let best = -1;
     let bestKm = RADIUS_KM;
     metros.forEach((m, i) => {
-      const d = km(c.lat, c.lon, m.lat, m.lon);
-      if (d <= bestKm) [best, bestKm] = [i, d];
+      for (const p of [m, ...(m.also ?? [])]) {
+        const d = km(c.lat, c.lon, p.lat, p.lon);
+        if (d <= bestKm) [best, bestKm] = [i, d];
+      }
     });
     if (best >= 0) buckets[best].push(c);
   }
@@ -39,7 +45,9 @@ export function rankMetros(cells: HeatCell[]): City[] {
       const b = buckets[i];
       const score = b.reduce((s, c) => s + c.affinity_rank, 0) / (b.length || 1);
       return {
-        ...m,
+        name: m.name,
+        lat: m.lat,
+        lon: m.lon,
         score: Math.round(score * 1000) / 1000,
         overIndex: Math.round((score / national) * 100),
         cells: b.length,
@@ -59,6 +67,7 @@ export function buildCities(cells: HeatCell[]): Cities {
       .slice(0, MAP_CELLS)
       .map((c): MapCell => [c.lat, c.lon, c.affinity, c.popularity]),
     cellCount: cells.length,
+    marketCount: metros.length,
   };
 }
 

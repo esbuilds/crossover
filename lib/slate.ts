@@ -25,7 +25,7 @@ const toPick = (e: Entity): Pick => ({
   popularity: e.popularity,
   image: e.image,
   short_description: e.short_description,
-  tags: e.tags.slice(0, 5).map((t) => t.name),
+  tags: [...new Set(e.tags.map((t) => t.name))].slice(0, 5), // the same name can appear under two tag types
   explainability: e.explainability,
 });
 
@@ -44,13 +44,18 @@ export async function getSlate(seed: string | Signal[]): Promise<Slate> {
   return Object.fromEntries(DOMAINS.map((d, i) => [d, lists[i].map(toPick)])) as Slate;
 }
 
-// Strongest evidence first: domains by the mean affinity of their top three picks, places always last
+// Brands first, then strongest evidence: domains by the mean affinity of their top three picks, places always last
 // (PLAN.md section 8: place picks skew to hotels and ski resorts until the agent filters them).
 export function orderSlate(slate: Slate): { domain: Domain; picks: Pick[] }[] {
   const strength = (picks: Pick[]) => picks.slice(0, 3).reduce((s, p) => s + p.affinity, 0) / 3;
   return DOMAINS.map((domain) => ({ domain, picks: slate[domain] }))
     .filter((d) => d.picks.length)
-    .sort((a, b) => Number(a.domain === "place") - Number(b.domain === "place") || strength(b.picks) - strength(a.picks));
+    .sort(
+      (a, b) =>
+        Number(b.domain === "brand") - Number(a.domain === "brand") || // brands first: partners are the pitch (PLAN.md section 8, Oct 11)
+        Number(a.domain === "place") - Number(b.domain === "place") ||
+        strength(b.picks) - strength(a.picks),
+    );
 }
 
 // What a match card shows. Shared by /api/resolve candidates and the /api/slate header.
@@ -66,9 +71,11 @@ export const toCard = (e: Entity, type = e.types[0]): Card => ({
 });
 
 // A shared /s/<id> link has only the id and the hackathon host has no /v2/entities. A filter-only insights call
-// returns the entity when the type matches; try types in order. Usually 1 call (brands first), at most 5, cached 30 days.
-export async function getCard(id: string): Promise<Card | null> {
-  for (const type of RESOLVE_TYPES) {
+// returns the entity when the type matches; try types in order. 1 call when the caller passes the type it already
+// knows from resolve, otherwise up to 5 (brands first). Cached 30 days.
+export async function getCard(id: string, typeHint?: string | null): Promise<Card | null> {
+  const types = RESOLVE_TYPES.includes(typeHint ?? "") ? [typeHint!, ...RESOLVE_TYPES.filter((t) => t !== typeHint)] : RESOLVE_TYPES;
+  for (const type of types) {
     const [hit] = await insights({ "filter.type": type, "filter.results.entities": id, take: 1 });
     if (hit) return toCard(hit, type);
   }
