@@ -1,0 +1,118 @@
+[
+ {
+  "name": "Nike",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Starbucks",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Pepsi",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Netflix",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Ticketmaster",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Live Nation",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Red Bull",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "YETI",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Patagonia",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Lululemon",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Crocs",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Stanley",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "e.l.f. Cosmetics",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Celsius",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Poppi",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Erewhon",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "A24",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Cadillac",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Spotify",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Chelsea FC",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Los Angeles Dodgers",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Los Angeles Lakers",
+  "type": "urn:entity:brand"
+ },
+ {
+  "name": "Taylor Swift",
+  "type": "urn:entity:artist"
+ },
+ {
+  "name": "Beyoncé",
+  "type": "urn:entity:artist"
+ },
+ {
+  "name": "Metallica",
+  "type": "urn:entity:artist"
+ },
+ {
+  "name": "Bad Bunny",
+  "type": "urn:entity:artist"
+ },
+ {
+  "name": "Stranger Things",
+  "type": "urn:entity:tv_show"
+ },
+ {
+  "name": "Bridgerton",
+  "type": "urn:entity:tv_show"
+ },
+ {
+  "name": "The Bear",
+  "type": "urn:entity:tv_show"
+ }
+]

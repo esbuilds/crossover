@@ -4,7 +4,7 @@
 // entity, and is restartable: finished entities are recorded in the state file and skipped, and everything it
 // already warmed is a free cache hit anyway.
 //
-//   node scripts/warm.ts <baseUrl> <list.json> [--reserve 40] [--state scripts/warm-state.json]
+//   node scripts/warm.ts <baseUrl> <list.json> [--reserve 40] [--state scripts/warm-state.json] [--no-cohort]
 //   list.json: [{ "name": "Liquid Death", "type": "urn:entity:brand" }, ...]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
@@ -22,6 +22,7 @@ const flag = (name: string, fallback: string) => {
 };
 const RESERVE = Number(flag("--reserve", "40")); // leave this many of today's cap for visitors
 const STATE = flag("--state", "scripts/warm-state.json");
+const COHORT = !rest.includes("--no-cohort"); // the cohort is 6 calls per entity
 const list: Item[] = JSON.parse(readFileSync(listPath, "utf8"));
 const done: Done = existsSync(STATE) ? JSON.parse(readFileSync(STATE, "utf8")) : {};
 
@@ -55,9 +56,11 @@ for (const item of list) {
   const start = await guard();
 
   const r = await (await fetch(`${base}/api/resolve?q=${encodeURIComponent(item.name)}`)).json();
-  const card = (r.candidates ?? []).find((c: { type: string }) => c.type === item.type) ?? null;
+  // Only a confident match of the asked-for type. Never guess between candidates.
+  const card = r.status === "confident" && r.candidates?.[0]?.type === item.type ? r.candidates[0] : null;
   if (!card) {
-    console.log(`${item.name}: no ${item.type} match in Qloo, skipped`);
+    const seen = (r.candidates ?? []).slice(0, 3).map((c: { name: string; type: string }) => `${c.name} (${c.type.replace("urn:entity:", "")})`).join(", ");
+    console.log(`${item.name}: ${r.status ?? "error"}${seen ? `, candidates ${seen}` : ""}; skipped`);
     continue;
   }
 
@@ -78,10 +81,12 @@ for (const item of list) {
     const err = brief.find((e) => e.type === "error");
     if (err) throw new Error(`${item.name} brief: ${err.message}`);
     console.log(`${item.name}: brief ${brief.find((e) => e.type === "done")?.cached ? "cached" : "generated"}`);
-    await guard();
-    const cohort = await (await post("/api/cohort")).json();
-    if (cohort.error) throw new Error(`${item.name} cohort: ${cohort.error}`);
-    console.log(`${item.name}: cohort ${cohort.cohort?.strongest ?? "no data"}`);
+    if (COHORT) {
+      await guard();
+      const cohort = await (await post("/api/cohort")).json();
+      if (cohort.error) throw new Error(`${item.name} cohort: ${cohort.error}`);
+      console.log(`${item.name}: cohort ${cohort.cohort?.strongest ?? "no data"}`);
+    }
   }
 
   const calls = (await usage()).today - start;
