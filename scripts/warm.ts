@@ -59,7 +59,11 @@ for (const item of list) {
   // A hand-picked id (recorded with a note in the list) skips the resolver; otherwise only a confident match of the
   // asked-for type counts. Never guess between candidates.
   const r = item.id ? { status: "picked" } : await (await fetch(`${base}/api/resolve?q=${encodeURIComponent(item.name)}`)).json();
-  const card = item.id ? { entity_id: item.id, type: item.type } : r.status === "confident" && r.candidates?.[0]?.type === item.type ? r.candidates[0] : null;
+  // Qloo lists artists twice (person and artist, same entity id), and the person row can come first: the asked-for
+  // type on the same id as the confident match is the same entity, not a guess.
+  const top = r.status === "confident" ? r.candidates?.[0] : null;
+  const sameEntity = top ? r.candidates.find((c: { entity_id: string; type: string }) => c.entity_id === top.entity_id && c.type === item.type) : null;
+  const card = item.id ? { entity_id: item.id, type: item.type } : (sameEntity ?? null);
   if (!card) {
     const seen = (r.candidates ?? []).slice(0, 3).map((c: { name: string; type: string }) => `${c.name} (${c.type.replace("urn:entity:", "")})`).join(", ");
     console.log(`${item.name}: ${r.status ?? "error"}${seen ? `, candidates ${seen}` : ""}; skipped`);

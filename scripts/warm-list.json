@@ -93,11 +93,15 @@
  },
  {
   "name": "Taylor Swift",
-  "type": "urn:entity:artist"
+  "type": "urn:entity:artist",
+  "id": "4BBEF799-A0C4-4110-AB01-39216993C312",
+  "note": "Hand-picked Oct 24: the resolver's confident match is the person entity; Qloo keeps a separate artist entity with the exact name and a matching description, and the list asks for the artist."
  },
  {
   "name": "Beyoncé",
-  "type": "urn:entity:artist"
+  "type": "urn:entity:artist",
+  "id": "F6754C46-B3E7-457F-8B7E-06C613597320",
+  "note": "Hand-picked Oct 24: the resolver's confident match is the person entity; Qloo keeps a separate artist entity with the exact name and a matching description, and the list asks for the artist."
  },
  {
   "name": "Metallica",
@@ -105,7 +109,9 @@
  },
  {
   "name": "Bad Bunny",
-  "type": "urn:entity:artist"
+  "type": "urn:entity:artist",
+  "id": "BDA1B73F-10E7-4D09-AC51-B796CCEC5FF3",
+  "note": "Hand-picked Oct 24: the resolver's confident match is the person entity; Qloo keeps a separate artist entity with the exact name and a matching description, and the list asks for the artist."
  },
  {
   "name": "Stranger Things",
@@ -137,6 +143,7 @@
  },
  {
   "name": "SXSW",
-  "type": "urn:entity:brand"
+  "type": "urn:entity:brand",
+  "note": "Oct 24: only candidate is an artist named SXSW (ambiguous); skipped, not guessed."
  }
 ]
