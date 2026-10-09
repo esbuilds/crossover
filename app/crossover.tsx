@@ -160,6 +160,7 @@ export default function Crossover({ initialId, initialProxy }: { initialId?: str
   function editProxies(basedOn: Card[]) {
     if (!proxy) return;
     stop();
+    setEntity(null); // the proxy card belongs to the run being edited
     setDraft({ name: proxy.name, description: proxy.d, brands: basedOn.map((c) => c.name) });
     setSlate({ state: "idle" });
     setTrace([]);

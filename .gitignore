@@ -46,3 +46,6 @@ next-env.d.ts
 
 # dev-only file cache (lib/qloo.ts devFileCache)
 /.cache/
+
+# scratch screen recordings
+/docs/*.mp4
