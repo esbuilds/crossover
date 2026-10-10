@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Card, Pick } from "@/lib/slate.ts";
 import { BUCKET_LABEL, formatNames, MAX_NAMES, sortRows, type Bucket, type TriageName } from "@/lib/triage.ts";
 import BriefPanel, { Skeleton } from "../brief-panel";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, Thumb, TYPE_LABEL } from "../ui";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL } from "../ui";
 
 type Fit = {
   bucket: Bucket;
@@ -152,7 +152,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
   const rest = rows.filter((r) => !r.fit);
   const seedName = seed.card?.name ?? "you";
   const partner = (r: Row): Pick | null =>
-    r.card && r.fit ? { entity_id: r.card.entity_id, name: r.card.name, type: r.card.type, affinity: r.fit.affinity, popularity: r.card.popularity, image: r.card.image, short_description: r.card.short_description, tags: r.fit.tags } : null;
+    r.card && r.fit ? { entity_id: r.card.entity_id, name: r.card.name, type: r.card.type, affinity: r.fit.affinity, popularity: r.card.popularity, short_description: r.card.short_description, tags: r.fit.tags } : null;
 
   return (
     <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
@@ -226,7 +226,6 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
             return (
               <li key={(r.card?.entity_id ?? "") + r.query + i} className="grid gap-x-6 gap-y-3 border-t border-rule py-4 md:grid-cols-[minmax(0,16rem)_1fr]">
                 <div className="flex items-start gap-3">
-                  {r.card?.name ? <Thumb src={r.card.image} name={r.card.name} className="h-12 w-12 rounded-md" /> : <div className="h-12 w-12 shrink-0 rounded-md bg-surface-2" />}
                   <div className="min-w-0">
                     <p className="text-base font-semibold text-ink">{r.card?.name || r.query || "..."}</p>
                     {r.card?.name && <p className="text-sm text-ink-3">{TYPE_LABEL[r.card.type] ?? "Entity"}</p>}

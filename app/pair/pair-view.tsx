@@ -84,7 +84,7 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
   }, [initial?.a, initial?.b]); // eslint-disable-line react-hooks/exhaustive-deps -- once per shared link
 
   const p = pair.data;
-  const partner: Pick | null = p ? { entity_id: p.b.entity_id, name: p.b.name, type: p.b.type, affinity: p.bAmongA.affinity ?? 0, popularity: p.b.popularity, image: p.b.image, short_description: p.b.short_description, tags: p.bAmongA.tags.slice(0, 5) } : null;
+  const partner: Pick | null = p ? { entity_id: p.b.entity_id, name: p.b.name, type: p.b.type, affinity: p.bAmongA.affinity ?? 0, popularity: p.b.popularity, short_description: p.b.short_description, tags: p.bAmongA.tags.slice(0, 5) } : null;
   const ready = p && pair.state === "ready";
 
   return (

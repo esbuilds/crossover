@@ -9,7 +9,7 @@ import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ConstraintSet } from "@/lib/refine.ts";
 import UsMap from "./map";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, EXAMPLES, ExampleLinks, field, MatchCard, MORE_EXAMPLES, SiteHeader, Thumb } from "./ui";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, EXAMPLES, ExampleLinks, field, MatchCard, MORE_EXAMPLES, SiteHeader } from "./ui";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 
@@ -727,7 +727,6 @@ function PickRow({
     <li className="flex flex-col border-t border-rule pt-4 pb-2">
       <button onClick={onOpen} className="group flex flex-col rounded-md text-left">
         <div className="flex gap-4">
-          <Thumb src={pick.image} name={pick.name} className="h-16 w-16 rounded-md" />
           <div className="min-w-0 flex-1">
             <h4 className="line-clamp-2 text-base font-semibold leading-snug group-hover:underline">{pick.name}</h4>
             <div className="mt-1.5 flex items-center gap-2" title="Affinity: how much this audience over-indexes on it">

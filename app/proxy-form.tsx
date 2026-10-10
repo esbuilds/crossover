@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @next/next/no-img-element -- Qloo images are remote and already sized */
 
 import { useState } from "react";
 import type { Card } from "@/lib/slate.ts";
@@ -126,7 +125,6 @@ export default function ProxyForm({
               <ol className="grid max-w-[760px]">
                 {proxies.map((p, i) => (
                   <li key={p.entity_id} className="flex items-center gap-3 border-t border-rule py-2">
-                    {p.image ? <img src={p.image} alt="" className="h-11 w-11 shrink-0 rounded-md object-cover" /> : <div className="h-11 w-11 shrink-0 rounded-md bg-surface-2" />}
                     <div className="min-w-0 flex-1">
                       <p className="flex items-center gap-2 text-base font-semibold">
                         <span className="truncate">{p.name}</span> {i === 0 && <Chip kind="note">Counts most</Chip>}

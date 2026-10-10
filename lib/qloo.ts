@@ -16,7 +16,6 @@ export type Entity = {
   types: string[];
   popularity: number;
   short_description?: string;
-  image?: string;
   akas: string[];
   tags: Tag[];
   affinity?: number;
@@ -126,7 +125,6 @@ function trimEntity(e: Raw): Entity {
     types: e.types ?? (e.type ? [e.type] : []),
     popularity: e.popularity ?? 0,
     short_description: p.short_description,
-    image: p.image?.url,
     akas,
     tags: (e.tags ?? []).slice(0, 12).map((t: Raw) => ({ tag_id: t.tag_id ?? t.id, name: t.name, type: t.type })),
     affinity: e.query?.affinity,

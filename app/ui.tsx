@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element -- Qloo images are remote and already sized; next/image adds config for nothing */
 import type { Card } from "@/lib/slate.ts";
 import Link from "next/link";
 // Shared pieces of the design system (tokens live in globals.css). One primary button per screen.
@@ -57,7 +56,6 @@ export const TYPE_LABEL: Record<string, string> = {
 export function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void }) {
   return (
     <div className={`${panel} flex items-center gap-4 p-3 sm:p-4`}>
-      <Thumb src={card.image} name={card.name} className="h-14 w-14 rounded-md" />
       <div className="min-w-0 flex-1">
         <p className="text-sm text-ink-3">{TYPE_LABEL[card.type] ?? "Entity"}</p>
         <h2 className="truncate font-display text-xl">{card.name}</h2>
@@ -69,14 +67,6 @@ export function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void 
         </button>
       )}
     </div>
-  );
-}
-
-export function Thumb({ src, name, className }: { src?: string; name: string; className: string }) {
-  return src ? (
-    <img src={src} alt="" loading="lazy" className={`${className} shrink-0 bg-surface-2 object-cover`} />
-  ) : (
-    <div className={`${className} flex shrink-0 items-center justify-center bg-surface-2 font-display text-xl text-ink-3`}>{name.slice(0, 1)}</div>
   );
 }
 

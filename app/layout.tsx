@@ -17,7 +17,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${newsreader.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <p className="px-4 py-6 text-center text-sm text-ink-3">Data: Qloo</p>
+      </body>
     </html>
   );
 }

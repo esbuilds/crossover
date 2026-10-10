@@ -68,6 +68,6 @@ export async function loadPair(body: PairBody): Promise<BriefInput | { error: st
   const card = await getCard(pick, `urn:entity:${domain}`);
   if (!card) return { error: "Qloo has no entity with that id", status: 404 };
   const fit = await rankAmongFans(card, seed.entity_id);
-  const partner = { entity_id: card.entity_id, name: card.name, type: card.type, affinity: fit.affinity ?? 0, popularity: card.popularity, image: card.image, short_description: card.short_description, tags: fit.tags.slice(0, 5) };
+  const partner = { entity_id: card.entity_id, name: card.name, type: card.type, affinity: fit.affinity ?? 0, popularity: card.popularity, short_description: card.short_description, tags: fit.tags.slice(0, 5) };
   return { seed, seedSignal: entity!, pick: partner, domain, slateRank: fit.rank, slateSize: 50, fromSlate: false };
 }

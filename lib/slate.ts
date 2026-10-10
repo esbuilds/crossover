@@ -11,7 +11,6 @@ export type Pick = {
   type: string;
   affinity: number;
   popularity: number;
-  image?: string;
   short_description?: string;
   tags: string[];
   explainability?: number;
@@ -25,7 +24,6 @@ const toPick = (e: Entity): Pick => ({
   type: e.types[0],
   affinity: e.affinity ?? 0,
   popularity: e.popularity,
-  image: e.image,
   short_description: e.short_description,
   tags: [...new Set(e.tags.map((t) => t.name))].slice(0, 5), // the same name can appear under two tag types
   explainability: e.explainability,
@@ -114,14 +112,13 @@ export function orderSlate(slate: Slate): { domain: Domain; picks: Pick[] }[] {
 }
 
 // What a match card shows. Shared by /api/resolve candidates and the /api/slate header.
-export type Card = { entity_id: string; name: string; type: string; popularity: number; image?: string; short_description?: string };
+export type Card = { entity_id: string; name: string; type: string; popularity: number; short_description?: string };
 
 export const toCard = (e: Entity, type = e.types[0]): Card => ({
   entity_id: e.entity_id,
   name: e.name,
   type,
   popularity: e.popularity,
-  image: e.image,
   short_description: e.short_description,
 });
 
