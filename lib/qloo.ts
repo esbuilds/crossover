@@ -8,6 +8,7 @@ if (typeof window !== "undefined") throw new Error("lib/qloo is server-only");
 
 const BASE = "https://hackathon.api.qloo.com";
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
+const NINETY_DAYS = 60 * 60 * 24 * 90; // cached responses (Oct 11): outlives judging (ends Nov 16) from any warm pass in October
 
 export type Tag = { tag_id: string; name: string; type: string };
 export type Entity = {
@@ -86,7 +87,7 @@ async function request(path: string, init: { query?: Record<string, string | num
 export const qlooCallCount = () => calls;
 
 // Rate limit hit twice in a row, or the month's quota is gone. Routes turn this into a friendly message;
-// anything already in the 30-day cache still loads.
+// anything already in the cache (90 days for new writes) still loads.
 export class QuotaError extends Error {}
 
 // Hard daily ceiling on live Qloo calls (QLOO_DAILY_CAP, unset = no cap). Cached responses never count.
@@ -150,7 +151,7 @@ const trimEntities = (body: Raw): Entity[] => {
   return (Array.isArray(r) ? r : (r?.entities ?? [])).map(trimEntity);
 };
 
-// 30-day cache in Redis, keyed by name and a hash of the arguments only (version labels are arguments), so a deploy
+// 90-day cache in Redis (30 before Oct 11; scripts/extend-ttl.ts pins older keys), keyed by name and a hash of the arguments only (version labels are arguments), so a deploy
 // never invalidates anything. unstable_cache was dropped Oct 16: its key includes the function's source, and every
 // deploy rebuilt it, so each deploy started cold and re-spent Qloo calls.
 // Also used by the agent (rankings, briefs, proposals) so repeat demos are identical and free.
@@ -161,7 +162,7 @@ export function cached<A extends unknown[], R>(name: string, fn: (...args: A) =>
     const hit = await getJson<R>(key);
     if (hit !== null) return hit;
     const result = await fn(...args);
-    await setJson(key, result, THIRTY_DAYS);
+    await setJson(key, result, NINETY_DAYS);
     return result;
   };
   // peek: the cached value or null, never a Qloo call (for crawlers: OG images, metadata)
