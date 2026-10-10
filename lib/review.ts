@@ -9,6 +9,7 @@ import type { Resolution } from "./resolve.ts";
 export const REVIEW_VERSION = "review-v3";
 export const GAP = 0.05; // smallest affinity gap read as a difference (probe/VERIFY-3.md section 4)
 export const MAX_NAMES = 8;
+const EPS = 1e-9;
 export const MAX_PICKS = 3;
 
 // Missing-data rule, defined from the Oct 10 rows (probe/VERIFY-3.md, out3/profiles.json):
@@ -125,7 +126,8 @@ export async function scoreReverse(seed: Ref, cands: Ref[], score: Scorer): Prom
 export function bands<T>(xs: T[], value: (x: T) => number): T[][] {
   const sorted = [...xs].sort((a, b) => value(b) - value(a));
   const out: T[][] = [];
-  sorted.forEach((x) => (out.length && value(out.at(-1)![0]) - value(x) < GAP ? out.at(-1)!.push(x) : out.push([x])));
+  // EPS: 0.95 - 0.90 is 0.0499999... in floating point; a gap of exactly GAP is a difference, every time
+  sorted.forEach((x) => (out.length && value(out.at(-1)![0]) - value(x) < GAP - EPS ? out.at(-1)!.push(x) : out.push([x])));
   return out;
 }
 
@@ -180,6 +182,26 @@ export function evidenceFor(rows: (Row & { reverse: number | null })[]): Record<
   );
 }
 
+// --- request hygiene (adversarial pass, Oct 10) ---
+
+// A buyer object from a request body, reduced to what gateFor reads. Anything else is dropped, never trusted.
+export function parseBuyer(raw: unknown): Buyer {
+  const b = (raw ?? {}) as { exclude?: unknown; excludeTags?: unknown };
+  const text = (v: unknown, max: number) => (typeof v === "string" && v.trim() && v.length <= max ? v.trim() : null);
+  const exclude = (Array.isArray(b.exclude) ? b.exclude : []).slice(0, 20).flatMap((x) => {
+    const name = text((x as { name?: unknown })?.name, 100);
+    return name ? [{ name, reason: text((x as { reason?: unknown })?.reason, 200) ?? "excluded by the buyer" }] : [];
+  });
+  const excludeTags = (Array.isArray(b.excludeTags) ? b.excludeTags : []).slice(0, 10).flatMap((t) => (text(t, 50) ? [text(t, 50)!] : []));
+  return { exclude, excludeTags };
+}
+
+// The same entity twice (typed twice, or two spellings that resolve alike) is measured once, under its first input.
+export function dedupe(ids: Identity[]): Identity[] {
+  const seen = new Set<string>();
+  return ids.filter((i) => i.state !== "confirmed" || (!seen.has(i.entity.entity_id) && !!seen.add(i.entity.entity_id)));
+}
+
 // --- buyer gates ---
 
 export type Buyer = { exclude?: { name: string; reason: string }[]; excludeTags?: string[] };
@@ -193,8 +215,14 @@ export function gateFor(ref: Ref, input: string, buyer: Buyer): Gate {
   const rules = buyer.excludeTags ?? [];
   if (!rules.length) return { state: "eligible" };
   if (!ref.tags.length) return { state: "unknown", reason: `Qloo has no tags for ${ref.name}, so "${rules.join('", "')}" can't be checked` };
-  const hit = rules.find((rule) => ref.tags.some((t) => t.toLowerCase().includes(rule.toLowerCase())));
-  return hit ? { state: "excluded", reason: `Qloo tags it ${hit}` } : { state: "eligible" };
+  // Whole words, not substrings ("ale" must not catch "Retail"), and the reason quotes Qloo's own tag, so a rule
+  // like "beer" catching "Root Beer" is visible to the buyer rather than hidden behind the rule's word.
+  const word = (rule: string) => new RegExp(`\\b${rule.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+  for (const rule of rules) {
+    const tag = ref.tags.find((t) => word(rule).test(t));
+    if (tag) return { state: "excluded", reason: `Qloo tags it ${tag}` };
+  }
+  return { state: "eligible" };
 }
 
 // --- assembly ---

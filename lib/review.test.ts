@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  applyMissingRule, assemble, bands, evidenceFor, formatAffinity, gateFor, identityOf, scoreForward, scoreReverse, select,
+  applyMissingRule, assemble, bands, dedupe, parseBuyer, evidenceFor, formatAffinity, gateFor, identityOf, scoreForward, scoreReverse, select,
   type Cell, type Identity, type Ref, type Scorer,
 } from "./review.ts";
 import type { Entity } from "./qloo.ts";
@@ -118,7 +118,7 @@ test("identity (review-v3): an exact name another known type also carries is amb
 
 test("buyer gates: named and tag exclusions are hard; untagged stays unknown", () => {
   assert.deepEqual(gateFor(ref("Sheetz"), "Sheetz", { exclude: [{ name: "sheetz", reason: "regional only" }] }), { state: "excluded", reason: "regional only" });
-  assert.deepEqual(gateFor(ref("Coors", 0.9, B, ["Beer"]), "Coors", { excludeTags: ["beer"] }), { state: "excluded", reason: "Qloo tags it beer" });
+  assert.deepEqual(gateFor(ref("Coors", 0.9, B, ["Beer"]), "Coors", { excludeTags: ["beer"] }), { state: "excluded", reason: "Qloo tags it Beer" });
   assert.equal(gateFor(ref("Mystery", 0.9, B, []), "Mystery", { excludeTags: ["beer"] }).state, "unknown");
   assert.equal(gateFor(ref("Yeti"), "Yeti", {}).state, "eligible");
 });
@@ -177,4 +177,67 @@ test("assemble: picks never read as ties when an excluded name sat in their band
   for (const n of g.selection.picks) assert.equal(g.rows.find((r) => r.entity.name === n)?.evidence, "stronger measured support");
   // leader-relative: Monster sits in GoPro's band in the full field, so its measured support stands; the gate excludes it
   assert.equal(g.rows.find((r) => r.entity.name === "Monster")?.evidence, "stronger measured support");
+});
+
+test("adversarial: tag gates match whole words and quote Qloo's tag", () => {
+  assert.equal(gateFor(ref("Target", 0.9, B, ["Retail"]), "Target", { excludeTags: ["ale"] }).state, "eligible");
+  assert.deepEqual(gateFor(ref("Red Bull", 0.9, B, ["Food & Beverage", "Energy Drink"]), "Red Bull", { excludeTags: ["energy drink"] }), { state: "excluded", reason: "Qloo tags it Energy Drink" });
+  assert.deepEqual(gateFor(ref("Olipop", 0.9, B, ["Root Beer"]), "Olipop", { excludeTags: ["beer"] }), { state: "excluded", reason: "Qloo tags it Root Beer" });
+  assert.equal(gateFor(ref("x", 0.9, B, ["a+b"]), "x", { excludeTags: ["(.*)"] }).state, "eligible"); // rules are text, not regex
+});
+
+// --- adversarial pass (Oct 10): partial returns, hostile input, contradictory gates, boundaries ---
+
+test("adversarial: a gap of exactly 0.05 is a difference, despite floating point", () => {
+  const two = [{ id: "a", forward: 0.95 }, { id: "b", forward: 0.9 }, { id: "c", forward: 0.85 }];
+  assert.deepEqual(bands(two, (r) => r.forward).map((b) => b.map((r) => r.id)), [["a"], ["b"], ["c"]]); // 0.95 - 0.90 = 0.0499999...
+});
+
+test("adversarial: partial and junk forward returns become missing, never zero; extra ids are ignored", async () => {
+  const score: Scorer = async () => [{ entity_id: "a", affinity: 0.9 }, { entity_id: "b" }, { entity_id: "intruder", affinity: 0.99 }];
+  const f = await scoreForward(ref("seed"), [ref("a"), ref("b"), ref("c")], score);
+  assert.deepEqual(Object.keys(f).sort(), ["a", "b", "c"]);
+  assert.equal(f.a.value, 0.9);
+  assert.deepEqual([f.b.missing, f.c.missing], ["not returned", "not returned"]);
+});
+
+test("adversarial: a Qloo failure mid-run rejects instead of returning a half-scored shortlist", async () => {
+  const score: Scorer = async (p) => {
+    if (p["filter.type"] === "urn:entity:artist") throw new Error("Qloo 500");
+    return [];
+  };
+  await assert.rejects(scoreForward(ref("seed"), [ref("a"), ref("m", 1, "urn:entity:artist")], score), /Qloo 500/);
+});
+
+test("adversarial: nothing measured, or everything gated, gives no picks and no crash", () => {
+  const ids = ["a", "b", "c"].map((n): Identity => ({ state: "confirmed", input: n, entity: ref(n), via: "exact name" }));
+  const none = assemble(ref("seed"), ids, {}, {}).groups[0];
+  assert.deepEqual([none.selection.picks, none.affinityBands, none.selection.noClearThree], [[], [], false]);
+  assert.ok(none.rows.every((r) => r.evidence === "insufficient evidence"));
+  const fwd = { a: { value: 0.9 }, b: { value: 0.8 }, c: { value: 0.7 } };
+  const all = assemble(ref("seed"), ids, fwd, {}, { excludeTags: ["soda"] }).groups[0]; // ref() tags everything Soda
+  assert.deepEqual(all.selection.picks, []);
+  assert.ok(all.rows.every((r) => r.gate.state === "excluded"));
+  // a gate naming someone who isn't on the list changes nothing
+  // (c is the last group with nothing below it, so it can't be picked as a whole)
+  assert.deepEqual(assemble(ref("seed"), ids, fwd, {}, { exclude: [{ name: "Nobody", reason: "x" }] }).groups[0].selection.picks, ["a", "b"]);
+});
+
+test("adversarial: buyer input from a request is reduced to strings, never trusted", () => {
+  assert.deepEqual(parseBuyer({ exclude: [{}, { name: 7 }, { name: " Coke ", reason: 5 }, "Pepsi"], excludeTags: ["beer", 3, "", "x".repeat(51)] }), {
+    exclude: [{ name: "Coke", reason: "excluded by the buyer" }],
+    excludeTags: ["beer"],
+  });
+  assert.deepEqual(parseBuyer("drop table"), { exclude: [], excludeTags: [] });
+  assert.equal(parseBuyer({ exclude: Array.from({ length: 50 }, (_, i) => ({ name: `n${i}`, reason: "r" })) }).exclude!.length, 20);
+});
+
+test("adversarial: the same entity twice is measured once, under its first input", () => {
+  const ids: Identity[] = [
+    { state: "confirmed", input: "Hydroflask", entity: ref("hf"), via: "chosen id" },
+    { state: "confirmed", input: "Hydro Flask", entity: ref("hf"), via: "exact name" },
+    { state: "unresolved", input: "Blorp" },
+    { state: "unresolved", input: "Blorp" },
+  ];
+  assert.deepEqual(dedupe(ids).map((i) => i.input), ["Hydroflask", "Blorp", "Blorp"]);
 });

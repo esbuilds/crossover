@@ -4,7 +4,7 @@ import { resolve } from "@/lib/resolve.ts";
 import { fixtureByQuery } from "@/lib/fixtures.ts";
 import { failCode } from "@/lib/failure.ts";
 import { FAIL_COPY } from "@/lib/fail-copy.ts";
-import { assemble, identityOf, scoreForward, scoreReverse, toRef, MAX_NAMES, type Buyer, type Identity, type Ref } from "@/lib/review.ts";
+import { assemble, dedupe, identityOf, parseBuyer, scoreForward, scoreReverse, toRef, MAX_NAMES, type Buyer, type Identity, type Ref } from "@/lib/review.ts";
 
 // POST /api/review (unlinked), review-v2. Body:
 //   { seed: "Liquid Death" | { id, type },
@@ -43,10 +43,13 @@ const scorer = (p: Record<string, string | number>) => insights(p);
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const names: NameIn[] | null = Array.isArray(body?.names) ? body.names : null;
-  const valid = (n: unknown) => (typeof n === "string" ? n.trim().length > 0 && n.length <= 100 : typeof (n as { name?: unknown })?.name === "string");
+  const short = (v: unknown) => typeof v === "string" && v.trim().length > 0 && v.length <= 100;
+  const valid = (n: unknown) => short(n) || (short((n as { name?: unknown })?.name) && ["id", "type"].every((k) => (n as Record<string, unknown>)[k] === undefined || typeof (n as Record<string, unknown>)[k] === "string"));
   if (!body?.seed || !names || !names.length || names.length > MAX_NAMES || !names.every(valid))
     return Response.json({ error: `seed and 1 to ${MAX_NAMES} names are required` }, { status: 400 });
-  const buyer: Buyer = { exclude: Array.isArray(body.buyer?.exclude) ? body.buyer.exclude : [], excludeTags: Array.isArray(body.buyer?.excludeTags) ? body.buyer.excludeTags : [] };
+  const buyer: Buyer = parseBuyer(body.buyer);
+  const seedOk = short(body.seed) || (typeof body.seed === "object" && typeof body.seed.id === "string" && typeof body.seed.type === "string");
+  if (!seedOk) return Response.json({ error: "seed must be a name or { id, type }" }, { status: 400 });
 
   try {
     const seedId = await identify(typeof body.seed === "string" ? body.seed : { name: body.seed.name ?? "seed", id: body.seed.id, type: body.seed.type });
@@ -57,7 +60,7 @@ export async function POST(request: NextRequest) {
     if (only && !RESOLVE_TYPES.includes(only)) return Response.json({ error: "only must be an entity type such as brand" }, { status: 400 });
     const ids: Identity[] = [];
     for (const n of names) ids.push(await identify(n, only ? [only] : RESOLVE_TYPES)); // serial: never fan out against Qloo
-    const kept = ids.filter((i) => !(i.state === "confirmed" && i.entity.entity_id === seed.entity_id));
+    const kept = dedupe(ids.filter((i) => !(i.state === "confirmed" && i.entity.entity_id === seed.entity_id)));
     const measured = kept.flatMap((i) => (i.state === "confirmed" ? [i.entity] : []));
 
     const forward = await scoreForward(seed, measured, scorer);

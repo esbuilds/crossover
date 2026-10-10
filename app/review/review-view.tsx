@@ -233,7 +233,9 @@ function Reveal({ data, group, picks, share, open, onOpen, gate, gateOn, onGate,
           ? `No clear three: ${names(topGroup)} are all within ${data.gap} of each other.`
           : top.length
             ? `Measured top: ${names(top)}.${tiedAtCutoff.length ? ` Then a tie: ${names(tiedAtCutoff)}.` : ""}`
-            : "Too few measurements to call a top group."}{" "}
+            : group.rows.some((row) => row.forward.value !== null && row.gate.state !== "excluded")
+              ? "Too few measurements to call a top group."
+              : "Nothing measured is left after the gate."}{" "}
         {mine} of your {picks.length} {mine === 1 ? "is" : "are"} in the top group.
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -323,7 +325,8 @@ function Evidence({ data, group, row, onBrief }: { data: Result; group: ReviewGr
   const rk = data.ranks[id] ?? {};
   const facts: string[] = [];
   facts.push(`${seed.name} fans toward ${row.input}: ${score(row.forward.value)}`);
-  if (row.forward.value !== null && leader !== null) facts.push(leader === row.forward.value ? "The strongest measured name" : `${at === 0 ? "In the top group" : `Group ${at + 1}`}, ${(leader - row.forward.value).toFixed(2)} below the strongest`);
+  if (row.forward.value !== null && leader !== null) // three decimals: inside a group the gap is under 0.05, and two decimals would print 0.047 as "0.05"
+    facts.push(leader === row.forward.value ? "The strongest measured name" : `${at === 0 ? "In the top group" : `Group ${at + 1}`}, ${(leader - row.forward.value).toFixed(3)} below the strongest`);
   facts.push(`Popularity ${row.popularity.toFixed(2)}, band ${pop + 1} of ${group.popularityBands.length}`);
   if (rk.amongSeedFans !== undefined) facts.push(rk.amongSeedFans ? `#${rk.amongSeedFans} among ${seed.name} fans' ${plural(row.entity.type)}` : `Outside ${seed.name} fans' top 50 ${plural(row.entity.type)}`);
   if (rk.seedAmongTheirs !== undefined) facts.push(rk.seedAmongTheirs ? `${seed.name} is #${rk.seedAmongTheirs} among ${row.input} fans' ${plural(seed.type)}` : `${seed.name} is outside ${row.input} fans' top 50 ${plural(seed.type)}`);
