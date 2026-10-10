@@ -1,4 +1,4 @@
-// review-v1 on rows Qloo returned Oct 10 (probe/VERIFY-3.md, out3/profiles.json). No live API.
+// review-v2 on rows Qloo returned Oct 10 (probe/VERIFY-3.md, out3/profiles.json). No live API.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -54,23 +54,29 @@ test("formatAffinity: two decimals, no percent", () => {
   assert.doesNotMatch(s, /%/);
 });
 
-test("bands: steps under 0.05 are ties", () => {
+test("bands: leader-relative, a band is everything within 0.05 of its strongest member", () => {
   assert.deepEqual(bands(rows(LD), (r) => r.forward).map((b) => b.map((r) => r.id)), [
     ["Dr. Squatch"], ["Yeti"], ["Poppi", "Sheetz"], ["e.l.f.", "Van Leeuwen", "Chanel"],
   ]);
+  // steps of 0.04 chain forever in review-v1; leader-relative breaks them every 0.05 from the leader
+  const steps = [0.9, 0.86, 0.82, 0.78, 0.74].map((forward, i) => ({ id: String(i), forward }));
+  assert.deepEqual(bands(steps, (r) => r.forward).map((b) => b.map((r) => r.id)), [["0", "1"], ["2", "3"], ["4"]]);
 });
 
 test("select: Liquid Death picks two and names the tie at the cutoff", () => {
-  assert.deepEqual(select(rows(LD)), { picks: ["Dr. Squatch", "Yeti"], tiedAtCutoff: ["Poppi", "Sheetz"] });
+  assert.deepEqual(select(rows(LD)), { picks: ["Dr. Squatch", "Yeti"], tiedAtCutoff: ["Poppi", "Sheetz"], noClearThree: false });
 });
 
-test("select: Mt. Joy's top four are one tie, so no picks", () => {
-  assert.deepEqual(select(rows(MJ)), { picks: [], tiedAtCutoff: ["Allbirds", "REI", "Patagonia", "Hydro Flask"] });
+test("select: Mt. Joy's top four are one tie, so no clear three", () => {
+  assert.deepEqual(select(rows(MJ)), { picks: [], tiedAtCutoff: ["Allbirds", "REI", "Patagonia", "Hydro Flask"], noClearThree: true });
+  assert.deepEqual(bands(rows(MJ), (r) => r.forward).map((b) => b.map((r) => r.id)), [
+    ["Allbirds", "REI", "Patagonia", "Hydro Flask"], ["Airbnb"], ["Red Bull", "Taco Bell"], ["Spotify"],
+  ]);
 });
 
 test("select: three clear leaders, missing values never selected", () => {
   assert.deepEqual(select([{ id: "a", forward: 0.9 }, { id: "b", forward: 0.8 }, { id: "c", forward: 0.7 }, { id: "x", forward: null }, { id: "d", forward: 0.6 }]), {
-    picks: ["a", "b", "c"], tiedAtCutoff: [],
+    picks: ["a", "b", "c"], tiedAtCutoff: [], noClearThree: false,
   });
 });
 
@@ -145,10 +151,10 @@ test("assemble: proxies and unresolved stay out of the measured shortlist; exclu
   assert.deepEqual(review.notMeasured.map((i) => i.state), ["proxy", "unresolved"]);
   assert.equal(g.rows.find((r) => r.entity.name === "Yeti")?.evidence, "stronger measured support"); // measured support stands
   // the buyer gate keeps Yeti out of the picks, so the Poppi/Sheetz tie now fits inside three
-  assert.deepEqual(g.selection, { picks: ["Dr. Squatch", "Poppi", "Sheetz"], tiedAtCutoff: [] });
+  assert.deepEqual(g.selection, { picks: ["Dr. Squatch", "Poppi", "Sheetz"], tiedAtCutoff: [], noClearThree: false });
   // popularity reference: Chanel, e.l.f., Yeti, Dr. Squatch, Sheetz within 0.05 of each other; Poppi alone at the bottom
   assert.deepEqual(g.popularityBands.at(-1), ["Poppi"]);
-  assert.equal(review.version, "review-v1");
+  assert.equal(review.version, "review-v2");
 });
 
 test("assemble: picks never read as ties when an excluded name sat in their band (Red Bull, Oct 10)", () => {
@@ -158,5 +164,6 @@ test("assemble: picks never read as ties when an excluded name sat in their band
   const g = assemble(ref("Red Bull"), ids, fwd, {}, { exclude: [{ name: "Monster", reason: "direct competitor" }] }).groups[0];
   assert.deepEqual(g.selection.picks, ["GoPro", "Oakley", "Nike"]);
   for (const n of g.selection.picks) assert.equal(g.rows.find((r) => r.entity.name === n)?.evidence, "stronger measured support");
-  assert.equal(g.rows.find((r) => r.entity.name === "Monster")?.evidence, "insufficient evidence"); // tied in the full field
+  // leader-relative: Monster sits in GoPro's band in the full field, so its measured support stands; the gate excludes it
+  assert.equal(g.rows.find((r) => r.entity.name === "Monster")?.evidence, "stronger measured support");
 });

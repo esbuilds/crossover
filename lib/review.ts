@@ -1,4 +1,4 @@
-// Review desk core (PLAN.md section 12, blind round 2 and the Oct 10 signal test), label review-v1.
+// Review desk core (PLAN.md section 12, blind round 2 and the Oct 10 signal test), label review-v2 (leader-relative ties).
 // Of up to eight proposed partners, which deserve investigation, and on what measured evidence? Pure functions plus
 // a fixed-candidate adapter that takes its Qloo scorer as an argument, so everything here runs in tests without the API.
 // Rules: forward affinity selects, reverse is context and never combined with it; gaps under GAP are ties; no
@@ -6,7 +6,7 @@
 import type { Entity } from "./qloo.ts";
 import type { Resolution } from "./resolve.ts";
 
-export const REVIEW_VERSION = "review-v1";
+export const REVIEW_VERSION = "review-v2";
 export const GAP = 0.05; // smallest affinity gap read as a difference (probe/VERIFY-3.md section 4)
 export const MAX_NAMES = 8;
 export const MAX_PICKS = 3;
@@ -108,19 +108,22 @@ export async function scoreReverse(seed: Ref, cands: Ref[], score: Scorer): Prom
 
 // --- ties, selection, evidence ---
 
-// Highest first; a new band starts wherever the step down is at least GAP. Members of one band are ties.
+// Highest first, leader-relative (review-v2): a band is its strongest member plus everything within GAP of it; the
+// next band starts at the first value GAP or more below that leader. No order is claimed inside a band. Chaining
+// steps (review-v1) collapsed whole lists into one tie, since every step was under GAP.
 export function bands<T>(xs: T[], value: (x: T) => number): T[][] {
   const sorted = [...xs].sort((a, b) => value(b) - value(a));
   const out: T[][] = [];
-  sorted.forEach((x, i) => (i && value(sorted[i - 1]) - value(x) < GAP ? out.at(-1)!.push(x) : out.push([x])));
+  sorted.forEach((x) => (out.length && value(out.at(-1)![0]) - value(x) < GAP ? out.at(-1)!.push(x) : out.push([x])));
   return out;
 }
 
 export type Row = { id: string; forward: number | null };
-export type Selection = { picks: string[]; tiedAtCutoff: string[] };
+export type Selection = { picks: string[]; tiedAtCutoff: string[]; noClearThree: boolean };
 
 // Up to MAX_PICKS by forward affinity, only above a clear break (a step of at least GAP). When ties straddle the
 // cutoff, the picks stop short and the tied band is named instead: fewer than three is allowed, a coin flip is not.
+// A top band of four or more is "no clear three": no picks, the band is shown with its gaps.
 export function select(rows: Row[]): Selection {
   const measured = rows.filter((r): r is { id: string; forward: number } => r.forward !== null);
   const bs = bands(measured, (r) => r.forward);
@@ -131,7 +134,7 @@ export function select(rows: Row[]): Selection {
     picks.push(...b.map((r) => r.id));
   }
   const next = picks.length < MAX_PICKS ? bs.find((b) => !picks.includes(b[0].id)) : undefined;
-  return { picks, tiedAtCutoff: next && next.length > 1 ? next.map((r) => r.id) : [] };
+  return { picks, tiedAtCutoff: next && next.length > 1 ? next.map((r) => r.id) : [], noClearThree: (bs[0]?.length ?? 0) > MAX_PICKS };
 }
 
 export type Evidence = "stronger measured support" | "mixed directional evidence" | "weaker measured support" | "insufficient evidence";
