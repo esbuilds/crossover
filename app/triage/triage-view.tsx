@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Card, Pick } from "@/lib/slate.ts";
 import { BUCKET_LABEL, formatNames, MAX_NAMES, sortRows, type Bucket, type TriageName } from "@/lib/triage.ts";
 import BriefPanel, { Skeleton } from "../brief-panel";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL } from "../ui";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL, WhichOne } from "../ui";
 
 type Fit = {
   bucket: Bucket;
@@ -167,14 +167,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
               <input value={seed.query} onChange={(e) => setSeed({ state: "idle", query: e.target.value })} placeholder="Liquid Death" className={field} maxLength={100} />
             </label>
             {seed.state === "ambiguous" && (
-              <div className="flex flex-wrap items-center gap-x-4">
-                <span className="text-base text-ink-2">Which one?</span>
-                {seed.candidates?.map((c) => (
-                  <button key={c.entity_id + c.type} type="button" onClick={() => setSeed((s) => ({ ...s, state: "matched", card: c, query: c.name }))} className={btnQuiet}>
-                    {c.name} ({TYPE_LABEL[c.type] ?? "Entity"})
-                  </button>
-                ))}
-              </div>
+              <WhichOne options={seed.candidates ?? []} label={(c) => `${c.name} (${TYPE_LABEL[c.type] ?? "Entity"})`} onPick={(c) => setSeed((s) => ({ ...s, state: "matched", card: c, query: c.name }))} />
             )}
             {seed.state === "not_found" && <p className="text-base text-ink-2">Qloo doesn&apos;t know that one yet. Triage needs a seed Qloo knows.</p>}
             {seed.state === "matched" && seed.card && <MatchCard card={seed.card} />}
@@ -242,17 +235,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
                   {r.state === "waiting" && <span className="text-ink-3">Waiting</span>}
                   {r.state === "resolving" && <span className="font-mono text-sm text-ink-3 motion-safe:animate-pulse">Looking it up in Qloo...</span>}
                   {r.state === "ambiguous" && (
-                    <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                      <span className="text-ink-2">Which one?</span>
-                      {r.candidates?.map((c) => (
-                        <button key={c.entity_id + c.type} type="button" onClick={() => update((x) => x === r, { state: "matched", card: c })} className={btnQuiet}>
-                          {c.name} ({TYPE_LABEL[c.type] ?? "Entity"})
-                        </button>
-                      ))}
-                      <button type="button" onClick={() => update((x) => x === r, { state: "skipped" })} className={`${btnQuiet} text-ink-3`}>
-                        None of these
-                      </button>
-                    </span>
+                    <WhichOne options={r.candidates ?? []} label={(c) => `${c.name} (${TYPE_LABEL[c.type] ?? "Entity"})`} onPick={(c) => update((x) => x === r, { state: "matched", card: c })} onNone={() => update((x) => x === r, { state: "skipped" })} />
                   )}
                   {r.state === "not_found" && <span className="text-ink-2">Not in Qloo</span>}
                   {r.state === "skipped" && <span className="text-ink-3">Skipped</span>}

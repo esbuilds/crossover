@@ -35,6 +35,25 @@ export const CHIP_LABEL: Partial<Record<ChipKind, string>> = {
   declined: "Declined",
 };
 
+// "Which one?": the one-click picker for a name with several Qloo matches (triage rows, triage seed, the review desk).
+export function WhichOne<T>({ options, label, onPick, onNone, className = "" }: { options: T[]; label: (o: T) => string; onPick: (o: T) => void; onNone?: () => void; className?: string }) {
+  return (
+    <span className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-base ${className}`}>
+      <span className="text-ink-2">Which one?</span>
+      {options.map((o, i) => (
+        <button key={i} type="button" onClick={() => onPick(o)} className={btnQuiet}>
+          {label(o)}
+        </button>
+      ))}
+      {onNone && (
+        <button type="button" onClick={onNone} className={`${btnQuiet} text-ink-3`}>
+          None of these
+        </button>
+      )}
+    </span>
+  );
+}
+
 export function Chip({ kind, title, children }: { kind: ChipKind; title?: string; children?: React.ReactNode }) {
   return (
     <span title={title} className={`inline-flex items-center whitespace-nowrap rounded-sm px-1.5 py-0.5 text-xs font-medium ${CHIP[kind]}`}>

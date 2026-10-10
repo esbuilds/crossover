@@ -19,3 +19,14 @@ test("share: your own list keeps its names; invalid links open the default", () 
   assert.equal(parseShare({ s: "x", n: Array.from({ length: 9 }, (_, i) => `n${i}`) }), null);
   assert.equal(parseShare({ c: "nope" }), null);
 });
+
+test("share: a picked name carries its id and round-trips; a malformed id rejects the link", () => {
+  const id = "0C27D00E-DB6B-4F1D-B06A-AD3584131ECA";
+  const s = parseShare({ s: "Liquid Death", n: [`Dr. Squatch::${id}::urn:entity:brand`, "Yeti"], p: "0" })!;
+  assert.deepEqual(s.names, [{ name: "Dr. Squatch", id, type: "urn:entity:brand" }, "Yeti"]);
+  const back = new URLSearchParams(shareQuery(s));
+  assert.deepEqual(parseShare({ s: back.get("s")!, n: back.getAll("n"), p: back.get("p")! }), s);
+  assert.equal(shareCard(s).line, "My picks: Dr. Squatch. See what fans' taste says.");
+  assert.equal(parseShare({ s: "Liquid Death", n: ["Dr. Squatch::not-a-uuid::urn:entity:brand"] }), null);
+  assert.equal(parseShare({ s: "Liquid Death", n: [`Dr. Squatch::${id}::javascript:alert(1)`] }), null);
+});

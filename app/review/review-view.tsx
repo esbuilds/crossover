@@ -6,7 +6,7 @@ import type { Ref, Review, ReviewGroup, ReviewRow } from "@/lib/review.ts";
 import { CASES, type CaseName, type PreparedCase } from "@/lib/review-cases.ts";
 import { nameOf, shareQuery, type Shared } from "@/lib/review-share.ts";
 import BriefPanel from "../brief-panel";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, field, SiteHeader, TYPE_LABEL } from "../ui";
+import { btnPrimary, btnQuiet, btnSecondary, Chip, field, SiteHeader, TYPE_LABEL, WhichOne } from "../ui";
 
 // Renders /api/review (review-v3). Groups, picks, gates and evidence labels all come from the route; this page only
 // hides them until the visitor has picked, then lays fame and taste side by side.
@@ -85,6 +85,13 @@ export default function ReviewView({ initial }: { initial?: Shared }) {
     setOpen(null);
     setReq(body);
   };
+  // the visitor's pick for an ambiguous name: the same list with that name pinned to an id (share links carry it)
+  const choose = (input: string, o: Ref) => {
+    setPicks([]);
+    setRevealed(false);
+    setOpen(null);
+    setReq({ ...req, names: req.names.map((n) => (nameOf(n) === input ? { name: input, id: o.entity_id, type: o.type } : n)) });
+  };
   const toggleGate = () => {
     if (!prepared) return;
     setGateOn(!gateOn);
@@ -127,10 +134,21 @@ export default function ReviewView({ initial }: { initial?: Shared }) {
         )}
 
         {data && data.notMeasured.length > 0 && (
-          <p className="mt-6 text-base text-ink-2">
-            Not measured:{" "}
-            {data.notMeasured.map((i) => `${i.input} (${i.state === "ambiguous" ? "more than one match" : i.state === "proxy" ? "stand-in" : "no Qloo match"})`).join(", ")}
-          </p>
+          <div className="mt-6 grid gap-2 text-base text-ink-2">
+            <p>
+              Not measured:{" "}
+              {data.notMeasured.map((i) => `${i.input} (${i.state === "ambiguous" ? "more than one match" : i.state === "proxy" ? "stand-in" : "no Qloo match"})`).join(", ")}
+            </p>
+            {/* a name with several matches gets a one-click pick; the pick is the visitor's, never the model's */}
+            {data.notMeasured.map((i) =>
+              i.state === "ambiguous" ? (
+                <div key={i.input} className="flex flex-wrap items-baseline gap-x-3">
+                  <span className="font-semibold text-ink">{i.input}:</span>
+                  <WhichOne options={i.options} label={(o) => [o.name, descriptor(o.tags) || TYPE_LABEL[o.type]].filter(Boolean).join(", ")} onPick={(o) => choose(i.input, o)} />
+                </div>
+              ) : null,
+            )}
+          </div>
         )}
 
         <p className="mt-10 border-t border-rule pt-4 text-sm text-ink-3">
@@ -160,16 +178,8 @@ export default function ReviewView({ initial }: { initial?: Shared }) {
 }
 
 function SeedProblem({ res, onChoose }: { res: Res; onChoose: (r: Ref) => void }) {
-  return (
-    <div className="mt-10 flex flex-wrap items-center gap-x-4 text-base">
-      <span className="text-ink-2">{res.error}</span>
-      {res.seedOptions?.map((o) => (
-        <button key={o.entity_id + o.type} onClick={() => onChoose(o)} className={btnQuiet}>
-          {o.name} ({TYPE_LABEL[o.type] ?? "Entity"})
-        </button>
-      ))}
-    </div>
-  );
+  if (res.seedOptions?.length) return <WhichOne className="mt-10" options={res.seedOptions} label={(o) => `${o.name} (${TYPE_LABEL[o.type] ?? "Entity"})`} onPick={onChoose} />;
+  return <p className="mt-10 text-base text-ink-2">{res.error}</p>;
 }
 
 // Step 1: the names in the order given, nothing about scores.
