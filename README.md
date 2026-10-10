@@ -1,13 +1,28 @@
 # Crossover
 
-Type a brand, artist, show or person, and Crossover shows who that audience already loves across Qloo's taste graph (brands, artists, TV shows, films, podcasts and places), the US markets where those fans over-index, and a one-page partnership brief with the evidence and a launch plan. A human approves before any outreach is drafted. Every number on screen comes from a Qloo response, and the product says so when a fit is one-way or a constraint couldn't be applied. Built for the Qloo Agentic Hackathon (2026).
+Eight brands could partner with you. Which three do you call first? Crossover asks you to pick, then lays the same eight out twice: by how well known they are (Qloo popularity) and by how much your fans lean toward them (Qloo affinity). For Mt. Joy, fame can't tell the eight apart and taste can. Behind that front door is a review desk with honest ties, buyer gates and per-name evidence, a public audit run on briefs frozen before the run, and the partner search: a slate across six Qloo domains, launch markets, a one-page brief, approval before any outreach. Built for the Qloo Agentic Hackathon (2026).
 
 ## The 30-second path
 
-1. Open https://crossover-henna.vercel.app and click **Liquid Death**.
-2. Read the brands row: each pick has Qloo's affinity bar, the agent's one-line reason, and a Mutual or Partial chip when that brand's fans rank Liquid Death back. The map and market list sit below.
-3. Click **Dr. Squatch Soap Co.** for the brief: the scorecard, the evidence, a launch market with venues, and a chart of who it lands with by age.
-4. Type `no alcohol or cannabis partners, Texas only` into **Refine** and watch the slate re-plan.
+1. Open https://crossover-henna.vercel.app. Pick three of Mt. Joy's eight brands and click **Show me**.
+2. Read the two columns: popularity bands on the left, measured taste groups on the right (a group is every name within 0.05 of its strongest member). Click any name for its evidence.
+3. Turn on **Exclude energy drinks**: Red Bull drops out, with Qloo's tag as the reason.
+4. Open **/audit** for the held-out results, then **Find more partners for Mt. Joy** for the slate, map and briefs.
+
+## The review desk
+
+`lib/review.ts` holds the rules (label `review-v3`), `app/api/review/route.ts` serves them, and the page only renders.
+
+- **Identity first.** Only an exact name confirms on its own; an exact name that a known entity of another type also carries asks which one. LLM suggestions never confirm. Ambiguous names get a one-click picker, and share links carry the chosen id.
+- **One call scores the list.** `filter.results.entities` with every candidate's id scores a fixed list against the seed's audience, one call per entity type. Types are never ranked against each other.
+- **Leader-relative ties.** A group is the strongest measured name plus everything within 0.05 of it; no order is claimed inside a group. A top group of four or more is "no clear three".
+- **Missing is never zero.** Qloo's fallback constants, three or more bit-identical values in one call, and a pair repeating across unrelated signals all read "no measurement".
+- **Buyer gates.** Named exclusions and whole-word tag exclusions are hard gates; the reason quotes Qloo's tag.
+- **Rank facts, not direction words.** Same-type affinity in Qloo is symmetric, so the product reports where each side ranks among the other's fans, never that one side likes the other more.
+
+## The audit
+
+`audit/briefs.json` is the protocol (audit-v1): twelve brand briefs of eight candidates, split six dev and six held-out by a fixed seed, plus 24 resolution challenges. It was frozen in git (commit `d244ee2`) before the held-out briefs ran once through `scripts/audit-run.ts`. `audit/results.json` keeps derived numbers only, and `/audit` shows them: 4 of 6 held-out briefs give a clear three; 0 of 12 "famous" names reach the picks; resolution was 20 of 24 as run and 24 of 24 after the review-v3 fix, labelled as not held-out.
 
 ## Architecture
 
@@ -21,12 +36,14 @@ A run is one server-sent event stream. Code resolves the name, fetches six domai
 |---|---|---|---|
 | `GET /search` | `query`, `types` (brand, artist, tv_show, movie, person), `take=5` | Candidates for a typed name | `lib/qloo.ts`, via `app/api/resolve/route.ts` |
 | `GET /search` | `query`, `types=urn:entity:brand`, `take=5` | Checking stand-in brands for a brand Qloo doesn't know | `lib/proxy.ts` |
-| `GET /v2/insights` | `filter.type`, `filter.results.entities`, `take=1` | One typed card for a share link | `lib/slate.ts` (`getCard`) |
+| `GET /v2/insights` | `filter.type`, `filter.results.entities`, `take=1` | One typed card for a share link, or a chosen id in the review desk | `lib/slate.ts` (`getCard`), `app/api/review/route.ts` |
+| `GET /v2/insights` | `filter.type`, `signal.interests.entities` (the seed), `filter.results.entities` (every candidate of that type), `take` | The review desk's fixed-list score: one call per entity type | `lib/review.ts` (`scoreForward`) |
+| `GET /v2/insights` | `filter.type` (the seed's type), `signal.interests.entities` (a candidate), `filter.results.entities` (the seed), `take=1` | Reverse affinity, only across types (same-type affinity is symmetric) | `lib/review.ts` (`scoreReverse`) |
 | `GET /v2/insights` | `filter.type` (each of six domains), `signal.interests.entities`, `filter.exclude.entities`, `take=10`, `feature.explainability` | The slate | `lib/slate.ts` |
 | `POST /v2/insights` | the same, with weighted stand-ins as `signal.interests.entities` and an optional brand-category `signal.interests.tags` | Slates for brands Qloo doesn't know | `lib/slate.ts`, `lib/qloo.ts` (`proxyBody`) |
 | `GET/POST /v2/insights` | refine adds `filter.tags` with `operator.filter.tags=union`, `filter.exclude.tags`, `filter.popularity.min`, `signal.location.query` (POST place calls use `filter.location.query`), or `signal.interests.tags` as a soft fallback | Constraints from the Refine box | `lib/refine.ts`, `lib/slate.ts` |
 | `GET/POST /v2/insights` | `filter.type=urn:heatmap`, `signal.interests.entities`, `filter.location.query=United States` | The national heatmap, aggregated to 55 markets | `lib/qloo.ts`, `lib/cities.ts` |
-| `GET /v2/insights` | `filter.type`, `signal.interests.entities` (the partner), `take=50` | Where the seed lands among the partner's fans (Mutual and Partial chips, the brief's reverse check, pairing) | `lib/fit.ts` |
+| `GET /v2/insights` | `filter.type`, `signal.interests.entities` (the partner), `take=50` | Where the seed lands among the partner's fans (the rank chips, the brief's reverse rank, pairing, the review desk's evidence from cache) | `lib/fit.ts` |
 | `GET /v2/insights` | the same plus `filter.results.entities` (the seed), `take=1` | The raw affinity when the seed is outside that top 50 | `lib/fit.ts` |
 | `GET/POST /v2/insights` | `filter.type=urn:entity:place`, `filter.location.query` (a market), `filter.tags` (restaurant, bar, live music venue, or cafe and coffee shop under a no-alcohol constraint), both entities as signals, `take=8` | Venues both audiences favor | `lib/agent/brief.ts` |
 | `GET/POST /v2/insights` | `signal.demographics.age` (each of six brackets), `filter.results.entities` (the partner), `take=1` | "Who does this land with?" | `lib/cohort.ts` |
@@ -39,10 +56,11 @@ A run is one server-sent event stream. Code resolves the name, fetches six domai
 
 ## The honesty layer
 
-- **Match validation** (`lib/resolve.ts`). Qloo's search returns confident wrong matches for names it doesn't know (Fruition Chocolate Works comes back as Bath & Body Works). A match is confident only on an exact name or alias above a popularity floor of 0.3. Several exact hits keep Qloo's relevance order, and an artist beats a person with the same name. Token overlap becomes a picker, and Claude Haiku is asked only in the narrow band in between. The user always sees the card and can say "Not it". The resolver is tested against recorded search results for 22 names, 14 of them small brands Qloo doesn't know.
+- **Match validation** (`lib/resolve.ts`). Qloo's search returns confident wrong matches for names it doesn't know (Fruition Chocolate Works comes back as Bath & Body Works). A match is confident only on an exact name or alias above a popularity floor of 0.3 (the review desk adds a cross-type check; see above). Several exact hits keep Qloo's relevance order, and an artist beats a person with the same name. Token overlap becomes a picker, and Claude Haiku is asked only in the narrow band in between. The user always sees the card and can say "Not it". The resolver is tested against recorded search results for 22 names, 14 of them small brands Qloo doesn't know.
 - **Stand-ins.** For a brand Qloo doesn't know, the user describes it and names brands their customers love. Haiku suggests more, and each is checked in Qloo. The slate is built from weighted stand-ins (10, 7, 5), and a banner says so on every screen.
-- **Never rank by popularity.** Order is Qloo's affinity order, kept by code. The model reviews picks but cannot reorder them. Popularity is only a floor for matching.
-- **Say what didn't work.** Refine phrases that map to nothing are listed as "Couldn't apply". Kinds of partner without a Qloo tag ("no cookware") are applied by the ranker and labeled "Applied by the agent". One-way fits show as One way instead of being hidden.
+- **Never rank by popularity.** Order is Qloo's affinity order, kept by code. The model reviews picks but cannot reorder them. Popularity is a floor for matching and, on the front door, a labelled reference column, never a correction.
+- **Qloo's terms.** No raw Qloo responses in the repo (the audit publishes derived numbers), and no third-party logos or images in the app.
+- **Say what didn't work.** Refine phrases that map to nothing are listed as "Couldn't apply". Kinds of partner without a Qloo tag ("no cookware") are applied by the ranker and labeled "Applied by the agent". A fit ranked in only one side's top 50 shows as such instead of being hidden.
 
 ## The agent design
 
@@ -75,9 +93,10 @@ npm run dev                  # http://localhost:3000
 
 ## Tests
 
-`npm test` runs 62 offline tests in about a second, with no API calls:
+`npm test` runs 95 offline tests in about a second, with no API calls:
 
 - match validation against recorded search results
+- the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
 - ranking order and decisions
 - refine constraint sets, including agent-applied categories and region handling
 - market aggregation and the overlap between two audiences
