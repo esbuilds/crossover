@@ -754,7 +754,8 @@ function PickRow({
         {tags.length > 0 && <p className="mt-2 text-sm text-ink-3">{tags.join(" · ")}</p>}
       </button>
       {pairHref && (
-        <Link href={pairHref} className={`${btnQuiet} self-start text-sm`}>
+        // no prefetch: partial prefetching drops the query, and /pair without ta/tb is a 404 by design (proxy.ts)
+        <Link href={pairHref} prefetch={false} className={`${btnQuiet} self-start text-sm`}>
           Check this pairing
         </Link>
       )}
