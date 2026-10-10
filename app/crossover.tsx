@@ -174,7 +174,7 @@ export default function Crossover({
     if (!q) return;
     setQuery(q);
     stop(); // cancel any run in flight
-    window.history.pushState(null, "", "/"); // the old /s/<id> no longer describes the page
+    window.history.pushState(null, "", "/find"); // the old /s/<id> no longer describes the page
     setEntity(null);
     setProxy(null);
     setDraft(null);
@@ -209,7 +209,7 @@ export default function Crossover({
       },
     });
     setDraft({ name: entity?.name ?? query, description: "", brands: [] });
-    window.history.pushState(null, "", "/");
+    window.history.pushState(null, "", "/find");
   }
 
   function buildFromProxies(d: ProxyDraft, proxies: Card[], tag?: string) {
@@ -236,7 +236,7 @@ export default function Crossover({
     setSlate({ state: "idle" });
     setTrace([]);
     setResolved({ state: "idle" });
-    window.history.pushState(null, "", "/");
+    window.history.pushState(null, "", "/find");
   }
 
   // A shared /s/<id> link starts straight at the slate. loadSlate sets loading state up front, which is the point here.

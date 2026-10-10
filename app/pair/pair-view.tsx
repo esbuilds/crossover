@@ -89,7 +89,7 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
 
   return (
     <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
-      <SiteHeader href="/" label="Find partners" />
+      <SiteHeader href="/find" label="Find partners" />
 
       <section className="pt-8">
         <h1 className="font-display text-2xl sm:text-3xl">Check a pairing</h1>
@@ -223,8 +223,8 @@ function SideStatus({ side, onChoose }: { side: Side; onChoose: (c: Card) => voi
     return (
       <p className="rounded-lg border border-rule px-4 py-3 text-base text-ink-2">
         Qloo doesn&apos;t know &ldquo;{side.query}&rdquo;. Pairing needs two names Qloo knows. For a brand it doesn&apos;t, build a slate from stand-in brands{" "}
-        <Link href="/" className="underline underline-offset-4">
-          on the main page
+        <Link href="/find" className="underline underline-offset-4">
+          on the search page
         </Link>
         .
       </p>

@@ -5,13 +5,13 @@ import "./globals.css";
 // Display face for headings and map labels only. One weight; body text stays on the system font.
 const newsreader = Newsreader({ subsets: ["latin"], weight: "600", display: "swap", variable: "--font-newsreader" });
 
-const DESCRIPTION = "Find the brands, artists, shows and places a brand's fans already love, the US markets to launch in, and a brief, from Qloo taste data.";
+const DESCRIPTION = "Pick the partners you'd call first, then see how fame and measured fan taste compare. Find more partners, launch markets and a brief, from Qloo taste data.";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000"),
   title: { default: "Crossover: who should you collab with, and where?", template: "%s | Crossover" },
   description: DESCRIPTION,
-  openGraph: { siteName: "Crossover", type: "website", description: DESCRIPTION },
-  twitter: { card: "summary_large_image" },
+  openGraph: { siteName: "Crossover", type: "website", description: DESCRIPTION, images: [{ url: "/og", width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", images: ["/og"] },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

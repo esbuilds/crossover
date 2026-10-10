@@ -156,7 +156,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
 
   return (
     <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
-      <SiteHeader href="/" label="Find partners" />
+      <SiteHeader href="/find" label="Find partners" />
       <section className="pt-8">
         <h1 className="font-display text-2xl sm:text-3xl">Inbound triage</h1>
         <p className="mt-2 max-w-[60ch] text-base text-ink-2">Paste the names that have pitched you. Crossover checks where each ranks among your fans' picks, and where you rank among theirs, and tells you which calls to take.</p>

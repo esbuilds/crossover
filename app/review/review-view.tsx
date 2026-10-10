@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import type { Card, Pick } from "@/lib/slate.ts";
 import type { Ref, Review, ReviewGroup, ReviewRow } from "@/lib/review.ts";
 import { CASES, type CaseName, type PreparedCase } from "@/lib/review-cases.ts";
+import { nameOf, shareQuery, type Shared } from "@/lib/review-share.ts";
 import BriefPanel from "../brief-panel";
 import { btnPrimary, btnQuiet, btnSecondary, Chip, field, SiteHeader, TYPE_LABEL } from "../ui";
 
-// Renders /api/review (review-v2). Groups, picks, gates and evidence labels all come from the route; this page only
+// Renders /api/review (review-v3). Groups, picks, gates and evidence labels all come from the route; this page only
 // hides them until the visitor has picked, then lays fame and taste side by side.
 type Ranks = Record<string, { amongSeedFans?: number | null; seedAmongTheirs?: number | null }>;
 type Result = Review & { ranks: Ranks };
@@ -18,17 +19,19 @@ type Res = { key: string; data: Result | null; error?: string; seedOptions?: Ref
 const MAX = 8;
 const WORDS = ["", "", "", "", "four", "five", "six", "seven", "eight"];
 const caseBody = (c: PreparedCase, gate: boolean): Body => ({ seed: c.seed, names: c.names, ...(gate ? { buyer: c.gate.buyer } : {}) });
-const nameOf = (n: string | CaseName) => (typeof n === "string" ? n : n.name);
 const score = (v: number | null) => (v === null ? "no measurement" : v.toFixed(2));
 const plural = (type: string) => (type === "urn:entity:person" ? "people" : `${(TYPE_LABEL[type] ?? "entity").toLowerCase()}s`);
 // a short descriptor from Qloo's tags: category words, not "2008 establishments in California"
 const NOT_DESCRIPTIVE = /\bapp\b|advertising|brands|companies|enabled/i;
 const descriptor = (tags: string[]) => tags.filter((t) => t.length <= 20 && !/\d/.test(t) && !NOT_DESCRIPTIVE.test(t)).slice(0, 2).join(" · ");
 
-export default function ReviewView() {
-  const [caseKey, setCaseKey] = useState<string | null>(CASES[0].key);
-  const [gateOn, setGateOn] = useState(false);
-  const [req, setReq] = useState<Body>(caseBody(CASES[0], false));
+// initial: a share link, which opens on its reveal once the route answers (picks are indices into its names)
+export default function ReviewView({ initial }: { initial?: Shared }) {
+  const initCase = initial ? (CASES.find((c) => c.key === initial.caseKey) ?? null) : CASES[0];
+  const [caseKey, setCaseKey] = useState<string | null>(initCase?.key ?? null);
+  const [gateOn, setGateOn] = useState(initial?.gate ?? false);
+  const [req, setReq] = useState<Body>(initCase ? caseBody(initCase, initial?.gate ?? false) : { seed: initial!.seed, names: initial!.names, only: "brand" });
+  const pending = useRef<number[] | null>(initial?.picks.length ? initial.picks : null);
   const [res, setRes] = useState<Res | null>(null);
   const [picks, setPicks] = useState<string[]>([]);
   const [revealed, setRevealed] = useState(false);
@@ -44,7 +47,19 @@ export default function ReviewView() {
       .then(async (r) => {
         const j = await r.json().catch(() => ({}));
         if (current.current !== key) return;
-        if (r.ok) return setRes({ key, data: j });
+        if (r.ok) {
+          setRes({ key, data: j });
+          const want = pending.current;
+          pending.current = null;
+          const rows = (j as Result).groups[0]?.rows ?? [];
+          const names = (JSON.parse(key) as Body).names;
+          const ids = (want ?? []).flatMap((i) => rows.filter((row) => row.input === nameOf(names[i])).map((row) => row.entity.entity_id));
+          if (ids.length) {
+            setPicks(ids);
+            setRevealed(true);
+          }
+          return;
+        }
         const options = j.seed?.state === "ambiguous" ? (j.seed.options as Ref[]) : undefined;
         setRes({ key, data: null, error: options ? "Which one did you mean?" : (j.error ?? "That didn't work. Try again."), seedOptions: options });
       })
@@ -54,7 +69,15 @@ export default function ReviewView() {
   const loading = !res || res.key !== key;
   const data = loading ? null : res.data;
   const group: ReviewGroup | undefined = data?.groups[0];
+  // the address bar always holds the shareable link of the reveal on screen
+  const indexOf = (id: string) => req.names.findIndex((n) => nameOf(n) === group?.rows.find((row) => row.entity.entity_id === id)?.input);
+  const share = shareQuery({ caseKey, seed: req.seed, names: req.names, picks: picks.map(indexOf).filter((i) => i >= 0), gate: gateOn });
+  useEffect(() => {
+    if (revealed) window.history.replaceState(null, "", `${window.location.pathname}?${share}`);
+  }, [revealed, share]);
   const start = (body: Body, nextCase: string | null) => {
+    window.history.replaceState(null, "", window.location.pathname);
+    pending.current = null;
     setCaseKey(nextCase);
     setGateOn(false);
     setPicks([]);
@@ -71,7 +94,7 @@ export default function ReviewView() {
 
   return (
     <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
-      <SiteHeader href="/" label="Find partners" />
+      <SiteHeader href="/find" label="Find partners" />
       <section className="pt-8">
         <div className="flex flex-wrap items-center gap-x-4 text-base">
           <span className="text-ink-2">Prepared cases:</span>
@@ -96,7 +119,7 @@ export default function ReviewView() {
 
         {data && group && revealed && (
           <>
-            <Reveal data={data} group={group} picks={picks} open={open} onOpen={setOpen} gate={prepared?.gate.label} gateOn={gateOn} onGate={toggleGate} onAgain={() => (setRevealed(false), setPicks([]), setOpen(null))} />
+            <Reveal data={data} group={group} picks={picks} share={share} open={open} onOpen={setOpen} gate={prepared?.gate.label} gateOn={gateOn} onGate={toggleGate} onAgain={() => (setRevealed(false), setPicks([]), setOpen(null))} />
             {open && group.rows.find((r) => r.entity.entity_id === open) && (
               <Evidence data={data} group={group} row={group.rows.find((r) => r.entity.entity_id === open)!} onBrief={setBrief} />
             )}
@@ -110,7 +133,12 @@ export default function ReviewView() {
           </p>
         )}
 
-        <p className="mt-10 border-t border-rule pt-4 text-sm text-ink-3">What this doesn&apos;t establish: purchases, visits, commercial eligibility, or whether the deal makes money.</p>
+        <p className="mt-10 border-t border-rule pt-4 text-sm text-ink-3">
+          What this doesn&apos;t establish: purchases, visits, commercial eligibility, or whether the deal makes money.{" "}
+          <a href="/audit" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">
+            How these rules did on briefs they weren&apos;t tuned on
+          </a>
+        </p>
 
         <TryOwn onRun={(body) => start(body, null)} />
       </section>
@@ -183,8 +211,8 @@ function PickStep({ data, group, order, picks, need, onToggle, onReveal }: { dat
 }
 
 // Step 2: the same names twice, by fame and by measured taste. The visitor's picks stay marked in both.
-function Reveal({ data, group, picks, open, onOpen, gate, gateOn, onGate, onAgain }: {
-  data: Result; group: ReviewGroup; picks: string[]; open: string | null; onOpen: (id: string) => void; gate?: string; gateOn: boolean; onGate: () => void; onAgain: () => void;
+function Reveal({ data, group, picks, share, open, onOpen, gate, gateOn, onGate, onAgain }: {
+  data: Result; group: ReviewGroup; picks: string[]; share: string; open: string | null; onOpen: (id: string) => void; gate?: string; gateOn: boolean; onGate: () => void; onAgain: () => void;
 }) {
   const row = (id: string) => group.rows.find((r) => r.entity.entity_id === id)!;
   const names = (ids: string[]) => ids.map((id) => row(id).input).join(", ");
@@ -214,9 +242,13 @@ function Reveal({ data, group, picks, open, onOpen, gate, gateOn, onGate, onAgai
             {gate}: {gateOn ? "on" : "off"}
           </button>
         )}
+        <CopyLink share={share} />
         <button onClick={onAgain} className={btnQuiet}>
           Pick again
         </button>
+        <a href={`/s/${data.seed.entity_id}?t=${encodeURIComponent(data.seed.type)}`} className={btnQuiet}>
+          Find more partners for {data.seed.name}
+        </a>
       </div>
 
       <div className="mt-8 grid gap-8 md:grid-cols-2">
@@ -252,6 +284,20 @@ function Reveal({ data, group, picks, open, onOpen, gate, gateOn, onGate, onAgai
         </section>
       </div>
     </div>
+  );
+}
+
+function CopyLink({ share }: { share: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () =>
+    navigator.clipboard
+      .writeText(`${window.location.origin}/?${share}`)
+      .then(() => setCopied(true))
+      .catch(() => {});
+  return (
+    <button onClick={copy} className={btnSecondary} aria-live="polite">
+      {copied ? "Link copied" : "Copy link"}
+    </button>
   );
 }
 

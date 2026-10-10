@@ -30,7 +30,7 @@ export default function AuditPage() {
 
   return (
     <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
-      <SiteHeader href="/review" label="Pick three" />
+      <SiteHeader href="/" label="Pick three" />
       <section className="pt-8">
         <h1 className="font-display text-2xl sm:text-3xl">Audit</h1>
         <p className="mt-2 max-w-[68ch] text-base text-ink-2">
