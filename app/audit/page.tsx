@@ -9,6 +9,10 @@ export const metadata: Metadata = { title: "Audit", robots: { index: false, foll
 type Brief = (typeof results.briefs)[number];
 type Challenge = (typeof results.resolution.challenges)[number];
 const FREEZE_COMMIT = "d244ee2";
+// Findings worth a line under a brief (decided Oct 11; the frozen protocol itself is unchanged)
+const NOTES: Record<string, string> = {
+  "Red Bull": "The named gate (Monster Energy) missed Rockstar Energy Drink, which lands in the picks; the drafter labelled Rockstar ambiguous, not a competitor. A tag gate on energy drinks catches it.",
+};
 const SOURCE = "https://www.marketingdive.com/news/best-marketing-campaigns-2024-advertising-tactics-cmo-lessons/734003/";
 
 const held = results.briefs.filter((b) => b.set === "heldOut");
@@ -150,6 +154,7 @@ function BriefCard({ b }: { b: Brief }) {
           <Chip kind="excluded" /> {b.excluded.map((x) => `${x.name} (${x.reason})`).join(", ")}
         </p>
       )}
+      {NOTES[b.seed] && <p className="mt-2 text-sm text-ink-2">{NOTES[b.seed]}</p>}
       {b.notMeasured.length > 0 && <p className="mt-2 text-sm text-ink-2">Not measured: {b.notMeasured.map((x) => `${x.name} (${x.state === "ambiguous" ? "more than one match" : "no Qloo match"})`).join(", ")}</p>}
     </li>
   );
