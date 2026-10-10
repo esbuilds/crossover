@@ -1,6 +1,6 @@
 {
-  "version": "audit-draft-1",
-  "status": "draft, not frozen: Eric approves the freeze",
+  "version": "audit-v1",
+  "status": "frozen real Oct 10 2026 UTC (approved by Eric), before any held-out brief ran; rules review-v2 (leader-relative 0.05 ties). Candidate names resolve brand-only (only: brand); resolution challenges search all five types like a typed seed.",
   "notes": [
     "Each brief: one brand seed and a realistic inbound list of 8 brand names, with a role per name (strong, odd, famous, small, ambiguous). Roles are the drafter's expectation for coverage of the list, not labels of truth.",
     "Historical collabs are descriptive only; a real past deal is not a positive label.",
