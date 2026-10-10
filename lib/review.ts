@@ -1,4 +1,4 @@
-// Review desk core (PLAN.md section 12, blind round 2 and the Oct 10 signal test), label review-v2 (leader-relative ties).
+// Review desk core (PLAN.md section 12, blind round 2 and the Oct 10 signal test), label review-v3 (v2: leader-relative ties; v3: an exact name shared across types is ambiguous).
 // Of up to eight proposed partners, which deserve investigation, and on what measured evidence? Pure functions plus
 // a fixed-candidate adapter that takes its Qloo scorer as an argument, so everything here runs in tests without the API.
 // Rules: forward affinity selects, reverse is context and never combined with it; gaps under GAP are ties; no
@@ -6,7 +6,7 @@
 import type { Entity } from "./qloo.ts";
 import type { Resolution } from "./resolve.ts";
 
-export const REVIEW_VERSION = "review-v2";
+export const REVIEW_VERSION = "review-v3";
 export const GAP = 0.05; // smallest affinity gap read as a difference (probe/VERIFY-3.md section 4)
 export const MAX_NAMES = 8;
 export const MAX_PICKS = 3;
@@ -59,8 +59,19 @@ export const toRef = (e: Entity, type = e.types[0]): Ref => ({
 
 // Only an exact name match confirms on its own. An LLM-judged match is a suggestion the buyer confirms, so it stays
 // ambiguous with the suggestion first.
+// review-v3 (held-out audit, Oct 10): an exact name that another known entity of a different type also carries is
+// ambiguous, not Qloo's first result (Corona confirmed to the band, Mars to an artist, Ghost and Prime likewise). A
+// musician's person and artist entities are one act (the resolver already picks the artist), so they don't count.
+const sameName = (a: string, b: string) => a.toLowerCase().replace(/[^a-z0-9]/g, "") === b.toLowerCase().replace(/[^a-z0-9]/g, "");
+const KNOWN = 0.3; // the resolver's popularity floor: below it an exact name is usually a namesake
+const MUSICIAN = ["urn:entity:artist", "urn:entity:person"];
 export function identityOf(input: string, r: Resolution): Identity {
-  if (r.status === "confident" && r.via === "exact") return { state: "confirmed", input, entity: toRef(r.match), via: "exact name" };
+  if (r.status === "confident" && r.via === "exact") {
+    const t = r.match.types[0];
+    const rivals = r.alternates.filter((e) => sameName(e.name, r.match.name) && e.types[0] !== t && e.popularity >= KNOWN && !(MUSICIAN.includes(t) && MUSICIAN.includes(e.types[0])));
+    if (rivals.length) return { state: "ambiguous", input, options: [r.match, ...rivals].map((e) => toRef(e)) };
+    return { state: "confirmed", input, entity: toRef(r.match), via: "exact name" };
+  }
   if (r.status === "confident") return { state: "ambiguous", input, options: [r.match, ...r.alternates].map((e) => toRef(e)) };
   if (r.status === "ambiguous") return { state: "ambiguous", input, options: r.candidates.map((e) => toRef(e)) };
   return { state: "unresolved", input };

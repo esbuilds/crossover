@@ -105,6 +105,17 @@ test("identity: exact is confirmed, an LLM match stays ambiguous, nothing is unr
   assert.equal(identityOf("Blorpwater", { status: "not_found" }).state, "unresolved");
 });
 
+test("identity (review-v3): an exact name another known type also carries is ambiguous; a musician's person/artist pair is not", () => {
+  const e = (name: string, type: string, popularity = 0.9): Entity => ({ entity_id: name + type, name, types: [type], popularity, akas: [], tags: [] });
+  const corona = identityOf("Corona", { status: "confident", match: e("Corona", "urn:entity:artist"), alternates: [e("Corona", B), e("Corona", "urn:entity:movie", 0)], via: "exact" });
+  assert.equal(corona.state, "ambiguous");
+  assert.deepEqual(corona.state === "ambiguous" && corona.options.map((o) => o.type), ["urn:entity:artist", B]); // the 0.00 movie is a namesake
+  const swift = identityOf("Taylor Swift", { status: "confident", match: e("Taylor Swift", "urn:entity:artist"), alternates: [e("Taylor Swift", "urn:entity:person")], via: "exact" });
+  assert.equal(swift.state, "confirmed");
+  const dove = identityOf("Dove", { status: "confident", match: e("Dove", B), alternates: [e("Dove", B, 0.71), e("Dove Cameron", "urn:entity:person")], via: "exact" });
+  assert.equal(dove.state, "confirmed"); // same-type duplicates keep Qloo's order
+});
+
 test("buyer gates: named and tag exclusions are hard; untagged stays unknown", () => {
   assert.deepEqual(gateFor(ref("Sheetz"), "Sheetz", { exclude: [{ name: "sheetz", reason: "regional only" }] }), { state: "excluded", reason: "regional only" });
   assert.deepEqual(gateFor(ref("Coors", 0.9, B, ["Beer"]), "Coors", { excludeTags: ["beer"] }), { state: "excluded", reason: "Qloo tags it beer" });
@@ -154,7 +165,7 @@ test("assemble: proxies and unresolved stay out of the measured shortlist; exclu
   assert.deepEqual(g.selection, { picks: ["Dr. Squatch", "Poppi", "Sheetz"], tiedAtCutoff: [], noClearThree: false });
   // popularity reference: Chanel, e.l.f., Yeti, Dr. Squatch, Sheetz within 0.05 of each other; Poppi alone at the bottom
   assert.deepEqual(g.popularityBands.at(-1), ["Poppi"]);
-  assert.equal(review.version, "review-v2");
+  assert.equal(review.version, "review-v3");
 });
 
 test("assemble: picks never read as ties when an excluded name sat in their band (Red Bull, Oct 10)", () => {
