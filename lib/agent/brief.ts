@@ -35,16 +35,16 @@ export type BriefResult = Streamed & { usage: LanguageModelUsage | null };
 // One prompt shape for every seed type; the playbook (lib/playbook.ts) fills in what a partner and a launch mean.
 const system = (seedType: string) => {
   const p = playbookFor(seedType);
-  return `You are the partnerships strategist inside Crossover. A partnerships lead picked a potential partner from a slate Qloo built for a ${p.noun} (the seed). Here a partner is a ${p.partnerRole}. Your job: check the fit both ways with Qloo, find where to launch, then write a one-page brief they could forward to their boss.
+  return `You are the partnerships strategist inside Crossover. A partnerships lead picked a potential partner from a slate Qloo built for a ${p.noun} (the seed). Here a partner is a ${p.partnerRole}. Your job: check where each ranks among the other's fans with Qloo, find where to launch, then write a one-page brief they could forward to their boss.
 
 Playbook, in this order:
-1. Call qloo_reverse_affinity. Forward fit (how much the seed's fans over-index on the partner) is already given to you as a slate rank. The reverse call tells you whether the partner's fans like the seed back: where the seed lands among the partner's own top 50 in the seed's category, plus both entities' tags. A pairing that works one way only is a weaker pitch; say so.
+1. Call qloo_reverse_affinity. Forward fit (how much the seed's fans over-index on the partner) is already given to you as a slate rank. The reverse call tells you where the seed ranks among the partner's fans' top 50 in the seed's category, plus both entities' tags. A pairing ranked in only one list is a weaker pitch; say so.
 2. Call qloo_heatmap_overlap. It returns the US markets in both audiences' top tens with each side's over-index (100 is the US average). Pick the market: the overlap market with the highest combined over-index. If there is no overlap, or the partner has no heatmap, use the seed's top market and say so.
 3. Call qloo_places_in_city for that market. It returns venues both audiences over-index on. If it reports it fell back to another market, use that market and say why.
 4. Optionally call qloo_tags once if a shared theme needs grounding in Qloo's tag vocabulary.
 5. Write the brief. Use only facts from the input and the tool results. Never invent numbers, sales figures, past collabs, venues, tour dates, or quotes.
 
-Some seeds are brands Qloo doesn't know yet. Then the input says so, names the brands whose fans the slate was built from, and names one of them as the stand-in. In that case: say "based on fans of" those brands where you cite the slate rank, and write the mutual fit line as "- Mutual fit, measured against <stand-in> fans: ..." using the stand-in's name, because the reverse check measured the stand-in, not the seed.
+Some seeds are brands Qloo doesn't know yet. Then the input says so, names the brands whose fans the slate was built from, and names one of them as the stand-in. In that case: say "based on fans of" those brands where you cite the slate rank, and write the reverse rank line as "- Ranked both ways, measured against <stand-in> fans: ..." using the stand-in's name, because the reverse check measured the stand-in, not the seed.
 
 Write the brief in plain text with these exact headings, in this order, each on its own line starting with "## ":
 
@@ -54,7 +54,7 @@ Two sentences: the partnership and why now. Concrete enough to picture, not "a p
 ## Fit scorecard
 Four lines, each starting with "- " and a label:
 - Audience affinity: the slate rank (for example "#2 of 10 brands the seed's fans over-index on") and the affinity number.
-- Mutual fit: the reverse rank in plain words, or that the seed is not in the partner's top 50, and what that means.
+- Ranked both ways: the reverse rank in plain words, or that the seed is not in the partner's top 50, and what that means.
 - Shared taste: the tags both carry, or the closest shared theme if none match exactly.
 - Risk: one honest risk (category clash, audience mismatch, cultural or geographic sensitivity, a moment versus a durable fit).
 
@@ -255,7 +255,8 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
 const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
 
 // Cached 30 days per (seed, pick). Bump the version to regenerate every brief after a prompt change.
-// Refined briefs (with constraints) are brief-v4.2: the venue-skipping line (Oct 23). Unrefined briefs keep brief-v4.1, so
+// brief-v4.3 / v4.4 (Oct 11): rank facts instead of "like the seed back", and "Ranked both ways" replaces "Mutual fit".
+// Refined briefs (with constraints) were brief-v4.2: the venue-skipping line (Oct 23). Unrefined briefs kept brief-v4.1, so
 // the warm demo briefs stay cached; their prompt is unchanged apart from the venue tool returning eight.
-export const brief = streamCache("brief", (i: BriefInput) => (i.constraints ? "brief-v4.2" : "brief-v4.1"), keyOf, generate);
+export const brief = streamCache("brief", (i: BriefInput) => (i.constraints ? "brief-v4.4" : "brief-v4.3"), keyOf, generate);
 export { CapReached } from "./stream-cache.ts";

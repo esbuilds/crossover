@@ -227,7 +227,7 @@ export async function GET(request: NextRequest) {
         `Shortlisted ${kept} partners and dropped ${dropped} that don't fit${failed ? ` (${failed} categories unranked)` : ""}`,
       );
 
-      // Mutual badges: does each top brand's audience like the seed back? 1 Qloo call per brand, cached and shared
+      // Rank badges: where does the seed rank among each top brand's fans' picks? 1 Qloo call per brand, cached and shared
       // with the brief's reverse check. Proxy seeds have no Qloo id to look for, so they get none.
       if (!proxies && topBrands.length) {
         trace("Checking where you rank among each top brand's fans' picks");
