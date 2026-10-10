@@ -1,0 +1,107 @@
+{
+  "version": "audit-draft-1",
+  "status": "draft, not frozen: Eric approves the freeze",
+  "notes": [
+    "Each brief: one brand seed and a realistic inbound list of 8 brand names, with a role per name (strong, odd, famous, small, ambiguous). Roles are the drafter's expectation for coverage of the list, not labels of truth.",
+    "Historical collabs are descriptive only; a real past deal is not a positive label.",
+    "Split: Python random.Random(20261010).shuffle over the 12 seeds in the order listed below; first 6 dev, last 6 held-out. Held-out briefs are not run before the freeze.",
+    "buyer fields are example gates for the run, not facts about the real companies."
+  ],
+  "split": {
+    "rng": "python random.Random(20261010).shuffle",
+    "order": ["Liquid Death", "Olipop", "Yeti", "Glossier", "Allbirds", "Oatly", "Crocs", "Red Bull", "Chobani", "Duolingo", "Sweetgreen", "Celsius"],
+    "dev": ["Chobani", "Crocs", "Duolingo", "Olipop", "Red Bull", "Yeti"],
+    "heldOut": ["Allbirds", "Celsius", "Glossier", "Liquid Death", "Oatly", "Sweetgreen"]
+  },
+  "briefs": [
+    { "seed": "Liquid Death", "set": "heldOut", "candidates": [
+      { "name": "Dr. Squatch", "role": "strong" }, { "name": "Vans", "role": "strong" }, { "name": "Sheetz", "role": "odd" },
+      { "name": "Chanel", "role": "famous" }, { "name": "Nike", "role": "famous" }, { "name": "Poppi", "role": "small" },
+      { "name": "Death Wish Coffee", "role": "small" }, { "name": "Ghost", "role": "ambiguous", "note": "energy drink, band, apparel" } ],
+      "buyer": { "excludeTags": ["beer"] } },
+    { "seed": "Olipop", "set": "dev", "candidates": [
+      { "name": "Trader Joe's", "role": "strong" }, { "name": "Sweetgreen", "role": "strong" }, { "name": "Harley-Davidson", "role": "odd" },
+      { "name": "Coca-Cola", "role": "famous" }, { "name": "Target", "role": "famous" }, { "name": "Siete Foods", "role": "small" },
+      { "name": "Graza", "role": "small" }, { "name": "Dove", "role": "ambiguous", "note": "personal care vs chocolate" } ],
+      "buyer": { "exclude": [{ "name": "Coca-Cola", "reason": "competing soda" }] } },
+    { "seed": "Yeti", "set": "dev", "candidates": [
+      { "name": "Traeger", "role": "strong" }, { "name": "Patagonia", "role": "strong" }, { "name": "Sephora", "role": "odd" },
+      { "name": "Ford", "role": "famous" }, { "name": "Apple", "role": "famous" }, { "name": "Huckberry", "role": "small" },
+      { "name": "Cotopaxi", "role": "small" }, { "name": "Stanley", "role": "ambiguous", "note": "drinkware, tools, a person (resolver history)" } ],
+      "buyer": { "exclude": [{ "name": "Stanley", "reason": "direct drinkware competitor" }] } },
+    { "seed": "Glossier", "set": "heldOut", "candidates": [
+      { "name": "Rhode", "role": "strong" }, { "name": "Aritzia", "role": "strong" }, { "name": "Cabela's", "role": "odd" },
+      { "name": "Nike", "role": "famous" }, { "name": "Starbucks", "role": "famous" }, { "name": "Ilia", "role": "small" },
+      { "name": "Summer Fridays", "role": "small" }, { "name": "Milk", "role": "ambiguous", "note": "Milk Makeup vs the drink" } ],
+      "buyer": {} },
+    { "seed": "Allbirds", "set": "heldOut", "candidates": [
+      { "name": "Warby Parker", "role": "strong" }, { "name": "Patagonia", "role": "strong" }, { "name": "Taco Bell", "role": "odd" },
+      { "name": "Amazon", "role": "famous" }, { "name": "Toyota", "role": "famous" }, { "name": "Rothy's", "role": "small" },
+      { "name": "Bombas", "role": "small" }, { "name": "Coach", "role": "ambiguous", "note": "fashion brand vs bus line vs role" } ],
+      "buyer": {} },
+    { "seed": "Oatly", "set": "heldOut", "candidates": [
+      { "name": "Blue Bottle Coffee", "role": "strong" }, { "name": "Whole Foods Market", "role": "strong" }, { "name": "Monster Energy", "role": "odd" },
+      { "name": "McDonald's", "role": "famous" }, { "name": "Pepsi", "role": "famous" }, { "name": "Minor Figures", "role": "small" },
+      { "name": "Califia Farms", "role": "small" }, { "name": "Mars", "role": "ambiguous", "note": "Mars Inc, the planet, Bruno Mars" } ],
+      "buyer": { "exclude": [{ "name": "Califia Farms", "reason": "competing oat milk" }] } },
+    { "seed": "Crocs", "set": "dev", "candidates": [
+      { "name": "Vans", "role": "strong" }, { "name": "Balenciaga", "role": "strong" }, { "name": "Lowe's", "role": "odd" },
+      { "name": "Coca-Cola", "role": "famous" }, { "name": "Disney", "role": "famous" }, { "name": "Kizik", "role": "small" },
+      { "name": "Hey Dude", "role": "small" }, { "name": "Champion", "role": "ambiguous", "note": "apparel vs spark plugs vs generic word" } ],
+      "buyer": {} },
+    { "seed": "Red Bull", "set": "dev", "candidates": [
+      { "name": "GoPro", "role": "strong" }, { "name": "Oakley", "role": "strong" }, { "name": "Hallmark", "role": "odd" },
+      { "name": "Samsung", "role": "famous" }, { "name": "Nike", "role": "famous" }, { "name": "Pit Viper", "role": "small" },
+      { "name": "Monster Energy", "role": "strong", "note": "competitor, buyer gate test" }, { "name": "Rockstar", "role": "ambiguous", "note": "energy drink vs Rockstar Games" } ],
+      "buyer": { "exclude": [{ "name": "Monster Energy", "reason": "direct competitor" }] } },
+    { "seed": "Chobani", "set": "dev", "candidates": [
+      { "name": "Peloton", "role": "strong" }, { "name": "Lululemon", "role": "strong" }, { "name": "Home Depot", "role": "odd" },
+      { "name": "Starbucks", "role": "famous" }, { "name": "Walmart", "role": "famous" }, { "name": "Magic Spoon", "role": "small" },
+      { "name": "Kodiak Cakes", "role": "small" }, { "name": "Simple", "role": "ambiguous", "note": "Simple Mills vs Simple skincare" } ],
+      "buyer": {} },
+    { "seed": "Duolingo", "set": "dev", "candidates": [
+      { "name": "Spotify", "role": "strong" }, { "name": "Netflix", "role": "strong" }, { "name": "Dunkin'", "role": "odd" },
+      { "name": "Google", "role": "famous" }, { "name": "Coca-Cola", "role": "famous" }, { "name": "Babbel", "role": "small", "note": "competitor" },
+      { "name": "Headspace", "role": "small" }, { "name": "Delta", "role": "ambiguous", "note": "airline vs faucets" } ],
+      "buyer": { "exclude": [{ "name": "Babbel", "reason": "direct competitor" }] } },
+    { "seed": "Sweetgreen", "set": "heldOut", "candidates": [
+      { "name": "Equinox", "role": "strong" }, { "name": "Erewhon", "role": "strong" }, { "name": "Buc-ee's", "role": "odd" },
+      { "name": "McDonald's", "role": "famous" }, { "name": "Apple", "role": "famous" }, { "name": "Kettle & Fire", "role": "small" },
+      { "name": "Ghia", "role": "small" }, { "name": "Corona", "role": "ambiguous", "note": "beer vs the word; tag gate test" } ],
+      "buyer": { "excludeTags": ["beer"] } },
+    { "seed": "Celsius", "set": "heldOut", "candidates": [
+      { "name": "Gymshark", "role": "strong" }, { "name": "Alani Nu", "role": "strong" }, { "name": "Barnes & Noble", "role": "odd" },
+      { "name": "Nike", "role": "famous" }, { "name": "Amazon", "role": "famous" }, { "name": "Bloom Nutrition", "role": "small" },
+      { "name": "Olipop", "role": "small" }, { "name": "Prime", "role": "ambiguous", "note": "Prime Hydration vs Amazon Prime" } ],
+      "buyer": {} }
+  ],
+  "resolution": {
+    "passRule": "Never confirmed to the wrong entity. Unresolved or ambiguous is a pass where noted; a confirmed match must be the expected entity.",
+    "challenges": [
+      { "q": "Fishwife", "kind": "obscure", "expect": "unresolved or ambiguous" },
+      { "q": "Omsom", "kind": "obscure", "expect": "unresolved or ambiguous" },
+      { "q": "Fly By Jing", "kind": "obscure", "expect": "unresolved or ambiguous" },
+      { "q": "Brightland", "kind": "obscure", "expect": "unresolved or ambiguous" },
+      { "q": "Haus Aperitif", "kind": "obscure", "expect": "unresolved or ambiguous" },
+      { "q": "Lalo", "kind": "obscure", "expect": "unresolved or ambiguous" },
+      { "q": "Dove", "kind": "ambiguous", "expect": "Dove (personal care brand) or ambiguous" },
+      { "q": "Corona", "kind": "ambiguous", "expect": "Corona (beer brand) or ambiguous" },
+      { "q": "Delta", "kind": "ambiguous", "expect": "Delta Air Lines or ambiguous" },
+      { "q": "Mars", "kind": "ambiguous", "expect": "Mars (company) or ambiguous; never Bruno Mars" },
+      { "q": "Ghost", "kind": "ambiguous", "expect": "ambiguous" },
+      { "q": "Prime", "kind": "ambiguous", "expect": "ambiguous" },
+      { "q": "Liquid Deth", "kind": "near-miss", "expect": "Liquid Death offered as an option, or unresolved" },
+      { "q": "Olli Pop", "kind": "near-miss", "expect": "Olipop offered as an option, or unresolved" },
+      { "q": "Dr Squach", "kind": "near-miss", "expect": "Dr. Squatch offered as an option, or unresolved" },
+      { "q": "Hydroflask", "kind": "near-miss", "expect": "Hydro Flask offered as an option, or unresolved" },
+      { "q": "Lulu Lemon", "kind": "near-miss", "expect": "Lululemon offered as an option, or unresolved" },
+      { "q": "Trader Joes", "kind": "near-miss", "expect": "Trader Joe's (apostrophes are dropped before matching)" },
+      { "q": "Blorpwater", "kind": "nonexistent", "expect": "unresolved" },
+      { "q": "Quillbrook Outfitters", "kind": "nonexistent", "expect": "unresolved" },
+      { "q": "Fennimore Soda Co.", "kind": "nonexistent", "expect": "unresolved" },
+      { "q": "Glimmerjack Candles", "kind": "nonexistent", "expect": "unresolved" },
+      { "q": "Starlight Pickle Works", "kind": "nonexistent", "expect": "unresolved" },
+      { "q": "Nordvik Hydration", "kind": "nonexistent", "expect": "unresolved" }
+    ]
+  }
+}
