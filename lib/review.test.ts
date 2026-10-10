@@ -107,7 +107,7 @@ test("identity: exact is confirmed, an LLM match stays ambiguous, nothing is unr
 
 test("buyer gates: named and tag exclusions are hard; untagged stays unknown", () => {
   assert.deepEqual(gateFor(ref("Sheetz"), "Sheetz", { exclude: [{ name: "sheetz", reason: "regional only" }] }), { state: "excluded", reason: "regional only" });
-  assert.deepEqual(gateFor(ref("Coors", 0.9, B, ["Beer"]), "Coors", { excludeTags: ["beer"] }), { state: "excluded", reason: "excluded where Qloo tags it beer" });
+  assert.deepEqual(gateFor(ref("Coors", 0.9, B, ["Beer"]), "Coors", { excludeTags: ["beer"] }), { state: "excluded", reason: "Qloo tags it beer" });
   assert.equal(gateFor(ref("Mystery", 0.9, B, []), "Mystery", { excludeTags: ["beer"] }).state, "unknown");
   assert.equal(gateFor(ref("Yeti"), "Yeti", {}).state, "eligible");
 });

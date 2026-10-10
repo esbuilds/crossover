@@ -183,7 +183,7 @@ export function gateFor(ref: Ref, input: string, buyer: Buyer): Gate {
   if (!rules.length) return { state: "eligible" };
   if (!ref.tags.length) return { state: "unknown", reason: `Qloo has no tags for ${ref.name}, so "${rules.join('", "')}" can't be checked` };
   const hit = rules.find((rule) => ref.tags.some((t) => t.toLowerCase().includes(rule.toLowerCase())));
-  return hit ? { state: "excluded", reason: `excluded where Qloo tags it ${hit}` } : { state: "eligible" };
+  return hit ? { state: "excluded", reason: `Qloo tags it ${hit}` } : { state: "eligible" };
 }
 
 // --- assembly ---

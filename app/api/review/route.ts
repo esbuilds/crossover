@@ -6,14 +6,16 @@ import { failCode } from "@/lib/failure.ts";
 import { FAIL_COPY } from "@/lib/fail-copy.ts";
 import { assemble, identityOf, scoreForward, scoreReverse, toRef, MAX_NAMES, type Buyer, type Identity, type Ref } from "@/lib/review.ts";
 
-// POST /api/review (unlinked), review-v1. Body:
+// POST /api/review (unlinked), review-v2. Body:
 //   { seed: "Liquid Death" | { id, type },
 //     names: ["Yeti", { name: "Poppi", id, type }, { name: "Graza", id, type, proxy: true }, ...] (up to 8),
 //     buyer?: { exclude?: [{ name, reason }], excludeTags?: ["beer"] },
 //     only?: "brand" (search candidates within one entity type; the demo's brand lists use it so "Hey Dude" can't
 //     resolve to a TV show) }
 // -> Review (lib/review.ts): seed, groups by entity type (rows with forward and reverse cells, evidence, buyer gate;
-// selection; affinity and popularity bands), notMeasured (ambiguous, unresolved, proxies).
+// selection; affinity and popularity bands), notMeasured (ambiguous, unresolved, proxies), plus ranks: for each
+// measured name, where it sits in the seed's fans' top 50 and where the seed sits in its fans' top 50, read from the
+// cache only (absent when that list was never fetched; never a call).
 // Cost when cold: one search per typed name, one forward call per entity type, one reverse call per measured name.
 type NameIn = string | { name: string; id?: string; type?: string; proxy?: boolean };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -60,7 +62,13 @@ export async function POST(request: NextRequest) {
 
     const forward = await scoreForward(seed, measured, scorer);
     const reverse = await scoreReverse(seed, measured, scorer);
-    return Response.json(assemble(seed, kept, forward, reverse, buyer), { headers: { "Cache-Control": "no-store" } });
+    const rankIn = async (category: string, fansOf: string, id: string) => {
+      const list = await insights.peek({ "filter.type": category, "signal.interests.entities": fansOf, take: 50 });
+      return list ? list.findIndex((e) => e.entity_id === id) + 1 || null : undefined;
+    };
+    const ranks: Record<string, { amongSeedFans?: number | null; seedAmongTheirs?: number | null }> = {};
+    for (const m of measured) ranks[m.entity_id] = { amongSeedFans: await rankIn(m.type, seed.entity_id, m.entity_id), seedAmongTheirs: await rankIn(seed.type, m.entity_id, seed.entity_id) };
+    return Response.json({ ...assemble(seed, kept, forward, reverse, buyer), ranks }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     console.error("[review]", err);
     const code = failCode(err);
