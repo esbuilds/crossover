@@ -27,7 +27,7 @@ const CHIP: Record<ChipKind, string> = {
 export const CHIP_LABEL: Partial<Record<ChipKind, string>> = {
   mutual: "Mutual",
   partial: "Partial",
-  oneway: "One way",
+  oneway: "In one top 50 only",
   competitor: "Competitor",
   excluded: "Excluded by constraint",
   lower: "Ranked lower",

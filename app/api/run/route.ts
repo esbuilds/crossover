@@ -230,7 +230,7 @@ export async function GET(request: NextRequest) {
       // Mutual badges: does each top brand's audience like the seed back? 1 Qloo call per brand, cached and shared
       // with the brief's reverse check. Proxy seeds have no Qloo id to look for, so they get none.
       if (!proxies && topBrands.length) {
-        trace("Checking whether the top brands' fans like you back");
+        trace("Checking where you rank among each top brand's fans' picks");
         try {
           const ranks = await Promise.all(
             topBrands.map((b) => rankAmongFans(entity, b)),

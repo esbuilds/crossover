@@ -46,7 +46,7 @@ export async function peekSharedTags(seed: Target, partner: { entity_id: string;
   return me ? [...new Set(me.tags.map((t) => t.name))].filter((t) => partner.tags.includes(t)) : [];
 }
 
-// Slate badge: does the partner's audience like the seed back?
+// Slate badge: where does the seed rank among the partner's fans' picks?
 export const badgeFor = (rank: number | null): "mutual" | "partial" | null => (rank === null ? null : rank <= 10 ? "mutual" : "partial");
 
 // Pairing verdict, decided in code so the model writes about a call it didn't make:
@@ -56,6 +56,6 @@ export function classify(aAmongBFans: number | null, bAmongAFans: number | null)
   const a = aAmongBFans !== null;
   const b = bAmongAFans !== null;
   if (a && b) return { kind: "affinity" };
-  if (a || b) return { kind: "one-way", strongSide: b ? "b" : "a" }; // strongSide: whose fans love the other
+  if (a || b) return { kind: "one-way", strongSide: b ? "b" : "a" }; // strongSide: whose fans rank the other in their top 50
   return { kind: "contrast" };
 }

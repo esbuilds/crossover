@@ -219,7 +219,7 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
       const q = part.input as { query?: string; market?: string };
       log(
         {
-          qloo_reverse_affinity: `Checking whether ${input.pick.name} fans like ${who} back`,
+          qloo_reverse_affinity: `Checking where ${who} ranks among ${input.pick.name} fans' picks`,
           qloo_heatmap_overlap: `Finding the markets where both audiences run hot`,
           qloo_places_in_city: `Looking for venues in ${q.market} that both audiences love`,
           qloo_tags: `Looking up Qloo tags for "${q.query}"`,

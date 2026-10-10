@@ -60,7 +60,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
   const names = [...new Set(text.split("\n").map((l) => l.trim()).filter(Boolean))];
   const update = (match: (r: Row) => boolean, patch: Partial<Row>) => setRows((rs) => rs.map((r) => (match(r) ? { ...r, ...patch } : r)));
 
-  // Fit both ways for every matched name, streamed row by row, then the reasons (one model call for the table).
+  // Both rankings for every matched name, streamed row by row, then the reasons (one model call for the table).
   function fit(seedRef: TriageName, list: TriageName[]) {
     source.current?.close();
     setPhase("fitting");
@@ -159,7 +159,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
       <SiteHeader href="/" label="Find partners" />
       <section className="pt-8">
         <h1 className="font-display text-2xl sm:text-3xl">Inbound triage</h1>
-        <p className="mt-2 max-w-[60ch] text-base text-ink-2">Paste the names that have pitched you. Crossover checks each fit both ways in Qloo and tells you which calls to take.</p>
+        <p className="mt-2 max-w-[60ch] text-base text-ink-2">Paste the names that have pitched you. Crossover checks where each ranks among your fans' picks, and where you rank among theirs, and tells you which calls to take.</p>
         {!initial && (
           <form onSubmit={start} className="mt-6 grid max-w-[760px] gap-4">
             <label className="grid gap-1.5">
@@ -257,7 +257,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
                   {r.state === "not_found" && <span className="text-ink-2">Not in Qloo</span>}
                   {r.state === "skipped" && <span className="text-ink-3">Skipped</span>}
                   {r.state === "error" && <span className="text-danger">{r.message}</span>}
-                  {r.state === "matched" && !fitRow && r.fitState === "checking" && <span className="font-mono text-sm text-ink-3 motion-safe:animate-pulse">Checking the fit both ways...</span>}
+                  {r.state === "matched" && !fitRow && r.fitState === "checking" && <span className="font-mono text-sm text-ink-3 motion-safe:animate-pulse">Checking both rankings...</span>}
                   {r.state === "matched" && !fitRow && !r.fitState && (
                     <span className="flex flex-wrap items-center gap-x-4">
                       <span className="text-ink-3">Matched</span>

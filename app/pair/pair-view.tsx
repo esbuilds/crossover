@@ -14,7 +14,7 @@ type Side = { query: string; state: "idle" | "loading" | "picked" | "ambiguous" 
 const empty: Side = { query: "", state: "idle" };
 const KIND: Record<Pair["kind"], { label: string; chip: ChipKind }> = {
   affinity: { label: "Affinity play", chip: "mutual" },
-  "one-way": { label: "One-way", chip: "oneway" },
+  "one-way": { label: "Ranked by one side only", chip: "oneway" },
   contrast: { label: "Contrast play", chip: "note" },
 };
 
