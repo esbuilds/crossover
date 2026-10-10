@@ -553,13 +553,17 @@ function Results({
   const chipFor = (p: Pick) => (anyOther && p.driven_by && p.driven_by !== top ? proxyNames.get(p.driven_by) : undefined);
   const top5 = data.cities.metros.slice(0, 5);
   const even = top5.length === 5 && top5[0].overIndex - top5[4].overIndex < 3;
+  // Qloo sometimes lists the bare "urn:entity" first in an entity's types, which made a pairing link the /pair gate
+  // rejects (404, found Oct 11); the slate's domain is the type. Places and podcasts can't be paired.
+  const pairType = (row: Row, domain: Domain) => (/^urn:entity:[a-z_]+$/.test(row.pick.type) ? row.pick.type : `urn:entity:${domain}`);
+  const PAIRABLE = ["brand", "artist", "tv_show", "movie", "person"].map((t) => `urn:entity:${t}`);
   const rowProps = (row: Row, domain: Domain) => ({
     ...row,
     badge: badges[row.pick.entity_id],
     pairHref:
-      data.entity.type === "proxy"
+      data.entity.type === "proxy" || !PAIRABLE.includes(pairType(row, domain))
         ? undefined
-        : `/pair/${data.entity.entity_id}/${row.pick.entity_id}?ta=${encodeURIComponent(data.entity.type)}&tb=${encodeURIComponent(row.pick.type || `urn:entity:${domain}`)}`,
+        : `/pair/${data.entity.entity_id}/${row.pick.entity_id}?ta=${encodeURIComponent(data.entity.type)}&tb=${encodeURIComponent(pairType(row, domain))}`,
     drivenBy: chipFor(row.pick),
     approved: decisions[row.pick.entity_id]?.status === "approved",
     onOpen: () => onOpen(row.pick, domain),
