@@ -159,7 +159,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
       <SiteHeader href="/find" label="Find partners" />
       <section className="pt-8">
         <h1 className="font-display text-2xl sm:text-3xl">Inbound triage</h1>
-        <p className="mt-2 max-w-[60ch] text-base text-ink-2">Paste the names that have pitched you. Crossover checks where each ranks among your fans' picks, and where you rank among theirs, and tells you which calls to take.</p>
+        <p className="mt-2 max-w-[60ch] text-base text-ink-2">Paste the names that have pitched you. Crossover checks where each ranks among your fans&apos; picks, and where you rank among theirs, and tells you which calls to take.</p>
         {!initial && (
           <form onSubmit={start} className="mt-6 grid max-w-[760px] gap-4">
             <label className="grid gap-1.5">
