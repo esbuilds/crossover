@@ -25,8 +25,9 @@ const plural = (type: string) => (type === "urn:entity:person" ? "people" : `${(
 const NOT_DESCRIPTIVE = /\bapp\b|advertising|brands|companies|enabled/i;
 const descriptor = (tags: string[]) => tags.filter((t) => t.length <= 20 && !/\d/.test(t) && !NOT_DESCRIPTIVE.test(t)).slice(0, 2).join(" · ");
 
-// initial: a share link, which opens on its reveal once the route answers (picks are indices into its names)
-export default function ReviewView({ initial }: { initial?: Shared }) {
+// initial: a share link, which opens on its reveal once the route answers (picks are indices into its names).
+// embedded: below the rivals front door (Oct 12), so no page shell; a share link scrolls down to it.
+export default function ReviewView({ initial, embedded = false }: { initial?: Shared; embedded?: boolean }) {
   const initCase = initial ? (CASES.find((c) => c.key === initial.caseKey) ?? null) : CASES[0];
   const [caseKey, setCaseKey] = useState<string | null>(initCase?.key ?? null);
   const [gateOn, setGateOn] = useState(initial?.gate ?? false);
@@ -39,6 +40,10 @@ export default function ReviewView({ initial }: { initial?: Shared }) {
   const [brief, setBrief] = useState<ReviewRow | null>(null);
   const current = useRef("");
   const prepared = CASES.find((c) => c.key === caseKey) ?? null;
+  // a Pick three share link opens below the rivals hero: bring its reveal into view
+  useEffect(() => {
+    if (embedded && initial) document.getElementById("pick-three")?.scrollIntoView();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const key = JSON.stringify(req);
   useEffect(() => {
@@ -99,9 +104,10 @@ export default function ReviewView({ initial }: { initial?: Shared }) {
   };
   const need = Math.min(3, group?.rows.length ?? 3);
 
+  const Shell = embedded ? "div" : "main";
   return (
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
-      <SiteHeader href="/find" label="Find partners" />
+    <Shell id="pick-three" className={embedded ? "mt-16 scroll-mt-4 border-t border-rule-strong" : "mx-auto max-w-[1120px] px-4 pb-24 sm:px-8"}>
+      {!embedded && <SiteHeader href="/find" label="Find partners" />}
       <section className="pt-8">
         <div className="flex flex-wrap items-center gap-x-4 text-base">
           <span className="text-ink-2">Prepared cases:</span>
@@ -173,7 +179,7 @@ export default function ReviewView({ initial }: { initial?: Shared }) {
           onClose={() => setBrief(null)}
         />
       )}
-    </main>
+    </Shell>
   );
 }
 

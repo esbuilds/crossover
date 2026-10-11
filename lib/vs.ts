@@ -1,5 +1,5 @@
 // The /vs page's words, generated in code from the rivals counts (brief-oct13-vs). No Claude, no server imports.
-import type { Rivals, RivalRow } from "./rivals.ts";
+import type { Rivals, RivalRow, VsMap } from "./rivals.ts";
 
 export type VsState = "split" | "two lists" | "shared-heavy";
 
@@ -25,6 +25,20 @@ export function verdict(r: Rivals): string[] {
     lines.push(`These two read as one audience: ${r.shared.length} of ${cols} candidates outside their own field sit within 0.05 of both. The map may still split.`);
   }
   return lines;
+}
+
+// the verdict's second sentence, from the map: metros in one side's top five and not the other's, up to three each
+// ("Liquid Death leads in Portland, Denver and Austin; Celsius in Miami, Tampa and Dallas."). Same lists as the map's
+// "Top markets" line, so the words and the map say one thing.
+export function mapLine(a: string, b: string, map: Pick<VsMap, "metrosA" | "metrosB"> | null): string | null {
+  if (!map) return null;
+  const only = (xs: { name: string }[], ys: { name: string }[]) => xs.filter((m) => !ys.some((y) => y.name === m.name)).slice(0, 3).map((m) => m.name);
+  const list = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : xs[0]);
+  const [oa, ob] = [only(map.metrosA, map.metrosB), only(map.metrosB, map.metrosA)];
+  if (!oa.length && !ob.length) return `${a} and ${b} share the same top five markets.`;
+  if (!ob.length) return `${a} leads in ${list(oa)}; ${b}'s top five markets are all in ${a}'s.`;
+  if (!oa.length) return `${b} leads in ${list(ob)}; ${a}'s top five markets are all in ${b}'s.`;
+  return `${a} leads in ${list(oa)}; ${b} in ${list(ob)}.`;
 }
 
 // empty column copy (shared-heavy pairs can leave one side with nothing past the same-field cut)

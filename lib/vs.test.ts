@@ -1,7 +1,7 @@
 // The /vs page's states, verdict line and copy rules, from fixture payloads. No API calls.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bannedIn, DOESNT_ESTABLISH, emptyColumn, rankContext, verdict, vsState } from "./vs.ts";
+import { bannedIn, DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "./vs.ts";
 import { validShareLink } from "./share-link.ts";
 import type { Rivals, RivalRow } from "./rivals.ts";
 
@@ -62,4 +62,17 @@ test("/vs links: two different ids with types, else a real 404", () => {
   assert.equal(validShareLink(`/vs/${id1}/${id1}`, q), false);
   assert.equal(validShareLink(`/vs/${id1}/not-an-id`, q), false);
   assert.equal(validShareLink(`/vs/${id1}/${id2}`, new URLSearchParams({ ta: "urn:entity:brand" })), false);
+});
+
+const metros = (...names: string[]) => names.map((name) => ({ name }));
+test("map sentence: metros in one side's top five and not the other's, up to three each", () => {
+  const m = { metrosA: metros("Los Angeles", "San Diego", "Denver", "Portland", "Austin"), metrosB: metros("Miami", "Tampa", "San Diego", "Dallas", "Los Angeles") } as never;
+  assert.equal(mapLine("Liquid Death", "Celsius", m), "Liquid Death leads in Denver, Portland and Austin; Celsius in Miami, Tampa and Dallas.");
+});
+
+test("map sentence: one side's markets all inside the other's, identical top fives, and no map", () => {
+  const sub = { metrosA: metros("Boston", "Denver"), metrosB: metros("Boston", "Denver", "Minneapolis") } as never;
+  assert.equal(mapLine("Mt. Joy", "Noah Kahan", sub), "Noah Kahan leads in Minneapolis; Mt. Joy's top five markets are all in Noah Kahan's.");
+  assert.equal(mapLine("A", "B", { metrosA: metros("X"), metrosB: metros("X") } as never), "A and B share the same top five markets.");
+  assert.equal(mapLine("A", "B", null), null);
 });

@@ -3,10 +3,10 @@ import { RESOLVE_TYPES, QuotaError } from "@/lib/qloo.ts";
 import { failCode } from "@/lib/failure.ts";
 import { FAIL_COPY } from "@/lib/fail-copy.ts";
 import { generationKey } from "@/lib/agent/stream-cache.ts";
-import { ColdPairCap, loadVs } from "@/lib/rivals.ts";
+import { ColdPairCap, loadVs, toPayload } from "@/lib/rivals.ts";
 
-// GET /api/rivals?a=<id>&ta=<type>&b=<id>&tb=<type> (unlinked), rivals-v1 -> VsData (lib/rivals.ts): the /vs page's
-// data as JSON. Ids only; names go through the picker on the front door (Oct 15 row). Same per-IP cold-pair limit.
+// GET /api/rivals?a=<id>&ta=<type>&b=<id>&tb=<type> (unlinked), rivals-v1 -> VsPayload (lib/rivals.ts): the /vs page's
+// data as JSON, as the front door swaps pairs (0 Qloo calls when warm). Ids only; names go through the picker on the front door (Oct 15 row). Same per-IP cold-pair limit.
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function GET(request: NextRequest) {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   try {
     const data = await loadVs(a, b, generationKey(request));
     if (!data) return Response.json({ error: "Qloo doesn't know one of these ids" }, { status: 404 });
-    return Response.json(data.rivals, { headers: { "Cache-Control": "no-store" } });
+    return Response.json(toPayload(data), { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     console.error("[rivals]", err);
     if (err instanceof ColdPairCap) return Response.json({ error: "That's ten new pairs today. The prepared pairs still work.", code: "cap" }, { status: 503 });

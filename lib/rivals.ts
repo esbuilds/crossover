@@ -108,6 +108,9 @@ export async function getRivals(a: Entity, b: Entity, peek = false): Promise<Riv
 // map null: a person seed (flat heatmaps, VERIFY-4 Cedric), so no heatmap calls and the page says so
 export type VsMap = Collision & { metrosA: City[]; metrosB: City[] };
 export type VsData = { a: Entity; b: Entity; rivals: Rivals; share: string[]; map: VsMap | null };
+// what the page needs, without the seeds' full entities (sent to the browser by /api/rivals and the front door)
+export type VsPayload = Omit<VsData, "a" | "b">;
+export const toPayload = ({ rivals, share, map }: VsData): VsPayload => ({ rivals, share, map });
 export type Side = { id: string; type: string };
 export class ColdPairCap extends Error {}
 const COLD_PAIRS_PER_IP = 10; // per UTC day; a cold pair is 8 to 11 Qloo calls (VERIFY-4, plus the compare chip)
@@ -119,35 +122,39 @@ async function spendColdPair(ip: string) {
 
 // null: Qloo doesn't know one of the ids. Cold pieces cost the visitor one of their cold pairs, once, before any call.
 export async function loadVs(sa: Side, sb: Side, ip: string): Promise<VsData | null> {
-  const run = async (peek: boolean): Promise<VsData | null | "cold"> => {
-    const card = async (s: Side) => {
-      const p = { "filter.type": s.type, "filter.results.entities": s.id, take: 1 }; // = getCard's key
-      const hits = peek ? await insights.peek(p) : await insights(p);
-      return hits === null ? "cold" : (hits[0] ?? null);
-    };
-    const a = await card(sa);
-    if (a === null) return null;
-    const b = await card(sb);
-    if (b === null) return null;
-    if (a === "cold" || b === "cold") return "cold";
-    const rivals = await getRivals(a, b, peek);
-    if (!rivals) return "cold";
-    // the compare chip is garnish: a failed call leaves it off instead of failing the page
-    const share = peek ? await compareTags.peek(a.entity_id, b.entity_id) : await compareTags(a.entity_id, b.entity_id).catch(() => []);
-    let map: VsMap | null = null;
-    if (![a, b].some((e) => e.types.includes("urn:entity:person"))) {
-      const heat = (id: string) => (peek ? heatmap.peek(id, "United States") : heatmap(id, "United States")); // = getCities' key
-      const ha = await heat(a.entity_id);
-      const hb = ha && (await heat(b.entity_id));
-      if (!ha || !hb) return "cold";
-      map = { ...collide(ha, hb), metrosA: rankMetros(ha).slice(0, 5), metrosB: rankMetros(hb).slice(0, 5) };
-    }
-    // a pair warmed before the chip existed stays warm: a cold chip never makes the page cold
-    return { a, b, rivals, share: (share ?? []).slice(0, 4), map };
-  };
-  const warm = await run(true);
+  const warm = await runVs(sa, sb, true);
   if (warm !== "cold") return warm;
   await spendColdPair(ip);
-  const live = await run(false);
+  const live = await runVs(sa, sb, false);
   return live === "cold" ? null : live;
+}
+
+// cache only, never a call (front door first paint, OG cards): "cold" when any piece isn't cached
+export const peekVs = (sa: Side, sb: Side) => runVs(sa, sb, true);
+
+async function runVs(sa: Side, sb: Side, peek: boolean): Promise<VsData | null | "cold"> {
+  const card = async (s: Side) => {
+    const p = { "filter.type": s.type, "filter.results.entities": s.id, take: 1 }; // = getCard's key
+    const hits = peek ? await insights.peek(p) : await insights(p);
+    return hits === null ? "cold" : (hits[0] ?? null);
+  };
+  const a = await card(sa);
+  if (a === null) return null;
+  const b = await card(sb);
+  if (b === null) return null;
+  if (a === "cold" || b === "cold") return "cold";
+  const rivals = await getRivals(a, b, peek);
+  if (!rivals) return "cold";
+  // the compare chip is garnish: a failed call leaves it off instead of failing the page
+  const share = peek ? await compareTags.peek(a.entity_id, b.entity_id) : await compareTags(a.entity_id, b.entity_id).catch(() => []);
+  let map: VsMap | null = null;
+  if (![a, b].some((e) => e.types.includes("urn:entity:person"))) {
+    const heat = (id: string) => (peek ? heatmap.peek(id, "United States") : heatmap(id, "United States")); // = getCities' key
+    const ha = await heat(a.entity_id);
+    const hb = ha && (await heat(b.entity_id));
+    if (!ha || !hb) return "cold";
+    map = { ...collide(ha, hb), metrosA: rankMetros(ha).slice(0, 5), metrosB: rankMetros(hb).slice(0, 5) };
+  }
+  // a pair warmed before the chip existed stays warm: a cold chip never makes the page cold
+  return { a, b, rivals, share: (share ?? []).slice(0, 4), map };
 }

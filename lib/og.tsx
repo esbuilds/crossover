@@ -39,3 +39,33 @@ export async function ogCard({ title, line }: { title: string; line?: string }) 
     { ...OG_SIZE, ...((f) => (f.length ? { fonts: f } : {}))(await loadFonts()) },
   );
 }
+
+// The /vs share card: the collision map on the left, the pair, the markets line and the legend on the right.
+export async function ogMapCard({ title, line, svg, legend }: { title: string; line: string | null; svg: string; legend: { color: string; label: string }[] }) {
+  const src = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+  return new ImageResponse(
+    (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#ffffff", padding: "40px 56px", fontFamily: "Newsreader", color: INK }}>
+        <div style={{ display: "flex", fontSize: 30, fontWeight: 600, paddingBottom: 14, borderBottom: `2px solid ${RULE}` }}>Crossover</div>
+        <div style={{ display: "flex", flexGrow: 1, alignItems: "center", gap: 32 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} width={688} height={430} alt="" />
+          <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, flexShrink: 1, width: 360 }}>
+            <div style={{ display: "flex", fontSize: title.length > 24 ? 44 : 54, fontWeight: 600, lineHeight: 1.05 }}>{title}</div>
+            {line && <div style={{ display: "flex", marginTop: 18, fontSize: 24, color: INK_2, lineHeight: 1.3 }}>{line}</div>}
+            <div style={{ display: "flex", flexDirection: "column", marginTop: 22, gap: 8 }}>
+              {legend.map((l) => (
+                <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 22, color: INK_2 }}>
+                  <div style={{ display: "flex", width: 16, height: 16, borderRadius: 8, background: l.color }} />
+                  {l.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", fontSize: 22, color: INK_2 }}>Built on Qloo&apos;s taste graph</div>
+      </div>
+    ),
+    { ...OG_SIZE, ...((f) => (f.length ? { fonts: f } : {}))(await loadFonts()) },
+  );
+}
