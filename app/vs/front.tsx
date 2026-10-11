@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Card } from "@/lib/slate.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
+import type { Found, RivalPick } from "@/lib/rival.ts";
 import { VS_CASES, vsHref, type VsCase } from "@/lib/rivals-cases.ts";
 import { btnPrimary, btnQuiet, field, TYPE_LABEL, WhichOne } from "../ui";
 import { Skeleton } from "../brief-panel";
@@ -10,9 +11,11 @@ import { VsResult } from "./vs-view";
 
 // The front door (brief-oct12-front): two names in, the collision map and the columns out. Prepared pairs swap the
 // page from the cache (0 Qloo calls); typed names go through the shared resolver, with the picker on either side, and
-// never run until both sides are settled. Every result's URL is its /vs id route, so it's a share link.
+// never run until both sides are settled. Every result's URL is its /vs id route, so it's a share link. A blank right
+// side asks the rival finder (lib/rival.ts) for the closest same-field brand, then runs that pair.
 type Side = VsCase["a"];
 type Ask = { options: Card[] } | { missing: string } | null;
+type Finder = { seed: Side; line: string; result: RivalPick };
 const key = (a: Side, b: Side) => `${a.id}|${b.id}`;
 const href = (a: Side, b: Side) => vsHref({ a, b });
 const toSide = (c: Card): Side => ({ id: c.entity_id, name: c.name, type: c.type });
@@ -26,6 +29,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
   const [payload, setPayload] = useState(initial.payload);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(initial.error ?? null);
+  const [finder, setFinder] = useState<Finder | null>(null);
   const cache = useRef(new Map<string, VsPayload>(initial.payload ? [[key(initial.a, initial.b), initial.payload]] : []));
 
   // the inputs and settled sides take the result's own names, so Compare on an untouched pair needs no search
@@ -83,12 +87,38 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
     }
   }
 
+  // the closest same-field brand in the seed's top 50; a pick runs the pair, anything else waits for the visitor
+  async function findFor(a: Side) {
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/rival?a=${a.id}&ta=${encodeURIComponent(a.type)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Qloo didn't answer. The prepared pairs still work.");
+      const seed = { ...a, name: data.seed.name };
+      setFinder({ seed, line: data.line, result: data.result });
+      setBusy(false);
+      if (data.result.kind === "pick") load(seed, data.result.pick);
+      else setSides([seed, null]);
+    } catch (err) {
+      setBusy(false);
+      setError((err as Error).message);
+    }
+  }
+
   async function compare(e: React.FormEvent) {
     e.preventDefault();
     const typed = [qa.trim(), qb.trim()];
-    if (!typed[0] || !typed[1]) return;
+    if (!typed[0]) return;
     setError(null);
+    setFinder(null);
     setBusy(true);
+    if (!typed[1]) {
+      const a = sides[0] && sides[0].name === typed[0] ? sides[0] : await resolveName(typed[0]);
+      setBusy(false);
+      if (a && "id" in a) return findFor(a);
+      setSides([null, null]);
+      return setAsks([a, null]);
+    }
     // a side whose text still matches its settled name keeps its id (no search)
     const next = await Promise.all(typed.map((q, i) => (sides[i] && sides[i]!.name === q ? sides[i]! : resolveName(q))));
     setBusy(false);
@@ -108,17 +138,28 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
     else setQb(s.name);
     setSides(next);
     setAsks((a) => (i === 0 ? [null, a[1]] : [a[0], null]));
+    if (i === 0 && !qb.trim()) return findFor(s);
     if (next[0] && next[1] && !asks[i === 0 ? 1 : 0]) load(next[0], next[1]);
   }
 
   const active = sides[0] && sides[1] ? key(sides[0], sides[1]) : null;
+  // the method line shows while the result is the finder's seed against its pick or an alternate
+  const r = finder?.result.kind === "pick" ? finder.result : null;
+  const choices = r ? [r.pick, ...r.alternates] : [];
+  const method =
+    finder && r && payload && payload.rivals.a.entity_id === finder.seed.id && choices.some((c) => c.id === payload.rivals.b.entity_id)
+      ? {
+          line: finder.line,
+          node: <FoundChips options={choices} onPick={(f) => load(finder.seed, f)} active={payload.rivals.b.entity_id} />,
+        }
+      : undefined;
   return (
     <section className="pt-8">
       <p className="max-w-[60ch] text-lg text-ink-2">Put two names in. See where their audiences split on the map, and which brands sit closer to each.</p>
       <form onSubmit={compare} className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-start">
         <SideInput label="First name" value={qa} onChange={setQa} ask={asks[0]} onPick={(c) => choose(0, c)} />
         <span className="hidden min-h-11 items-center text-ink-3 sm:inline-flex">vs</span>
-        <SideInput label="Second name" value={qb} onChange={setQb} ask={asks[1]} onPick={(c) => choose(1, c)} />
+        <SideInput label="Second name" value={qb} onChange={setQb} ask={asks[1]} onPick={(c) => choose(1, c)} placeholder="or leave blank to find the closest same-field brand" />
         <button type="submit" disabled={busy} className={btnPrimary}>
           Compare
         </button>
@@ -126,28 +167,47 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
       <p className="mt-3 flex flex-wrap items-center gap-x-4 text-base">
         <span className="text-ink-2">Try:</span>
         {VS_CASES.map((c) => (
-          <button key={c.a.id} type="button" onClick={() => load(c.a, c.b)} className={btnQuiet} aria-current={active === key(c.a, c.b)}>
+          <button key={c.a.id} type="button" onClick={() => (setFinder(null), load(c.a, c.b))} className={btnQuiet} aria-current={active === key(c.a, c.b)}>
             {c.a.name} vs {c.b.name}
           </button>
         ))}
       </p>
       {error && <p className="mt-6 text-lg text-ink">{error}</p>}
+      {finder && finder.result.kind !== "pick" && (
+        <div className="mt-6">
+          <p className="text-lg text-ink">{finder.line}</p>
+          {finder.result.kind === "broader" && <FoundChips options={finder.result.options} onPick={(f) => load(finder.seed, f)} active={null} />}
+        </div>
+      )}
       {busy && !payload ? (
         <Skeleton lines={8} />
       ) : payload ? (
         <div className={busy ? "opacity-50 transition-opacity" : undefined} aria-busy={busy}>
           {busy && <p className="mt-6 font-mono text-sm text-ink-2 motion-safe:animate-pulse">Comparing in Qloo...</p>}
-          <VsResult d={payload} />
+          <VsResult d={payload} method={method} />
         </div>
       ) : null}
     </section>
   );
 }
 
-function SideInput({ label, value, onChange, ask, onPick }: { label: string; value: string; onChange: (v: string) => void; ask: Ask; onPick: (c: Card) => void }) {
+function FoundChips({ options, onPick, active }: { options: Found[]; onPick: (f: Found) => void; active: string | null }) {
+  return (
+    <p className="mt-1 flex flex-wrap items-center gap-x-4 text-base">
+      <span className="text-ink-2">Compare with:</span>
+      {options.map((f) => (
+        <button key={f.id} type="button" onClick={() => onPick(f)} className={btnQuiet} aria-current={active === f.id}>
+          {f.name}
+        </button>
+      ))}
+    </p>
+  );
+}
+
+function SideInput({ label, value, onChange, ask, onPick, placeholder }: { label: string; value: string; onChange: (v: string) => void; ask: Ask; onPick: (c: Card) => void; placeholder?: string }) {
   return (
     <div className="min-w-0">
-      <input aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} maxLength={100} className={field} />
+      <input aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} maxLength={100} placeholder={placeholder} className={field} />
       {ask && "options" in ask && <WhichOne className="mt-2" options={ask.options} label={(c) => `${c.name} (${TYPE_LABEL[c.type] ?? "entity"})`} onPick={onPick} />}
       {ask && "missing" in ask && <p className="mt-2 text-base text-ink-2">{ask.missing}</p>}
     </div>

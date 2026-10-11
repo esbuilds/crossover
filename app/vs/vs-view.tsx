@@ -31,7 +31,8 @@ export function PreparedPairs() {
   );
 }
 
-export function VsResult({ d }: { d: VsPayload }) {
+// method: the rival finder's line and its chips, under the names and as log step 0 (front door only)
+export function VsResult({ d, method }: { d: VsPayload; method?: { line: string; node: React.ReactNode } }) {
   const r = d.rivals;
   const A = r.a.name, B = r.b.name;
   const total = r.leansA.length + r.leansB.length + r.shared.length + r.sameField.length + r.noData.length;
@@ -61,6 +62,14 @@ export function VsResult({ d }: { d: VsPayload }) {
           <p className="mt-1 text-sm text-ink-3">
             {[r.a, r.b].map((s) => (s.kind.length ? `${s.name}: ${s.kind.join(", ")}` : null)).filter(Boolean).join(" · ")}
           </p>
+        )}
+        {method && (
+          <div className="mt-3">
+            <p className="max-w-[68ch] text-base text-ink-2">
+              <Cite checks="0">{method.line}</Cite>
+            </p>
+            {method.node}
+          </div>
         )}
         <p className="mt-4 max-w-[68ch] text-lg text-ink">
           <Cite checks="4 and 5">{line}</Cite>
@@ -109,11 +118,17 @@ export function VsResult({ d }: { d: VsPayload }) {
 
       <details className="group mt-6 border-b border-rule">
         <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-mono text-sm text-ink-2 hover:text-ink">
-          <span>{log.length} Qloo steps</span>
+          <span>{log.length + (method ? 1 : 0)} Qloo steps</span>
           <span className="text-ink-3 group-open:hidden">Show</span>
           <span className="hidden text-ink-3 group-open:inline">Hide</span>
         </summary>
         <ol className="space-y-1 pb-3 font-mono text-sm text-ink-2">
+          {method && (
+            <li id="check-0" className="flex gap-3">
+              <span className="w-5 shrink-0 text-right tabular-nums text-ink-3">0</span>
+              <span>{method.line}</span>
+            </li>
+          )}
           {log.map((t, i) => (
             <li key={i} id={`check-${i + 1}`} className="flex gap-3">
               <span className="w-5 shrink-0 text-right tabular-nums text-ink-3">{i + 1}</span>

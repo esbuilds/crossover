@@ -34,8 +34,10 @@ type Scored = { entity_id: string; affinity?: number };
 // ...:food_and_beverage:drinks). The top level was too broad: food_and_beverage took 57 of Olipop vs Poppi's 89.
 // ponytail: tags are trimmed to 12 per entity, so a brand whose genre tag sits past the cut (Juventus) slips through
 // to the columns; read untrimmed tags if that shows up on a prepared pair.
-const fields = (e: Entity) =>
-  new Set(e.tags.map((t) => t.tag_id).filter((t) => t.startsWith("urn:tag:genre:brand:")).filter((t) => t.split(":").length >= 6).map((t) => t.split(":").slice(0, 6).join(":")));
+// level 6 is the same-field rule; level 5 (urn:tag:genre:brand:food_and_beverage) is the rival finder's fallback
+export const fieldsAt = (e: Entity, level: 5 | 6) =>
+  new Set(e.tags.map((t) => t.tag_id).filter((t) => t.startsWith("urn:tag:genre:brand:")).filter((t) => t.split(":").length >= level).map((t) => t.split(":").slice(0, level).join(":")));
+export const fields = (e: Entity) => fieldsAt(e, 6);
 
 // what an entity is, in Qloo's own genre tag names, most specific first ("Energy Drink", "Drinks"; "Indie Folk" for an
 // artist seed). Used instead of
@@ -115,7 +117,7 @@ export type Side = { id: string; type: string };
 export class ColdPairCap extends Error {}
 const COLD_PAIRS_PER_IP = 10; // per UTC day; a cold pair is 8 to 11 Qloo calls (VERIFY-4, plus the compare chip)
 
-async function spendColdPair(ip: string) {
+export async function spendColdPair(ip: string) {
   const n = await incr(`cx:count:vs:${ip}:${today()}`, 60 * 60 * 48);
   if ((n ?? 0) > (ip === "warm" ? 200 : COLD_PAIRS_PER_IP)) throw new ColdPairCap();
 }

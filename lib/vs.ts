@@ -1,5 +1,6 @@
 // The /vs page's words, generated in code from the rivals counts (brief-oct13-vs). No Claude, no server imports.
 import type { Rivals, RivalRow, VsMap } from "./rivals.ts";
+import type { RivalPick } from "./rival.ts";
 
 export type VsState = "split" | "two lists" | "shared-heavy";
 
@@ -39,6 +40,17 @@ export function mapLine(a: string, b: string, map: Pick<VsMap, "metrosA" | "metr
   if (!ob.length) return `${a} leads in ${list(oa)}; ${b}'s top five markets are all in ${a}'s.`;
   if (!oa.length) return `${b} leads in ${list(ob)}; ${a}'s top five markets are all in ${b}'s.`;
   return `${a} leads in ${list(oa)}; ${b} in ${list(ob)}.`;
+}
+
+// the rival finder's method line (brief-oct13-rival): says exactly how the name was chosen, never "rival" as a claim
+export function methodLine(seed: string, r: RivalPick): string {
+  if (r.kind === "pick") {
+    const aff = r.pick.affinity !== null ? ` (${r.pick.affinity.toFixed(2)})` : "";
+    const also = r.alternates.length ? ` Also close: ${r.alternates.map((x) => x.name).join(", ")}.` : "";
+    return `Closest same-field brand by affinity in ${seed}'s top 50: ${r.pick.name}${aff}.${also}`;
+  }
+  if (r.kind === "broader") return `No brand in ${seed}'s top 50 shares its category. Closest in its broader category:`;
+  return `Qloo's top 50 for ${seed} has no same-field brand. Type one on the right.`;
 }
 
 // empty column copy (shared-heavy pairs can leave one side with nothing past the same-field cut)
