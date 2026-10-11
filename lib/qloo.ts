@@ -232,6 +232,23 @@ export const heatmap = cached("heatmap", async (seed: string | Signal[], locatio
   }));
 });
 
+// Untrimmed tags for the rival finder (rival-v2): the cached entities keep 12 tags each, and Olipop, Erewhon and A24
+// carry no genre tag at all, so the finder reads the full set once per seed card and once per seed list and keeps only
+// what it uses. Same params as the trimmed read, separate cache name. 1 call each, cached.
+export type FullTags = { id: string; genres: string[]; categories: { id: string; name: string }[]; competitors: string[] };
+export const fullTags = cached("fullTags", async (params: Record<string, string | number>): Promise<FullTags[]> => {
+  const body = await request("/v2/insights", { query: params });
+  return ((body.results?.entities ?? []) as Raw[]).map((e) => {
+    const tags = ((e.tags ?? []) as Raw[]).map((t) => ({ id: (t.tag_id ?? t.id) as string, name: t.name as string }));
+    return {
+      id: e.entity_id,
+      genres: tags.filter((t) => t.id.startsWith("urn:tag:genre:brand:")).map((t) => t.id),
+      categories: tags.filter((t) => t.id.startsWith("urn:tag:product_category:qloo:")),
+      competitors: tags.filter((t) => t.id.startsWith("urn:tag:competitor_brand:qloo:")).map((t) => t.name),
+    };
+  });
+});
+
 // /v2/insights/compare: on this host it returns tags only (shared tags with a score, each side's tags, no entities;
 // probe/VERIFY-4.md). Rivals shows the shared ones as "Share by category". 1 call, cached.
 export const compareTags = cached("compareTags", async (a: string, b: string): Promise<string[]> => {

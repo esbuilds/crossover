@@ -38,9 +38,9 @@ test("the verdict's counts are the payload's counts", () => {
 });
 
 test("rank context names both lists", () => {
-  assert.equal(rankContext(row("x", "a", 3, null), "Liquid Death", "Celsius"), "#3 in Liquid Death's list, not in Celsius's top 50");
-  assert.equal(rankContext(row("x", "b", null, 7), "Liquid Death", "Celsius"), "#7 in Celsius's list, not in Liquid Death's top 50");
-  assert.equal(rankContext(row("x", "shared", 9, 20), "Liquid Death", "Celsius"), "#9 in Liquid Death's list, #20 in Celsius's list");
+  assert.equal(rankContext(row("x", "a", 3, null), "Liquid Death", "Celsius"), "#3 in Liquid Death's list, not in Celsius' top 50");
+  assert.equal(rankContext(row("x", "b", null, 7), "Liquid Death", "Celsius"), "#7 in Celsius' list, not in Liquid Death's top 50");
+  assert.equal(rankContext(row("x", "shared", 9, 20), "Liquid Death", "Celsius"), "#9 in Liquid Death's list, #20 in Celsius' list");
 });
 
 test("banned words: caught in our words, ignored inside entity names", () => {
@@ -48,6 +48,7 @@ test("banned words: caught in our words, ignored inside entity names", () => {
   assert.deepEqual(bannedIn("Pretty Girls Sweat sits closer to Celsius", ["Pretty Girls Sweat"]), []);
   assert.deepEqual(bannedIn("5 brands in their own field are set aside", []), []);
   assert.deepEqual(bannedIn("gap 0.36, 12%", []), ["%"]);
+  assert.deepEqual(bannedIn("Wine, Red, White · for white collar buyers", []), ["white"]); // the wine category passes, people don't
 });
 
 test("the page's fixed copy passes its own rules", () => {

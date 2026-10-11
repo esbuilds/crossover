@@ -34,10 +34,8 @@ type Scored = { entity_id: string; affinity?: number };
 // ...:food_and_beverage:drinks). The top level was too broad: food_and_beverage took 57 of Olipop vs Poppi's 89.
 // ponytail: tags are trimmed to 12 per entity, so a brand whose genre tag sits past the cut (Juventus) slips through
 // to the columns; read untrimmed tags if that shows up on a prepared pair.
-// level 6 is the same-field rule; level 5 (urn:tag:genre:brand:food_and_beverage) is the rival finder's fallback
-export const fieldsAt = (e: Entity, level: 5 | 6) =>
-  new Set(e.tags.map((t) => t.tag_id).filter((t) => t.startsWith("urn:tag:genre:brand:")).filter((t) => t.split(":").length >= level).map((t) => t.split(":").slice(0, level).join(":")));
-export const fields = (e: Entity) => fieldsAt(e, 6);
+const fields = (e: Entity) =>
+  new Set(e.tags.map((t) => t.tag_id).filter((t) => t.startsWith("urn:tag:genre:brand:")).filter((t) => t.split(":").length >= 6).map((t) => t.split(":").slice(0, 6).join(":")));
 
 // what an entity is, in Qloo's own genre tag names, most specific first ("Energy Drink", "Drinks"; "Indie Folk" for an
 // artist seed). Used instead of

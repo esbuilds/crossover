@@ -8,6 +8,7 @@ import { VS_CASES, vsHref, type VsCase } from "@/lib/rivals-cases.ts";
 import { btnPrimary, btnQuiet, field, TYPE_LABEL, WhichOne } from "../ui";
 import { Skeleton } from "../brief-panel";
 import { VsResult } from "./vs-view";
+import { COMPETITOR_LABEL } from "@/lib/vs.ts";
 
 // The front door (brief-oct12-front): two names in, the collision map and the columns out. Prepared pairs swap the
 // page from the cache (0 Qloo calls); typed names go through the shared resolver, with the picker on either side, and
@@ -105,6 +106,18 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
     }
   }
 
+  // a Qloo competitor_brand tag is a name, not an id: search it only when clicked, picker if ambiguous, then run
+  async function byLabel(seed: Side, name: string) {
+    setError(null);
+    setBusy(true);
+    const b = await resolveName(name);
+    setBusy(false);
+    setQb(name);
+    if (b && "id" in b) return b.id === seed.id ? setError("Pick two different names.") : load(seed, b);
+    setSides([seed, null]);
+    setAsks([null, b]);
+  }
+
   async function compare(e: React.FormEvent) {
     e.preventDefault();
     const typed = [qa.trim(), qb.trim()];
@@ -151,7 +164,12 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
     finder && r && payload && payload.rivals.a.entity_id === finder.seed.id && choices.some((c) => c.id === payload.rivals.b.entity_id)
       ? {
           line: finder.line,
-          node: <FoundChips options={choices} onPick={(f) => load(finder.seed, f)} active={payload.rivals.b.entity_id} />,
+          node: (
+            <>
+              <FoundChips options={choices} onPick={(f) => load(finder.seed, f)} active={payload.rivals.b.entity_id} />
+              <CompetitorChips names={r.competitors} onPick={(n) => byLabel(finder.seed, n)} />
+            </>
+          ),
         }
       : undefined;
   return (
@@ -177,7 +195,8 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
       {finder && finder.result.kind !== "pick" && (
         <div className="mt-6">
           <p className="text-lg text-ink">{finder.line}</p>
-          {finder.result.kind === "broader" && <FoundChips options={finder.result.options} onPick={(f) => load(finder.seed, f)} active={null} />}
+          {"options" in finder.result && <FoundChips options={finder.result.options} onPick={(f) => load(finder.seed, f)} active={null} />}
+          {"competitors" in finder.result && <CompetitorChips names={finder.result.competitors} onPick={(n) => byLabel(finder.seed, n)} />}
         </div>
       )}
       {busy && !payload ? (
@@ -189,6 +208,20 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
         </div>
       ) : null}
     </section>
+  );
+}
+
+function CompetitorChips({ names, onPick }: { names: string[]; onPick: (n: string) => void }) {
+  if (!names.length) return null;
+  return (
+    <p className="mt-1 flex flex-wrap items-center gap-x-4 text-base">
+      <span className="text-ink-2">{COMPETITOR_LABEL}</span>
+      {names.map((n) => (
+        <button key={n} type="button" onClick={() => onPick(n)} className={btnQuiet}>
+          {n}
+        </button>
+      ))}
+    </p>
   );
 }
 

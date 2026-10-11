@@ -48,9 +48,12 @@ export async function resolve(query: string, candidates: Entity[], judge: Judge 
     // aliases ("Chelsea FC" is the club's alias).
     const viaAlias = (c: Entity) => c.types.includes("urn:entity:person") && norm(c.name) !== q.join(" ");
     const pool = known.some((c) => !viaAlias(c)) ? known.filter((c) => !viaAlias(c)) : known;
-    // Qloo's order decides among exact names (YETI the brand before Yeti the artist), except that a musician listed
-    // first as a person resolves to the artist entity (Taylor Swift, Oct 25).
-    const pick = (pool[0].types.includes("urn:entity:person") && pool.find((c) => c.types.includes("urn:entity:artist"))) || pool[0];
+    // Qloo's order decides among exact names (YETI the brand before Yeti the artist), except on a person/artist tie
+    // (Oct 12, brief-oct12-rival2): the more popular entity wins, and within 0.1 the artist (Taylor Swift, Oct 25),
+    // so "Cedric the Entertainer" lands on the person (0.94) over his comedy-album artist entity (0.37).
+    const person = pool.find((c) => c.types.includes("urn:entity:person"));
+    const artist = pool.find((c) => c.types.includes("urn:entity:artist"));
+    const pick = person && artist && (pool[0] === person || pool[0] === artist) ? (person.popularity > artist.popularity + 0.1 ? person : artist) : pool[0];
     // An exact name that a known entity of another type also carries asks which one (review-v3's rule, ported Oct 11
     // after the held-out audit: Corona confirmed to the band, Mars to an artist). Same-type duplicates keep Qloo's
     // order, and a musician's person/artist pair is one act. A rival needs the exact name as its primary name, never
