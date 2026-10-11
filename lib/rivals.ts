@@ -134,17 +134,23 @@ export async function loadVs(sa: Side, sb: Side, ip: string): Promise<VsData | n
 // cache only, never a call (front door first paint, OG cards): "cold" when any piece isn't cached
 export const peekVs = (sa: Side, sb: Side) => runVs(sa, sb, true);
 
-async function runVs(sa: Side, sb: Side, peek: boolean): Promise<VsData | null | "cold"> {
+async function runVs(sa0: Side, sb0: Side, peek: boolean): Promise<VsData | null | "cold"> {
+  // Qloo ids are uppercase and the cache keys on the exact string: a lowercased link would re-spend (Oct 14 pass)
+  const [sa, sb] = [sa0, sb0].map((s) => ({ ...s, id: s.id.toUpperCase() }));
   const card = async (s: Side) => {
     const p = { "filter.type": s.type, "filter.results.entities": s.id, take: 1 }; // = getCard's key
     const hits = peek ? await insights.peek(p) : await insights(p);
     return hits === null ? "cold" : (hits[0] ?? null);
   };
-  const a = await card(sa);
-  if (a === null) return null;
-  const b = await card(sb);
-  if (b === null) return null;
-  if (a === "cold" || b === "cold") return "cold";
+  const a0 = await card(sa);
+  if (a0 === null) return null;
+  const b0 = await card(sb);
+  if (b0 === null) return null;
+  if (a0 === "cold" || b0 === "cold") return "cold";
+  // some cards come back with only the bare "urn:entity" (Cedric the Entertainer as a person): keep the asked type, so
+  // the person check and the pairing links see it (Oct 14 pass)
+  const typed = (e: Entity, t: string) => (e.types.some((x) => x !== "urn:entity") ? e : { ...e, types: [t] });
+  const [a, b] = [typed(a0, sa.type), typed(b0, sb.type)];
   const rivals = await getRivals(a, b, peek);
   if (!rivals) return "cold";
   // the compare chip is garnish: a failed call leaves it off instead of failing the page

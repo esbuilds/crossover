@@ -12,7 +12,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams;
   const [a, b] = [["a", "ta"], ["b", "tb"]].map(([i, t]) => ({ id: q.get(i) ?? "", type: q.get(t) ?? "" }));
-  if (![a, b].every((s) => UUID.test(s.id) && RESOLVE_TYPES.includes(s.type)) || a.id === b.id)
+  if (![a, b].every((s) => UUID.test(s.id) && RESOLVE_TYPES.includes(s.type)) || a.id.toUpperCase() === b.id.toUpperCase())
     return Response.json({ error: "two different entity ids with their types are required" }, { status: 400 });
   try {
     const data = await loadVs(a, b, generationKey(request));

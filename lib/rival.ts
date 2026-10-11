@@ -30,7 +30,8 @@ export function pickRival(seed: Entity, list: Entity[]): RivalPick {
 
 // The seed's card and its top 50 brands: 2 Qloo calls cold, the same keys as the pair's (so the pair reuses them).
 // peek: cache only; "cold" when either is missing. null: Qloo doesn't know the id.
-export async function findRival(id: string, type: string, peek: boolean): Promise<{ seed: Entity; result: RivalPick } | null | "cold"> {
+export async function findRival(id0: string, type: string, peek: boolean): Promise<{ seed: Entity; result: RivalPick } | null | "cold"> {
+  const id = id0.toUpperCase(); // the cache keys on Qloo's uppercase ids
   const get = (p: Record<string, string | number>) => (peek ? insights.peek(p) : insights(p));
   const cards = await get({ "filter.type": type, "filter.results.entities": id, take: 1 });
   if (cards === null) return "cold";

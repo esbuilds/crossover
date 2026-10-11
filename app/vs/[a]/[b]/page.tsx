@@ -22,7 +22,7 @@ export async function generateMetadata({ params, searchParams }: PageProps<"/vs/
   await connection();
   const { a, b } = await params;
   const q = await searchParams;
-  const [ca, cb] = await Promise.all([peekCard(a, String(q.ta ?? "")).catch(() => null), peekCard(b, String(q.tb ?? "")).catch(() => null)]);
+  const [ca, cb] = await Promise.all([peekCard(a.toUpperCase(), String(q.ta ?? "")).catch(() => null), peekCard(b.toUpperCase(), String(q.tb ?? "")).catch(() => null)]);
   if (!ca || !cb) return { title: "Rivals", robots: { index: false } };
   const title = `${ca.name} vs ${cb.name}`;
   const image = `/vs/${a}/${b}/og?ta=${encodeURIComponent(ca.type)}&tb=${encodeURIComponent(cb.type)}`;
@@ -48,7 +48,7 @@ async function Body({ params, searchParams }: Pick<PageProps<"/vs/[a]/[b]">, "pa
   const q = await searchParams;
   const ta = typeof q.ta === "string" ? q.ta : null;
   const tb = typeof q.tb === "string" ? q.tb : null;
-  if (!UUID.test(a) || !UUID.test(b) || a === b || !isEntityType(ta) || !isEntityType(tb)) notFound();
+  if (!UUID.test(a) || !UUID.test(b) || a.toUpperCase() === b.toUpperCase() || !isEntityType(ta) || !isEntityType(tb)) notFound();
   let data: VsData | null;
   try {
     data = await loadVs({ id: a, type: ta }, { id: b, type: tb }, generationKey(new Request("http://vs", { headers: await headers() })));

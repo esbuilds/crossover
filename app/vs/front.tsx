@@ -111,6 +111,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
     if (!typed[0]) return;
     setError(null);
     setFinder(null);
+    setAsks([null, null]); // old pickers never sit next to a new search
     setBusy(true);
     if (!typed[1]) {
       const a = sides[0] && sides[0].name === typed[0] ? sides[0] : await resolveName(typed[0]);
