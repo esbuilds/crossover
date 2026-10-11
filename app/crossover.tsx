@@ -285,10 +285,10 @@ export default function Crossover({
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="mr-1 text-base text-ink-3">Try</span>
               {EXAMPLES.map((e) => (
-                <button key={e.name} onClick={() => lookup(e.name)} className="flex min-h-11 flex-col items-start rounded-lg border border-rule-strong px-4 py-1.5 text-left hover:border-ink">
+                <a key={e.name} href={e.href} className="flex min-h-11 flex-col items-start rounded-lg border border-rule-strong px-4 py-1.5 text-left hover:border-ink">
                   <span className="text-base text-ink">{e.name}</span>
                   <span className="text-sm text-ink-3">{e.note}</span>
-                </button>
+                </a>
               ))}
             </div>
             <p className="mt-2 flex flex-wrap items-center gap-x-4 text-base text-ink-3">

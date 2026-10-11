@@ -51,12 +51,23 @@ for (const [q, id] of [
 }
 
 // Oct 9 (real): "Stanley" exactly names the drinkware brand and an artist, and Stan Lee carries it as an alias. The
-// exact primary names win over the alias, and Qloo's order puts the brand first.
-test("Stanley: the brand, not Stan Lee or the artist", async () => {
+// exact primary names win over the alias. Since Oct 11 (the cross-type rule) a brand and an artist sharing the exact
+// name ask which one, brand first in Qloo's order; the alias-only person is never offered.
+test("Stanley: asks brand or artist, never Stan Lee", async () => {
   const fx = candidates("Stanley").map((c) => (c.name === "Stan Lee" ? { ...c, akas: ["Stanley"] } : c)); // the alias the live data carries
   const r = await resolve("Stanley", fx, null);
+  assert.equal(r.status, "ambiguous");
+  if (r.status !== "ambiguous") return;
+  assert.ok(r.candidates[0].types.includes("urn:entity:brand"));
+  assert.ok(r.candidates.some((c) => c.types.includes("urn:entity:artist")));
+  assert.ok(!r.candidates.some((c) => c.name === "Stan Lee"));
+});
+
+// Oct 11 gate: a rival of another type counts only on its primary name. "Metallica Through the Never" carries the
+// alias "Metallica" and must not make the band ask.
+test("Metallica: an alias-only movie is no rival", async () => {
+  const e = (name: string, type: string, akas: string[] = []): Entity =>
+    ({ id: name, name, types: [`urn:entity:${type}`], popularity: 0.9, akas, tags: [] }) as unknown as Entity;
+  const r = await resolve("Metallica", [e("Metallica", "artist"), e("Metallica Through the Never", "movie", ["Metallica"])], null);
   assert.equal(r.status, "confident");
-  if (r.status !== "confident") return;
-  assert.equal(r.match.name, "Stanley");
-  assert.ok(r.match.types.includes("urn:entity:brand"));
 });

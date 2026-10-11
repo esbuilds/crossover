@@ -51,6 +51,17 @@ export async function resolve(query: string, candidates: Entity[], judge: Judge 
     // Qloo's order decides among exact names (YETI the brand before Yeti the artist), except that a musician listed
     // first as a person resolves to the artist entity (Taylor Swift, Oct 25).
     const pick = (pool[0].types.includes("urn:entity:person") && pool.find((c) => c.types.includes("urn:entity:artist"))) || pool[0];
+    // An exact name that a known entity of another type also carries asks which one (review-v3's rule, ported Oct 11
+    // after the held-out audit: Corona confirmed to the band, Mars to an artist). Same-type duplicates keep Qloo's
+    // order, and a musician's person/artist pair is one act. A rival needs the exact name as its primary name, never
+    // an alias (Oct 11 gate: "Metallica Through the Never" carries the alias "Metallica"). Types skip the bare
+    // "urn:entity" Qloo sometimes lists first.
+    const musician = (c: Entity) => c.types.some((t) => t === "urn:entity:artist" || t === "urn:entity:person");
+    const kind = (c: Entity) => c.types.find((t) => t !== "urn:entity");
+    const rivals = pool.filter(
+      (c) => c !== pick && norm(c.name) === q.join(" ") && kind(c) !== kind(pick) && !(musician(c) && musician(pick)),
+    );
+    if (rivals.length) return { status: "ambiguous", candidates: [pick, ...rivals].slice(0, 3) };
     return { status: "confident", match: pick, alternates: candidates.filter((c) => c !== pick).slice(0, 2), via: "exact" };
   }
   if (exact.length) return { status: "ambiguous", candidates: exact.slice(0, 3) };
