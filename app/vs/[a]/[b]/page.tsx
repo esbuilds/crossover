@@ -15,6 +15,8 @@ import { FAIL_COPY } from "@/lib/fail-copy.ts";
 import { ColdPairCap, loadVs, type RivalRow, type VsData } from "@/lib/rivals.ts";
 import { DOESNT_ESTABLISH, emptyColumn, rankContext, verdict, vsState } from "@/lib/vs.ts";
 import { VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
+import { LEAN_SPLIT, TONE } from "@/lib/collide.ts";
+import CollisionMap from "../../collision-map";
 
 // Rivals: /vs/<idA>/<idB>?ta=<type>&tb=<type> (brief-oct13-vs, unlinked until the Oct 15 front door). Ids only; the
 // shape is checked in proxy.ts (real 404) and again here. Every word on the page comes from code or from Qloo.
@@ -97,6 +99,9 @@ function View({ d }: { d: VsData }) {
     `Scored all ${total} candidates under ${B} (filter.results.entities, ${chunks} call${chunks === 1 ? "" : "s"})`,
     `Missing rule and the 0.05 gap applied; ${r.sameField.length} in their own field set aside, ${r.noData.length} with no data`,
     `Compared ${A} and ${B} (insights/compare): ${d.share.length ? d.share.join(", ") : "no shared category tags"}`,
+    ...(d.map
+      ? [`Heatmap for ${A} (urn:heatmap, United States)`, `Heatmap for ${B} (urn:heatmap, United States); ${d.map.matched} cells both carry, ${d.map.cells.length} drawn`]
+      : []),
   ];
   const state = vsState(r);
   const [line, stateLine] = verdict(r);
@@ -125,8 +130,7 @@ function View({ d }: { d: VsData }) {
         )}
       </header>
 
-      {/* map slot (Oct 14): the same fixed aspect box as app/map.tsx, so nothing below moves when it lands */}
-      <div className="mt-8 aspect-[8/5] w-full rounded-lg bg-surface-2" aria-hidden />
+      <MapSection d={d} />
 
       <section className={`mt-8 grid gap-8 ${state === "two lists" ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
         <Column title={`Sits closer to ${A}`} rows={r.leansA} d={d} side="a" empty={emptyColumn(A)} />
@@ -167,6 +171,34 @@ function View({ d }: { d: VsData }) {
         </ol>
       </details>
     </>
+  );
+}
+
+function MapSection({ d }: { d: VsData }) {
+  const A = d.rivals.a.name, B = d.rivals.b.name;
+  if (!d.map) return <p className="mt-8 border-t border-rule pt-4 text-base text-ink-2">No geographic story for a person: a person&apos;s heatmap is flat across markets, so the map is left off.</p>;
+  const m = d.map;
+  const swatch = (tone: keyof typeof TONE, label: string) => (
+    <span className="inline-flex items-center gap-2">
+      <span className="inline-block size-3 rounded-full" style={{ background: TONE[tone] }} aria-hidden />
+      {label}
+    </span>
+  );
+  return (
+    <section className="mt-8">
+      <CollisionMap cells={m.cells} metrosA={m.metrosA} metrosB={m.metrosB} a={A} b={B} />
+      <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-2">
+        {swatch("a", `Leans ${A}`)}
+        {swatch("b", `Leans ${B}`)}
+        {swatch("both", "Both")}
+      </p>
+      <p className="mt-2 max-w-[68ch] text-sm text-ink-2">
+        <Cite checks="8 and 9">Where each audience over-indexes in Qloo&apos;s heatmaps, cell by cell.</Cite> A cell leans one way when it sits {LEAN_SPLIT === 0.25 ? "a quarter" : LEAN_SPLIT} of the ranking higher in that heatmap. Cells only one heatmap covers are left off.
+      </p>
+      <p className="mt-2 text-sm text-ink-2">
+        Top markets. {A}: {m.metrosA.map((x) => x.name).join(", ")}. {B}: {m.metrosB.map((x) => x.name).join(", ")}.
+      </p>
+    </section>
   );
 }
 

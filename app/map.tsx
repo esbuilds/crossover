@@ -7,17 +7,17 @@ import states from "@/data/us-states-10m.json"; // us-atlas 3.0.1, ISC, vendored
 import type { City, MapCell } from "@/lib/cities.ts";
 
 export const ACCENT = "#bd4510"; // --color-accent in globals.css; SVG presentation attributes take no CSS vars
-const INK = "#1b1716"; // --color-ink
+export const INK = "#1b1716"; // --color-ink
 const LAND = "#e9e7e6"; // --color-land
 
-const W = 960;
-const H = 600;
+export const W = 960;
+export const H = 600;
 const BANDS = [0.15, 0.3, 0.5, 0.7, 0.9]; // fill opacity per affinity band; hot cells read darker
 const R = 2.6;
 const LABEL_PX = 14; // on-screen label size at any map width (was 7.8 px on phones)
 
 // States never change, so render them once and never again (memo with no props).
-const StatesLayer = memo(function StatesLayer() {
+export const StatesLayer = memo(function StatesLayer() {
   return (
     <Geographies geography={states as unknown as GeoJsonObject}>
       {({ geographies }) =>
@@ -63,12 +63,12 @@ function Cells({ cells }: { cells: MapCell[] }) {
 type Box = { x: number; y: number; w: number; h: number };
 const overlaps = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
-// Top five plus whatever the list is hovering. Greedy placement: right, left, above, below,
-// first spot that doesn't collide with an earlier label wins.
-function Labels({ metros, hovered, font }: { metros: City[]; hovered: string | null; font: number }) {
+// Top five (or count) plus whatever the list is hovering. Greedy placement: right, left, above, below,
+// first spot that doesn't collide with an earlier label wins. color: per-metro fill (the collision map's sides).
+export function Labels({ metros, hovered, font, count = 5, color }: { metros: City[]; hovered: string | null; font: number; count?: number; color?: (m: City) => string }) {
   const { projection } = useMapContext();
   const placed = useMemo(() => {
-    const shown = metros.slice(0, 5);
+    const shown = metros.slice(0, count);
     const extra = hovered && !shown.some((m) => m.name === hovered) ? metros.find((m) => m.name === hovered) : undefined;
     const boxes: Box[] = [];
     return [...shown, ...(extra ? [extra] : [])].flatMap((m) => {
@@ -89,7 +89,7 @@ function Labels({ metros, hovered, font }: { metros: City[]; hovered: string | n
       const tx = spot.anchor === "start" ? spot.x : spot.anchor === "end" ? spot.x + spot.w : spot.x + spot.w / 2;
       return [{ m, x, y, tx, ty: spot.y + h - 4, anchor: spot.anchor }];
     });
-  }, [metros, hovered, projection, font]);
+  }, [metros, hovered, projection, font, count]);
 
   return (
     <g>
@@ -97,14 +97,14 @@ function Labels({ metros, hovered, font }: { metros: City[]; hovered: string | n
         const hot = m.name === hovered;
         return (
           <g key={m.name}>
-            <circle cx={x} cy={y} r={(hot ? 4.5 : 3.5) * (font / LABEL_PX)} fill={INK} stroke="#fff" strokeWidth={font / 10} />
+            <circle cx={x} cy={y} r={(hot ? 4.5 : 3.5) * (font / LABEL_PX)} fill={color?.(m) ?? INK} stroke="#fff" strokeWidth={font / 10} />
             <text
               x={tx}
               y={ty}
               textAnchor={anchor}
               fontSize={font}
               fontWeight={600}
-              fill={INK}
+              fill={color?.(m) ?? INK}
               stroke="#fff"
               strokeWidth={font / 4}
               className="font-display"
@@ -120,8 +120,8 @@ function Labels({ metros, hovered, font }: { metros: City[]; hovered: string | n
   );
 }
 
-export default function UsMap({ cells, metros, hovered }: { cells: MapCell[]; metros: City[]; hovered: string | null }) {
-  // labels stay LABEL_PX on screen: convert to map units from the rendered width
+// labels stay LABEL_PX on screen: convert to map units from the rendered width
+export function useLabelFont() {
   const box = useRef<HTMLDivElement>(null);
   const [font, setFont] = useState(21);
   useEffect(() => {
@@ -131,6 +131,11 @@ export default function UsMap({ cells, metros, hovered }: { cells: MapCell[]; me
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+  return { box, font };
+}
+
+export default function UsMap({ cells, metros, hovered }: { cells: MapCell[]; metros: City[]; hovered: string | null }) {
+  const { box, font } = useLabelFont();
   return (
     // fixed aspect box: the SVG scales by viewBox, so resizing never re-lays out or jitters
     <div ref={box} className="aspect-[8/5] w-full">

@@ -1,7 +1,9 @@
 // Rivals (rivals-v1, wow brief Oct 11; probe/VERIFY-4.md). Two seeds, both seeds' top 50 brands, the union scored under
 // each seed in the same call shape, split by the review GAP: leans A, leans B, shared. Brands only.
 // Copy rules live in the brief: "sits closer to A", never "prefers"; no audience labels; no counts.
-import { insights, compareTags, type Entity } from "./qloo.ts";
+import { insights, compareTags, heatmap, type Entity } from "./qloo.ts";
+import { rankMetros, type City } from "./cities.ts";
+import { collide, type Collision } from "./collide.ts";
 import { incr, today } from "./redis.ts";
 import { applyMissingRule, GAP } from "./review.ts";
 
@@ -103,10 +105,12 @@ export async function getRivals(a: Entity, b: Entity, peek = false): Promise<Riv
 }
 
 // --- the page's loader (brief-oct13-vs): cards, rivals, compare tags; warm from cache or one counted cold run ---
-export type VsData = { a: Entity; b: Entity; rivals: Rivals; share: string[] };
+// map null: a person seed (flat heatmaps, VERIFY-4 Cedric), so no heatmap calls and the page says so
+export type VsMap = Collision & { metrosA: City[]; metrosB: City[] };
+export type VsData = { a: Entity; b: Entity; rivals: Rivals; share: string[]; map: VsMap | null };
 export type Side = { id: string; type: string };
 export class ColdPairCap extends Error {}
-const COLD_PAIRS_PER_IP = 10; // per UTC day; a cold pair is 8 to 10 Qloo calls (VERIFY-4)
+const COLD_PAIRS_PER_IP = 10; // per UTC day; a cold pair is 8 to 11 Qloo calls (VERIFY-4, plus the compare chip)
 
 async function spendColdPair(ip: string) {
   const n = await incr(`cx:count:vs:${ip}:${today()}`, 60 * 60 * 48);
@@ -130,8 +134,16 @@ export async function loadVs(sa: Side, sb: Side, ip: string): Promise<VsData | n
     if (!rivals) return "cold";
     // the compare chip is garnish: a failed call leaves it off instead of failing the page
     const share = peek ? await compareTags.peek(a.entity_id, b.entity_id) : await compareTags(a.entity_id, b.entity_id).catch(() => []);
+    let map: VsMap | null = null;
+    if (![a, b].some((e) => e.types.includes("urn:entity:person"))) {
+      const heat = (id: string) => (peek ? heatmap.peek(id, "United States") : heatmap(id, "United States")); // = getCities' key
+      const ha = await heat(a.entity_id);
+      const hb = ha && (await heat(b.entity_id));
+      if (!ha || !hb) return "cold";
+      map = { ...collide(ha, hb), metrosA: rankMetros(ha).slice(0, 5), metrosB: rankMetros(hb).slice(0, 5) };
+    }
     // a pair warmed before the chip existed stays warm: a cold chip never makes the page cold
-    return { a, b, rivals, share: (share ?? []).slice(0, 4) };
+    return { a, b, rivals, share: (share ?? []).slice(0, 4), map };
   };
   const warm = await run(true);
   if (warm !== "cold") return warm;
