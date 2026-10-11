@@ -31,11 +31,16 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(initial.error ?? null);
   const [finder, setFinder] = useState<Finder | null>(null);
+  // a new finder answer hides the previous pair until its own pair loads (Checkpoint A: Mt. Joy's chips sat above
+  // "Olipop vs Casamara Club")
+  const [stale, setStale] = useState(false);
   const cache = useRef(new Map<string, VsPayload>(initial.payload ? [[key(initial.a, initial.b), initial.payload]] : []));
 
   // the inputs and settled sides take the result's own names, so Compare on an untouched pair needs no search
   function show(a: Side, b: Side, p: VsPayload) {
     setPayload(p);
+    setStale(false);
+    document.title = `${p.rivals.a.name} vs ${p.rivals.b.name} | Crossover`;
     setQa(p.rivals.a.name);
     setQb(p.rivals.b.name);
     setSides([{ ...a, name: p.rivals.a.name }, { ...b, name: p.rivals.b.name }]);
@@ -97,6 +102,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
       if (!res.ok) throw new Error(data.error ?? "Qloo didn't answer. The prepared pairs still work.");
       const seed = { ...a, name: data.seed.name };
       setFinder({ seed, line: data.line, result: data.result });
+      setStale(true);
       setBusy(false);
       if (data.result.kind === "pick") load(seed, data.result.pick);
       else setSides([seed, null]);
@@ -192,16 +198,22 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
         ))}
       </p>
       {error && <p className="mt-6 text-lg text-ink">{error}</p>}
-      {finder && finder.result.kind !== "pick" && (
+      {finder && !method && (
+        // the finder's answer stands on its own whenever it isn't shown inside the result: chip-only states, a pick
+        // still loading, or a pick whose pair the visitor's limit refused
         <div className="mt-6">
           <p className="text-lg text-ink">{finder.line}</p>
-          {"options" in finder.result && <FoundChips options={finder.result.options} onPick={(f) => load(finder.seed, f)} active={null} />}
+          {r ? (
+            <FoundChips options={choices} onPick={(f) => load(finder.seed, f)} active={null} />
+          ) : (
+            "options" in finder.result && <FoundChips options={finder.result.options} onPick={(f) => load(finder.seed, f)} active={null} />
+          )}
           {"competitors" in finder.result && <CompetitorChips names={finder.result.competitors} onPick={(n) => byLabel(finder.seed, n)} />}
         </div>
       )}
-      {busy && !payload ? (
+      {busy && (!payload || stale) ? (
         <Skeleton lines={8} />
-      ) : payload ? (
+      ) : payload && !stale ? (
         <div className={busy ? "opacity-50 transition-opacity" : undefined} aria-busy={busy}>
           {busy && <p className="mt-6 font-mono text-sm text-ink-2 motion-safe:animate-pulse">Comparing in Qloo...</p>}
           <VsResult d={payload} method={method} />
