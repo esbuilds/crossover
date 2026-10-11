@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import type { Card } from "@/lib/slate.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
 import type { Found, RivalPick } from "@/lib/rival.ts";
-import { VS_CASES, vsHref, type VsCase } from "@/lib/rivals-cases.ts";
+import { VS_CASES, VS_MORE, vsHref, type VsCase } from "@/lib/rivals-cases.ts";
 import { btnPrimary, btnQuiet, field, TYPE_LABEL, WhichOne } from "../ui";
 import { Skeleton } from "../brief-panel";
 import { VsResult } from "./vs-view";
-import { COMPETITOR_LABEL } from "@/lib/vs.ts";
+import { COMPETITOR_LABEL, finderOrder } from "@/lib/vs.ts";
 
 // The front door (brief-oct12-front): two names in, the collision map and the columns out. Prepared pairs swap the
 // page from the cache (0 Qloo calls); typed names go through the shared resolver, with the picker on either side, and
@@ -163,24 +163,29 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
   }
 
   const active = sides[0] && sides[1] ? key(sides[0], sides[1]) : null;
-  // the method line shows while the result is the finder's seed against its pick or an alternate
+  // the finder block sits inside the result while the result is the finder's seed against its pick or an alternate
   const r = finder?.result.kind === "pick" ? finder.result : null;
   const choices = r ? [r.pick, ...r.alternates] : [];
-  const method =
-    finder && r && payload && payload.rivals.a.entity_id === finder.seed.id && choices.some((c) => c.id === payload.rivals.b.entity_id)
-      ? {
-          line: finder.line,
-          node: (
-            <>
-              <FoundChips options={choices} onPick={(f) => load(finder.seed, f)} active={payload.rivals.b.entity_id} />
-              <CompetitorChips names={r.competitors} onPick={(n) => byLabel(finder.seed, n)} />
-            </>
-          ),
-        }
-      : undefined;
+  const inside = !!(finder && r && payload && !stale && payload.rivals.a.entity_id === finder.seed.id && choices.some((c) => c.id === payload.rivals.b.entity_id));
+  const block = finder && <FinderBlock finder={finder} active={inside ? payload!.rivals.b.entity_id : null} onPick={(f) => load(finder.seed, f)} onLabel={(n) => byLabel(finder.seed, n)} />;
+  const method = inside ? { line: finder!.line, node: block } : undefined;
+  const tryRow = (label: string, cases: VsCase[]) => (
+    // one line each on phones, scrolling sideways inside the row, so the map stays near the top; wrapping from 640 up
+    <p className="mt-2 flex items-center gap-x-4 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap sm:flex-wrap">
+      <span className="shrink-0 text-ink-2">{label}</span>
+      {cases.map((c) => (
+        <button key={key(c.a, c.b)} type="button" onClick={() => (setFinder(null), load(c.a, c.b))} className={`${btnQuiet} shrink-0`} aria-current={active === key(c.a, c.b)}>
+          {c.a.name} vs {c.b.name}
+        </button>
+      ))}
+    </p>
+  );
   return (
     <section className="pt-8">
-      <p className="max-w-[60ch] text-lg text-ink-2">Put two names in. See where their audiences split on the map, and which brands sit closer to each.</p>
+      <p className="max-w-[60ch] text-lg text-ink-2">
+        <span className="sm:hidden">Two names in. See where their audiences split.</span>
+        <span className="max-sm:hidden">Put two names in. See where their audiences split on the map, and which brands sit closer to each.</span>
+      </p>
       <form onSubmit={compare} className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-start">
         <SideInput label="First name" value={qa} onChange={setQa} ask={asks[0]} onPick={(c) => choose(0, c)} />
         <span className="hidden min-h-11 items-center text-ink-3 sm:inline-flex">vs</span>
@@ -189,27 +194,15 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
           Compare
         </button>
       </form>
-      <p className="mt-3 flex flex-wrap items-center gap-x-4 text-base">
-        <span className="text-ink-2">Try:</span>
-        {VS_CASES.map((c) => (
-          <button key={c.a.id} type="button" onClick={() => (setFinder(null), load(c.a, c.b))} className={btnQuiet} aria-current={active === key(c.a, c.b)}>
-            {c.a.name} vs {c.b.name}
-          </button>
-        ))}
-      </p>
+      <div className="mt-1">
+        {tryRow("Try:", VS_CASES)}
+        {VS_MORE.length > 0 && tryRow("or try", VS_MORE)}
+      </div>
       {error && <p className="mt-6 text-lg text-ink">{error}</p>}
-      {finder && !method && (
+      {finder && !inside && (
         // the finder's answer stands on its own whenever it isn't shown inside the result: chip-only states, a pick
         // still loading, or a pick whose pair the visitor's limit refused
-        <div className="mt-6">
-          <p className="text-lg text-ink">{finder.line}</p>
-          {r ? (
-            <FoundChips options={choices} onPick={(f) => load(finder.seed, f)} active={null} />
-          ) : (
-            "options" in finder.result && <FoundChips options={finder.result.options} onPick={(f) => load(finder.seed, f)} active={null} />
-          )}
-          {"competitors" in finder.result && <CompetitorChips names={finder.result.competitors} onPick={(n) => byLabel(finder.seed, n)} />}
-        </div>
+        <div className="mt-6">{block}</div>
       )}
       {busy && (!payload || stale) ? (
         <Skeleton lines={8} />
@@ -221,6 +214,31 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
       ) : null}
     </section>
   );
+}
+
+// The finder's two lines as ruled rows, in the field's order (lib/vs.ts finderOrder): the measured line cites log
+// step 0 in the log's monospace; Qloo's competitor line is Qloo's label, searched only when a chip is clicked.
+function FinderBlock({ finder, active, onPick, onLabel }: { finder: Finder; active: string | null; onPick: (f: Found) => void; onLabel: (n: string) => void }) {
+  const r = finder.result;
+  const options = r.kind === "pick" ? [r.pick, ...r.alternates] : "options" in r ? r.options : [];
+  const rows = {
+    measured: (
+      <div key="measured" className="border-t border-rule py-2">
+        <p className="font-mono text-sm text-ink-2">
+          <span title="From Qloo check 0" className="cursor-help underline decoration-rule-strong decoration-dotted underline-offset-4">
+            {finder.line}
+          </span>
+        </p>
+        {options.length > 0 && <FoundChips options={options} onPick={onPick} active={active} />}
+      </div>
+    ),
+    qloo: (
+      <div key="qloo" className="border-t border-rule py-2">
+        <CompetitorChips names={"competitors" in r ? r.competitors : []} onPick={onLabel} />
+      </div>
+    ),
+  };
+  return <div className="max-w-[80ch] border-b border-rule">{finderOrder(r).map((k) => rows[k])}</div>;
 }
 
 function CompetitorChips({ names, onPick }: { names: string[]; onPick: (n: string) => void }) {

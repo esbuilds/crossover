@@ -58,6 +58,15 @@ export function methodLine(seed: string, r: RivalPick): string {
   return `Qloo's top 50 for ${seed} has no same-field brand. Type one on the right.`;
 }
 
+// Which finder line leads (brief-oct12-design ruling 2): a genre pick is our measured claim, so it leads and Qloo's
+// competitor line sits under it; a category pick or no pick, and Qloo's own label leads. Non-brand seeds carry no
+// Qloo line. The auto-run is the measured pick either way.
+export function finderOrder(r: RivalPick): ("measured" | "qloo")[] {
+  const qloo = "competitors" in r && r.competitors.length > 0;
+  if (!qloo) return ["measured"];
+  return r.kind === "pick" && r.field === "genre" ? ["measured", "qloo"] : ["qloo", "measured"];
+}
+
 // Qloo's own label, attributed (brief-oct12-rival2 ruling 3): the only place "competitor" may appear on a page
 export const COMPETITOR_LABEL = "Tagged by Qloo as competitor brands:";
 

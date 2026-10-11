@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { pickRival } from "./rival.ts";
-import { bannedIn, COMPETITOR_LABEL, methodLine } from "./vs.ts";
+import { bannedIn, COMPETITOR_LABEL, finderOrder, methodLine } from "./vs.ts";
 import type { Entity, FullTags } from "./qloo.ts";
 
 const BRAND = "urn:entity:brand";
@@ -69,4 +69,14 @@ test("copy rules: 'competitor' only inside Qloo's attribution; every other use i
   const lines = [methodLine("Liquid Death", pick), `${COMPETITOR_LABEL} Celsius, Waterloo`, methodLine("Liquid Death", { kind: "none", competitors: [] })];
   assert.deepEqual(bannedIn(lines.join(" "), ["Liquid Death", "Death Wish Coffee", "Celsius", "Waterloo"]), []);
   assert.deepEqual(bannedIn("Celsius is the main competitor. Our rival pick.", ["Celsius"]), ["rival", "competitor"]);
+});
+
+test("line order follows the field: genre pick measured first; category pick or no pick, Qloo's line first", () => {
+  const f = { id: "x", name: "x", type: BRAND, affinity: 0.9 };
+  assert.deepEqual(finderOrder({ kind: "pick", field: "genre", pick: f, alternates: [], competitors: ["Celsius"] }), ["measured", "qloo"]);
+  assert.deepEqual(finderOrder({ kind: "pick", field: "category", category: "beverages", pick: f, alternates: [], competitors: ["Poppi"] }), ["qloo", "measured"]);
+  assert.deepEqual(finderOrder({ kind: "none", competitors: ["Neon"] }), ["qloo", "measured"]);
+  assert.deepEqual(finderOrder({ kind: "broader", options: [f], competitors: ["Harry's"] }), ["qloo", "measured"]);
+  assert.deepEqual(finderOrder({ kind: "brands", options: [f] }), ["measured"]);
+  assert.deepEqual(finderOrder({ kind: "pick", field: "category", category: "x", pick: f, alternates: [], competitors: [] }), ["measured"]);
 });

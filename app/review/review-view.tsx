@@ -26,7 +26,8 @@ const NOT_DESCRIPTIVE = /\bapp\b|advertising|brands|companies|enabled/i;
 const descriptor = (tags: string[]) => tags.filter((t) => t.length <= 20 && !/\d/.test(t) && !NOT_DESCRIPTIVE.test(t)).slice(0, 2).join(" · ");
 
 // initial: a share link, which opens on its reveal once the route answers (picks are indices into its names).
-// embedded: below the rivals front door (Oct 12), so no page shell; a share link scrolls down to it.
+// embedded: below the rivals front door (Oct 12), so no page shell; a share link scrolls down to it. Its headings are
+// h2s: the page's one h1 is the rivals result.
 export default function ReviewView({ initial, embedded = false }: { initial?: Shared; embedded?: boolean }) {
   const initCase = initial ? (CASES.find((c) => c.key === initial.caseKey) ?? null) : CASES[0];
   const [caseKey, setCaseKey] = useState<string | null>(initCase?.key ?? null);
@@ -194,7 +195,7 @@ function PickStep({ data, group, order, picks, need, onToggle, onReveal }: { dat
   const label = (id: string) => group.rows.find((r) => r.entity.entity_id === id)?.input;
   return (
     <div className="mt-8">
-      <h1 className="font-display text-2xl sm:text-3xl">Pick the three you&apos;d call first.</h1>
+      <h2 className="font-display text-2xl sm:text-3xl">Pick the three you&apos;d call first.</h2>
       <p className="mt-2 max-w-[60ch] text-base text-ink-2">
         {rows.length} {plural(group.type)} that could partner with {data.seed.name}. Choose before you see what the data says.
       </p>
@@ -243,7 +244,7 @@ function Reveal({ data, group, picks, share, open, onOpen, gate, gateOn, onGate,
 
   return (
     <div className="mt-8">
-      <h1 className="font-display text-2xl sm:text-3xl">{fameFlat ? `Fame can't tell these ${WORDS[group.rows.length] ?? group.rows.length} apart. Taste can.` : "Fame and taste, side by side."}</h1>
+      <h2 className="font-display text-2xl sm:text-3xl">{fameFlat ? `Fame can't tell these ${WORDS[group.rows.length] ?? group.rows.length} apart. Taste can.` : "Fame and taste, side by side."}</h2>
       <p className="mt-3 max-w-[70ch] text-base text-ink-2">
         {noClearThree
           ? `No clear three: ${names(topGroup)} are all within ${data.gap} of each other.`

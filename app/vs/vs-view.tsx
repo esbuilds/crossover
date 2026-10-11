@@ -8,7 +8,8 @@ import { VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
 import { LEAN_SPLIT, TONE } from "@/lib/collide.ts";
 import CollisionMap from "./collision-map";
 
-const SHOWN = 10; // rows per column before "Show all"
+const SHOWN = 10; // rows per column before "Show all", from 640 px up
+const SHOWN_SMALL = 5; // under 640 px
 
 export function Calm({ message }: { message: string }) {
   return (
@@ -54,44 +55,42 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
   const markets = mapLine(A, B, d.map);
   return (
     <>
-      <header className="mt-8">
-        <h1 className="font-display text-2xl sm:text-3xl">
-          {A} <span className="text-ink-3">vs</span> {B}
-        </h1>
-        {(r.a.kind.length > 0 || r.b.kind.length > 0) && (
-          <p className="mt-1 text-sm text-ink-3">
-            {[r.a, r.b].map((s) => (s.kind.length ? `${s.name}: ${s.kind.join(", ")}` : null)).filter(Boolean).join(" · ")}
-          </p>
-        )}
-        {method && (
-          <div className="mt-3">
-            <p className="max-w-[68ch] text-base text-ink-2">
-              <Cite checks="0">{method.line}</Cite>
+      {/* under 640 px the map comes before the verdict (CSS order, one copy of each); from 640 up, the verdict first */}
+      <div className="flex flex-col">
+        <header className="order-1 mt-8">
+          <h1 className="font-display text-2xl sm:text-3xl">
+            {A} <span className="text-ink-3">vs</span> {B}
+          </h1>
+          {(r.a.kind.length > 0 || r.b.kind.length > 0) && (
+            <p className="mt-1 text-sm text-ink-3">
+              {[r.a, r.b].map((s) => (s.kind.length ? `${s.name}: ${s.kind.join(", ")}` : null)).filter(Boolean).join(" · ")}
             </p>
-            {method.node}
-          </div>
-        )}
-        <p className="mt-4 max-w-[68ch] text-lg text-ink">
-          <Cite checks="4 and 5">{line}</Cite>
-          {markets && (
-            <>
-              {" "}
-              <Cite checks="8 and 9">{markets}</Cite>
-            </>
           )}
-        </p>
-        {stateLine && <p className="mt-2 max-w-[68ch] text-base text-ink-2">{stateLine}</p>}
-        {d.share.length > 0 && (
-          <p className="mt-3 text-sm">
-            <span className="inline-flex min-h-8 items-center rounded-sm border border-rule-strong px-2 text-ink" title="From Qloo check 7 (Qloo compare)">
-              Share by category: {d.share.join(", ")}
-            </span>
-            <span className="ml-2 text-ink-3">Qloo compare</span>
+          {method && <div className="mt-3">{method.node}</div>}
+        </header>
+        <div className="order-3 sm:order-2">
+          <p className="mt-4 max-w-[68ch] text-lg text-ink">
+            <Cite checks="4 and 5">{line}</Cite>
           </p>
-        )}
-      </header>
-
-      <MapSection d={d} />
+          {markets && (
+            <p className="mt-1 max-w-[68ch] text-lg text-ink">
+              <Cite checks="8 and 9">{markets}</Cite>
+            </p>
+          )}
+          {stateLine && <p className="mt-2 max-w-[68ch] text-base text-ink-2">{stateLine}</p>}
+          {d.share.length > 0 && (
+            <p className="mt-3 text-sm">
+              <span className="inline-flex min-h-8 items-center rounded-sm border border-rule-strong px-2 text-ink" title="From Qloo check 7 (Qloo compare)">
+                Share by category: {d.share.join(", ")}
+              </span>
+              <span className="ml-2 text-ink-3">Qloo compare</span>
+            </p>
+          )}
+        </div>
+        <div className="order-2 sm:order-3">
+          <MapSection d={d} />
+        </div>
+      </div>
 
       <section className={`mt-8 grid gap-8 ${state === "two lists" ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
         <Column title={`Sits closer to ${A}`} rows={r.leansA} d={d} side="a" empty={emptyColumn(A)} />
@@ -107,21 +106,15 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
       <Fold label={`Same field: ${r.sameField.length}`} rows={r.sameField} d={d} note={`Measured, and set aside from the columns: they share a category with ${A} or ${B}.`} />
       {r.noData.length > 0 && <Fold label={`No data: ${r.noData.length}`} rows={r.noData} d={d} note="Qloo returned a fallback value for these, so they are never ranked or scored." />}
 
-      <section className="mt-10 border-t border-rule pt-4">
-        <h2 className="font-display text-xl">What this doesn&apos;t establish</h2>
-        <ul className="mt-2 max-w-[68ch] list-disc space-y-1 pl-5 text-base text-ink-2">
+      <FoldBox label="What this doesn't establish" className="mt-10">
+        <ul className="max-w-[68ch] list-disc space-y-1 pb-3 pl-5 text-base text-ink-2">
           {DOESNT_ESTABLISH.map((s) => (
             <li key={s}>{s}</li>
           ))}
         </ul>
-      </section>
+      </FoldBox>
 
-      <details className="group mt-6 border-b border-rule">
-        <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-mono text-sm text-ink-2 hover:text-ink">
-          <span>{log.length + (method ? 1 : 0)} Qloo steps</span>
-          <span className="text-ink-3 group-open:hidden">Show</span>
-          <span className="hidden text-ink-3 group-open:inline">Hide</span>
-        </summary>
+      <FoldBox label={`${log.length + (method ? 1 : 0)} Qloo steps`}>
         <ol className="space-y-1 pb-3 font-mono text-sm text-ink-2">
           {method && (
             <li id="check-0" className="flex gap-3">
@@ -136,8 +129,22 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
             </li>
           ))}
         </ol>
-      </details>
+      </FoldBox>
     </>
+  );
+}
+
+// the brief panel's fold: one monospace line with Show / Hide, ruled underneath (app/brief-panel.tsx BriefLog)
+function FoldBox({ label, className = "", children }: { label: string; className?: string; children: React.ReactNode }) {
+  return (
+    <details className={`group border-b border-rule ${className}`}>
+      <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-mono text-sm text-ink-2 hover:text-ink">
+        <span>{label}</span>
+        <span className="shrink-0 text-ink-3 group-open:hidden">Show</span>
+        <span className="hidden shrink-0 text-ink-3 group-open:inline">Hide</span>
+      </summary>
+      {children}
+    </details>
   );
 }
 
@@ -186,14 +193,15 @@ function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow
       </h2>
       {rows.length ? (
         <>
-          <Rows rows={rows.slice(0, SHOWN)} d={d} side={side} />
-          {rows.length > SHOWN && (
-            <details className="group">
+          {/* five rows on small screens, ten from 640 up; "Show all" appears where rows are hidden */}
+          <Rows rows={rows.slice(0, SHOWN)} d={d} side={side} cls={(i) => (i >= SHOWN_SMALL ? "max-sm:hidden" : "")} />
+          {rows.length > SHOWN_SMALL && (
+            <details className={`group ${rows.length > SHOWN ? "" : "sm:hidden"}`}>
               <summary className={`${btnQuiet} cursor-pointer`}>
                 <span className="group-open:hidden">Show all {rows.length}</span>
                 <span className="hidden group-open:inline">Show fewer</span>
               </summary>
-              <Rows rows={rows.slice(SHOWN)} d={d} side={side} />
+              <Rows rows={rows.slice(SHOWN_SMALL)} d={d} side={side} cls={(i) => (i < SHOWN - SHOWN_SMALL ? "sm:hidden" : "")} />
             </details>
           )}
         </>
@@ -207,27 +215,22 @@ function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow
 function Fold({ label, rows, d, note }: { label: string; rows: RivalRow[]; d: VsPayload; note: string }) {
   if (!rows.length) return null;
   return (
-    <details className="group mt-8 border-t border-rule">
-      <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-display text-xl hover:text-ink">
-        <span>{label}</span>
-        <span className="font-sans text-base text-ink-3 group-open:hidden">Show</span>
-        <span className="hidden font-sans text-base text-ink-3 group-open:inline">Hide</span>
-      </summary>
+    <FoldBox label={label} className="mt-8 border-t">
       <p className="text-base text-ink-2">{note}</p>
-      <div className="grid gap-x-8 lg:grid-cols-3">
+      <div className="grid gap-x-8 pb-3 lg:grid-cols-3">
         <Rows rows={rows} d={d} side="a" />
       </div>
-    </details>
+    </FoldBox>
   );
 }
 
-function Rows({ rows, d, side }: { rows: RivalRow[]; d: VsPayload; side: "a" | "b" }) {
+function Rows({ rows, d, side, cls }: { rows: RivalRow[]; d: VsPayload; side: "a" | "b"; cls?: (i: number) => string }) {
   const r = d.rivals;
   const seed = side === "a" ? r.a : r.b;
   return (
     <ul className="contents [&>li]:min-w-0">
-      {rows.map((row) => (
-        <li key={row.id} className="border-t border-rule py-3 first:mt-3">
+      {rows.map((row, i) => (
+        <li key={row.id} className={`border-t border-rule py-3 first:mt-3 ${cls?.(i) ?? ""}`}>
           <Link prefetch={false} href={`/pair/${seed.entity_id}/${row.id}?ta=${encodeURIComponent(seed.type)}&tb=urn%3Aentity%3Abrand`} className="inline-flex min-h-11 items-center text-base font-medium text-ink underline-offset-4 hover:underline">
             {row.name}
           </Link>
