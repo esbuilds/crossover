@@ -9,7 +9,7 @@ const TYPES = ["brand", "artist", "tv_show", "movie", "person"].map((t) => `urn:
 export function validShareLink(pathname: string, q: URLSearchParams): boolean | null {
   const s = /^\/s\/([^/]+)\/?$/.exec(pathname);
   if (s) return s[1] === "p" ? null : UUID.test(s[1]) && TYPES.includes(q.get("t") ?? "");
-  const p = /^\/pair\/([^/]+)\/([^/]+)\/?$/.exec(pathname);
+  const p = /^\/(?:pair|vs)\/([^/]+)\/([^/]+)\/?$/.exec(pathname); // /vs (rivals, Oct 13 row) shares the pair shape
   if (p) return UUID.test(p[1]) && UUID.test(p[2]) && p[1] !== p[2] && TYPES.includes(q.get("ta") ?? "") && TYPES.includes(q.get("tb") ?? "");
   const t = /^\/triage\/([^/]+)\/?$/.exec(pathname);
   if (t) return UUID.test(t[1]) && TYPES.includes(q.get("t") ?? "") && parseNames(q.get("n")) !== null;

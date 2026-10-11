@@ -49,9 +49,10 @@ test("under three shared, the layout is two lists", () => {
   assert.equal(r.layout, "two");
 });
 
-// Copy rule: the payload carries entity names, ids, types and fixed enums only. No generated text, so no audience label.
+// Copy rule: the payload carries Qloo data only (entity names, ids, types, category tag names) and fixed enums. No
+// generated text, so no audience label.
 test("no free text in the payload", () => {
-  const allowed = new Set(["rivals-v1", "a", "b", "shared", "no data", "two", "three", "urn:entity:brand", ...[...listA, ...listB, dodgers].map((x) => x.name)]);
+  const allowed = new Set(["rivals-v1", "a", "b", "shared", "no data", "two", "three", "urn:entity:brand", MLB, FASHION, ...[...listA, ...listB, dodgers].map((x) => x.name)]);
   const strings: string[] = [];
   JSON.stringify(r, (_k, v) => (typeof v === "string" && strings.push(v), v));
   assert.deepEqual(strings.filter((s) => !allowed.has(s)), []);

@@ -1,8 +1,8 @@
 // Rivals (rivals-v1, wow brief Oct 11; probe/VERIFY-4.md). Two seeds, both seeds' top 50 brands, the union scored under
 // each seed in the same call shape, split by the review GAP: leans A, leans B, shared. Brands only.
 // Copy rules live in the brief: "sits closer to A", never "prefers"; no audience labels; no counts.
-import { insights, type Entity } from "./qloo.ts";
-import { fansTop50 } from "./fit.ts";
+import { insights, compareTags, type Entity } from "./qloo.ts";
+import { incr, today } from "./redis.ts";
 import { applyMissingRule, GAP } from "./review.ts";
 
 export const RIVALS_VERSION = "rivals-v1";
@@ -11,9 +11,9 @@ const BATCH = 50; // Qloo's take ceiling: a 100-name union is two calls per seed
 const EPS = 1e-9; // 0.85 - 0.8 is 0.04999... in floating point; "0.05 or more" means 0.05 counts
 const MIN_SHARED = 3; // under this the page is two lists and says the audiences barely overlap
 
-export type Seed = { entity_id: string; name: string; type: string };
+export type Seed = { entity_id: string; name: string; type: string; kind: string[] };
 export type Lean = "a" | "b" | "shared" | "no data";
-export type RivalRow = { id: string; name: string; a: number | null; b: number | null; lean: Lean; rankA: number | null; rankB: number | null };
+export type RivalRow = { id: string; name: string; kind: string[]; a: number | null; b: number | null; lean: Lean; rankA: number | null; rankB: number | null };
 export type Rivals = {
   version: string;
   a: Seed;
@@ -35,6 +35,17 @@ type Scored = { entity_id: string; affinity?: number };
 const fields = (e: Entity) =>
   new Set(e.tags.map((t) => t.tag_id).filter((t) => t.startsWith("urn:tag:genre:brand:")).filter((t) => t.split(":").length >= 6).map((t) => t.split(":").slice(0, 6).join(":")));
 
+// what an entity is, in Qloo's own genre tag names, most specific first ("Energy Drink", "Drinks"; "Indie Folk" for an
+// artist seed). Used instead of
+// Qloo's short descriptions, which name who a brand is for ("busy women", "toddler foods"); the page carries no
+// audience words (brief-oct13-vs copy rules).
+const kindOf = (e: Entity) =>
+  e.tags
+    .filter((t) => t.tag_id.startsWith("urn:tag:genre:"))
+    .sort((x, y) => y.tag_id.split(":").length - x.tag_id.split(":").length)
+    .slice(0, 2)
+    .map((t) => t.name);
+
 export function compareLists(a: Entity, b: Entity, listA: Entity[], listB: Entity[], scoresA: Scored[], scoresB: Scored[]): Rivals {
   const rankIn = (list: Entity[]) => new Map(list.map((e, i) => [e.entity_id, i + 1]));
   const [rankA, rankB] = [rankIn(listA), rankIn(listB)];
@@ -46,7 +57,7 @@ export function compareLists(a: Entity, b: Entity, listA: Entity[], listB: Entit
   const [ca, cb] = [applyMissingRule(union.map((id) => va.get(id)), "one call"), applyMissingRule(union.map((id) => vb.get(id)), "one call")];
   const seedFields = new Set([...fields(a), ...fields(b)]);
 
-  const seed = (e: Entity): Seed => ({ entity_id: e.entity_id, name: e.name, type: e.types.find((t) => t !== "urn:entity") ?? "" });
+  const seed = (e: Entity): Seed => ({ entity_id: e.entity_id, name: e.name, type: e.types.find((t) => t !== "urn:entity") ?? "", kind: kindOf(e) });
   const out: Rivals = { version: RIVALS_VERSION, a: seed(a), b: seed(b), leansA: [], leansB: [], shared: [], sameField: [], noData: [], layout: "three" };
   union.forEach((id, i) => {
     const [xa, xb] = applyMissingRule([va.get(id), vb.get(id)], "across signals");
@@ -54,7 +65,7 @@ export function compareLists(a: Entity, b: Entity, listA: Entity[], listB: Entit
     const B = cb[i].value !== null ? xb.value : null;
     const lean: Lean = A === null || B === null ? "no data" : A - B >= GAP - EPS ? "a" : B - A >= GAP - EPS ? "b" : "shared";
     const e = byId.get(id)!;
-    const row: RivalRow = { id, name: e.name, a: A, b: B, lean, rankA: rankA.get(id) ?? null, rankB: rankB.get(id) ?? null };
+    const row: RivalRow = { id, name: e.name, kind: kindOf(e), a: A, b: B, lean, rankA: rankA.get(id) ?? null, rankB: rankB.get(id) ?? null };
     if (lean === "no data") out.noData.push(row);
     else if ([...fields(e)].some((f) => seedFields.has(f))) out.sameField.push(row);
     else ({ a: out.leansA, b: out.leansB, shared: out.shared })[lean].push(row);
@@ -69,17 +80,62 @@ export function compareLists(a: Entity, b: Entity, listA: Entity[], listB: Entit
 }
 
 // Cold: 2 lists + 2 to 4 scoring calls (8 with heatmaps, added on map day). Serial, never fanned out against Qloo.
-export async function getRivals(a: Entity, b: Entity): Promise<Rivals> {
-  const listA = await fansTop50(BRAND, a.entity_id);
-  const listB = await fansTop50(BRAND, b.entity_id);
+// peek: cache only, never a call; null when any piece is cold (the page counts a cold pair against the visitor first).
+export async function getRivals(a: Entity, b: Entity, peek = false): Promise<Rivals | null> {
+  const get = (p: Record<string, string | number>) => (peek ? insights.peek(p) : insights(p));
+  const listA = await get({ "filter.type": BRAND, "signal.interests.entities": a.entity_id, take: 50 }); // = fansTop50's key
+  const listB = listA && (await get({ "filter.type": BRAND, "signal.interests.entities": b.entity_id, take: 50 }));
+  if (!listA || !listB) return null;
   const union = [...new Map([...listA, ...listB].map((e) => [e.entity_id, e])).keys()].filter((id) => id !== a.entity_id && id !== b.entity_id);
   const score = async (seed: string) => {
     const out: Scored[] = [];
     for (let i = 0; i < union.length; i += BATCH) {
       const chunk = union.slice(i, i + BATCH);
-      out.push(...(await insights({ "filter.type": BRAND, "signal.interests.entities": seed, "filter.results.entities": chunk.join(","), take: chunk.length })));
+      const hits = await get({ "filter.type": BRAND, "signal.interests.entities": seed, "filter.results.entities": chunk.join(","), take: chunk.length });
+      if (!hits) return null;
+      out.push(...hits);
     }
     return out;
   };
-  return compareLists(a, b, listA, listB, await score(a.entity_id), await score(b.entity_id));
+  const sa = await score(a.entity_id);
+  const sb = sa && (await score(b.entity_id));
+  return sa && sb ? compareLists(a, b, listA, listB, sa, sb) : null;
+}
+
+// --- the page's loader (brief-oct13-vs): cards, rivals, compare tags; warm from cache or one counted cold run ---
+export type VsData = { a: Entity; b: Entity; rivals: Rivals; share: string[] };
+export type Side = { id: string; type: string };
+export class ColdPairCap extends Error {}
+const COLD_PAIRS_PER_IP = 10; // per UTC day; a cold pair is 8 to 10 Qloo calls (VERIFY-4)
+
+async function spendColdPair(ip: string) {
+  const n = await incr(`cx:count:vs:${ip}:${today()}`, 60 * 60 * 48);
+  if ((n ?? 0) > (ip === "warm" ? 200 : COLD_PAIRS_PER_IP)) throw new ColdPairCap();
+}
+
+// null: Qloo doesn't know one of the ids. Cold pieces cost the visitor one of their cold pairs, once, before any call.
+export async function loadVs(sa: Side, sb: Side, ip: string): Promise<VsData | null> {
+  const run = async (peek: boolean): Promise<VsData | null | "cold"> => {
+    const card = async (s: Side) => {
+      const p = { "filter.type": s.type, "filter.results.entities": s.id, take: 1 }; // = getCard's key
+      const hits = peek ? await insights.peek(p) : await insights(p);
+      return hits === null ? "cold" : (hits[0] ?? null);
+    };
+    const a = await card(sa);
+    if (a === null) return null;
+    const b = await card(sb);
+    if (b === null) return null;
+    if (a === "cold" || b === "cold") return "cold";
+    const rivals = await getRivals(a, b, peek);
+    if (!rivals) return "cold";
+    // the compare chip is garnish: a failed call leaves it off instead of failing the page
+    const share = peek ? await compareTags.peek(a.entity_id, b.entity_id) : await compareTags(a.entity_id, b.entity_id).catch(() => []);
+    // a pair warmed before the chip existed stays warm: a cold chip never makes the page cold
+    return { a, b, rivals, share: (share ?? []).slice(0, 4) };
+  };
+  const warm = await run(true);
+  if (warm !== "cold") return warm;
+  await spendColdPair(ip);
+  const live = await run(false);
+  return live === "cold" ? null : live;
 }

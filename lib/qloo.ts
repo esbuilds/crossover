@@ -232,6 +232,13 @@ export const heatmap = cached("heatmap", async (seed: string | Signal[], locatio
   }));
 });
 
+// /v2/insights/compare: on this host it returns tags only (shared tags with a score, each side's tags, no entities;
+// probe/VERIFY-4.md). Rivals shows the shared ones as "Share by category". 1 call, cached.
+export const compareTags = cached("compareTags", async (a: string, b: string): Promise<string[]> => {
+  const body = await request("/v2/insights/compare", { query: { "a.signal.interests.entities": a, "b.signal.interests.entities": b } });
+  return ((body.results?.tags ?? []) as Raw[]).sort((x, y) => (y.query?.score ?? 0) - (x.query?.score ?? 0)).map((t) => t.name as string);
+});
+
 // Tag search restricted to parent entity types (csv of urn:entity:...), with parents kept so callers can choose.
 // 1 call, cached. Used by refine to turn "no beer" into a tag id.
 export const tagSearch = cached("tagSearch", async (query: string, parentTypes: string) => {
