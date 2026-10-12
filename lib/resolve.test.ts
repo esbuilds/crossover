@@ -4,12 +4,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve } from "./resolve.ts";
+import { standInPopularity, type Recorded } from "./fixture-facts.ts";
 import type { Entity } from "./qloo.ts";
 
-const fixtures: Record<string, Omit<Entity, "akas" | "tags">[]> = JSON.parse(
+const fixtures: Record<string, Recorded[]> = JSON.parse(
   readFileSync(new URL("../fixtures/search.json", import.meta.url), "utf8"),
 );
-const candidates = (q: string): Entity[] => fixtures[q].map((e) => ({ ...e, akas: [], tags: [] }));
+const candidates = (q: string): Entity[] => fixtures[q].map((r) => ({ name: r.name, entity_id: r.entity_id, types: r.types, popularity: standInPopularity(r), akas: [], tags: [] }));
 
 const UNKNOWN = [
   "Pistakio", "Jesse & Ben's", "Aware Hair", "Girl Meets Dirt", "Fruition Chocolate Works",
@@ -72,9 +73,21 @@ test("Metallica: an alias-only movie is no rival", async () => {
   assert.equal(r.status, "confident");
 });
 
-// Qloo content stays out of the repo: a recorded candidate carries identifiers plus the one number the resolver's
-// rules read. popularity is pending a planner ruling (real Oct 12): without it 9 of these tests can't run.
-const FIXTURE_KEYS = new Set(["name", "entity_id", "types", "popularity"]);
+// Qloo content stays out of the repo: identifiers plus two facts our code derives (lib/fixture-facts.ts).
+const FIXTURE_KEYS = new Set(["name", "entity_id", "types", "belowFloor", "winsPersonArtistTie"]);
 test("fixtures/search.json carries no Qloo content beyond the allowed keys", () => {
   for (const [q, hits] of Object.entries(fixtures)) for (const h of hits) for (const k of Object.keys(h)) assert.ok(FIXTURE_KEYS.has(k), `${q}: ${k}`);
+});
+
+// The tiebreak margin on synthetic numbers (the recorded fixtures only carry who won): the more popular of a
+// person/artist exact-name pair wins, and within 0.1 the artist.
+test("person/artist tie: more popular wins, the artist within 0.1", async () => {
+  const e = (type: string, popularity: number) => ({ name: "Cedric the Entertainer", entity_id: type, types: [`urn:entity:${type}`], popularity, akas: [], tags: [] }) as Entity;
+  const pick = async (p: number, a: number) => {
+    const r = await resolve("Cedric the Entertainer", [e("person", p), e("artist", a)], null);
+    return r.status === "confident" ? r.match.entity_id : r.status;
+  };
+  assert.equal(await pick(0.94, 0.37), "person");
+  assert.equal(await pick(0.95, 0.9), "artist");
+  assert.equal(await pick(0.5, 0.94), "artist");
 });

@@ -14,7 +14,7 @@ export type Resolution =
 export type Judge = (query: string, candidates: Entity[]) => Promise<{ index: number | null; reason: string } | null>;
 
 // PLAN.md list, plus joiners (and/of/by/x) so "Fly By Jing" and "Savage X Fenty By Rihanna" don't share a token
-const POPULARITY_FLOOR = 0.3; // same threshold PLAN.md suggests for filter.popularity.min
+export const POPULARITY_FLOOR = 0.3; // same threshold PLAN.md suggests for filter.popularity.min
 const STOP = new Set(["the", "co", "inc", "brand", "works", "company", "and", "of", "by", "x"]);
 
 export const tokens = (s: string) =>
