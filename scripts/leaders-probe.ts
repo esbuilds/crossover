@@ -9,7 +9,10 @@ import { CATEGORIES } from "../lib/constellation-cases.ts";
 const slug = process.argv[2] ?? "energy-drinks";
 // --common: rank each brand within the cells every brand carries (the pair map's rule); default ranks within each brand's own cells
 const COMMON = process.argv.includes("--common");
-const cat = CATEGORIES.find((c) => c.slug === slug)!;
+const cat0 = CATEGORIES.find((c) => c.slug === slug)!;
+// --brands=A,B,C: only these brands of the aisle (option D: the brands that head the camps)
+const only = process.argv.find((a) => a.startsWith("--brands="))?.slice(9).split(",");
+const cat = only ? { ...cat0, brands: cat0.brands.filter((b) => only.includes(b.name)) } : cat0;
 const pct = (xs: number[]) => {
   const order = xs.map((x, i) => [x, i] as const).sort((p, q) => p[0] - q[0]);
   const out = new Array<number>(xs.length);
