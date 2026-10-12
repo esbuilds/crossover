@@ -22,3 +22,12 @@ test("share links: valid shapes pass, malformed ones fail, other paths are not s
 test("share-link types match the resolver's", () => {
   for (const t of RESOLVE_TYPES) assert.equal(validShareLink(`/s/${ID}`, new URLSearchParams(`t=${t}`)), true);
 });
+
+test("category maps: only the prepared slugs pass", () => {
+  const q = new URLSearchParams();
+  assert.equal(validShareLink("/map/energy-drinks", q), true);
+  assert.equal(validShareLink("/map/ENERGY-DRINKS", q), false);
+  assert.equal(validShareLink("/map/nope", q), false);
+  assert.equal(validShareLink("/map/%3Cscript%3E", q), false);
+  assert.equal(validShareLink("/map/energy-drinks/og", q), null); // the share card route is not a page
+});

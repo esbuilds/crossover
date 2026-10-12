@@ -114,6 +114,9 @@ export default function AuditPage() {
           <li>
             <span className="font-semibold">Qloo has one Stanley brand, and it reads as tools.</span> Typed &ldquo;Stanley&rdquo; asks brand or artist. The brand is the same entity the YETI vs Stanley pair uses, picked for its bottles and tumblers, but its competitor labels are Milwaukee Tool, DeWalt and Craftsman. That&apos;s Qloo&apos;s data; we don&apos;t override it.
           </li>
+          <li>
+            <span className="font-semibold">An age bracket doesn&apos;t split the map.</span> Run real Oct 12, before anything was built (8 calls, scripts/age-probe.ts). At 24 and under, every drawn cell reads &ldquo;both&rdquo; (Olipop vs Poppi 1,500 of 1,500; Liquid Death vs Celsius 1,485). At 55 and over, a slight lean. 0 percent of leaned cells flip between the brackets, against a 15 percent gate, and about 40 of the 1,500 hottest cells are shared between them. An age-bracketed heatmap shows where that bracket lives, not where the two brands part, so the map stays national.
+          </li>
         </ul>
       </section>
 

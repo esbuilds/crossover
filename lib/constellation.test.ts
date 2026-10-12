@@ -43,3 +43,12 @@ test("a brand with mostly missing readings is listed, never placed", () => {
   assert.deepEqual(c.notMeasured, ["E"]);
   assert.equal(c.dots.length, 4);
 });
+
+test("a brand Qloo never returns (an id it doesn't know) is listed, never placed", () => {
+  // as a seed it returns nothing, and no other call returns it
+  const rows = cat.brands.slice(0, -1).map((s, si) => (s.id === "C" ? [] : cat.brands.filter((b) => b.id !== s.id && b.id !== "C").map((b, k) => e(b.id, 0.7 + 0.01 * k + 0.003 * si))));
+  const c = build(cat, [...rows, null]);
+  assert.deepEqual(c.notMeasured, ["C"]);
+  assert.ok(!c.dots.some((d) => d.name === "C"));
+  assert.ok(c.nearest.every((n) => n.near.every((x) => x.name !== "C")));
+});
