@@ -28,6 +28,18 @@ Eight brands could partner with you. Which three do you call first? Crossover as
 
 Two names, one question: where do their audiences part ways? The front door's two inputs run a pair; leave the right one blank and the finder picks a rival. Pairs are cached by order, so A vs B and B vs A are separate keys.
 
+```mermaid
+flowchart LR
+  F["rival finder<br/>lib/rival.ts"] -- "pick (0 if the seed is warm, else 2 + fullTags 2)" --> R
+  R["rivals<br/>lib/rivals.ts"] -- "2 top-50 lists + 2 to 4 scoring" --> Q[(Qloo)]
+  R --> C["compare<br/>compareTags"]
+  R --> X["collide<br/>lib/collide.ts"]
+  C -- "1" --> Q
+  X -- "2 heatmaps" --> Q
+```
+
+A fully cold pair is 8 or 9 calls; a warm one is 0.
+
 - **Rivals** (`lib/rivals.ts`, `GET /api/rivals?a=&ta=&b=&tb=`, label `rivals-v1`). Each side's top 50 brands, the union minus the two seeds, scored under both seeds with `filter.results.entities` in chunks of 50 (Qloo's `take` ceiling). A brand leans to a side at a gap of 0.05 or more, the review desk's tie width; everything else is shared. Brands sharing a second-level genre tag with either seed fold into a same-field group. A fully cold pair is 8 calls, run serially; each visitor gets ten cold pairs a day.
 - **Compare** (`compareTags` in `lib/qloo.ts`). `/v2/insights/compare` returns tags only on this host, so it supplies the "Share by category" line and nothing else.
 - **Collide** (`lib/collide.ts`). Both national heatmaps on Qloo's shared grid, each re-ranked to percentiles within the cells both carry, then diffed. A cell leans at a gap of 0.25; cells outside both sides' top half aren't drawn. Person seeds have flat heatmaps and get no map.
