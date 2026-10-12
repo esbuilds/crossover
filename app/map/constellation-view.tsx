@@ -37,7 +37,7 @@ function Plot({ c, W, H, picked, toggle, className }: { c: Constellation; W: num
               <circle cx={p.cx} cy={p.cy} r={Math.max(p.r, 24)} fill="transparent" strokeWidth={2} />
               <circle cx={p.cx} cy={p.cy} r={p.r} fill={on ? ACCENT : INK2} fillOpacity={on ? 1 : 0.75} />
               {p.label ? (
-                <text x={p.label.x} y={p.label.y} textAnchor={p.label.anchor} fontSize={FONT} fill={on ? ACCENT : "#2b2522"} fontWeight={on ? 600 : 400}>
+                <text x={p.label.x} y={p.label.y} textAnchor={p.label.anchor} fontSize={FONT} fill={on ? ACCENT : "#2b2522"} fontWeight={on ? 600 : 400} stroke="#f8f7f6" strokeWidth={4} paintOrder="stroke" strokeLinejoin="round">
                   {c.dots[p.i].name}
                 </text>
               ) : (
