@@ -4,9 +4,10 @@ import Link from "next/link";
 import { btnQuiet } from "@/app/ui";
 import type { RivalRow, VsPayload } from "@/lib/rivals.ts";
 import { DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
-import { VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
+import { PAIR_CASE, VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
 import { LEAN_SPLIT, TONE } from "@/lib/collide.ts";
 import CollisionMap from "./collision-map";
+import OpenOnHash from "./open-on-hash";
 
 const SHOWN = 10; // rows per column before "Show all", from 640 px up
 const SHOWN_SMALL = 5; // under 640 px
@@ -106,7 +107,16 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
       <Fold label={`Same field: ${r.sameField.length}`} rows={r.sameField} d={d} note={`Measured, and set aside from the columns: they share a category with ${A} or ${B}.`} />
       {r.noData.length > 0 && <Fold label={`No data: ${r.noData.length}`} rows={r.noData} d={d} note="Qloo returned a fallback value for these, so they are never ranked or scored." />}
 
-      <FoldBox label="What this doesn't establish" className="mt-10">
+      {r.a.entity_id.toUpperCase() === PAIR_CASE.a && r.b.entity_id.toUpperCase() === PAIR_CASE.b && (
+        <FoldBox label={PAIR_CASE.label} id={PAIR_CASE.id} className="mt-10">
+          <div className="max-w-[68ch] space-y-3 pb-4 text-base text-ink-2">
+            {PAIR_CASE.paragraphs.map((p) => (
+              <p key={p}>{p}</p>
+            ))}
+          </div>
+        </FoldBox>
+      )}
+      <FoldBox label="What this doesn't establish" className={r.a.entity_id.toUpperCase() === PAIR_CASE.a && r.b.entity_id.toUpperCase() === PAIR_CASE.b ? "" : "mt-10"}>
         <ul className="max-w-[68ch] list-disc space-y-1 pb-3 pl-5 text-base text-ink-2">
           {DOESNT_ESTABLISH.map((s) => (
             <li key={s}>{s}</li>
@@ -135,9 +145,10 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
 }
 
 // the brief panel's fold: one monospace line with Show / Hide, ruled underneath (app/brief-panel.tsx BriefLog)
-function FoldBox({ label, className = "", children }: { label: string; className?: string; children: React.ReactNode }) {
+function FoldBox({ label, id, className = "", children }: { label: string; id?: string; className?: string; children: React.ReactNode }) {
   return (
-    <details className={`group border-b border-rule ${className}`}>
+    <details id={id} className={`group scroll-mt-4 border-b border-rule ${className}`}>
+      {id && <OpenOnHash id={id} />}
       <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-mono text-sm text-ink-2 hover:text-ink">
         <span>{label}</span>
         <span className="shrink-0 text-ink-3 group-open:hidden">Show</span>

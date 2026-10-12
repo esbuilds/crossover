@@ -25,3 +25,18 @@ export const VS_MORE: VsCase[] = [
   { a: { name: "A24", id: "7E904879-87BC-4BA6-B4AB-6E380A4C250D", type: B }, b: { name: "Blumhouse", id: "10396284-FEE0-42F9-B176-EC6F407DA42B", type: B } },
   { a: { name: "Taylor Swift", id: "4BBEF799-A0C4-4110-AB01-39216993C312", type: AR }, b: { name: "Beyoncé", id: "F6754C46-B3E7-457F-8B7E-06C613597320", type: AR } },
 ];
+
+// One worked case, hand-written from the cached numbers (planner brief, real Oct 12): what a partnerships lead does
+// with Liquid Death vs Celsius. Only this pair; every number below is on the page above it.
+export const PAIR_CASE = {
+  a: "4DF7C265-52D9-4A99-8803-F62C2302D561",
+  b: "D64DC967-F529-4A3F-9F89-774CE5118EF4",
+  id: "what-a-lead-does",
+  label: "What a partnerships lead does with this",
+  paragraphs: [
+    "The question. You run partnerships at Liquid Death, and Celsius keeps coming up as the comparison. Which audience is yours, and where would a first event land?",
+    "What the page answers. The two audiences barely overlap: of 100 brands their fans favor, 44 sit closer to Liquid Death, 48 closer to Celsius, and 3 within 0.05 of both (Manscaped, Bella+canvas, Affliction Clothing). Liquid Death's side opens with Fallen Footwear (0.87 here, 0.51 under Celsius), 22Red and The Berrics; Celsius's side includes Pretty Girls Sweat (0.92 there, 0.58 under Liquid Death) and Yummy Spoonfuls. On the map, Liquid Death leads in Denver, Portland and Austin, Celsius in Miami, Tampa and Dallas, and Los Angeles and San Diego sit in both top fives.",
+    "What changes. Three markets to test first: Denver, Portland and Austin, where Liquid Death's audience runs hotter. Two brands to call first: Fallen Footwear and 22Red, the strongest names on Liquid Death's side and each at least 0.30 weaker under Celsius, so their fans are measurably closer to yours. Los Angeles stays a shared market, worth a pitch only with a clear reason.",
+    "What it doesn't settle. Budget, rights, availability, either company's objectives, or whether a deal makes money. These are measured taste affinities across an audience, not purchases or visits.",
+  ],
+};

@@ -77,3 +77,9 @@ test("map sentence: one side's markets all inside the other's, identical top fiv
   assert.equal(mapLine("A", "B", { metrosA: metros("X"), metrosB: metros("X") } as never), "A and B share the same top five markets.");
   assert.equal(mapLine("A", "B", null), null);
 });
+
+test("the Liquid Death vs Celsius case passes the copy rules", async () => {
+  const { PAIR_CASE } = await import("./rivals-cases.ts");
+  const names = ["Liquid Death", "Celsius", "Manscaped", "Bella+canvas", "Affliction Clothing", "Fallen Footwear", "22Red", "The Berrics", "Pretty Girls Sweat", "Yummy Spoonfuls"];
+  assert.deepEqual(bannedIn([PAIR_CASE.label, ...PAIR_CASE.paragraphs].join(" "), names), []);
+});
