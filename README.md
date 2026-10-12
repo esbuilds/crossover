@@ -1,55 +1,8 @@
 # Crossover
 
-Eight brands could partner with you. Which three do you call first? Crossover asks you to pick, then lays the same eight out twice: by how well known they are (Qloo popularity) and by how much your fans lean toward them (Qloo affinity). For Mt. Joy, fame can't tell the eight apart and taste can. Behind that front door is a review desk with honest ties, buyer gates and per-name evidence, a public audit run on briefs frozen before the run, and the partner search: a slate across six Qloo domains, launch markets, a one-page brief, approval before any outreach. Built for the Qloo Agentic Hackathon (2026).
+Put two brands, artists or shows in and see where their audiences split: a US map cell by cell, and the brands each side's fans favor, all from Qloo's measured affinity. Then whole categories on one map, a "pick three" partnerships check, and a public audit of how well the rules held up.
 
-## The 30-second path
-
-1. Open https://crossover-henna.vercel.app. Pick three of Mt. Joy's eight brands and click **Show me**.
-2. Read the two columns: popularity bands on the left, measured taste groups on the right (a group is every name within 0.05 of its strongest member). Click any name for its evidence.
-3. Turn on **Exclude energy drinks**: Red Bull drops out, with Qloo's tag as the reason.
-4. Open **/audit** for the held-out results, then **Find more partners for Mt. Joy** for the slate, map and briefs.
-
-## The review desk
-
-`lib/review.ts` holds the rules (label `review-v3`), `app/api/review/route.ts` serves them, and the page only renders.
-
-- **Identity first.** Only an exact name confirms on its own; an exact name that a known entity of another type also carries asks which one. LLM suggestions never confirm. Ambiguous names get a one-click picker, and share links carry the chosen id.
-- **One call scores the list.** `filter.results.entities` with every candidate's id scores a fixed list against the seed's audience, one call per entity type. Types are never ranked against each other.
-- **Leader-relative ties.** A group is the strongest measured name plus everything within 0.05 of it; no order is claimed inside a group. A top group of four or more is "no clear three".
-- **Missing is never zero.** Qloo's fallback constants, three or more bit-identical values in one call, and a pair repeating across unrelated signals all read "no measurement".
-- **Buyer gates.** Named exclusions and whole-word tag exclusions are hard gates; the reason quotes Qloo's tag.
-- **Rank facts, not direction words.** Same-type affinity in Qloo is symmetric, so the product reports where each side ranks among the other's fans, never that one side likes the other more.
-
-## The audit
-
-`audit/briefs.json` is the protocol (audit-v1): twelve brand briefs of eight candidates, split six dev and six held-out by a fixed seed, plus 24 resolution challenges. It was frozen in git (commit `d244ee2`) before the held-out briefs ran once through `scripts/audit-run.ts`. `audit/results.json` keeps derived numbers only, and `/audit` shows them: 4 of 6 held-out briefs give a clear three; 0 of 12 "famous" names reach the picks; resolution was 20 of 24 as run and 24 of 24 after the review-v3 fix, labelled as not held-out.
-
-## Rivals (/vs and the front door)
-
-Two names, one question: where do their audiences part ways? The front door's two inputs run a pair; leave the right one blank and the finder picks a rival. Pairs are cached by order, so A vs B and B vs A are separate keys; links the app builds (the category maps' "Open X vs Y") always use one fixed order so any click lands on the same cached pair.
-
-```mermaid
-flowchart LR
-  F["rival finder<br/>lib/rival.ts"] -- "pick (0 if the seed is warm, else 2 + fullTags 2)" --> R
-  R["rivals<br/>lib/rivals.ts"] -- "2 top-50 lists + 2 to 4 scoring" --> Q[(Qloo)]
-  R --> C["compare<br/>compareTags"]
-  R --> X["collide<br/>lib/collide.ts"]
-  C -- "1" --> Q
-  X -- "2 heatmaps" --> Q
-```
-
-A fully cold pair is 8 or 9 calls; a warm one is 0.
-
-- **Rivals** (`lib/rivals.ts`, `GET /api/rivals?a=&ta=&b=&tb=`, label `rivals-v1`). Each side's top 50 brands, the union minus the two seeds, scored under both seeds with `filter.results.entities` in chunks of 50 (Qloo's `take` ceiling). A brand leans to a side at a gap of 0.05 or more, the review desk's tie width; everything else is shared. Brands sharing a second-level genre tag with either seed fold into a same-field group. A fully cold pair is 8 calls, run serially; each visitor gets ten cold pairs a day.
-- **Compare** (`compareTags` in `lib/qloo.ts`). `/v2/insights/compare` returns tags only on this host, so it supplies the "Share by category" line and nothing else.
-- **Collide** (`lib/collide.ts`). Both national heatmaps on Qloo's shared grid, each re-ranked to percentiles within the cells both carry, then diffed. A cell leans at a gap of 0.25; cells outside both sides' top half aren't drawn. Person seeds have flat heatmaps and get no map.
-- **Rival finder** (`lib/rival.ts`, `GET /api/rival?a=&ta=`). The closest brand in the seed's top 50 that shares its second-level genre tag, then its Qloo product category, then three chips from the broader genre. Qloo's `competitor_brand` tags ride along as a second chip row, searched only when clicked. Artists and people get brand chips, never an automatic pair. It reads untrimmed tags (`fullTags`), 2 extra cached calls per seed.
-
-## Architecture
-
-![Crossover architecture: the browser streams /api/run over server-sent events; retrieval against Qloo is deterministic code; a ranking agent reviews each domain; a brief agent with four Qloo tools writes the brief; Upstash Redis caches every response.](docs/architecture.svg)
-
-A run is one server-sent event stream. Code resolves the name, fetches six domains and the national heatmap from Qloo in parallel, and sends the slate as soon as it lands (about 6 s cold). The ranking agent then reviews each domain in parallel and streams its verdicts (about 18 s cold). Opening a pick starts a second stream: the brief agent, which calls Qloo through four tools. Every Qloo response and every model output is cached in Redis for 90 days under its arguments plus a prompt version, so a warm run returns in under a second and costs nothing.
+**Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
 
 ## Every Qloo call
 
@@ -77,6 +30,7 @@ A run is one server-sent event stream. Code resolves the name, fetches six domai
 | `GET /v2/insights/compare` | `a.signal.interests.entities`, `b.signal.interests.entities` | Shared category tags for "Share by category" | `lib/qloo.ts` (`compareTags`) |
 | `GET /v2/insights` | `filter.type=urn:heatmap`, `signal.interests.entities`, `filter.location.query=United States` | The two heatmaps behind the collision map (same key as the single map) | `lib/rivals.ts`, `lib/collide.ts` |
 | `GET /v2/insights` | the seed's card and top-50 params, tags kept untrimmed | Genre, product category and competitor tags for the rival finder | `lib/qloo.ts` (`fullTags`), `lib/rival.ts` |
+| `GET /v2/insights` | `filter.type=urn:entity:brand`, `signal.interests.entities` (each brand of a category but the last), `filter.results.entities` (the others), `take` | The category maps: every pair's mutual affinity, laid out by classical MDS in code | `lib/constellation.ts` |
 
 `lib/qloo.ts` is the only file that talks to Qloo. It paces calls to four a second, retries once on 429 and 5xx, trims responses and counts every call against the daily cap.
 
@@ -88,11 +42,11 @@ A run is one server-sent event stream. Code resolves the name, fetches six domai
 - **Qloo's terms.** No raw Qloo responses in the repo (the audit publishes derived numbers), and no third-party logos or images in the app.
 - **Say what didn't work.** Refine phrases that map to nothing are listed as "Couldn't apply". Kinds of partner without a Qloo tag ("no cookware") are applied by the ranker and labeled "Applied by the agent". A fit ranked in only one side's top 50 shows as such instead of being hidden.
 
-## The agent design
+## Tests
 
-Retrieval is code because Qloo's numbers are the evidence, and code makes the same calls the same way every time. Reasoning is the model's because judging fit, competitors, constraint breaks and a launch plan from those numbers is what a strategist does. The ranking agent may keep, demote, label a competitor, exclude by constraint or drop a pick, and every decision except keep needs a stated reason. It may not reorder picks, invent them or cite numbers it wasn't given. The brief agent may call four Qloo tools and stops if one fails rather than writing without evidence; outreach is drafted only after a person approves.
+`npm test` runs 127 offline tests in about a second, with no API calls. `npm run lint` and `npx tsc --noEmit` are clean. Full list below the fold.
 
-## Setup
+## Run it
 
 Node 22 or later.
 
@@ -117,9 +71,68 @@ npm run dev                  # http://localhost:3000
 
 **Why a daily cap.** The hackathon key has 10,000 calls a month, and one cold name costs about 15. The cap is counted in Redis across every serverless instance, so a burst of new names or a crawler can't spend the month. Each visitor also gets 20 new briefs a day; anything already generated is free. When either limit or the Anthropic balance runs out, the app says so plainly and points to the example brands.
 
-## Tests
+---
 
-`npm test` runs 122 offline tests in about a second, with no API calls:
+<details>
+<summary><strong>More: the walkthrough, rivals, the review desk, the audit, architecture, the agent design, the full test list</strong></summary>
+
+## The 30-second path
+
+1. Open https://crossover-henna.vercel.app. Liquid Death vs Celsius is loaded: the map, then three columns (leans one way, leans the other, shared). Swap in a prepared pair, or type your own.
+2. Leave the second name blank and click **Compare**: the finder picks the closest same-field brand and says how.
+3. Under "Whole aisles", open **Energy drinks**. Click Celsius and Red Bull (mutual affinity 0.61), then open the pair.
+4. Scroll to Pick three: pick three of Mt. Joy's eight brands and click **Show me**. Turn on **Exclude energy drinks** to see a buyer gate quote Qloo's tag.
+5. Open **/audit** for the held-out results and the limits we found.
+
+## Rivals (/vs and the front door)
+
+Two names, one question: where do their audiences part ways? The front door's two inputs run a pair; leave the right one blank and the finder picks a rival. Pairs are cached by order, so A vs B and B vs A are separate keys; links the app builds (the category maps' "Open X vs Y") always use one fixed order so any click lands on the same cached pair.
+
+```mermaid
+flowchart LR
+  F["rival finder<br/>lib/rival.ts"] -- "pick (0 if the seed is warm, else 2 + fullTags 2)" --> R
+  R["rivals<br/>lib/rivals.ts"] -- "2 top-50 lists + 2 to 4 scoring" --> Q[(Qloo)]
+  R --> C["compare<br/>compareTags"]
+  R --> X["collide<br/>lib/collide.ts"]
+  C -- "1" --> Q
+  X -- "2 heatmaps" --> Q
+```
+
+A fully cold pair is 8 or 9 calls; a warm one is 0.
+
+- **Rivals** (`lib/rivals.ts`, `GET /api/rivals?a=&ta=&b=&tb=`, label `rivals-v1`). Each side's top 50 brands, the union minus the two seeds, scored under both seeds with `filter.results.entities` in chunks of 50 (Qloo's `take` ceiling). A brand leans to a side at a gap of 0.05 or more, the review desk's tie width; everything else is shared. Brands sharing a second-level genre tag with either seed fold into a same-field group. A fully cold pair is 8 calls, run serially; each visitor gets ten cold pairs a day.
+- **Compare** (`compareTags` in `lib/qloo.ts`). `/v2/insights/compare` returns tags only on this host, so it supplies the "Share by category" line and nothing else.
+- **Collide** (`lib/collide.ts`). Both national heatmaps on Qloo's shared grid, each re-ranked to percentiles within the cells both carry, then diffed. A cell leans at a gap of 0.25; cells outside both sides' top half aren't drawn. Person seeds have flat heatmaps and get no map.
+- **Rival finder** (`lib/rival.ts`, `GET /api/rival?a=&ta=`). The closest brand in the seed's top 50 that shares its second-level genre tag, then its Qloo product category, then three chips from the broader genre. Qloo's `competitor_brand` tags ride along as a second chip row, searched only when clicked. Artists and people get brand chips, never an automatic pair. It reads untrimmed tags (`fullTags`), 2 extra cached calls per seed.
+
+## The review desk
+
+`lib/review.ts` holds the rules (label `review-v3`), `app/api/review/route.ts` serves them, and the page only renders.
+
+- **Identity first.** Only an exact name confirms on its own; an exact name that a known entity of another type also carries asks which one. LLM suggestions never confirm. Ambiguous names get a one-click picker, and share links carry the chosen id.
+- **One call scores the list.** `filter.results.entities` with every candidate's id scores a fixed list against the seed's audience, one call per entity type. Types are never ranked against each other.
+- **Leader-relative ties.** A group is the strongest measured name plus everything within 0.05 of it; no order is claimed inside a group. A top group of four or more is "no clear three".
+- **Missing is never zero.** Qloo's fallback constants, three or more bit-identical values in one call, and a pair repeating across unrelated signals all read "no measurement".
+- **Buyer gates.** Named exclusions and whole-word tag exclusions are hard gates; the reason quotes Qloo's tag.
+- **Rank facts, not direction words.** Same-type affinity in Qloo is symmetric, so the product reports where each side ranks among the other's fans, never that one side likes the other more.
+
+## The audit
+
+`audit/briefs.json` is the protocol (audit-v1): twelve brand briefs of eight candidates, split six dev and six held-out by a fixed seed, plus 24 resolution challenges. It was frozen in git (commit `d244ee2`) before the held-out briefs ran once through `scripts/audit-run.ts`. `audit/results.json` keeps derived numbers only, and `/audit` shows them: 4 of 6 held-out briefs give a clear three; 0 of 12 "famous" names reach the picks; resolution was 20 of 24 as run and 24 of 24 after the review-v3 fix, labelled as not held-out.
+
+## Architecture
+
+![Crossover architecture: the browser streams /api/run over server-sent events; retrieval against Qloo is deterministic code; a ranking agent reviews each domain; a brief agent with four Qloo tools writes the brief; Upstash Redis caches every response.](docs/architecture.svg)
+
+A run is one server-sent event stream. Code resolves the name, fetches six domains and the national heatmap from Qloo in parallel, and sends the slate as soon as it lands (about 6 s cold). The ranking agent then reviews each domain in parallel and streams its verdicts (about 18 s cold). Opening a pick starts a second stream: the brief agent, which calls Qloo through four tools. Every Qloo response and every model output is cached in Redis for 90 days under its arguments plus a prompt version, so a warm run returns in under a second and costs nothing.
+
+## The agent design
+
+Retrieval is code because Qloo's numbers are the evidence, and code makes the same calls the same way every time. Reasoning is the model's because judging fit, competitors, constraint breaks and a launch plan from those numbers is what a strategist does. The ranking agent may keep, demote, label a competitor, exclude by constraint or drop a pick, and every decision except keep needs a stated reason. It may not reorder picks, invent them or cite numbers it wasn't given. The brief agent may call four Qloo tools and stops if one fails rather than writing without evidence; outreach is drafted only after a person approves.
+
+## Test list
+
+`npm test` runs 127 offline tests:
 
 - match validation against recorded search results
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
@@ -131,9 +144,13 @@ npm run dev                  # http://localhost:3000
 - cohort brackets, trends classification and share-link checks
 - failure classification
 - rivals leans and same-field folds, the collision map, the rival finder and the vs payload
+- the category maps: the affinity matrix, missing and unknown brands, and the layout on a fixed fixture
+- share-link and category-map path checks (malformed links get a real 404)
 - a guard that no client component imports the server-only Qloo client
 
 `npm run lint` and `npx tsc --noEmit` are clean.
+
+</details>
 
 ## License
 
