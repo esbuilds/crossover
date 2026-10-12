@@ -5,6 +5,8 @@ import type { Card } from "@/lib/slate.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
 import type { Found, RivalPick } from "@/lib/rival.ts";
 import { VS_CASES, VS_MORE, vsHref, type VsCase } from "@/lib/rivals-cases.ts";
+import { CATEGORIES } from "@/lib/constellation-cases.ts";
+import Link from "next/link";
 import { btnPrimary, btnQuiet, field, TYPE_LABEL, WhichOne } from "../ui";
 import { Skeleton } from "../brief-panel";
 import { VsResult } from "./vs-view";
@@ -197,6 +199,14 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
       <div className="mt-1">
         {tryRow("Try:", VS_CASES)}
         {VS_MORE.length > 0 && tryRow("or try", VS_MORE)}
+        <p className="mt-2 flex items-center gap-x-4 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap sm:flex-wrap">
+          <span className="shrink-0 text-ink-2">Whole aisles:</span>
+          {CATEGORIES.map((c) => (
+            <Link key={c.slug} href={`/map/${c.slug}`} className={`${btnQuiet} shrink-0`}>
+              {c.title}
+            </Link>
+          ))}
+        </p>
       </div>
       {error && <p className="mt-6 text-lg text-ink">{error}</p>}
       {finder && !inside && (
