@@ -95,6 +95,28 @@ export default function AuditPage() {
         </p>
       </section>
 
+      <section className="mt-12 max-w-[68ch]">
+        <h2 className="font-display text-xl">Rivals and the collision map</h2>
+        <p className="mt-2 text-base text-ink-2">Measured Oct 11 on the hackathon API (probe/VERIFY-4.md and the build reports). These are limits of the front door, not held-out results.</p>
+        <ul className="mt-4 grid gap-4 text-base text-ink">
+          <li>
+            <span className="font-semibold">Chelsea vs Arsenal fails both gates.</span> Of 60 brands in the two top-50 lists, 6 lean Chelsea, none lean Arsenal and 54 are shared, and the two maps share 9 of their top 10 US metros. To Qloo, two Premier League clubs read as one US audience, so the pair isn&apos;t offered. The other three test pairs passed both gates.
+          </li>
+          <li>
+            <span className="font-semibold">The map compares percentiles, not raw ranks.</span> Each side&apos;s heatmap rank is skewed by how many cells it carries (Olipop&apos;s matched cells sit 0.24 above Poppi&apos;s at the median), so a raw diff paints most of the country one colour. Each side is re-ranked within the cells both carry. A cell leans one way at a gap of 0.25 or more, only cells in at least one side&apos;s top half are drawn, and the page shows a lean per cell, never a number.
+          </li>
+          <li>
+            <span className="font-semibold">The same-field cut has a ceiling.</span> A brand sharing a second-level genre tag with either side (baseball, drinks) moves out of the columns into its own group. Tags are kept to 12 per brand, so a brand whose genre tag sits past the cut (Juventus) can slip into the columns. The top-level tag was tried first and was too broad: food and beverage took 57 of Olipop vs Poppi&apos;s 89 names and emptied Poppi&apos;s column.
+          </li>
+          <li>
+            <span className="font-semibold">The rival finder picks for 7 of 9 test brands,</span> 4 by genre tag and 3 by Qloo&apos;s product category: Olipop, Erewhon and A24 carry no brand genre tag in 98 to 114 tags each. A24 finds nothing in its top 50 and gets Qloo&apos;s competitor labels only. Artists and people get brand chips, never an automatic pair. Erewhon&apos;s pick (Clean) shares a supplements tag and is off-axis; Qloo&apos;s labels under it name the real grocers.
+          </li>
+          <li>
+            <span className="font-semibold">Qloo has one Stanley brand, and it reads as tools.</span> Typed &ldquo;Stanley&rdquo; asks brand or artist. The brand is the same entity the YETI vs Stanley pair uses, picked for its bottles and tumblers, but its competitor labels are Milwaukee Tool, DeWalt and Craftsman. That&apos;s Qloo&apos;s data; we don&apos;t override it.
+          </li>
+        </ul>
+      </section>
+
       <section className="mt-12">
         <details>
           <summary className="cursor-pointer font-display text-xl">Dev briefs (the rules were tuned on these)</summary>
