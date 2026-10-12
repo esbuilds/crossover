@@ -72,7 +72,7 @@ export default function ConstellationView({ c }: { c: Constellation }) {
             <p className="text-ink">
               {a.name} and {b.name}: mutual affinity {aff === null ? "not measured" : aff.toFixed(2)}.
             </p>
-            <Link href={`/vs/${a.id}/${b.id}?ta=${BRAND}&tb=${BRAND}`} className={btnPrimary}>
+            <Link href={`/vs/${a.id}/${b.id}?ta=${BRAND}&tb=${BRAND}`} prefetch={false} className={btnPrimary}>
               Open {a.name} vs {b.name}
             </Link>
           </>
