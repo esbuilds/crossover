@@ -71,3 +71,10 @@ test("Metallica: an alias-only movie is no rival", async () => {
   const r = await resolve("Metallica", [e("Metallica", "artist"), e("Metallica Through the Never", "movie", ["Metallica"])], null);
   assert.equal(r.status, "confident");
 });
+
+// Qloo content stays out of the repo: a recorded candidate carries identifiers plus the one number the resolver's
+// rules read. popularity is pending a planner ruling (real Oct 12): without it 9 of these tests can't run.
+const FIXTURE_KEYS = new Set(["name", "entity_id", "types", "popularity"]);
+test("fixtures/search.json carries no Qloo content beyond the allowed keys", () => {
+  for (const [q, hits] of Object.entries(fixtures)) for (const h of hits) for (const k of Object.keys(h)) assert.ok(FIXTURE_KEYS.has(k), `${q}: ${k}`);
+});
