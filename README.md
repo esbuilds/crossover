@@ -26,7 +26,7 @@ Eight brands could partner with you. Which three do you call first? Crossover as
 
 ## Rivals (/vs and the front door)
 
-Two names, one question: where do their audiences part ways? The front door's two inputs run a pair; leave the right one blank and the finder picks a rival. Pairs are cached by order, so A vs B and B vs A are separate keys.
+Two names, one question: where do their audiences part ways? The front door's two inputs run a pair; leave the right one blank and the finder picks a rival. Pairs are cached by order, so A vs B and B vs A are separate keys; links the app builds (the category maps' "Open X vs Y") always use one fixed order so any click lands on the same cached pair.
 
 ```mermaid
 flowchart LR
