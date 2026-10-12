@@ -125,7 +125,10 @@ export function build(cat: Category, rows: (Entity[] | null)[], calls = 0): Cons
       if (j === undefined || j === i) return;
       pop[j] = h.popularity;
       const v = cells[k].value;
-      if (v !== null) (reads[i][j].push(v), reads[j][i].push(v));
+      if (v !== null) {
+        reads[i][j].push(v);
+        reads[j][i].push(v);
+      }
     });
   });
   const aff = reads.map((r) => r.map((xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null)));
