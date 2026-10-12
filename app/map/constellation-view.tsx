@@ -34,7 +34,7 @@ function Plot({ c, W, H, picked, toggle, className }: { c: Constellation; W: num
               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), toggle(p.i))}
               className="cursor-pointer focus:outline-none [&:focus-visible>circle:first-child]:stroke-ink"
             >
-              <circle cx={p.cx} cy={p.cy} r={Math.max(p.r, 22)} fill="transparent" strokeWidth={2} />
+              <circle cx={p.cx} cy={p.cy} r={Math.max(p.r, 24)} fill="transparent" strokeWidth={2} />
               <circle cx={p.cx} cy={p.cy} r={p.r} fill={on ? ACCENT : INK2} fillOpacity={on ? 1 : 0.75} />
               {p.label ? (
                 <text x={p.label.x} y={p.label.y} textAnchor={p.label.anchor} fontSize={FONT} fill={on ? ACCENT : "#2b2522"} fontWeight={on ? 600 : 400}>
