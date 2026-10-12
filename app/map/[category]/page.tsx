@@ -16,7 +16,10 @@ export async function generateMetadata({ params }: PageProps<"/map/[category]">)
   await connection();
   const { category } = await params;
   const cat = CATEGORIES.find((c) => c.slug === category);
-  return { title: cat ? `${cat.title}: who sits near whom` : "Category map" };
+  if (!cat) return { title: "Category map" };
+  const title = `${cat.title}: who sits near whom`;
+  const image = `/map/${cat.slug}/og`;
+  return { title, openGraph: { title, images: [{ url: image, width: 1200, height: 630 }] }, twitter: { card: "summary_large_image", images: [image] } };
 }
 
 export default function MapPage({ params }: PageProps<"/map/[category]">) {
@@ -81,7 +84,7 @@ async function Body({ params }: Pick<PageProps<"/map/[category]">, "params">) {
       <details className="mt-8 max-w-[68ch] text-sm text-ink-2">
         <summary className="cursor-pointer text-base">How this was made</summary>
         <p className="mt-2">
-          Each brand but the last was scored against all the others in one Qloo call ({c.calls} calls, cached). Same-type affinity in Qloo is symmetric, so the two readings of a pair are averaged. Distance is 1 minus affinity, projected to two dimensions by classical multidimensional scaling in code; no model is involved. Projection stress {c.stress.toFixed(2)} (0 would be exact).
+          Each brand but the last was scored against all the others in one Qloo call ({c.calls} calls, cached). Same-type affinity in Qloo is symmetric, so where a pair has two readings (one from each call) its number is their mean. Distance is 1 minus affinity, projected to two dimensions by classical multidimensional scaling in code; no model is involved. Projection stress {c.stress.toFixed(2)} (0 would be exact).
           {c.filled > 0 && ` ${c.filled} pairs had no reading and sit at the average distance.`} Qloo&apos;s fallback values are never used.
         </p>
       </details>

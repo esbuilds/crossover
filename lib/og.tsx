@@ -41,15 +41,23 @@ export async function ogCard({ title, line }: { title: string; line?: string }) 
 }
 
 // The /vs share card: the collision map on the left, the pair, the markets line and the legend on the right.
-export async function ogMapCard({ title, line, svg, legend }: { title: string; line: string | null; svg: string; legend: { color: string; label: string }[] }) {
+// labels: text placed over the image in its own 688 x 430 box (text inside an SVG data URI isn't rendered by the card)
+export async function ogMapCard({ title, line, svg, legend, labels = [] }: { title: string; line: string | null; svg: string; legend: { color: string; label: string }[]; labels?: { x: number; y: number; text: string }[] }) {
   const src = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#ffffff", padding: "40px 56px", fontFamily: "Newsreader", color: INK }}>
         <div style={{ display: "flex", fontSize: 30, fontWeight: 600, paddingBottom: 14, borderBottom: `2px solid ${RULE}` }}>Crossover</div>
         <div style={{ display: "flex", flexGrow: 1, alignItems: "center", gap: 32 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} width={688} height={430} alt="" />
+          <div style={{ display: "flex", position: "relative", width: 688, height: 430 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} width={688} height={430} alt="" />
+            {labels.map((l) => (
+              <div key={l.text} style={{ display: "flex", position: "absolute", left: l.x, top: l.y - 13, fontSize: 20, color: INK, fontFamily: "Newsreader" }}>
+                {l.text}
+              </div>
+            ))}
+          </div>
           <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, flexShrink: 1, width: 360 }}>
             <div style={{ display: "flex", fontSize: title.length > 24 ? 44 : 54, fontWeight: 600, lineHeight: 1.05 }}>{title}</div>
             {line && <div style={{ display: "flex", marginTop: 18, fontSize: 24, color: INK_2, lineHeight: 1.3 }}>{line}</div>}
