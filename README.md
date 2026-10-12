@@ -1,6 +1,6 @@
 # Crossover
 
-Put two brands, artists or shows in and see where their audiences split: a US map cell by cell, and the brands each side's fans favor, all from Qloo's measured affinity. Then whole categories on one map, a "pick three" partnerships check, and a public audit of how well the rules held up.
+Put two brands, artists or shows in and see where their audiences split: a US map cell by cell, and the brands each side's fans favor. Affinity and popularity come from Qloo. Crossover computes the comparisons, the percentiles and the layout. Then whole categories on one map, a "pick three" partnerships check, and a public audit of how well the rules held up.
 
 **Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
 

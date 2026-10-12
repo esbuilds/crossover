@@ -79,7 +79,7 @@ export function rankContext(row: RivalRow, a: string, b: string): string {
 }
 
 export const DOESNT_ESTABLISH = [
-  "No purchase data: every number is Qloo taste affinity.",
+  "No purchase data. Affinity and popularity come from Qloo; Crossover computes the comparisons, the percentiles and the layout.",
   "No audience size: a long column is not a bigger market.",
   "No commercial eligibility: Qloo can't say whether a brand will partner.",
   "A lean is a taste gap of 0.05 or more in one scoring call, not a recommendation.",
