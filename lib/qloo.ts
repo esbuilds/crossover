@@ -232,6 +232,20 @@ export const heatmap = cached("heatmap", async (seed: string | Signal[], locatio
   }));
 });
 
+// The same heatmap for one Qloo age bracket (signal.demographics.age), for the age-scrubbed collision map probe
+// (brief-oct13-moonshots pick 2). Its own cache name: the national map's keys don't move. 1 call, cached.
+export const heatmapAge = cached("heatmapAge", async (seed: string, locationQuery: string, age: string): Promise<HeatCell[]> => {
+  const body = await request("/v2/insights", { query: { "filter.type": "urn:heatmap", "signal.interests.entities": seed, "filter.location.query": locationQuery, "signal.demographics.age": age } });
+  const r = (n: number, d: number) => Math.round(n * 10 ** d) / 10 ** d;
+  return (body.results?.heatmap ?? []).map((c: Raw) => ({
+    lat: r(c.location.latitude, 4),
+    lon: r(c.location.longitude, 4),
+    affinity: r(c.query.affinity, 3),
+    affinity_rank: r(c.query.affinity_rank, 3),
+    popularity: r(c.query.popularity, 3),
+  }));
+});
+
 // Untrimmed tags for the rival finder (rival-v2): the cached entities keep 12 tags each, and Olipop, Erewhon and A24
 // carry no genre tag at all, so the finder reads the full set once per seed card and once per seed list and keeps only
 // what it uses. Same params as the trimmed read, separate cache name. 1 call each, cached.
