@@ -257,8 +257,8 @@ export default function Crossover({
           <>
             <h1 className="max-w-[16ch] font-display text-3xl sm:text-4xl">Who should you collab with, and where?</h1>
             <p className="mt-4 max-w-[58ch] text-lg text-ink-2">
-              Name a brand, artist, show or person. Crossover finds what their fans already love, the US markets where those fans live, and
-              writes the brief.
+              Name a brand, artist, show or person. Crossover finds what their fans already love, shows the fit both ways and the
+              markets where both audiences run hot.
             </p>
           </>
         )}
