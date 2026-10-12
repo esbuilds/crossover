@@ -411,6 +411,10 @@ function Prose({ s, lead }: { s: Section; lead?: boolean }) {
 }
 
 // A small table: label, figure (tabular) with the fit chip, then the model's sentence.
+// The reverse-rank line: "Ranked both ways" since brief-v4.3, "Mutual fit" in briefs cached before; either may carry
+// ", measured against <stand-in> fans" for proxy seeds.
+const reverseLine = (label: string | null) => !!label && /^(Ranked both ways|Mutual fit)\b/.test(label);
+
 function Scorecard({ s, pick, rank, badge, sharedTags }: { s: Section; pick: Pick; rank?: { n: number; of: number }; badge?: "mutual" | "partial" | null; sharedTags: string[] | null }) {
   return (
     <dl className="mt-3 border-b border-rule">
@@ -421,10 +425,10 @@ function Scorecard({ s, pick, rank, badge, sharedTags }: { s: Section; pick: Pic
             <>
               {rank && `#${rank.n} of ${rank.of}, `}affinity {pick.affinity.toFixed(2)}
             </>
-          ) : label === "Mutual fit" ? (
+          ) : reverseLine(label) ? (
             reverseFigure(body)
           ) : null;
-        const chip = label === "Mutual fit" && badge !== undefined ? <Chip kind={badge ?? "oneway"} /> : null;
+        const chip = reverseLine(label) && badge !== undefined ? <Chip kind={badge ?? "oneway"} /> : null;
         return (
           <div key={i} className="border-t border-rule py-3">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">

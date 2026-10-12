@@ -25,13 +25,13 @@ export type Pair = {
 
 const SYSTEM = `You write the verdict for a pairing check inside Crossover, a partnerships tool built on Qloo taste data. You get two entities (A and B), where each lands among the other's fans (a rank in the fans' top 50 for that category, or outside it, with cutoffs), the US markets where both audiences run hot (over-index, 100 = US average), and the tags both carry. The verdict class is already decided from the ranks; write to it.
 
-- affinity play: both audiences rank the other. Say how strong each direction is.
-- one-way: one side's fans love the other, not the reverse. Say which way it runs and what that means for who pitches whom.
+- affinity play: both audiences rank the other. Give both ranks.
+- one-way: one side ranks the other in its fans' top 50 and the other doesn't. Give both ranks, and what that means for who pitches whom.
 - contrast play: neither side's fans rank the other. That isn't a no; famous collabs often trade on contrast. Name what a contrast collab between these two could trade on (a surprising tone, a shared value, an unexpected audience), grounded in their tags if you can.
 
 Then one sentence on where to launch: the overlap market with the highest combined over-index, with both numbers; if there is no overlap, say so and name A's top market.
 
-About 70 words, never more than 80. Plain text, no headings, no bold, no bullet points. Start with the class in a few words (for example "One-way: Liquid Death fans love Metallica, not the reverse."). Use only the numbers given.`;
+About 70 words, never more than 80. Plain text, no headings, no bold, no bullet points. Start with the class in a few words (for example "One-way: Metallica is #<rank> among Liquid Death fans' artists; Liquid Death is outside Metallica fans' top 50 brands."). Use only the numbers given.`;
 
 const fmt = (d: Direction, who: string, fans: string) =>
   d.rank
@@ -91,6 +91,6 @@ export async function fitPair(a: { id: string; type?: string | null }, b: { id: 
 export async function getPair(a: { id: string; type?: string | null }, b: { id: string; type?: string | null }): Promise<Pair | null> {
   const fit = await fitPair(a, b);
   if (!fit) return null;
-  const { text } = await verdictCached("pair-v2", fit.input);
+  const { text } = await verdictCached("pair-v3", fit.input);
   return { ...fit.input, cells: fit.cells, verdict: text };
 }

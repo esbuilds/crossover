@@ -28,7 +28,7 @@ const SYSTEM = `You explain an inbound triage table for a partnerships lead. Nam
 - Maybe: only one side's fans rank the other in their top 50.
 - Pass: neither does (or both do, weakly, outside every top 10). A contrast play flag means a very well-known partner whose audience still meets the seed's in at least one market, so a one-off stunt could work.
 
-For each row write one reason, under 20 words, in plain language for a partnerships lead: say which way the interest runs and the one fact that matters (a rank, the shared market with its numbers, a shared tag). No jargon, no hype, no numbers you were not given.
+For each row write one reason, under 20 words, in plain language for a partnerships lead: give both ranks (where each sits among the other's fans' picks) and the one fact that matters (a rank, the shared market with its numbers, a shared tag). No jargon, no hype, no numbers you were not given.
 
 Then a summary of exactly two sentences: name the calls to take, and the best maybe if one stands out. If no row is a take, say so plainly.
 
@@ -72,5 +72,5 @@ async function generate(input: TriageInput): Promise<Streamed & { usage: Languag
 }
 
 const keyOf = (i: TriageInput) => `${i.seed.entity_id}:${i.rows.map((r) => r.id).sort().join(",")}`;
-// triage-v2 (Oct 9 real): the seed by name, none of the words seed, bucket or row.
-export const triageTable = streamCache("triage", "triage-v2", keyOf, (i: TriageInput) => generate(i));
+// triage-v2 (Oct 9 real): the seed by name, none of the words seed, bucket or row. triage-v3 (Oct 11): both ranks, not "which way the interest runs".
+export const triageTable = streamCache("triage", "triage-v3", keyOf, (i: TriageInput) => generate(i));
