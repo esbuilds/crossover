@@ -8,14 +8,20 @@ export type Placed = { i: number; cx: number; cy: number; r: number; label: { x:
 // Fit the projection into the box at one scale for both axes (distances keep their meaning), then place labels:
 // right, left, above, below, first that overlaps nothing; a label with no room folds to a number with a key.
 // ponytail: greedy placement in popularity order; fine for 12 dots, use a force layout if categories grow.
-export function place(c: Constellation, W: number, H: number, pad: number, font = FONT): Placed[] {
-  // on a tall box (phones) the projection's long axis runs down the screen: same distances, turned 90 degrees
+// Layout coordinates to the box, fitted to the prepared dots only (a placed brand never rescales them). On a tall box
+// (phones) the projection's long axis runs down the screen: same distances, turned 90 degrees.
+export function frame(c: Constellation, W: number, H: number, pad: number) {
   const turn = H > W;
   const xs = c.dots.map((d) => (turn ? d.y : d.x)), ys = c.dots.map((d) => (turn ? d.x : d.y));
   const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
   const k = Math.min((W - 2 * pad) / (x1 - x0 || 1), (H - 2 * pad) / (y1 - y0 || 1));
   const ox = (W - (x1 - x0) * k) / 2, oy = (H - (y1 - y0) * k) / 2;
-  const pts = c.dots.map((_, i) => ({ i, cx: ox + (xs[i] - x0) * k, cy: oy + (ys[i] - y0) * k, r: 6 + 10 * (c.dots[i].popularity ?? 0) }));
+  return (x: number, y: number): [number, number] => [ox + ((turn ? y : x) - x0) * k, oy + ((turn ? x : y) - y0) * k];
+}
+
+export function place(c: Constellation, W: number, H: number, pad: number, font = FONT): Placed[] {
+  const at = frame(c, W, H, pad);
+  const pts = c.dots.map((d, i) => { const [cx, cy] = at(d.x, d.y); return { i, cx, cy, r: 6 + 10 * (d.popularity ?? 0) }; });
   type Box = [number, number, number, number];
   const boxes: Box[] = pts.map((p) => [p.cx - p.r, p.cy - p.r, p.cx + p.r, p.cy + p.r]);
   const hit = (b: Box) => b[0] < 0 || b[2] > W || b[1] < 0 || b[3] > H || boxes.some((o) => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1]);

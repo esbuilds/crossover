@@ -52,3 +52,16 @@ test("a brand Qloo never returns (an id it doesn't know) is listed, never placed
   assert.ok(!c.dots.some((d) => d.name === "C"));
   assert.ok(c.nearest.every((n) => n.near.every((x) => x.name !== "C")));
 });
+
+test("a placed brand lands where its distances to its three nearest fit, and the fit is reported", async () => {
+  const { placePoint } = await import("./constellation.ts");
+  const dot = (name: string, x: number, y: number) => ({ name, id: name, popularity: 0.9, x, y });
+  const dots = [dot("A", 0, 0), dot("B", 0.2, 0), dot("C", 0, 0.2), dot("D", 1, 1)];
+  // a point at (0.1, 0.1) is about 0.1414 from A, B and C
+  const d = Math.hypot(0.1, 0.1);
+  const p = placePoint(dots, [1 - d, 1 - d, 1 - d, 0.2])!;
+  assert.ok(Math.abs(p.x - 0.1) < 1e-3 && Math.abs(p.y - 0.1) < 1e-3, `${p.x},${p.y}`);
+  assert.deepEqual(p.near.map((n) => n.name).sort(), ["A", "B", "C"]);
+  assert.ok(p.fit < 1e-3);
+  assert.equal(placePoint(dots, [0.9, null, null, null]), null, "fewer than three readings: no dot");
+});

@@ -131,3 +131,55 @@ export async function getConstellation(slug: string, peek = false): Promise<Cons
   rows.push(null);
   return build(cat, rows, cat.brands.length - 1);
 }
+
+// --- your brand on the aisle (brief-oct13-moonshots-3 pick 1) ---
+// A typed brand is scored once against the aisle (same-type affinity is symmetric, so one call gives both directions)
+// and dropped onto the fixed layout: the point whose distances to its three nearest brands best match 1 - affinity,
+// by least squares. The prepared dots never move. fit is the placement's stress-1, comparable to the layout's.
+export type Placement = { x: number; y: number; near: Near[]; fit: number };
+export function placePoint(dots: Dot[], aff: (number | null)[]): Placement | null {
+  const near = dots
+    .map((d, i) => ({ d, a: aff[i] }))
+    .filter((x): x is { d: Dot; a: number } => x.a !== null)
+    .sort((p, q) => q.a - p.a)
+    .slice(0, 3);
+  if (near.length < 3) return null;
+  const target = near.map((n) => 1 - n.a);
+  // start at the affinity-weighted centroid, then gradient steps on the squared distance error
+  const w = near.map((n) => n.a);
+  let x = near.reduce((s, n, k) => s + n.d.x * w[k], 0) / w.reduce((a, b) => a + b, 0);
+  let y = near.reduce((s, n, k) => s + n.d.y * w[k], 0) / w.reduce((a, b) => a + b, 0);
+  for (let it = 0; it < 2000; it++) {
+    let gx = 0, gy = 0;
+    near.forEach((n, k) => {
+      const dx = x - n.d.x, dy = y - n.d.y, r = Math.hypot(dx, dy) || 1e-9;
+      const e = r - target[k];
+      gx += (e * dx) / r;
+      gy += (e * dy) / r;
+    });
+    x -= 0.1 * gx;
+    y -= 0.1 * gy;
+  }
+  let num = 0, den = 0;
+  near.forEach((n, k) => {
+    num += (Math.hypot(x - n.d.x, y - n.d.y) - target[k]) ** 2;
+    den += target[k] ** 2;
+  });
+  return { x, y, near: near.map((n) => ({ name: n.d.name, id: n.d.id, affinity: n.a })), fit: den ? Math.sqrt(num / den) : 0 };
+}
+
+export type Placed = { id: string; inAisle: boolean; placement: Placement | null; calls: number };
+// null: unknown aisle. "cold": not cached and peek asked. A brand already on the aisle is just highlighted.
+export async function placeOnAisle(slug: string, id0: string, peek: boolean): Promise<Placed | null | "cold"> {
+  const id = id0.toUpperCase();
+  const c = await getConstellation(slug, true);
+  if (!c || c === "cold") return c;
+  if (c.dots.some((d) => d.id.toUpperCase() === id)) return { id, inAisle: true, placement: null, calls: 0 };
+  const p = { "filter.type": BRAND, "signal.interests.entities": id, "filter.results.entities": c.dots.map((d) => d.id).join(","), take: c.dots.length };
+  const hits = peek ? await insights.peek(p) : await insights(p);
+  if (hits === null) return "cold";
+  const cells = applyMissingRule(hits.map((h) => h.affinity), "one call");
+  const byId = new Map(hits.map((h, k) => [h.entity_id.toUpperCase(), cells[k].value]));
+  const aff = c.dots.map((d) => byId.get(d.id.toUpperCase()) ?? null);
+  return { id, inAisle: false, placement: placePoint(c.dots, aff), calls: peek ? 0 : 1 };
+}
