@@ -84,3 +84,15 @@ export const peekTopMarket = async (seed: string) => {
   return cells ? (buildCities(cells).metros[0] ?? null) : null;
 };
 export const getCities = async (seed: string | Signal[], states?: string[] | null) => buildCities(await heatmap(seed, "United States"), states);
+
+// The market a cell belongs to (same 40 km rule as rankMetros), or null. Used by the aisle leaders table.
+export function marketOf(lat: number, lon: number): { name: string; state: string } | null {
+  let best: { name: string; state: string } | null = null;
+  let bestKm = RADIUS_KM;
+  for (const m of metros)
+    for (const p of [m, ...(m.also ?? [])]) {
+      const d = km(lat, lon, p.lat, p.lon);
+      if (d <= bestKm) [best, bestKm] = [{ name: m.name, state: m.state }, d];
+    }
+  return best;
+}

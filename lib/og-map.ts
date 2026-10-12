@@ -21,3 +21,17 @@ export function mapSvg(map: Pick<Collision, "cells">, w = 960, h = 600): string 
   const cells = (["both", "a", "b"] as const).map((t) => (tones[t].length ? `<path d="${tones[t].join("")}" fill="${TONE[t]}" fill-opacity="${t === "both" ? 0.6 : 0.8}"/>` : "")).join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${shapes}" fill="${LAND}" stroke="#ffffff" stroke-width="0.75"/>${cells}</svg>`;
 }
+
+// The aisle leaders map for the /map share card: the same projection, one colour per leading brand.
+export function leadersSvg(cells: [lat: number, lon: number, k: number][], tones: readonly string[], w = 960, h = 600): string {
+  const projection = geoAlbersUsa().fitExtent([[8, 8], [w - 8, h - 8]], land);
+  const path = geoPath(projection);
+  const shapes = land.features.map((f) => path(f) ?? "").join("");
+  const d: string[][] = tones.map(() => []);
+  for (const [lat, lon, k] of cells) {
+    const p = projection([lon, lat]);
+    if (p) d[k].push(`M${(p[0] - R).toFixed(1)},${p[1].toFixed(1)}a${R},${R} 0 1,0 ${R * 2},0a${R},${R} 0 1,0 ${-R * 2},0`);
+  }
+  const dots = d.map((p, k) => (p.length ? `<path d="${p.join("")}" fill="${tones[k]}" fill-opacity="0.85"/>` : "")).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${shapes}" fill="${LAND}" stroke="#ffffff" stroke-width="0.75"/>${dots}</svg>`;
+}

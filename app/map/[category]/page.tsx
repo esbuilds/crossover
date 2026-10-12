@@ -8,6 +8,9 @@ import { Skeleton } from "@/app/brief-panel";
 import { SiteHeader } from "@/app/ui";
 import { CATEGORIES, getConstellation } from "@/lib/constellation.ts";
 import ConstellationView from "../constellation-view";
+import LeadersMap from "../leaders-map";
+import { getLeaders, type Leaders } from "@/lib/leaders.ts";
+import { LEADER_TONE } from "@/lib/leader-tones.ts";
 
 // Category constellation (brief-oct13-moonshots pick 1): /map/<slug> for the three prepared categories. Warm: 0 calls.
 // Cold (only before the warm script ran): one scoring call per brand but the last, cached for good after.
@@ -41,6 +44,7 @@ async function Body({ params }: Pick<PageProps<"/map/[category]">, "params">) {
   const c = await getConstellation(category).catch((err) => (console.error("[map]", err), "failed" as const));
   if (c === null) notFound();
   if (c === "cold" || c === "failed") return <p className="pt-8 text-lg text-ink">Qloo didn&apos;t answer. The rivals pairs still work.</p>;
+  const leaders = await getLeaders(category).catch((err) => (console.error("[leaders]", err), null));
   return (
     <>
       <section className="pt-8">
@@ -56,6 +60,8 @@ async function Body({ params }: Pick<PageProps<"/map/[category]">, "params">) {
           Nearness is mutual affinity between the two audiences in Qloo. The layout is a projection and the distances are approximate; the numbers are in the table. Lines join each brand to its nearest audience and every pair at 0.95 or more; thicker is closer. Bigger dots are better known (Qloo popularity).
         </p>
       </section>
+
+      {leaders && leaders !== "cold" && <LeadersSection l={leaders} />}
 
       <ConstellationView c={c} />
 
@@ -89,5 +95,56 @@ async function Body({ params }: Pick<PageProps<"/map/[category]">, "params">) {
         </p>
       </details>
     </>
+  );
+}
+
+function LeadersSection({ l }: { l: Leaders }) {
+  const names = l.brands.map((b) => b.name);
+  return (
+    <section className="mt-8 border-t border-rule pt-6">
+      <h2 className="font-display text-xl sm:text-2xl">Who leads each city: {names.slice(0, -1).join(", ")} and {names.at(-1)}</h2>
+      <p className="mt-2 max-w-[68ch] text-base text-ink-2">
+        Ranked within the {l.common.toLocaleString("en-US")} cells where all three have a reading; blank elsewhere. Leads means over-indexes most relative to its own national pattern, not the most fans.
+      </p>
+      <div className="mt-4 grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:items-start">
+        <div>
+          <LeadersMap cells={l.cells} names={names} />
+          <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-2">
+            {l.brands.map((b, k) => (
+              <span key={b.id} className="inline-flex items-center gap-2">
+                <span className="inline-block size-3 rounded-full" style={{ background: LEADER_TONE[k] }} />
+                {b.name}: leads {b.cells.toLocaleString("en-US")} cells
+              </span>
+            ))}
+          </p>
+        </div>
+        <table className="w-full text-left text-base">
+          <caption className="pb-2 text-left text-sm text-ink-3">The twelve markets with the most coloured cells</caption>
+          <thead className="text-sm text-ink-3">
+            <tr>
+              <th className="py-1 pr-3 font-normal">Market</th>
+              <th className="py-1 font-normal">Leads there</th>
+            </tr>
+          </thead>
+          <tbody>
+            {l.markets.map((m) => (
+              <tr key={m.name} className="border-t border-rule">
+                <td className="py-1.5 pr-3 text-ink">{m.name}</td>
+                <td className="py-1.5 text-ink-2">
+                  <span className="mr-2 inline-block size-2.5 rounded-full align-middle" style={{ background: LEADER_TONE[m.leader] }} />
+                  {names[m.leader]} <span className="text-sm text-ink-3 tabular-nums">({Math.round(m.share * m.cells)} of {m.cells} cells)</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <details className="mt-3 max-w-[68ch] text-sm text-ink-2">
+        <summary className="cursor-pointer text-base">How the leaders map was made</summary>
+        <p className="mt-2">
+          Each brand&apos;s national Qloo heatmap, re-ranked by percentile within the cells all three carry, as the pair map does. A cell goes to the brand with the highest percentile there and stays blank when none reaches its own top half. {Math.round(l.region * 100)} of every 100 coloured cells share their leader with most of their neighbours, so these are regions, not scattered points. Three brands, not the whole aisle: with all nine, the brands with the biggest maps decide most cells (see /audit).{l.why ? ` ${l.why}` : ""}
+        </p>
+      </details>
+    </section>
   );
 }

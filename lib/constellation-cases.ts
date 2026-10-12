@@ -1,6 +1,8 @@
 // Prepared categories for the constellation (brief-oct13-moonshots pick 1). No server imports: the front door links them.
 export type Brand = { name: string; id: string };
-export type Category = { slug: string; title: string; brands: Brand[]; absent?: string[] }; // absent: no Qloo brand entity
+// absent: no Qloo brand entity. leaders: the three camp heads for the "who leads each city" map (round 3 pick 2), with
+// why when the choice isn't obvious; an aisle without leaders failed its gate and has no map.
+export type Category = { slug: string; title: string; brands: Brand[]; absent?: string[]; leaders?: { names: [string, string, string]; why?: string } };
 
 // Ids from /search on real Oct 12 (probe/constellation-ids.json). Qloo has no brand entity for Alani Nu, Ghost, Prime,
 // Culture Pop or San Pellegrino, and "Topo Chico" finds only the hard seltzer, so they're left out (the page says so).
@@ -8,6 +10,7 @@ export const CATEGORIES: Category[] = [
   {
     slug: "energy-drinks",
     title: "Energy drinks",
+    leaders: { names: ["Red Bull", "Monster Energy", "Celsius"] },
     absent: ["Alani Nu", "Ghost", "Prime"],
     brands: [
       { name: "Red Bull", id: "409FAF5A-BC5F-4DC3-943D-E3B5F20B471D" },
@@ -24,6 +27,10 @@ export const CATEGORIES: Category[] = [
   {
     slug: "soda-and-sparkling-water",
     title: "Better-for-you soda and sparkling water",
+    leaders: {
+      names: ["Olipop", "LaCroix", "Simply Pop"],
+      why: "Simply Pop stands for the prebiotic side: Poppi's map shares only 1,961 cells with Olipop and LaCroix, under the 3,000-cell floor, and Simply Pop shares 4,681.",
+    },
     absent: ["Culture Pop", "San Pellegrino", "Topo Chico (only the hard seltzer)"],
     brands: [
       { name: "Olipop", id: "6647FB92-9390-4B58-885B-86D96FF5BB6D" },
