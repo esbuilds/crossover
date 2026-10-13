@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import results from "@/audit/results.json";
+import replay from "@/audit/replay.json";
 import { Chip, SiteHeader } from "../ui";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
@@ -13,6 +14,7 @@ const FREEZE_COMMIT = "d244ee2";
 const NOTES: Record<string, string> = {
   "Red Bull": "The named gate (Monster Energy) missed Rockstar Energy Drink, which lands in the picks; the drafter labelled Rockstar ambiguous, not a competitor. A tag gate on energy drinks catches it.",
 };
+const REPLAY_FREEZE = "9b64c6c";
 const SOURCE = "https://www.marketingdive.com/news/best-marketing-campaigns-2024-advertising-tactics-cmo-lessons/734003/";
 
 const held = results.briefs.filter((b) => b.set === "heldOut");
@@ -94,6 +96,8 @@ export default function AuditPage() {
           ). On a Liquid Death shortlist run Oct 10, e.l.f. measured 0.62, 0.25 below the strongest name and in the lowest group, while being one of the best-known brands on the list. Taste is one input for deciding who to call first, not a verdict on a deal.
         </p>
       </section>
+
+      <Replay />
 
       <section className="mt-12 max-w-[68ch]">
         <h2 className="font-display text-xl">Doubles, not swaps</h2>
@@ -205,5 +209,39 @@ function ResolutionRow({ c, after }: { c: Challenge; after?: Challenge }) {
       {c.q} <span className="text-sm text-ink-3">({c.kind})</span>: {said(c)}
       {after && after.state !== c.state && <span className="text-ink-2"> → {said(after)}</span>}
     </li>
+  );
+}
+
+// Historical replay (audit/replay-protocol.md, replay-v1): published as run, pass or fail
+function Replay() {
+  const sum = replay.summary!;
+  const scored = replay.cases.filter((c) => c.result?.state === "scored");
+  const dropped = replay.cases.filter((c) => c.dropped);
+  return (
+    <section className="mt-12">
+      <h2 className="font-display text-xl">Would it have found real partners?</h2>
+      <p className="mt-2 max-w-[68ch] text-base text-ink-2">
+        Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans score all eight. Protocol frozen before the run (commit <code className="font-mono text-sm">{REPLAY_FREEZE}</code>, audit/replay-protocol.md): a hit is the real partner in the top three, and passing needed {sum.need} hits of {sum.scored}.
+      </p>
+      <p className="mt-3 max-w-[68ch] text-lg text-ink">
+        {sum.pass ? "It passes" : "It fails its bar"}: {sum.hits} of {sum.scored} real partners in the top three (needed {sum.need}; chance gives about {(sum.scored * 3 / 8).toFixed(1)}). No real partner ranked below {Math.max(...scored.map((c) => c.result!.rank!))}th, and the mean rank is {sum.meanRank} against {sum.chanceMeanRank} by chance, reported but not part of the bar.
+      </p>
+      <ul className="mt-4 grid max-w-[900px] gap-x-8 md:grid-cols-2">
+        {scored.map((c) => (
+          <li key={c.seed + c.partner} className="border-t border-rule py-3 text-sm text-ink-2">
+            <p className="text-base text-ink">
+              {c.seed} x {c.partner} <span className="text-ink-3">({c.year})</span>: <span className="tabular-nums">#{c.result!.rank} of {c.result!.of}</span>
+            </p>
+            <p className="mt-1 tabular-nums">
+              {c.result!.affinity!.toFixed(2)} against a top of {c.result!.top!.toFixed(2)}. Decoys: {c.decoys!.map((d) => d.name).join(", ")}.{" "}
+              <a href={c.source} className="underline decoration-rule-strong underline-offset-4 hover:decoration-ink">Source</a>
+            </p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 max-w-[68ch] text-sm text-ink-2">
+        Dropped before scoring: {dropped.map((c) => `${c.seed} x ${c.partner}`).join("; ")}. Four had no Qloo category tag for the partner; four had a tag that isn&apos;t the partner&apos;s category. Red Bull x GoPro and Liquid Death x e.l.f. were left out because their scores were already seen. A deal that happened is a decision, not proof it worked.
+      </p>
+    </section>
   );
 }
