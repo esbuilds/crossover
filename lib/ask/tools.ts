@@ -77,7 +77,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       const r = await deps.rival(st.seed);
       if (r?.kind === "pick") {
         st.rival = { id: r.pick.id, name: r.pick.name, type: r.pick.type };
-        return step("findRival", why, at, { output: { method: { topN: METHOD.topN }, found: true, rival: { name: r.pick.name, affinity: two(r.pick.affinity) }, by: r.field === "category" ? `Qloo category ${r.category}` : "genre tag" }, summary: `Closest same-field brand: ${r.pick.name}` });
+        return step("findRival", why, at, { output: { method: { topN: METHOD.topN }, found: true, rival: { name: r.pick.name, id: r.pick.id, type: r.pick.type, affinity: two(r.pick.affinity) }, by: r.field === "category" ? `Qloo category ${r.category}` : "genre tag" }, summary: `Closest same-field brand: ${r.pick.name}` });
       }
       return step("findRival", why, at, { output: { found: false }, summary: "No same-field brand in the fans' top 50" });
     },
@@ -91,7 +91,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       const r = v.rivals;
       return step("split", why, at, {
         output: {
-          method: METHOD, seed: { name: r.a.name }, rival: { name: r.b.name },
+          method: METHOD, seed: { name: r.a.name, id: st.seed.entity_id, type: st.seed.type }, rival: { name: r.b.name, id: st.rival.id, type: st.rival.type },
           closerToSeed: r.leansA.length, closerToRival: r.leansB.length, withinGapOfBoth: r.shared.length, sameField: r.sameField.length,
           seedSide: r.leansA.slice(0, 10).map((x) => ({ name: x.name, seed: two(x.a), rival: two(x.b) })),
           seedMarkets: v.map?.metrosA.map((m) => ({ name: m.name })) ?? [], rivalMarkets: v.map?.metrosB.map((m) => ({ name: m.name })) ?? [],

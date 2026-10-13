@@ -92,7 +92,9 @@ async function generate(input: AskInput, say: (t: string) => void, write: (d: st
 }
 
 const keyOf = (i: AskInput) => (i.id ? i.id.toUpperCase() : (i.query ?? "").trim().toLowerCase());
-const run = streamCache<AskInput, Streamed>("ask", ASK_VERSION, keyOf, generate);
+// ASK_TOOLS bumps when tool outputs change without the prompt changing (t2, Oct 13: ids for the step 3 map and /vs link)
+export const ASK_TOOLS = "t2";
+const run = streamCache<AskInput, Streamed>("ask", `${ASK_VERSION}+${ASK_TOOLS}`, keyOf, generate);
 
 export async function ask(input: AskInput, ip: string, onEvent: (e: AskEvent) => void) {
   const r = await run(input, ip, (s) => onEvent(JSON.parse(s)), () => {});

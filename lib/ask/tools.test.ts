@@ -98,3 +98,15 @@ test("review refuses when Qloo returns no cards for the candidates", async () =>
   const r = await t.review({ why: "x", ids: ["T0", "T1"] });
   assert.match((r.output as { error: string }).error, /no cards|couldn't/);
 });
+
+// Pick A gate (Oct 13): the page draws step 3's map and links /vs from the step outputs, so the rival and split
+// steps carry both Qloo ids and types.
+test("findRival and split carry the ids and types the map and /vs link need", async () => {
+  const vs = { rivals: { a: { name: "Liquid Death" }, b: { name: "Celsius" }, leansA: [], leansB: [], shared: [], sameField: [] }, map: null } as unknown as NonNullable<Awaited<ReturnType<Deps["vs"]>>>;
+  const t = makeTools({ ...base, vs: async () => vs }, () => {});
+  await t.resolve({ why: "x", name: "Liquid Death" });
+  const r = (await t.findRival({ why: "x" })).output as { rival: { id: string; type: string } };
+  assert.deepEqual([r.rival.id, r.rival.type], ["CEL", "urn:entity:brand"]);
+  const s = (await t.split({ why: "x" })).output as { seed: { id: string; type: string }; rival: { id: string; type: string } };
+  assert.deepEqual([s.seed.id, s.seed.type, s.rival.id, s.rival.type], ["LD", "urn:entity:brand", "CEL", "urn:entity:brand"]);
+});

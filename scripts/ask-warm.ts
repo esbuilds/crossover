@@ -4,9 +4,9 @@
 const base = process.argv[2];
 if (!base) throw new Error("usage: scripts/ask-warm.ts <baseUrl>");
 const ASKS = [
-  { id: "4DF7C265-52D9-4A99-8803-F62C2302D561", type: "urn:entity:brand", label: "Liquid Death" },
-  { id: "6647FB92-9390-4B58-885B-86D96FF5BB6D", type: "urn:entity:brand", label: "Olipop" },
+  // the prepared chips on /ask (app/ask/ask-view.tsx PREPARED_ASKS); the second chip is auditioned Oct 13 night
   { id: "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A", type: "urn:entity:artist", label: "Mt. Joy" },
+  { id: "4DF7C265-52D9-4A99-8803-F62C2302D561", type: "urn:entity:brand", label: "Liquid Death" },
 ];
 for (const a of ASKS) {
   const before = (await (await fetch(`${base}/api/usage`)).json()).today;
