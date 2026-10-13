@@ -8,12 +8,12 @@ import { ColdPairCap } from "@/lib/rivals.ts";
 import { failCode } from "@/lib/failure.ts";
 import { FAIL_COPY } from "@/lib/fail-copy.ts";
 import { sse } from "@/lib/sse.ts";
+import { parseAskBody } from "@/lib/ask/body.ts";
 
-const short = (v: unknown) => typeof v === "string" && v.trim().length > 0 && v.length <= 100;
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
-  const input = short(body?.id) && short(body?.type) && String(body.type).startsWith("urn:entity:") ? { id: String(body.id), type: String(body.type) } : short(body?.query) ? { query: String(body.query) } : null;
+  const input = parseAskBody(body);
   if (!input) return Response.json({ error: "a name is required" }, { status: 400 });
   const ip = generationKey(request);
   return sse(async (send) => {

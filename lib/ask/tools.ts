@@ -56,39 +56,40 @@ export type AskTools = ReturnType<typeof makeTools>;
 export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
   let n = 0;
   const st: { seed?: Ref; rival?: { id: string; name: string; type: string }; vs?: VsData; candidates?: Candidate[]; review?: ReviewRun } = {};
-  const step = (tool: string, why: string, out: Out): Out => (record({ n: ++n, tool, why, output: out.output, summary: out.summary }), out);
-  const refuse = (tool: string, why: string, error: string) => step(tool, why, { output: { error }, summary: error });
+  // at: the step number the agent loop assigned when the call started (parallel calls finish out of order)
+  const step = (tool: string, why: string, at: number | undefined, out: Out): Out => (record({ n: at ?? ++n, tool, why, output: out.output, summary: out.summary }), out);
+  const refuse = (tool: string, why: string, at: number | undefined, error: string) => step(tool, why, at, { output: { error }, summary: error });
 
   return {
-    resolve: async ({ why, name, id, type }: { why: string; name?: string; id?: string; type?: string }) => {
+    resolve: async ({ why, name, id, type }: { why: string; name?: string; id?: string; type?: string }, at?: number) => {
       const r = await deps.identify({ query: name, id, type });
       if (r.state === "confirmed") {
         st.seed = r.entity;
-        return step("resolve", why, { output: { state: "confirmed", name: r.entity.name, id: r.entity.entity_id, type: r.entity.type }, summary: `Confirmed ${r.entity.name}` });
+        return step("resolve", why, at, { output: { state: "confirmed", name: r.entity.name, id: r.entity.entity_id, type: r.entity.type }, summary: `Confirmed ${r.entity.name}` });
       }
       if (r.state === "ambiguous")
-        return step("resolve", why, { output: { state: "ambiguous", options: r.options.map((o) => ({ name: o.name, id: o.entity_id, type: o.type })) }, summary: `"${r.input}" could be ${r.options.length} things in Qloo` });
-      return step("resolve", why, { output: { state: "unresolved", query: r.input }, summary: `Qloo doesn't know "${r.input}"` });
+        return step("resolve", why, at, { output: { state: "ambiguous", count: r.options.length, options: r.options.map((o) => ({ name: o.name, id: o.entity_id, type: o.type })) }, summary: `"${r.input}" could be ${r.options.length} things in Qloo` });
+      return step("resolve", why, at, { output: { state: "unresolved", name: r.input }, summary: `Qloo doesn't know "${r.input}"` });
     },
 
-    findRival: async ({ why }: { why: string }) => {
-      if (!st.seed) return refuse("findRival", why, "run resolve first");
+    findRival: async ({ why }: { why: string }, at?: number) => {
+      if (!st.seed) return refuse("findRival", why, at, "run resolve first");
       const r = await deps.rival(st.seed);
       if (r?.kind === "pick") {
         st.rival = { id: r.pick.id, name: r.pick.name, type: r.pick.type };
-        return step("findRival", why, { output: { method: { topN: METHOD.topN }, found: true, rival: { name: r.pick.name, affinity: two(r.pick.affinity) }, by: r.field === "category" ? `Qloo category ${r.category}` : "genre tag" }, summary: `Closest same-field brand: ${r.pick.name}` });
+        return step("findRival", why, at, { output: { method: { topN: METHOD.topN }, found: true, rival: { name: r.pick.name, affinity: two(r.pick.affinity) }, by: r.field === "category" ? `Qloo category ${r.category}` : "genre tag" }, summary: `Closest same-field brand: ${r.pick.name}` });
       }
-      return step("findRival", why, { output: { found: false }, summary: "No same-field brand in the fans' top 50" });
+      return step("findRival", why, at, { output: { found: false }, summary: "No same-field brand in the fans' top 50" });
     },
 
-    split: async ({ why }: { why: string }) => {
-      if (!st.seed) return refuse("split", why, "run resolve first");
-      if (!st.rival) return refuse("split", why, "run findRival first; split needs a rival");
+    split: async ({ why }: { why: string }, at?: number) => {
+      if (!st.seed) return refuse("split", why, at, "run resolve first");
+      if (!st.rival) return refuse("split", why, at, "run findRival first; split needs a rival");
       const v = await deps.vs({ id: st.seed.entity_id, type: st.seed.type }, { id: st.rival.id, type: st.rival.type });
-      if (!v) return refuse("split", why, "Qloo couldn't compare these two");
+      if (!v) return refuse("split", why, at, "Qloo couldn't compare these two");
       st.vs = v;
       const r = v.rivals;
-      return step("split", why, {
+      return step("split", why, at, {
         output: {
           method: METHOD, seed: { name: r.a.name }, rival: { name: r.b.name },
           closerToSeed: r.leansA.length, closerToRival: r.leansB.length, withinGapOfBoth: r.shared.length, sameField: r.sameField.length,
@@ -99,9 +100,9 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       });
     },
 
-    candidates: async ({ why, source }: { why: string; source: "split" | "top50" }) => {
-      if (!st.seed) return refuse("candidates", why, "run resolve first");
-      if (source === "split" && !st.vs) return refuse("candidates", why, "run split first, or use source top50");
+    candidates: async ({ why, source }: { why: string; source: "split" | "top50" }, at?: number) => {
+      if (!st.seed) return refuse("candidates", why, at, "run resolve first");
+      if (source === "split" && !st.vs) return refuse("candidates", why, at, "run split first, or use source top50");
       let list: Candidate[];
       if (source === "split") list = fromSplit(st.vs!.rivals.leansA);
       else {
@@ -109,21 +110,21 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
         list = seedCard ? fromTop50(seedCard, await deps.top50(st.seed.entity_id), st.rival ? [st.rival.id] : []) : [];
       }
       st.candidates = list;
-      return step("candidates", why, { output: { method: { topN: METHOD.topN }, source, candidates: list.map((c) => ({ name: c.name, id: c.id })) }, summary: `${list.length} candidates from ${source === "split" ? "the seed's side of the split" : "the fans' top 50, own field left out"}` });
+      return step("candidates", why, at, { output: { method: { topN: METHOD.topN }, source, candidates: list.map((c) => ({ name: c.name, id: c.id })) }, summary: `${list.length} candidates from ${source === "split" ? "the seed's side of the split" : "the fans' top 50, own field left out"}` });
     },
 
-    review: async ({ why, ids }: { why: string; ids: string[] }) => {
-      if (!st.seed) return refuse("review", why, "run resolve first");
+    review: async ({ why, ids }: { why: string; ids: string[] }, at?: number) => {
+      if (!st.seed) return refuse("review", why, at, "run resolve first");
       const allowed = new Set((st.candidates ?? []).map((c) => c.id));
       const bad = ids.filter((id) => !allowed.has(id));
-      if (!ids.length || bad.length) return refuse("review", why, `review only takes ids returned by candidates (${bad.length} weren't)`);
+      if (!ids.length || bad.length) return refuse("review", why, at, `review only takes ids returned by candidates (${bad.length} weren't)`);
       const kept: Identity[] = (await deps.cards(ids)).map((e) => ({ state: "confirmed", input: e.name, entity: toRef(e, BRAND), via: "chosen id" }));
       const r = await deps.review(st.seed, kept);
       st.review = r;
       const g = r.groups[0];
       const nameOf = (id: string) => g.rows.find((x) => x.entity.entity_id === id)!.entity.name;
       const valueOf = (id: string) => two(g.rows.find((x) => x.entity.entity_id === id)!.forward.value);
-      return step("review", why, {
+      return step("review", why, at, {
         output: {
           method: { gap: METHOD.gap },
           clearThree: g.selection.noClearThree ? [] : g.selection.picks.map((id) => ({ name: nameOf(id), affinity: valueOf(id) })),
@@ -138,14 +139,14 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       });
     },
 
-    twins: async ({ why }: { why: string }) => {
-      if (!st.review) return refuse("twins", why, "run review first");
+    twins: async ({ why }: { why: string }, at?: number) => {
+      if (!st.review) return refuse("twins", why, at, "run review first");
       const g = st.review.groups[0];
       const t = await deps.twins(g);
       const nameOf = (id: string) => g.rows.find((x) => x.entity.entity_id === id)!.entity.name;
       return t
-        ? step("twins", why, { output: { found: true, a: { name: nameOf(t.a) }, b: { name: nameOf(t.b) }, value: two(t.value), next: two(t.next) }, summary: `${nameOf(t.a)} and ${nameOf(t.b)} sit closest to each other` })
-        : step("twins", why, { output: { found: false }, summary: "No pair stands out among the contenders" });
+        ? step("twins", why, at, { output: { found: true, a: { name: nameOf(t.a) }, b: { name: nameOf(t.b) }, value: two(t.value), next: two(t.next) }, summary: `${nameOf(t.a)} and ${nameOf(t.b)} sit closest to each other` })
+        : step("twins", why, at, { output: { found: false }, summary: "No pair stands out among the contenders" });
     },
   };
 }

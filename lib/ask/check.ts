@@ -21,6 +21,14 @@ function walk(v: unknown, names: Set<string>, nums: number[]) {
       else walk(x, names, nums);
     }
 }
+// each named object's own numbers (its affinity, its ranks), for binding a quoted score to the brand it's quoted for
+function owned(v: unknown, out: Map<string, number[]>) {
+  if (Array.isArray(v)) return v.forEach((x) => owned(x, out));
+  if (!v || typeof v !== "object") return;
+  const o = v as Record<string, unknown>;
+  if (typeof o.name === "string") out.set(o.name, [...(out.get(o.name) ?? []), ...Object.values(o).filter((x): x is number => typeof x === "number")]);
+  for (const x of Object.values(o)) owned(x, out);
+}
 const facts = (steps: StepRecord[]) => {
   const names = new Set<string>(), nums: number[] = [];
   for (const s of steps) walk(s.output, names, nums);
@@ -47,6 +55,19 @@ export function checkDecision(d: Decision, steps: StepRecord[]): Check {
     const plain = it.text.replace(BRACKET, " ");
     for (const n of all.names) if (n.length >= 3 && new RegExp(`(^|[^\\w])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^\\w]|$)`).test(plain)) named.push(n);
     for (const n of named) if (!cited.names.has(n) && !seed.has(n)) problems.push(`${it.label}: ${n} isn't in a cited step`);
+    // a score right after the first brand named (the seed aside), before any other name, must be that brand's own
+    // number or a method number (final review, Oct 13; narrowed so group ranges and comparisons stay step-checked)
+    const own = new Map<string, number[]>();
+    for (const st of steps.filter((x) => it.steps.includes(x.n))) owned(st.output, own);
+    const method = steps.filter((x) => it.steps.includes(x.n)).flatMap((x) => Object.values(((x.output as { method?: Record<string, number> })?.method) ?? {}));
+    const first = [...it.text.matchAll(BRACKET)].find((m) => !seed.has(m[1]));
+    if (first) {
+      const after = it.text.slice(first.index! + first[0].length);
+      const segment = after.slice(0, after.includes("[[") ? after.indexOf("[[") : undefined);
+      const mine = [...(own.get(first[1]) ?? []), ...method];
+      for (const m of segment.matchAll(/(?<![\w.])\d+\.\d+/g))
+        if (!mine.some((v) => v.toFixed(2) === Number(m[0]).toFixed(2))) problems.push(`${it.label}: ${m[0]} isn't ${first[1]}'s own number`);
+    }
     for (const m of plain.matchAll(/(?<![\w.])\d+(?:\.\d+)?/g)) {
       const x = m[0];
       const hit = x.includes(".") ? cited.nums.some((v) => v.toFixed(2) === Number(x).toFixed(2)) : cited.nums.includes(Number(x));

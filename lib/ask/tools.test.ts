@@ -72,3 +72,20 @@ test("split and candidates state the method numbers they use (top 50, the 0.05 g
   const c = (await t.candidates({ why: "x", source: "top50" })).output as { method: { topN: number } };
   assert.equal(c.method.topN, 50);
 });
+
+// Final review, Important 1: two tool calls in one turn run concurrently; a refusal that finishes first must keep the
+// number the guard gave it, or the page and the checker read the wrong step.
+test("steps keep the number the guard assigned, even when a refusal finishes first", async () => {
+  const steps: StepRecord[] = [];
+  const t = makeTools(base, (s) => steps.push(s));
+  await t.resolve({ why: "x", name: "Liquid Death" }, 1);
+  await Promise.all([t.candidates({ why: "x", source: "top50" }, 2), t.twins({ why: "x" }, 3)]);
+  assert.deepEqual(steps.map((s) => `${s.n} ${s.tool}`).sort(), ["1 resolve", "2 candidates", "3 twins"]);
+});
+
+// Final review, Important 3: the model names the unknown query and counts the options; both must be in the output.
+test("unresolved names the query under name; ambiguous states its count", async () => {
+  const t = makeTools(base, () => {});
+  assert.equal(((await t.resolve({ why: "x", name: "Fruition" })).output as { name: string }).name, "Fruition");
+  assert.equal(((await t.resolve({ why: "x", name: "Dove" })).output as { count: number }).count, 2);
+});

@@ -59,3 +59,25 @@ test("the resolved seed's name counts in any sentence; other names still need th
   assert.deepEqual(checkDecision({ ...ok, summary: [{ text: "For [[Mt. Joy]], start with [[Allbirds]].", steps: [2] }] }, steps), { ok: true });
   assert.equal(checkDecision({ ...ok, summary: [{ text: "For [[Mt. Joy]], start with [[Patagonia]].", steps: [2] }] }, steps).ok, false);
 });
+
+// Final review, Important 4: a score quoted for one brand must be that brand's score, not any number in the step.
+test("a decimal quoted next to one brand must be that brand's own number", () => {
+  assert.equal(checkDecision({ ...ok, summary: [{ text: "[[REI]] leads at 0.95.", steps: [2] }] }, steps).ok, false);
+  assert.deepEqual(checkDecision({ ...ok, summary: [{ text: "[[REI]] sits at 0.91.", steps: [2] }] }, steps), { ok: true });
+});
+
+// Found re-warming Mt. Joy after the binding rule: "within 0.05 of the top" quotes the method's gap, not a brand score.
+test("a method number (under method) may sit next to one brand; brand scores still bind", () => {
+  const withMethod: StepRecord[] = [...steps.slice(0, 1), { ...steps[1], output: { ...(steps[1].output as object), method: { gap: 0.05 } } }, steps[2]];
+  assert.deepEqual(checkDecision({ ...ok, summary: [{ text: "[[REI]] sits within 0.05 of the top.", steps: [2] }] }, withMethod), { ok: true });
+  assert.equal(checkDecision({ ...ok, summary: [{ text: "[[REI]] leads at 0.95.", steps: [2] }] }, withMethod).ok, false);
+});
+
+// Found re-warming Mt. Joy: a range sentence names one brand but its numbers are the group's. Binding applies only to
+// decimals right after the first brand named, before any other name.
+test("a group range next to one brand passes; a score right after a brand's name must be its own", () => {
+  const s3: StepRecord[] = [steps[0], { ...steps[1], output: { groups: [[{ name: "Allbirds", affinity: 0.95 }, { name: "REI", affinity: 0.91 }, { name: "Hydro Flask", affinity: 0.9 }]], ranks: [{ name: "Allbirds", amongSeedFans: 2 }] } }];
+  assert.deepEqual(checkDecision({ ...ok, cautions: [], summary: [{ text: "All three scored between 0.90 and 0.95, with [[Allbirds]] at the top.", steps: [2] }] }, s3), { ok: true });
+  assert.deepEqual(checkDecision({ ...ok, cautions: [], summary: [{ text: "[[REI]] scores 0.91, close to [[Allbirds]] (0.95).", steps: [2] }] }, s3), { ok: true });
+  assert.equal(checkDecision({ ...ok, cautions: [], summary: [{ text: "[[REI]] scores 0.95, ahead of [[Allbirds]].", steps: [2] }] }, s3).ok, false);
+});

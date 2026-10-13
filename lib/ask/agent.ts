@@ -17,7 +17,7 @@ export type AskEvent =
   | { type: "done"; cached: boolean }
   | { type: "error"; message: string };
 
-export const ASK_VERSION = "ask-v1.3"; // v1.3: outputs state the method numbers (top 50, 0.05) // v1.1: split names both sides, checker fixes (first live run). v1.2: no grouping places into regions
+export const ASK_VERSION = "ask-v1.6"; // v1.5-1.6: score binding limited to the clause after the first brand, method numbers exempt // v1.4: final review fixes (step numbers owned by the loop, resolve outputs, score-to-brand binding) // v1.3: outputs state the method numbers (top 50, 0.05) // v1.1: split names both sides, checker fixes (first live run). v1.2: no grouping places into regions
 const MAX_TOOLS = 8;
 
 const SYSTEM = `You decide which brands a partnerships team should call first, for one name the visitor gives you. You can only measure through the tools. You never add a fact the tools didn't return.
@@ -44,23 +44,24 @@ const why = { why: { type: "string", description: "One plain sentence: what this
 const obj = (props: Record<string, JSONSchema7>, required: string[]): JSONSchema7 => ({ type: "object", properties: props, required, additionalProperties: false });
 const cited: JSONSchema7 = { type: "object", properties: { text: { type: "string" }, steps: { type: "array", items: { type: "integer" } } }, required: ["text", "steps"], additionalProperties: false };
 
-async function generate(input: AskInput, say: (t: string) => void, write: (d: string) => void): Promise<Streamed> {
+async function generate(input: AskInput, say: (t: string) => void, write: (d: string) => void, ip: string): Promise<Streamed> {
   const trace: string[] = [];
   const emit = (e: AskEvent) => { const s = JSON.stringify(e); trace.push(s); say(s); };
   const steps: StepRecord[] = [];
-  const t = makeTools(qlooDeps(currentIp), (s) => { steps.push(s); emit({ type: "result", n: s.n, summary: s.summary, output: s.output }); });
+  const t = makeTools(qlooDeps(ip), (s) => { steps.push(s); emit({ type: "result", n: s.n, summary: s.summary, output: s.output }); });
   let decision: Decision | null = null;
   let calls = 0;
-  const guard = <A, R>(name: string, fn: (a: A) => Promise<R>) => async (a: A) => {
-    if (++calls > MAX_TOOLS) return { error: "out of steps; call decide now" };
-    emit({ type: "call", n: calls, tool: name, why: (a as { why?: string }).why ?? "" });
-    return (await fn(a) as { output: object }).output;
+  const guard = <A, R>(name: string, fn: (a: A, at: number) => Promise<R>) => async (a: A) => {
+    if (calls >= MAX_TOOLS) return { error: "out of steps; call decide now" };
+    const at = ++calls; // the loop owns step numbers (parallel calls finish out of order)
+    emit({ type: "call", n: at, tool: name, why: (a as { why?: string }).why ?? "" });
+    return (await fn(a, at) as { output: object }).output;
   };
 
   const result = streamText({
     model: anthropic(MODEL),
     maxOutputTokens: 8000,
-    providerOptions: { anthropic: { effort: "medium", fallbacks: "default" } },
+    providerOptions: { anthropic: { effort: "medium", fallbacks: "default", disableParallelToolUse: true } },
     stopWhen: [hasToolCall("decide"), isStepCount(MAX_TOOLS + 2)],
     instructions: { role: "system", content: SYSTEM, providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
     prompt: input.id ? `The visitor picked the Qloo entity ${input.id} (${input.type}). Resolve it by id.` : `Who should "${(input.query ?? "").slice(0, 100)}" call first?`,
@@ -90,12 +91,10 @@ async function generate(input: AskInput, say: (t: string) => void, write: (d: st
   return { text: JSON.stringify(final), trace };
 }
 
-let currentIp = "unknown"; // ponytail: per-process; set right before each run (runs are awaited one at a time per request)
 const keyOf = (i: AskInput) => (i.id ? i.id.toUpperCase() : (i.query ?? "").trim().toLowerCase());
 const run = streamCache<AskInput, Streamed>("ask", ASK_VERSION, keyOf, generate);
 
 export async function ask(input: AskInput, ip: string, onEvent: (e: AskEvent) => void) {
-  currentIp = ip;
   const r = await run(input, ip, (s) => onEvent(JSON.parse(s)), () => {});
   const events: AskEvent[] = r.trace.map((s) => JSON.parse(s));
   if (!r.ran) for (const e of events) onEvent(e);
