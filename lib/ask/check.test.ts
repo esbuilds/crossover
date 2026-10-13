@@ -47,3 +47,15 @@ test("a sentence with no step, or a step that doesn't exist, is rejected", () =>
 test("unbracket renders names plainly", () => {
   assert.equal(unbracket("Call [[REI]] first."), "Call REI first.");
 });
+
+// Found on the first live run (Liquid Death, Oct 13): the model bracketed calls[].name, and named the seed in sentences
+// citing later steps. The seed is the subject of every step, so a confirmed resolve step's name counts everywhere.
+test("calls[].name may arrive bracketed", () => {
+  const d = { ...ok, calls: [{ name: "[[Allbirds]]", reason: "[[Allbirds]] leads at 0.95.", steps: [2] }] };
+  assert.deepEqual(checkDecision(d, steps), { ok: true });
+});
+
+test("the resolved seed's name counts in any sentence; other names still need their step", () => {
+  assert.deepEqual(checkDecision({ ...ok, summary: [{ text: "For [[Mt. Joy]], start with [[Allbirds]].", steps: [2] }] }, steps), { ok: true });
+  assert.equal(checkDecision({ ...ok, summary: [{ text: "For [[Mt. Joy]], start with [[Patagonia]].", steps: [2] }] }, steps).ok, false);
+});

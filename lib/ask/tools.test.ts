@@ -50,3 +50,12 @@ test("split needs a rival first", async () => {
   await t.resolve({ why: "x", name: "Liquid Death" });
   assert.match(((await t.split({ why: "x" })).output as { error: string }).error, /findRival/);
 });
+
+test("split names both sides in its output, so sentences citing it can name the rival", async () => {
+  const vs = { rivals: { a: { name: "Liquid Death" }, b: { name: "Celsius" }, leansA: [], leansB: [], shared: [], sameField: [] }, map: null } as unknown as NonNullable<Awaited<ReturnType<Deps["vs"]>>>;
+  const t = makeTools({ ...base, vs: async () => vs }, () => {});
+  await t.resolve({ why: "x", name: "Liquid Death" });
+  await t.findRival({ why: "x" });
+  const out = (await t.split({ why: "x" })).output as { seed: { name: string }; rival: { name: string } };
+  assert.deepEqual([out.seed.name, out.rival.name], ["Liquid Death", "Celsius"]);
+});

@@ -1,0 +1,36 @@
+// app/api/ask/route.ts
+// POST /api/ask { query } or { id, type } -> server-sent AskEvents (lib/ask/agent.ts), then done or error.
+import { type NextRequest } from "next/server";
+import { ask } from "@/lib/ask/agent.ts";
+import { CapReached, generationKey } from "@/lib/agent/stream-cache.ts";
+import { QuotaError } from "@/lib/qloo.ts";
+import { ColdPairCap } from "@/lib/rivals.ts";
+import { failCode } from "@/lib/failure.ts";
+import { FAIL_COPY } from "@/lib/fail-copy.ts";
+import { sse } from "@/lib/sse.ts";
+
+const short = (v: unknown) => typeof v === "string" && v.trim().length > 0 && v.length <= 100;
+
+export async function POST(request: NextRequest) {
+  const body = await request.json().catch(() => null);
+  const input = short(body?.id) && short(body?.type) && String(body.type).startsWith("urn:entity:") ? { id: String(body.id), type: String(body.type) } : short(body?.query) ? { query: String(body.query) } : null;
+  if (!input) return Response.json({ error: "a name is required" }, { status: 400 });
+  const ip = generationKey(request);
+  return sse(async (send) => {
+    try {
+      const r = await ask(input, ip, send);
+      console.log(`[ask] ${input.query ?? input.id} ${r.ran ? "generated" : "cached"}`);
+      send({ type: "done", cached: !r.ran });
+    } catch (err) {
+      console.error("[ask]", err);
+      const code = failCode(err);
+      send({
+        type: "error",
+        message: code ? FAIL_COPY[code]
+          : err instanceof CapReached ? "You've hit today's limit of 20 new asks. Asks you've already opened still work, and the limit resets tomorrow."
+          : err instanceof QuotaError || err instanceof ColdPairCap ? "Qloo's taste data is busy right now. Prepared asks still work; try this one again in a minute."
+          : "The agent stopped partway. The steps above are what it measured; try again to finish.",
+      });
+    }
+  });
+}

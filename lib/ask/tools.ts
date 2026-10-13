@@ -88,6 +88,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       const r = v.rivals;
       return step("split", why, {
         output: {
+          seed: { name: r.a.name }, rival: { name: r.b.name },
           closerToSeed: r.leansA.length, closerToRival: r.leansB.length, withinGapOfBoth: r.shared.length, sameField: r.sameField.length,
           seedSide: r.leansA.slice(0, 10).map((x) => ({ name: x.name, seed: two(x.a), rival: two(x.b) })),
           seedMarkets: v.map?.metrosA.map((m) => ({ name: m.name })) ?? [], rivalMarkets: v.map?.metrosB.map((m) => ({ name: m.name })) ?? [],

@@ -30,8 +30,10 @@ const facts = (steps: StepRecord[]) => {
 export function checkDecision(d: Decision, steps: StepRecord[]): Check {
   const problems: string[] = [];
   const all = facts(steps);
+  // the seed is the subject of every step: a confirmed resolve step's name counts in any sentence (first live run, Oct 13)
+  const seed = facts(steps.filter((s) => s.tool === "resolve" && (s.output as { state?: string })?.state === "confirmed")).names;
   const items: (Cited & { label: string; name?: string })[] = [
-    ...d.calls.map((c, i) => ({ label: `call ${i + 1}`, text: c.reason, steps: c.steps, name: c.name })),
+    ...d.calls.map((c, i) => ({ label: `call ${i + 1}`, text: c.reason, steps: c.steps, name: unbracket(c.name) })),
     ...d.cautions.map((c, i) => ({ ...c, label: `caution ${i + 1}` })),
     ...d.summary.map((c, i) => ({ ...c, label: `summary ${i + 1}` })),
   ];
@@ -44,7 +46,7 @@ export function checkDecision(d: Decision, steps: StepRecord[]): Check {
     if (it.name) named.push(it.name);
     const plain = it.text.replace(BRACKET, " ");
     for (const n of all.names) if (n.length >= 3 && new RegExp(`(^|[^\\w])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^\\w]|$)`).test(plain)) named.push(n);
-    for (const n of named) if (!cited.names.has(n)) problems.push(`${it.label}: ${n} isn't in a cited step`);
+    for (const n of named) if (!cited.names.has(n) && !seed.has(n)) problems.push(`${it.label}: ${n} isn't in a cited step`);
     for (const m of plain.matchAll(/(?<![\w.])\d+(?:\.\d+)?/g)) {
       const x = m[0];
       const hit = x.includes(".") ? cited.nums.some((v) => v.toFixed(2) === Number(x).toFixed(2)) : cited.nums.includes(Number(x));
