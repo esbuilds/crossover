@@ -5,7 +5,9 @@ import { fixtureByQuery } from "@/lib/fixtures.ts";
 import { failCode } from "@/lib/failure.ts";
 import { FAIL_COPY } from "@/lib/fail-copy.ts";
 import { dedupe, identityOf, parseBuyer, toRef, MAX_NAMES, type Buyer, type Identity, type Ref } from "@/lib/review.ts";
-import { runReview } from "@/lib/review-run.ts";
+import { Cold, runReview, warmFirst } from "@/lib/review-run.ts";
+import { ColdPairCap, spendColdPair } from "@/lib/rivals.ts";
+import { generationKey } from "@/lib/agent/stream-cache.ts";
 
 // POST /api/review (unlinked), review-v2. Body:
 //   { seed: "Liquid Death" | { id, type },
@@ -23,22 +25,28 @@ import { runReview } from "@/lib/review-run.ts";
 type NameIn = string | { name: string; id?: string; type?: string; proxy?: boolean };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-async function byId(id: string, type: string): Promise<Ref | null> {
+// Where Qloo reads come from: live, or the cache only (throwing Cold on a miss) for the warm-first pass.
+type Src = { insights: (p: Record<string, string | number>) => Promise<Entity[]>; search: (q: string, types: string[], take: number) => Promise<Entity[]> };
+const LIVE: Src = { insights: (p) => insights(p), search: (q, t, n) => search(q, t, n) as Promise<Entity[]> };
+const must = <T,>(v: T | null): T => { if (v === null) throw new Cold(); return v; };
+const CACHE: Src = { insights: async (p) => must(await insights.peek(p)), search: async (q, t, n) => must(await search.peek(q, t, n)) as Entity[] };
+
+async function byId(id: string, type: string, src: Src): Promise<Ref | null> {
   if (!UUID.test(id) || !RESOLVE_TYPES.includes(type)) return null;
-  const [hit] = await insights({ "filter.type": type, "filter.results.entities": id, take: 1 });
+  const [hit] = await src.insights({ "filter.type": type, "filter.results.entities": id, take: 1 });
   return hit ? toRef(hit, type) : null;
 }
 
-async function identify(n: NameIn, types = RESOLVE_TYPES): Promise<Identity> {
+async function identify(n: NameIn, src: Src, types = RESOLVE_TYPES): Promise<Identity> {
   const input = typeof n === "string" ? n.trim() : n.name.trim();
   if (typeof n !== "string" && n.id && n.type) {
-    const entity = await byId(n.id, n.type);
+    const entity = await byId(n.id, n.type, src);
     if (!entity) return { state: "unresolved", input };
     return n.proxy ? { state: "proxy", input, entity } : { state: "confirmed", input, entity, via: "chosen id" };
   }
   if (typeof n !== "string" && n.proxy) return { state: "unresolved", input }; // a stand-in needs a chosen entity
   const fx = types === RESOLVE_TYPES ? fixtureByQuery(input) : undefined;
-  return identityOf(input, fx ? fx.resolution : await resolve(input, (await search(input, types, 5)) as Entity[]));
+  return identityOf(input, fx ? fx.resolution : await resolve(input, await src.search(input, types, 5)));
 }
 
 
@@ -53,21 +61,27 @@ export async function POST(request: NextRequest) {
   const seedOk = short(body.seed) || (typeof body.seed === "object" && typeof body.seed.id === "string" && typeof body.seed.type === "string");
   if (!seedOk) return Response.json({ error: "seed must be a name or { id, type }" }, { status: 400 });
 
+  const only = typeof body.only === "string" ? `urn:entity:${body.only}` : null;
+  if (only && !RESOLVE_TYPES.includes(only)) return Response.json({ error: "only must be an entity type such as brand" }, { status: 400 });
   try {
-    const seedId = await identify(typeof body.seed === "string" ? body.seed : { name: body.seed.name ?? "seed", id: body.seed.id, type: body.seed.type });
-    if (seedId.state !== "confirmed") return Response.json({ error: "confirm the seed first", seed: seedId }, { status: 422 });
-    const seed = seedId.entity;
+    // warm first: a list already measured answers from the cache; a cold one (a typed list, "pick from these eight")
+    // spends one of the visitor's cold allowances like a new pair, then runs live (Fable round 4, Oct 13)
+    return await warmFirst(async (mode) => {
+      const src = mode === "peek" ? CACHE : LIVE;
+      const seedId = await identify(typeof body.seed === "string" ? body.seed : { name: body.seed.name ?? "seed", id: body.seed.id, type: body.seed.type }, src);
+      if (seedId.state !== "confirmed") return Response.json({ error: "confirm the seed first", seed: seedId }, { status: 422 });
+      const seed = seedId.entity;
 
-    const only = typeof body.only === "string" ? `urn:entity:${body.only}` : null;
-    if (only && !RESOLVE_TYPES.includes(only)) return Response.json({ error: "only must be an entity type such as brand" }, { status: 400 });
-    const ids: Identity[] = [];
-    for (const n of names) ids.push(await identify(n, only ? [only] : RESOLVE_TYPES)); // serial: never fan out against Qloo
-    const kept = dedupe(ids.filter((i) => !(i.state === "confirmed" && i.entity.entity_id === seed.entity_id)));
-    return Response.json(await runReview(seed, kept, buyer), { headers: { "Cache-Control": "no-store" } });
+      const ids: Identity[] = [];
+      for (const n of names) ids.push(await identify(n, src, only ? [only] : RESOLVE_TYPES)); // serial: never fan out against Qloo
+      const kept = dedupe(ids.filter((i) => !(i.state === "confirmed" && i.entity.entity_id === seed.entity_id)));
+      return Response.json(await runReview(seed, kept, buyer, { score: src.insights }), { headers: { "Cache-Control": "no-store" } });
+    }, () => spendColdPair(generationKey(request)));
   } catch (err) {
     console.error("[review]", err);
     const code = failCode(err);
     if (code) return Response.json({ error: FAIL_COPY[code], code }, { status: 503 });
+    if (err instanceof ColdPairCap) return Response.json({ error: "That's ten new lists and pairs today. The prepared ones still work.", code: "cap" }, { status: 503 });
     if (err instanceof QuotaError) return Response.json({ error: "Qloo's taste data is busy right now; try again in a minute." }, { status: 503 });
     return Response.json({ error: "Qloo request failed" }, { status: 502 });
   }

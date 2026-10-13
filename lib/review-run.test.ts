@@ -2,7 +2,7 @@
 // The review runner the route and the ask agent share, on Mt. Joy's top four (scores Qloo returned Oct 13). No live API.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runReview, twinsFor } from "./review-run.ts";
+import { Cold, runReview, twinsFor, warmFirst } from "./review-run.ts";
 import { pairKey, type Identity, type Ref, type Scorer } from "./review.ts";
 
 const B = "urn:entity:brand";
@@ -31,4 +31,16 @@ test("runReview withTwins false leaves twins empty; twinsFor computes them on de
   const r = await runReview(seed, kept, {}, { score, peek: async () => null, withTwins: false });
   assert.deepEqual(r.twins, {});
   assert.deepEqual(await twinsFor(r.groups[0], score), { a: "REI", b: "Patagonia", value: 0.971, next: 0.894 });
+});
+
+// Fable round 4 (Oct 13): a cold review (a list nobody has run, like "pick from these eight") counts against the
+// visitor's cold cap like a pair; a warm one never does.
+test("warmFirst: a warm run never spends; a cold one spends once, then runs live", async () => {
+  let spent = 0;
+  const spend = async () => void spent++;
+  assert.equal(await warmFirst(async () => "warm", spend), "warm");
+  assert.equal(spent, 0);
+  const r = await warmFirst(async (mode) => { if (mode === "peek") throw new Cold(); return "live"; }, spend);
+  assert.deepEqual([r, spent], ["live", 1]);
+  await assert.rejects(warmFirst(async (mode) => { if (mode === "peek") throw new Cold(); return "live"; }, async () => { throw new Error("cap"); }), /cap/);
 });
