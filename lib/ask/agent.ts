@@ -17,7 +17,7 @@ export type AskEvent =
   | { type: "done"; cached: boolean }
   | { type: "error"; message: string };
 
-export const ASK_VERSION = "ask-v1.2"; // v1.1: split names both sides, checker fixes (first live run). v1.2: no grouping places into regions
+export const ASK_VERSION = "ask-v1.3"; // v1.3: outputs state the method numbers (top 50, 0.05) // v1.1: split names both sides, checker fixes (first live run). v1.2: no grouping places into regions
 const MAX_TOOLS = 8;
 
 const SYSTEM = `You decide which brands a partnerships team should call first, for one name the visitor gives you. You can only measure through the tools. You never add a fact the tools didn't return.

@@ -4,7 +4,7 @@
 // checker. Entity names sit under a key named "name" (lib/ask/check.ts contract). Refusals come back as { error }.
 import { insights, search, RESOLVE_TYPES, type Entity } from "../qloo.ts";
 import { resolve as resolveName } from "../resolve.ts";
-import { identityOf, toRef, type Identity, type Ref, type Twins } from "../review.ts";
+import { GAP, identityOf, toRef, type Identity, type Ref, type Twins } from "../review.ts";
 import { findRival, type RivalPick } from "../rival.ts";
 import { loadVs, type Side, type VsData } from "../rivals.ts";
 import { runReview, twinsFor, type ReviewRun } from "../review-run.ts";
@@ -12,6 +12,8 @@ import { fromSplit, fromTop50, type Candidate } from "./candidates.ts";
 import type { StepRecord } from "./check.ts";
 
 const BRAND = "urn:entity:brand";
+// the method's own numbers, stated in outputs so sentences quoting them can cite a step (Olipop and Mt. Joy warm, Oct 13)
+const METHOD = { topN: 50, gap: GAP };
 const two = (v: number | null | undefined) => (v == null ? null : Math.round(v * 100) / 100);
 
 export type Deps = {
@@ -74,7 +76,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       const r = await deps.rival(st.seed);
       if (r?.kind === "pick") {
         st.rival = { id: r.pick.id, name: r.pick.name, type: r.pick.type };
-        return step("findRival", why, { output: { found: true, rival: { name: r.pick.name, affinity: two(r.pick.affinity) }, by: r.field === "category" ? `Qloo category ${r.category}` : "genre tag" }, summary: `Closest same-field brand: ${r.pick.name}` });
+        return step("findRival", why, { output: { method: { topN: METHOD.topN }, found: true, rival: { name: r.pick.name, affinity: two(r.pick.affinity) }, by: r.field === "category" ? `Qloo category ${r.category}` : "genre tag" }, summary: `Closest same-field brand: ${r.pick.name}` });
       }
       return step("findRival", why, { output: { found: false }, summary: "No same-field brand in the fans' top 50" });
     },
@@ -88,7 +90,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       const r = v.rivals;
       return step("split", why, {
         output: {
-          seed: { name: r.a.name }, rival: { name: r.b.name },
+          method: METHOD, seed: { name: r.a.name }, rival: { name: r.b.name },
           closerToSeed: r.leansA.length, closerToRival: r.leansB.length, withinGapOfBoth: r.shared.length, sameField: r.sameField.length,
           seedSide: r.leansA.slice(0, 10).map((x) => ({ name: x.name, seed: two(x.a), rival: two(x.b) })),
           seedMarkets: v.map?.metrosA.map((m) => ({ name: m.name })) ?? [], rivalMarkets: v.map?.metrosB.map((m) => ({ name: m.name })) ?? [],
@@ -107,7 +109,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
         list = seedCard ? fromTop50(seedCard, await deps.top50(st.seed.entity_id), st.rival ? [st.rival.id] : []) : [];
       }
       st.candidates = list;
-      return step("candidates", why, { output: { source, candidates: list.map((c) => ({ name: c.name, id: c.id })) }, summary: `${list.length} candidates from ${source === "split" ? "the seed's side of the split" : "the fans' top 50, own field left out"}` });
+      return step("candidates", why, { output: { method: { topN: METHOD.topN }, source, candidates: list.map((c) => ({ name: c.name, id: c.id })) }, summary: `${list.length} candidates from ${source === "split" ? "the seed's side of the split" : "the fans' top 50, own field left out"}` });
     },
 
     review: async ({ why, ids }: { why: string; ids: string[] }) => {
@@ -123,6 +125,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       const valueOf = (id: string) => two(g.rows.find((x) => x.entity.entity_id === id)!.forward.value);
       return step("review", why, {
         output: {
+          method: { gap: METHOD.gap },
           clearThree: g.selection.noClearThree ? [] : g.selection.picks.map((id) => ({ name: nameOf(id), affinity: valueOf(id) })),
           noClearThree: g.selection.noClearThree,
           tiedAtCutoff: g.selection.tiedAtCutoff.map((id) => ({ name: nameOf(id) })),

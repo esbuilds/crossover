@@ -59,3 +59,16 @@ test("split names both sides in its output, so sentences citing it can name the 
   const out = (await t.split({ why: "x" })).output as { seed: { name: string }; rival: { name: string } };
   assert.deepEqual([out.seed.name, out.rival.name], ["Liquid Death", "Celsius"]);
 });
+
+// Found warming Olipop and Mt. Joy (Oct 13): sentences quoting the method's own numbers (the 0.05 gap, top 50) failed
+// the check because no output stated them. The outputs now carry them.
+test("split and candidates state the method numbers they use (top 50, the 0.05 gap)", async () => {
+  const vs = { rivals: { a: { name: "Liquid Death" }, b: { name: "Celsius" }, leansA: [], leansB: [], shared: [], sameField: [] }, map: null } as unknown as NonNullable<Awaited<ReturnType<Deps["vs"]>>>;
+  const t = makeTools({ ...base, vs: async () => vs }, () => {});
+  await t.resolve({ why: "x", name: "Liquid Death" });
+  await t.findRival({ why: "x" });
+  const s = (await t.split({ why: "x" })).output as { method: { topN: number; gap: number } };
+  assert.deepEqual(s.method, { topN: 50, gap: 0.05 });
+  const c = (await t.candidates({ why: "x", source: "top50" })).output as { method: { topN: number } };
+  assert.equal(c.method.topN, 50);
+});
