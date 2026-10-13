@@ -4,7 +4,8 @@ import { resolve } from "@/lib/resolve.ts";
 import { fixtureByQuery } from "@/lib/fixtures.ts";
 import { failCode } from "@/lib/failure.ts";
 import { FAIL_COPY } from "@/lib/fail-copy.ts";
-import { assemble, contendersOf, dedupe, identityOf, parseBuyer, scoreForward, scorePairs, scoreReverse, toRef, twinsOf, MAX_NAMES, type Buyer, type Identity, type Ref, type Twins } from "@/lib/review.ts";
+import { dedupe, identityOf, parseBuyer, toRef, MAX_NAMES, type Buyer, type Identity, type Ref } from "@/lib/review.ts";
+import { runReview } from "@/lib/review-run.ts";
 
 // POST /api/review (unlinked), review-v2. Body:
 //   { seed: "Liquid Death" | { id, type },
@@ -40,7 +41,6 @@ async function identify(n: NameIn, types = RESOLVE_TYPES): Promise<Identity> {
   return identityOf(input, fx ? fx.resolution : await resolve(input, (await search(input, types, 5)) as Entity[]));
 }
 
-const scorer = (p: Record<string, string | number>) => insights(p);
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -63,24 +63,7 @@ export async function POST(request: NextRequest) {
     const ids: Identity[] = [];
     for (const n of names) ids.push(await identify(n, only ? [only] : RESOLVE_TYPES)); // serial: never fan out against Qloo
     const kept = dedupe(ids.filter((i) => !(i.state === "confirmed" && i.entity.entity_id === seed.entity_id)));
-    const measured = kept.flatMap((i) => (i.state === "confirmed" ? [i.entity] : []));
-
-    const forward = await scoreForward(seed, measured, scorer);
-    const reverse = await scoreReverse(seed, measured, scorer);
-    const rankIn = async (category: string, fansOf: string, id: string) => {
-      const list = await insights.peek({ "filter.type": category, "signal.interests.entities": fansOf, take: 50 });
-      return list ? list.findIndex((e) => e.entity_id === id) + 1 || null : undefined;
-    };
-    const ranks: Record<string, { amongSeedFans?: number | null; seedAmongTheirs?: number | null }> = {};
-    for (const m of measured) ranks[m.entity_id] = { amongSeedFans: await rankIn(m.type, seed.entity_id, m.entity_id), seedAmongTheirs: await rankIn(seed.type, m.entity_id, seed.entity_id) };
-    const review = assemble(seed, kept, forward, reverse, buyer);
-    const twins: Record<string, Twins> = {};
-    for (const g of review.groups) {
-      const ids = contendersOf(g.selection, g.affinityBands);
-      const t = ids.length >= 3 ? twinsOf(ids, await scorePairs(ids.map((id) => g.rows.find((r) => r.entity.entity_id === id)!.entity), scorer)) : null;
-      if (t) twins[g.type] = t;
-    }
-    return Response.json({ ...review, ranks, twins }, { headers: { "Cache-Control": "no-store" } });
+    return Response.json(await runReview(seed, kept, buyer), { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     console.error("[review]", err);
     const code = failCode(err);
