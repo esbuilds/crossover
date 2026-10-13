@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyMissingRule, assemble, bands, dedupe, parseBuyer, evidenceFor, formatAffinity, gateFor, identityOf, scoreForward, scoreReverse, select,
-  type Cell, type Identity, type Ref, type Scorer,
+  contendersOf, pairKey, scorePairs, twinsOf, type Cell, type Identity, type Ref, type Scorer,
 } from "./review.ts";
 import type { Entity } from "./qloo.ts";
 
@@ -240,4 +240,20 @@ test("adversarial: the same entity twice is measured once, under its first input
     { state: "unresolved", input: "Blorp" },
   ];
   assert.deepEqual(dedupe(ids).map((i) => i.input), ["Hydroflask", "Blorp", "Blorp"]);
+});
+
+// Twins on Mt. Joy's top band, pairwise scores Qloo returned Oct 13 (scripts/redundancy-probe.ts method)
+test("twins: REI and Patagonia stand out among Mt. Joy's four; a near-even field or a missing cell shows nothing", async () => {
+  const P: Record<string, number> = { "Allbirds|REI": 0.866, "Allbirds|Patagonia": 0.856, "Allbirds|Hydro Flask": 0.816, "Patagonia|REI": 0.971, "Hydro Flask|REI": 0.889, "Hydro Flask|Patagonia": 0.894 };
+  const score: Scorer = async (p) => String(p["filter.results.entities"]).split(",").map((id) => ({ entity_id: id, affinity: P[pairKey(String(p["signal.interests.entities"]), id)] }));
+  const four = ["Allbirds", "REI", "Patagonia", "Hydro Flask"];
+  const pairs = await scorePairs(four.map((n) => ref(n)), score);
+  assert.equal(pairs.size, 6);
+  assert.deepEqual(twinsOf(four, pairs), { a: "REI", b: "Patagonia", value: 0.971, next: 0.894 });
+  assert.equal(twinsOf(["Allbirds", "Patagonia", "Hydro Flask"], pairs), null); // 0.894 vs 0.856: under GAP
+  assert.equal(twinsOf(["REI", "Patagonia"], pairs), null);
+  pairs.set(pairKey("Allbirds", "Hydro Flask"), null);
+  assert.equal(twinsOf(four, pairs), null);
+  assert.deepEqual(contendersOf({ picks: [], tiedAtCutoff: [], noClearThree: true }, [four, ["Airbnb"]]), four);
+  assert.deepEqual(contendersOf({ picks: ["a"], tiedAtCutoff: ["b", "c"], noClearThree: false }, [["a"], ["b", "c"]]), ["a", "b", "c"]);
 });

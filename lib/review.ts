@@ -150,6 +150,35 @@ export function select(rows: Row[]): Selection {
   return { picks, tiedAtCutoff: next && next.length > 1 ? next.map((r) => r.id) : [], noClearThree: (bs[0]?.length ?? 0) > MAX_PICKS };
 }
 
+// Twins (Oct 13, redundancy probe): among the contenders (picks plus a tie at the cutoff, or the whole top band when
+// there's no clear three), the pair whose audiences sit closest to each other, shown only when it is GAP or more above
+// every other contender pair. Costs no fit: both are already contenders. Swapping in a less redundant name always cost
+// more than GAP of fit on the 12 audit briefs (research/report-oct13-redundancy.md), so no swap is ever suggested.
+export type Twins = { a: string; b: string; value: number; next: number };
+export const contendersOf = (s: Selection, affinityBands: string[][]) => (s.noClearThree ? affinityBands[0] ?? [] : [...s.picks, ...s.tiedAtCutoff]);
+
+// One call per contender but the last, each scoring the ones after it (same-type affinity is symmetric). Serial.
+export async function scorePairs(cands: Ref[], score: Scorer): Promise<Map<string, number | null>> {
+  const out = new Map<string, number | null>();
+  for (const [i, c] of cands.entries()) {
+    const others = cands.slice(i + 1);
+    if (!others.length) break;
+    const hits = await score({ "filter.type": c.type, "signal.interests.entities": c.entity_id, "filter.results.entities": others.map((o) => o.entity_id).join(","), take: others.length });
+    const got = new Map(hits.map((h) => [h.entity_id, h.affinity]));
+    applyMissingRule(others.map((o) => got.get(o.entity_id)), "one call").forEach((cell, j) => out.set(pairKey(c.entity_id, others[j].entity_id), cell.value));
+  }
+  return out;
+}
+export const pairKey = (a: string, b: string) => [a, b].sort().join("|");
+
+export function twinsOf(ids: string[], pairs: Map<string, number | null>): Twins | null {
+  if (ids.length < 3) return null; // with two contenders there is no other pair to compare against
+  const all = ids.flatMap((a, i) => ids.slice(i + 1).map((b) => ({ a, b, value: pairs.get(pairKey(a, b)) ?? null })));
+  if (all.some((p) => p.value === null)) return null; // a missing cell could be the real closest pair
+  const [top, second] = all.sort((x, y) => y.value! - x.value!);
+  return top.value! - second.value! >= GAP - EPS ? { a: top.a, b: top.b, value: top.value!, next: second.value! } : null;
+}
+
 export type Evidence = "stronger measured support" | "mixed directional evidence" | "weaker measured support" | "insufficient evidence";
 type Level = "high" | "level" | "low" | "unknown";
 

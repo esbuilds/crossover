@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Card, Pick } from "@/lib/slate.ts";
-import type { Ref, Review, ReviewGroup, ReviewRow } from "@/lib/review.ts";
+import type { Ref, Review, ReviewGroup, ReviewRow, Twins } from "@/lib/review.ts";
 import { CASES, type CaseName, type PreparedCase } from "@/lib/review-cases.ts";
 import { nameOf, shareQuery, type Shared } from "@/lib/review-share.ts";
 import BriefPanel from "../brief-panel";
@@ -11,7 +11,7 @@ import { btnPrimary, btnQuiet, btnSecondary, Chip, field, SiteHeader, TYPE_LABEL
 // Renders /api/review (review-v3). Groups, picks, gates and evidence labels all come from the route; this page only
 // hides them until the visitor has picked, then lays fame and taste side by side.
 type Ranks = Record<string, { amongSeedFans?: number | null; seedAmongTheirs?: number | null }>;
-type Result = Review & { ranks: Ranks };
+type Result = Review & { ranks: Ranks; twins?: Record<string, Twins> };
 type Buyer = PreparedCase["gate"]["buyer"];
 type Body = { seed: string | CaseName; names: (string | CaseName)[]; only?: string; buyer?: Buyer };
 type Res = { key: string; data: Result | null; error?: string; seedOptions?: Ref[] };
@@ -234,6 +234,7 @@ function Reveal({ data, group, picks, share, open, onOpen, gate, gateOn, onGate,
   const row = (id: string) => group.rows.find((r) => r.entity.entity_id === id)!;
   const names = (ids: string[]) => ids.map((id) => row(id).input).join(", ");
   const { picks: top, tiedAtCutoff, noClearThree } = group.selection;
+  const twin = data.twins?.[group.type];
   const topGroup = group.affinityBands[0] ?? [];
   const mine = picks.filter((id) => topGroup.includes(id)).length;
   const missing = group.rows.filter((r) => r.forward.value === null);
@@ -255,6 +256,11 @@ function Reveal({ data, group, picks, share, open, onOpen, gate, gateOn, onGate,
               : "Nothing measured is left after the gate."}{" "}
         {mine} of your {picks.length} {mine === 1 ? "is" : "are"} in the top group.
       </p>
+      {twin && (
+        <p className="mt-2 max-w-[70ch] text-base text-ink-2">
+          {row(twin.a).input} and {row(twin.b).input} sit closest to each other: their fans lean toward each other at {score(twin.value)}; the next closest pair here is {score(twin.next)}. Calling both may reach one audience twice.
+        </p>
+      )}
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {gate && (
           <button onClick={onGate} aria-pressed={gateOn} className={btnSecondary}>
