@@ -190,7 +190,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
       </p>
       {/* the judge path (Perplexity re-judge, Oct 13): three stops, everything else secondary */}
       <p className="mt-2 text-sm text-ink-3">
-        Three stops: <span className="text-ink-2">1. the split, below</span> · <a href="#pick-three" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">2. Pick three</a> · <Link href="/audit" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">3. is any of this right?</Link>
+        Four stops: <Link href="/ask" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">0. ask who a brand should call</Link> · <span className="text-ink-2">1. the split, below</span> · <a href="#pick-three" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">2. Pick three</a> · <Link href="/audit" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">3. is any of this right?</Link>
       </p>
       <form onSubmit={compare} className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-start">
         <SideInput label="First name" value={qa} onChange={setQa} ask={asks[0]} onPick={(c) => choose(0, c)} />
@@ -226,6 +226,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
           <VsResult d={payload} method={method} />
           <p className="mt-8 text-base">
             <a href="#pick-three" className={btnQuiet}>Next: the partnerships question, Pick three</a>
+            <Link href="/ask" className={`${btnQuiet} ml-4`}>or ask who a brand should call</Link>
           </p>
         </div>
       ) : null}
