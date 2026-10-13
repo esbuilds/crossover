@@ -44,7 +44,7 @@ export function streamCache<I, R extends Streamed>(name: string, version: string
     );
   });
   // Live tokens go to onTrace/onText; on a cache hit the result comes back with ran=false for the caller to replay.
-  return async (input: I, ip: string, onTrace: (t: string) => void, onText: (d: string) => void): Promise<R & { ran: boolean }> => {
+  const call = async (input: I, ip: string, onTrace: (t: string) => void, onText: (d: string) => void): Promise<R & { ran: boolean }> => {
     const l: Listener = { ip, ran: false, trace: onTrace, text: onText };
     const key = keyOf(input);
     listeners.set(key, l);
@@ -54,4 +54,7 @@ export function streamCache<I, R extends Streamed>(name: string, version: string
       if (listeners.get(key) === l) listeners.delete(key);
     }
   };
+  // peek: the cached result or null, never a generation (server-rendered replays, OG cards)
+  const peek = (input: I) => run.peek(typeof version === "string" ? version : version(input), input);
+  return Object.assign(call, { peek });
 }
