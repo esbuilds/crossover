@@ -7,8 +7,8 @@ export async function GET(request: Request) {
   const q = new URL(request.url).searchParams;
   const one = (k: string) => q.get(k) ?? undefined;
   const shared = parseShare({ c: one("c"), p: one("p"), g: one("g"), s: one("s"), n: q.getAll("n") });
-  // no share query: the site's own card, the front door's line (Pick three links keep their card)
-  const res = await ogCard(shared ? shareCard(shared) : { title: "Two names in. See where their audiences split.", line: "One US map of where each audience over-indexes, and which brands sit closer to each side, from Qloo affinity and heatmaps" });
+  // no share query: the site's own card, the front door's line (the ask since Pick A, Oct 13) (Pick three links keep their card)
+  const res = await ogCard(shared ? shareCard(shared) : { title: "One name in. Who should they call first?", line: "An agent measures in Qloo step by step and says who to call first, with every line checked against the step behind it" });
   res.headers.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
   return res;
 }

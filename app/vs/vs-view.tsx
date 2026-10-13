@@ -107,7 +107,12 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
         </p>
       )}
 
-      {d.xray?.length ? <XraySection d={d} rows={d.xray} check={log.length} /> : null}
+      {/* folded by default since Pick A (Oct 13): one judge path, the X-ray one click away */}
+      {d.xray?.length ? (
+        <FoldBox label={`Beyond brands: the same split in ${d.xray.length} more Qloo domains`} className="mt-10 border-t">
+          <XraySection d={d} rows={d.xray} check={log.length} />
+        </FoldBox>
+      ) : null}
 
       <Fold label={`Same field: ${r.sameField.length}`} rows={r.sameField} d={d} note={`Measured, and set aside from the columns: they share a category with ${A} or ${B}.`} />
       {r.noData.length > 0 && <Fold label={`No data: ${r.noData.length}`} rows={r.noData} d={d} note="Qloo returned a fallback value for these, so they are never ranked or scored." />}
@@ -199,8 +204,8 @@ function XraySection({ d, rows, check }: { d: VsPayload; rows: Xray[]; check: nu
   const A = d.rivals.a.name, B = d.rivals.b.name;
   const names = (xs: Xray["topA"]) => xs.map((x) => `${x.name} ${x.a.toFixed(2)}/${x.b.toFixed(2)}`).join(", ");
   return (
-    <section className="mt-10">
-      <h2 className="font-display text-xl">Beyond brands</h2>
+    <section className="pb-4">
+      <h2 className="sr-only">Beyond brands</h2>
       <p className="mt-1 max-w-[68ch] text-sm text-ink-2">
         <Cite checks={String(check)}>The same test in four more Qloo domains</Cite>: each side&apos;s top 50, scored under both names, split at 0.05. Scores are {A}/{B}.
       </p>

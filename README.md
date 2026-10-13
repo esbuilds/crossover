@@ -1,8 +1,8 @@
 # Crossover
 
-Put two brands, artists or shows in and see where their audiences split: a US map cell by cell, and the brands each side's fans favor. Affinity and popularity come from Qloo. Crossover computes the comparisons, the percentiles and the layout. Then whole categories on one map, a "pick three" partnerships check, and a public audit of how well the rules held up.
+One name in: an agent decides who a brand, artist or show should call first. Claude chooses what to measure next through Crossover's own tools (find the rival, split the two audiences, eight candidates by rule, score them, check for doubles), writing why before each step, and three of those steps draw their picture (the split's map, the eight cards, the doubles pair). The answer is shown only if every name and number in it appears in a step it cites (`lib/ask/check.ts`). Affinity and popularity come from Qloo; Crossover computes the comparisons, the percentiles and the layout.
 
-**The agent (/ask):** one name in, and Claude decides what to measure next through Crossover's own tools (find the rival, split, eight candidates by rule, score, check for doubles), writing why before each step. Its answer is shown only if every name and number in it appears in a step it cites (`lib/ask/check.ts`); otherwise the page shows the steps and says so.
+Behind the ask: two names in (/vs, where audiences split, cell by cell on a US map), Pick three (/pick-three), whole categories on one map, and a public audit (/audit) of how well the rules held up, including a frozen replay of real collaborations.
 
 **Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
 
