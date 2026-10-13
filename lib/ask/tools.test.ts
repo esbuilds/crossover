@@ -89,3 +89,12 @@ test("unresolved names the query under name; ambiguous states its count", async 
   assert.equal(((await t.resolve({ why: "x", name: "Fruition" })).output as { name: string }).name, "Fruition");
   assert.equal(((await t.resolve({ why: "x", name: "Dove" })).output as { count: number }).count, 2);
 });
+
+// Deferred minor fixed Oct 13: no cards back for the candidate ids must refuse, not crash the run.
+test("review refuses when Qloo returns no cards for the candidates", async () => {
+  const t = makeTools({ ...base, cards: async () => [] }, () => {});
+  await t.resolve({ why: "x", name: "Liquid Death" });
+  await t.candidates({ why: "x", source: "top50" });
+  const r = await t.review({ why: "x", ids: ["T0", "T1"] });
+  assert.match((r.output as { error: string }).error, /no cards|couldn't/);
+});

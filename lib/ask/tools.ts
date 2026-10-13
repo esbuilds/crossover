@@ -119,9 +119,11 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       const bad = ids.filter((id) => !allowed.has(id));
       if (!ids.length || bad.length) return refuse("review", why, at, `review only takes ids returned by candidates (${bad.length} weren't)`);
       const kept: Identity[] = (await deps.cards(ids)).map((e) => ({ state: "confirmed", input: e.name, entity: toRef(e, BRAND), via: "chosen id" }));
+      if (!kept.length) return refuse("review", why, at, "Qloo couldn't find these candidates (no cards came back)");
       const r = await deps.review(st.seed, kept);
-      st.review = r;
       const g = r.groups[0];
+      if (!g) return refuse("review", why, at, "Qloo couldn't score these candidates");
+      st.review = r;
       const nameOf = (id: string) => g.rows.find((x) => x.entity.entity_id === id)!.entity.name;
       const valueOf = (id: string) => two(g.rows.find((x) => x.entity.entity_id === id)!.forward.value);
       return step("review", why, at, {

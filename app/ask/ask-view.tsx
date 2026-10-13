@@ -39,15 +39,21 @@ export default function AskView() {
 
   async function run(body: Body) {
     setSteps([]); setDecision(null); setError(""); setStatus("running");
-    const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-    if (!res.ok) { setStatus("error"); setError("Type a name to ask about."); return; }
-    await streamEvents(res, (e) => {
-      if (e.type === "call") setSteps((s) => [...s, { n: e.n, tool: e.tool, why: e.why }]);
-      if (e.type === "result") setSteps((s) => s.map((x) => (x.n === e.n ? { ...x, summary: e.summary, output: e.output } : x)));
-      if (e.type === "decision") setDecision({ decision: e.decision, ok: e.check.ok, problems: e.check.ok ? [] : e.check.problems });
-      if (e.type === "done") setStatus("done");
-      if (e.type === "error") { setStatus("error"); setError(e.message); }
-    });
+    // a dropped connection must not leave the button disabled (deferred minor, fixed Oct 13)
+    try {
+      const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+      if (!res.ok) { setStatus("error"); setError("Type a name to ask about."); return; }
+      await streamEvents(res, (e) => {
+        if (e.type === "call") setSteps((s) => [...s, { n: e.n, tool: e.tool, why: e.why }]);
+        if (e.type === "result") setSteps((s) => s.map((x) => (x.n === e.n ? { ...x, summary: e.summary, output: e.output } : x)));
+        if (e.type === "decision") setDecision({ decision: e.decision, ok: e.check.ok, problems: e.check.ok ? [] : e.check.problems });
+        if (e.type === "done") setStatus("done");
+        if (e.type === "error") { setStatus("error"); setError(e.message); }
+      });
+    } catch {
+      setStatus("error");
+      setError("The connection dropped. The steps above are what the agent measured; try again to finish.");
+    }
   }
   const ambiguous = steps.find((s) => s.tool === "resolve" && (s.output as { state?: string })?.state === "ambiguous")?.output as { options: { name: string; id: string; type: string }[] } | undefined;
 
