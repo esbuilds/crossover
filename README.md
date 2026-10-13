@@ -2,6 +2,8 @@
 
 Put two brands, artists or shows in and see where their audiences split: a US map cell by cell, and the brands each side's fans favor. Affinity and popularity come from Qloo. Crossover computes the comparisons, the percentiles and the layout. Then whole categories on one map, a "pick three" partnerships check, and a public audit of how well the rules held up.
 
+**The agent (/ask):** one name in, and Claude decides what to measure next through Crossover's own tools (find the rival, split, eight candidates by rule, score, check for doubles), writing why before each step. Its answer is shown only if every name and number in it appears in a step it cites (`lib/ask/check.ts`); otherwise the page shows the steps and says so.
+
 **Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
 
 ## Every Qloo call
@@ -27,6 +29,8 @@ Put two brands, artists or shows in and see where their audiences split: a US ma
 | `GET /v2/tags` | `filter.query` | The brief agent's tag lookup tool | `lib/agent/brief.ts` |
 | `GET /v2/insights` | `filter.type=urn:entity:brand`, `signal.interests.entities` (each seed), `take=50` | Each side's top 50 for a rivals pair; the finder's candidate list | `lib/rivals.ts`, `lib/rival.ts` |
 | `GET /v2/insights` | `filter.type=urn:entity:brand`, `signal.interests.entities` (each seed), `filter.results.entities` (up to 50 of the union), `take` | Scoring the union under both seeds | `lib/rivals.ts` (`getRivals`) |
+| `GET /v2/insights` | the rivals calls above with `filter.type` set to artist, tv_show, movie, podcast | "Beyond brands": the split in four more domains, read from the cache only | `lib/rivals.ts` (`XRAY_TYPES`) |
+| `GET /v2/insights` | the review desk calls above, plus each contender scoring the others (`filter.results.entities`) | The /ask agent's tools; the doubles check | `lib/ask/tools.ts`, `lib/review.ts` (`scorePairs`) |
 | `GET /v2/insights/compare` | `a.signal.interests.entities`, `b.signal.interests.entities` | Shared category tags for "Share by category" | `lib/qloo.ts` (`compareTags`) |
 | `GET /v2/insights` | `filter.type=urn:heatmap`, `signal.interests.entities`, `filter.location.query=United States` | The two heatmaps behind the collision map (same key as the single map) | `lib/rivals.ts`, `lib/collide.ts` |
 | `GET /v2/insights` | the seed's card and top-50 params, tags kept untrimmed | Genre, product category and competitor tags for the rival finder | `lib/qloo.ts` (`fullTags`), `lib/rival.ts` |
