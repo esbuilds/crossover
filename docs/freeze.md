@@ -40,3 +40,11 @@ after, and open production in a browser after the deploy.
 ## Front door since Pick A (real Oct 13)
 
 The home page replays the first prepared ask (Mt. Joy, lib/ask/prepared.ts) from the cache on the server; it is the freeze item that replaces the home pair. Re-warm with `WARM_TOKEN=... node scripts/ask-warm.ts <baseUrl>` and confirm "cached true, 0 Qloo calls" for every prepared ask. Liquid Death vs Celsius stays warm as /vs's first pair.
+
+## Display names (real Oct 13)
+
+The ask page and its share card show a display name only where Qloo's entity name is a single generic word, and the display name comes from Qloo's own description of that entity. The checker always matches Qloo's names; the map is render-only (lib/ask/check.ts, `DISPLAY`). Keep it tiny; every entry is listed here.
+
+| Qloo id | Qloo name | Shown as | Source |
+|---|---|---|---|
+| 26B1E073-D09A-4242-AD7F-EED546CE55A7 | Alternative | Alternative Apparel | Qloo's description: "Alternative Apparel is a sustainable clothing brand" |
