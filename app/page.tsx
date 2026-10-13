@@ -1,51 +1,44 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { PerRequest } from "@/app/dynamic";
-import { Skeleton } from "@/app/brief-panel";
-import { SiteHeader } from "@/app/ui";
-import { parseShare, shareCard, shareQuery } from "@/lib/review-share.ts";
-import { peekVs, toPayload } from "@/lib/rivals.ts";
-import { VS_CASES } from "@/lib/rivals-cases.ts";
-import ReviewView from "./review/review-view";
-import Front from "./vs/front";
+import Link from "next/link";
+import { SiteHeader, btnQuiet } from "@/app/ui";
+import { peekAsk } from "@/lib/ask/agent.ts";
+import { CATEGORIES } from "@/lib/constellation-cases.ts";
+import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
+import AskView from "./ask/ask-view";
+import HashRedirect from "./hash-redirect";
 
-// The front door (brief-oct12-front): the rivals map, first prepared pair from the cache only (the server never spends
-// here; a cold first pair loads in the browser). Pick three sits below, unchanged; its share links (/?c=...&p=... or
-// /?s=...&n=...) still open on their reveal, with the title and card from the query alone. The search lives at /find.
-export async function generateMetadata({ searchParams }: PageProps<"/">): Promise<Metadata> {
-  await connection();
-  const s = parseShare(await searchParams);
-  if (!s) return {};
-  const { title } = shareCard(s);
-  const image = `/og?${shareQuery(s)}`;
-  return { title, openGraph: { title, images: [{ url: image, width: 1200, height: 630 }] }, twitter: { card: "summary_large_image", images: [image] } };
-}
-
-export default function Home({ searchParams }: PageProps<"/">) {
+// The front door (Pick A, Oct 13): one name in, the agent decides who to call first. The first prepared ask replays
+// from the cache on the server (never a Qloo call or a generation here); a cold cache leaves the page waiting for a
+// click. Old Pick three links (/?c=, /?s=) redirect to /pick-three (next.config.ts); old anchors in HashRedirect.
+export default function Home() {
   return (
-    <>
-      <PerRequest />
-      <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
-        <SiteHeader href="/find" label="Find more partners" />
-        <Suspense fallback={<Skeleton lines={8} />}>
-          <Hero />
-        </Suspense>
-        <Suspense fallback={<ReviewView embedded />}>
-          <Gate searchParams={searchParams} />
-        </Suspense>
-      </main>
-    </>
+    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+      <HashRedirect />
+      <SiteHeader href="/find" label="Find more partners" />
+      <Suspense fallback={<AskView />}>
+        <Replay />
+      </Suspense>
+      <footer className="mt-16 border-t border-rule pt-6 text-base">
+        <p className="flex flex-wrap gap-x-5 gap-y-2">
+          <Link href="/audit" className={btnQuiet}>Is any of this right? The audit</Link>
+          <Link href="/vs" className={btnQuiet}>Two names in: where audiences split</Link>
+          <Link href="/find" className={btnQuiet}>Find more partners</Link>
+        </p>
+        <p className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <span className="text-ink-2">Whole aisles:</span>
+          {CATEGORIES.map((c) => (
+            <Link key={c.slug} href={`/map/${c.slug}`} className={btnQuiet}>{c.title}</Link>
+          ))}
+        </p>
+      </footer>
+    </main>
   );
 }
 
-async function Hero() {
+async function Replay() {
   await connection(); // request time: the cache read must not run in the prerender
-  const { a, b } = VS_CASES[0];
-  const warm = await peekVs(a, b).catch(() => null);
-  return <Front initial={{ a, b, payload: warm && warm !== "cold" ? toPayload(warm) : null }} />;
-}
-
-async function Gate({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
-  return <ReviewView embedded initial={parseShare(await searchParams) ?? undefined} />;
+  const first = PREPARED_ASKS[0];
+  const events = await peekAsk(first.body).catch(() => null);
+  return <AskView initial={events ? { label: first.label, events } : undefined} />;
 }

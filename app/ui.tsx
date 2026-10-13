@@ -132,3 +132,16 @@ export function ExampleLinks() {
     </span>
   );
 }
+
+// The judge path (Pick A, Oct 13), on every main page: the ask, the measurement behind any step, the audit.
+export function JudgePath() {
+  const a = "underline decoration-rule-strong underline-offset-4 hover:text-ink";
+  return (
+    <p className="mt-2 text-sm text-ink-3">
+      Three stops:{" "}
+      <Link href="/" className={a}>ask</Link> ·{" "}
+      <Link href="/#steps" className={a}>the evidence behind any step</Link> ·{" "}
+      <Link href="/audit" className={a}>is any of this right?</Link>
+    </p>
+  );
+}

@@ -321,7 +321,7 @@ function CopyLink({ share }: { share: string }) {
   const [copied, setCopied] = useState(false);
   const copy = () =>
     navigator.clipboard
-      .writeText(`${window.location.origin}/?${share}`)
+      .writeText(`${window.location.origin}/pick-three?${share}`)
       .then(() => setCopied(true))
       .catch(() => {});
   return (

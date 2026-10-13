@@ -96,6 +96,12 @@ const keyOf = (i: AskInput) => (i.id ? i.id.toUpperCase() : (i.query ?? "").trim
 export const ASK_TOOLS = "t2";
 const run = streamCache<AskInput, Streamed>("ask", `${ASK_VERSION}+${ASK_TOOLS}`, keyOf, generate);
 
+// cache only, never a call or a generation: the events of a cached ask, or null
+export async function peekAsk(input: AskInput): Promise<AskEvent[] | null> {
+  const r = await run.peek(input);
+  return r ? r.trace.map((s) => JSON.parse(s)) : null;
+}
+
 export async function ask(input: AskInput, ip: string, onEvent: (e: AskEvent) => void) {
   const r = await run(input, ip, (s) => onEvent(JSON.parse(s)), () => {});
   const events: AskEvent[] = r.trace.map((s) => JSON.parse(s));

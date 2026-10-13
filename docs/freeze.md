@@ -36,3 +36,7 @@ Changing any prompt or label above after Oct 23 needs Eric's yes first, and the 
 change makes cold: the four chips, the demo refines (Liquid Death Texas, Mt. Joy West Coast, Graza Northeast), the four
 demo pairings, the demo briefs and their cohorts, and the warm list in `scripts/warm.ts`. Check `/api/usage` before and
 after, and open production in a browser after the deploy.
+
+## Front door since Pick A (real Oct 13)
+
+The home page replays the first prepared ask (Mt. Joy, lib/ask/prepared.ts) from the cache on the server; it is the freeze item that replaces the home pair. Re-warm with `WARM_TOKEN=... node scripts/ask-warm.ts <baseUrl>` and confirm "cached true, 0 Qloo calls" for every prepared ask. Liquid Death vs Celsius stays warm as /vs's first pair.

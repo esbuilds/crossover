@@ -13,16 +13,13 @@ export const vsHref = (c: VsCase) => `/vs/${c.a.id}/${c.b.id}?ta=${encodeURIComp
 // "or try" pairs (brief-oct12-front list; brief-oct12-design ruling 1: Stanley by its warm-list id, D3D8956E, because
 // typed "Stanley" asks brand or artist). Only pairs already warm are listed; the last four were warmed real Oct 12.
 const TV = "urn:entity:tv_show";
+// cut to five for Pick A (Oct 13, Fable round 4); the dropped pairs stay warm and linkable
 export const VS_MORE: VsCase[] = [
   { a: { name: "Dr. Squatch", id: "F688F736-4F16-480A-84C4-08BBCC550375", type: B }, b: { name: "Manscaped", id: "461A4F35-1565-4372-916F-7A3E10903ED5", type: B } },
-  { a: { name: "Liquid Death", id: "4DF7C265-52D9-4A99-8803-F62C2302D561", type: B }, b: { name: "Death Wish Coffee", id: "8E104A95-D942-4B31-88AC-07B26D1DE219", type: B } },
   // YETI first: that order is the one already warm (pair order is part of the cache keys)
   { a: { name: "YETI", id: "AA9DBB9A-DEE1-4D84-BC26-0FEBB34BB41B", type: B }, b: { name: "Stanley", id: "D3D8956E-4DE3-4C46-95E8-151CAB917DAA", type: B } },
   { a: { name: "Stranger Things", id: "07F1170E-BB69-4982-82C6-255F477EBBAD", type: TV }, b: { name: "Wednesday", id: "A0C54500-13CF-4193-A42E-FF0B72C42F88", type: TV } },
-  { a: { name: "Liquid Death", id: "4DF7C265-52D9-4A99-8803-F62C2302D561", type: B }, b: { name: "Metallica", id: "C445C761-CB38-4FEE-B085-D35F444A04DF", type: AR } },
   { a: { name: "Allbirds", id: "78A44C09-E691-42DA-A553-5CDE6EE9B18A", type: B }, b: { name: "HOKA", id: "B7F13D5E-36A8-4AC4-A5A6-E949DED54050", type: B } },
-  { a: { name: "Erewhon", id: "E87E45A7-080F-4C6E-B1B2-B7BE3A80DCAE", type: B }, b: { name: "Whole Foods", id: "1E5D90F5-5E0D-4486-B651-D0E7B8A6BE23", type: B } },
-  { a: { name: "A24", id: "7E904879-87BC-4BA6-B4AB-6E380A4C250D", type: B }, b: { name: "Blumhouse", id: "10396284-FEE0-42F9-B176-EC6F407DA42B", type: B } },
   { a: { name: "Taylor Swift", id: "4BBEF799-A0C4-4110-AB01-39216993C312", type: AR }, b: { name: "Beyoncé", id: "F6754C46-B3E7-457F-8B7E-06C613597320", type: AR } },
 ];
 

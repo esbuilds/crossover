@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-// /review was the front door's working address before it moved to / (Oct 10).
+// /review was Pick three's working address (Oct 10); Pick three has its own route since Pick A (Oct 13).
 export default function Review() {
-  redirect("/");
+  redirect("/pick-three");
 }
