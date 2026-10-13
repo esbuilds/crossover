@@ -1,0 +1,121 @@
+[
+ {
+  "seed": "Crocs",
+  "partner": "KFC",
+  "year": 2020,
+  "what": "fried-chicken clogs",
+  "source": "https://www.fox6now.com/news/kfc-crocs-create-clog-thats-covered-in-fried-chicken-with-a-charm-that-smells-like-it-too"
+ },
+ {
+  "seed": "Taco Bell",
+  "partner": "Doritos",
+  "year": 2012,
+  "what": "Doritos Locos Tacos",
+  "source": "https://www.nrn.com/restaurant-insights/taco-bell-s-doritos-locos-tacos-to-debut-nationwide"
+ },
+ {
+  "seed": "Supreme",
+  "partner": "Oreo",
+  "year": 2020,
+  "what": "branded Oreos",
+  "source": "https://www.foxbusiness.com/luxury/supreme-oreo-collaboration"
+ },
+ {
+  "seed": "Starbucks",
+  "partner": "Spotify",
+  "year": 2015,
+  "what": "music partnership",
+  "source": "https://fortune.com/2015/05/18/starbucks-spotify-music-streaming"
+ },
+ {
+  "seed": "Nike",
+  "partner": "Apple",
+  "year": 2006,
+  "what": "Nike+iPod",
+  "source": "https://apple.com/newsroom/2006/05/23Nike-and-Apple-Team-Up-to-Launch-Nike-iPod"
+ },
+ {
+  "seed": "Uber",
+  "partner": "Spotify",
+  "year": 2014,
+  "what": "in-car music",
+  "source": "https://fortune.com/2014/11/17/spotify-moves-into-cars-with-uber-partnership"
+ },
+ {
+  "seed": "IKEA",
+  "partner": "LEGO",
+  "year": 2020,
+  "what": "BYGGLEK storage",
+  "source": "https://www.lego.com/aboutus/news/2020/august/ikea-bygglek"
+ },
+ {
+  "seed": "Heinz",
+  "partner": "Absolut",
+  "year": 2023,
+  "what": "vodka pasta sauce",
+  "source": "https://www.itv.com/news/2023-03-22/heinz-partners-with-absolut-to-create-pasta-alla-vodka-sauce"
+ },
+ {
+  "seed": "Taco Bell",
+  "partner": "Forever 21",
+  "year": 2017,
+  "what": "clothing line",
+  "source": "https://www.foxla.com/news/taco-bell-and-forever-21-launching-clothing-and-accessories-line"
+ },
+ {
+  "seed": "Dunkin'",
+  "partner": "e.l.f. Cosmetics",
+  "year": 2022,
+  "what": "makeup collection",
+  "source": "https://investor.elfbeauty.com/stock-and-financial/press-releases/landing-news/2022/03-30-2022"
+ },
+ {
+  "seed": "Allbirds",
+  "partner": "Adidas",
+  "year": 2021,
+  "what": "FUTURECRAFT.FOOTPRINT low-carbon shoe",
+  "source": "https://nbcnews.com/shopping/footwear/adidas-allbirds-sustainable-shoe-n1267111"
+ },
+ {
+  "seed": "Starbucks",
+  "partner": "Stanley",
+  "year": 2024,
+  "what": "co-branded tumblers (source undated; Target release early 2024)",
+  "source": "https://www.nbcnewyork.com/news/national-international/starbucks-latest-stanley-cup-collaboration-causes-mayhem-at-target/"
+ },
+ {
+  "seed": "Wendy's",
+  "partner": "Pringles",
+  "year": 2020,
+  "what": "Baconator-flavor chips",
+  "source": "https://drugstorenews.com/pringles-packs-wendys-baconator-flavors-its-chips"
+ },
+ {
+  "seed": "Levi's",
+  "partner": "Google",
+  "year": 2016,
+  "what": "Jacquard Commuter Trucker jacket",
+  "source": "https://levistrauss.com/2016/05/20/function-meets-fashion-levis-commuter-x-jacquard-by-google"
+ },
+ {
+  "seed": "Peloton",
+  "partner": "Lululemon",
+  "year": 2023,
+  "what": "multi-year partnership",
+  "source": "https://fashionunited.com/news/business/lululemon-and-peloton-establish-multi-year-deal/2023092856086"
+ },
+ {
+  "seed": "Gucci",
+  "partner": "Hot Wheels",
+  "year": 2021,
+  "what": "Hot Wheels Gucci Cadillac Seville",
+  "source": "https://www.brandsuntapped.com/mattel-celebrates-100-years-of-gucci-with-hot-wheels-gucci-cadillac-seville/"
+ },
+ {
+  "seed": "Burger King",
+  "partner": "Mattel",
+  "year": 2022,
+  "what": "Barbie and Hot Wheels kids' meal toys",
+  "source": "https://www.licenseglobal.com/toys-games/burger-king-celebrates-inclusion-with-barbie-and-hot-wheels-toys"
+ }
+]
