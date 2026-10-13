@@ -1,7 +1,7 @@
 // lib/ask/check.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkDecision, unbracket, type Decision, type StepRecord } from "./check.ts";
+import { checkDecision, displayName, forDisplay, unbracket, type Decision, type StepRecord } from "./check.ts";
 
 const steps: StepRecord[] = [
   { n: 1, tool: "resolve", why: "", summary: "", output: { state: "confirmed", name: "Mt. Joy" } },
@@ -80,4 +80,13 @@ test("a group range next to one brand passes; a score right after a brand's name
   assert.deepEqual(checkDecision({ ...ok, cautions: [], summary: [{ text: "All three scored between 0.90 and 0.95, with [[Allbirds]] at the top.", steps: [2] }] }, s3), { ok: true });
   assert.deepEqual(checkDecision({ ...ok, cautions: [], summary: [{ text: "[[REI]] scores 0.91, close to [[Allbirds]] (0.95).", steps: [2] }] }, s3), { ok: true });
   assert.equal(checkDecision({ ...ok, cautions: [], summary: [{ text: "[[REI]] scores 0.95, ahead of [[Allbirds]].", steps: [2] }] }, s3).ok, false);
+});
+
+// Fable round 4 follow-up (Oct 13): Qloo names the entity "Alternative"; its own description says "Alternative Apparel".
+// The page shows the brand name, the checker keeps matching Qloo's.
+test("displayName renders a bare Qloo name as its brand, in brackets or plain names", () => {
+  assert.equal(displayName("Alternative"), "Alternative Apparel");
+  assert.equal(displayName("Allbirds"), "Allbirds");
+  assert.equal(forDisplay("[[Alternative]] scores 0.95."), "Alternative Apparel scores 0.95.");
+  assert.equal(unbracket("[[Alternative]] scores 0.95."), "Alternative scores 0.95."); // the checker reads Qloo's name
 });

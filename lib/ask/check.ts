@@ -12,6 +12,14 @@ export type Check = { ok: true } | { ok: false; problems: string[] };
 const BRACKET = /\[\[([^\]]+)\]\]/g;
 export const unbracket = (t: string) => t.replace(BRACKET, "$1");
 
+// Render only: a Qloo name that reads as a word gets the brand name from Qloo's own description. The checker never sees
+// these. ponytail: keyed by name, so a second entity with the same bare name would borrow it; key by id if one appears.
+const DISPLAY: Record<string, string> = {
+  Alternative: "Alternative Apparel", // Qloo 26B1E073-D09A-4242-AD7F-EED546CE55A7: "Alternative Apparel is a sustainable clothing brand"
+};
+export const displayName = (name: string) => DISPLAY[name] ?? name;
+export const forDisplay = (t: string) => t.replace(BRACKET, (_, n: string) => displayName(n));
+
 function walk(v: unknown, names: Set<string>, nums: number[]) {
   if (Array.isArray(v)) return v.forEach((x) => walk(x, names, nums));
   if (typeof v === "number") return void nums.push(v);

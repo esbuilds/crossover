@@ -1,7 +1,7 @@
 import { ogCard } from "@/lib/og.tsx";
 import { peekAsk } from "@/lib/ask/agent.ts";
 import { parseAskBody } from "@/lib/ask/body.ts";
-import { unbracket } from "@/lib/ask/check.ts";
+import { forDisplay, unbracket } from "@/lib/ask/check.ts";
 import { cardsStep, stepsFrom } from "@/lib/ask/steps.ts";
 
 // GET /ask/<id>/og?t=<type>: a shared ask's preview card, from the cached decision only (never a call). The first call
@@ -17,7 +17,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const score = first ? cardsStep(steps)?.cards.find((c) => c.name === unbracket(first.name))?.affinity : undefined;
   const res = await ogCard({
     title: seed ? `Who should ${seed} call first?` : "Who should they call first?",
-    line: first ? `1. ${unbracket(first.name)}${score != null ? ` ${score.toFixed(2)}` : ""}. Every line checked against the Qloo step behind it.` : "One name in. An agent measures in Qloo, step by step, and says who to call first.",
+    line: first ? `1. ${forDisplay(first.name)}${score != null ? ` ${score.toFixed(2)}` : ""}. Every line checked against the Qloo step behind it.` : "One name in. An agent measures in Qloo, step by step, and says who to call first.",
   });
   res.headers.set("Cache-Control", "public, max-age=3600, s-maxage=3600");
   return res;

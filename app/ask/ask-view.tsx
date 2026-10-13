@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
 import CollisionMap from "../vs/collision-map";
-import { unbracket, type Decision, type StepRecord } from "@/lib/ask/check.ts";
+import { displayName, forDisplay, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { cardsStep, mapStep, stepsFrom, twinsStep, type CardsStep, type MapStep, type TwinsStep } from "@/lib/ask/steps.ts";
 import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
@@ -109,13 +109,13 @@ export default function AskView({ initial, pending }: { initial?: { label: strin
               <ol className="mt-3 space-y-3">
                 {verdict.decision.calls.map((c, i) => (
                   <li key={c.name + i} className="border-t border-rule pt-3">
-                    <p className="text-lg text-ink">{i + 1}. {unbracket(c.name)}</p>
-                    <p className="mt-1 text-base text-ink-2">{unbracket(c.reason)} <Steps ns={c.steps} /></p>
+                    <p className="text-lg text-ink">{i + 1}. {forDisplay(c.name)}</p>
+                    <p className="mt-1 text-base text-ink-2">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
                   </li>
                 ))}
               </ol>
               {[...verdict.decision.cautions, ...verdict.decision.summary].map((c) => (
-                <p key={c.text} className="mt-3 max-w-[60ch] text-base text-ink-2">{unbracket(c.text)} <Steps ns={c.steps} /></p>
+                <p key={c.text} className="mt-3 max-w-[60ch] text-base text-ink-2">{forDisplay(c.text)} <Steps ns={c.steps} /></p>
               ))}
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
               <p className="mt-4 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.</p>
@@ -187,7 +187,7 @@ function CardsPicture({ c, steps }: { c: CardsStep; steps: StepRecord[] }) {
       <ul className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {c.cards.map((x) => (
           <li key={x.name} className="min-w-0 rounded-sm border border-rule px-2 py-2">
-            <p className="truncate text-sm text-ink" title={x.name}>{x.name}</p>
+            <p className="truncate text-sm text-ink" title={displayName(x.name)}>{displayName(x.name)}</p>
             <p className="text-sm text-ink-2 tabular-nums">{x.affinity === null ? "no measurement" : x.affinity.toFixed(2)}</p>
             <p className="text-xs text-ink-3">{x.fameBand === 0 ? "Best known" : "Less known"}</p>
           </li>
@@ -201,7 +201,7 @@ function CardsPicture({ c, steps }: { c: CardsStep; steps: StepRecord[] }) {
 function TwinsPicture({ t }: { t: TwinsStep }) {
   return (
     <p className="mt-3 max-w-[60ch] text-sm text-ink-2 tabular-nums">
-      {t.a} and {t.b} sit closest to each other: their fans lean toward each other at {t.value.toFixed(2)}; the next closest pair here is {t.next.toFixed(2)}. Calling both may reach one audience twice.
+      {displayName(t.a)} and {displayName(t.b)} sit closest to each other: their fans lean toward each other at {t.value.toFixed(2)}; the next closest pair here is {t.next.toFixed(2)}. Calling both may reach one audience twice.
     </p>
   );
 }
