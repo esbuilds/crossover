@@ -97,6 +97,13 @@ export default function AuditPage() {
         </p>
       </section>
 
+      <section className="mt-12 max-w-[68ch]">
+        <h2 className="font-display text-xl">What the ask agent may say</h2>
+        <p className="mt-2 text-base text-ink-2">
+          The agent on /ask chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Building it, the check blocked three early answers: two quoted the method&apos;s own numbers (the 0.05 gap, top 50) that no step stated, and one named the rival under a step that didn&apos;t include it. The tools now state those, and every number still has to match a cited step.
+        </p>
+      </section>
+
       <Replay />
 
       <section className="mt-12 max-w-[68ch]">

@@ -30,7 +30,7 @@ async function spend(ip: string) {
   if ((shared ?? local) > (ip === "warm" ? WARM_CAP : DAILY_CAP)) throw new CapReached();
 }
 
-export function streamCache<I, R extends Streamed>(name: string, version: string | ((i: I) => string), keyOf: (i: I) => string, gen: (i: I, say: (t: string) => void, write: (d: string) => void) => Promise<R>) {
+export function streamCache<I, R extends Streamed>(name: string, version: string | ((i: I) => string), keyOf: (i: I) => string, gen: (i: I, say: (t: string) => void, write: (d: string) => void, ip: string) => Promise<R>) {
   const listeners = new Map<string, Listener>();
   const run = cached(name, async (_v: string, input: I): Promise<R> => {
     const l = listeners.get(keyOf(input));
@@ -40,6 +40,7 @@ export function streamCache<I, R extends Streamed>(name: string, version: string
       input,
       (t) => l?.trace(t),
       (d) => l?.text(d),
+      l?.ip ?? "unknown",
     );
   });
   // Live tokens go to onTrace/onText; on a cache hit the result comes back with ran=false for the caller to replay.
