@@ -173,7 +173,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
   const method = inside ? { line: finder!.line, node: block } : undefined;
   const tryRow = (label: string, cases: VsCase[]) => (
     // one line each on phones, scrolling sideways inside the row, so the map stays near the top; wrapping from 640 up
-    <p className="mt-2 flex items-center gap-x-4 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap sm:flex-wrap">
+    <p className="mt-2 flex items-center gap-x-4 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
       <span className="shrink-0 text-ink-2">{label}</span>
       {cases.map((c) => (
         <button key={key(c.a, c.b)} type="button" onClick={() => (setFinder(null), load(c.a, c.b))} className={`${btnQuiet} shrink-0`} aria-current={active === key(c.a, c.b)}>
@@ -199,7 +199,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
       <div className="mt-1">
         {tryRow("Try:", VS_CASES)}
         {VS_MORE.length > 0 && tryRow("or try", VS_MORE)}
-        <p className="mt-2 flex items-center gap-x-4 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap sm:flex-wrap">
+        <p className="mt-2 flex items-center gap-x-4 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
           <span className="shrink-0 text-ink-2">Whole aisles:</span>
           {CATEGORIES.map((c) => (
             <Link key={c.slug} href={`/map/${c.slug}`} className={`${btnQuiet} shrink-0`}>
