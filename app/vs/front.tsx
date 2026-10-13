@@ -188,6 +188,10 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
         <span className="sm:hidden">Two names in. See where their audiences split.</span>
         <span className="max-sm:hidden">Put two names in. See where their audiences split on the map, and which brands sit closer to each.</span>
       </p>
+      {/* the judge path (Perplexity re-judge, Oct 13): three stops, everything else secondary */}
+      <p className="mt-2 text-sm text-ink-3">
+        Three stops: <span className="text-ink-2">1. the split, below</span> · <a href="#pick-three" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">2. Pick three</a> · <Link href="/audit" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">3. is any of this right?</Link>
+      </p>
       <form onSubmit={compare} className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-start">
         <SideInput label="First name" value={qa} onChange={setQa} ask={asks[0]} onPick={(c) => choose(0, c)} />
         <span className="hidden min-h-11 items-center text-ink-3 sm:inline-flex">vs</span>
@@ -220,6 +224,9 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
         <div className={busy ? "opacity-50 transition-opacity" : undefined} aria-busy={busy}>
           {busy && <p className="mt-6 font-mono text-sm text-ink-2 motion-safe:animate-pulse">Comparing in Qloo...</p>}
           <VsResult d={payload} method={method} />
+          <p className="mt-8 text-base">
+            <a href="#pick-three" className={btnQuiet}>Next: the partnerships question, Pick three</a>
+          </p>
         </div>
       ) : null}
     </section>

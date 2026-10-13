@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Card, Pick } from "@/lib/slate.ts";
 import type { Ref, Review, ReviewGroup, ReviewRow, Twins } from "@/lib/review.ts";
@@ -133,7 +133,7 @@ export default function ReviewView({ initial, embedded = false }: { initial?: Sh
 
         {data && group && revealed && (
           <>
-            <Reveal data={data} group={group} picks={picks} share={share} open={open} onOpen={setOpen} gate={prepared?.gate.label} gateOn={gateOn} onGate={toggleGate} onAgain={() => (setRevealed(false), setPicks([]), setOpen(null))} />
+            <Reveal embedded={embedded} data={data} group={group} picks={picks} share={share} open={open} onOpen={setOpen} gate={prepared?.gate.label} gateOn={gateOn} onGate={toggleGate} onAgain={() => (setRevealed(false), setPicks([]), setOpen(null))} />
             {open && group.rows.find((r) => r.entity.entity_id === open) && (
               <Evidence data={data} group={group} row={group.rows.find((r) => r.entity.entity_id === open)!} onBrief={setBrief} />
             )}
@@ -228,8 +228,8 @@ function PickStep({ data, group, order, picks, need, onToggle, onReveal }: { dat
 }
 
 // Step 2: the same names twice, by fame and by measured taste. The visitor's picks stay marked in both.
-function Reveal({ data, group, picks, share, open, onOpen, gate, gateOn, onGate, onAgain }: {
-  data: Result; group: ReviewGroup; picks: string[]; share: string; open: string | null; onOpen: (id: string) => void; gate?: string; gateOn: boolean; onGate: () => void; onAgain: () => void;
+function Reveal({ embedded, data, group, picks, share, open, onOpen, gate, gateOn, onGate, onAgain }: {
+  embedded: boolean; data: Result; group: ReviewGroup; picks: string[]; share: string; open: string | null; onOpen: (id: string) => void; gate?: string; gateOn: boolean; onGate: () => void; onAgain: () => void;
 }) {
   const row = (id: string) => group.rows.find((r) => r.entity.entity_id === id)!;
   const names = (ids: string[]) => ids.map((id) => row(id).input).join(", ");
@@ -308,6 +308,11 @@ function Reveal({ data, group, picks, share, open, onOpen, gate, gateOn, onGate,
           </ol>
         </section>
       </div>
+      {embedded && (
+        <p className="mt-8 text-base">
+          <Link href="/audit" className={btnQuiet}>Next: is any of this right? The audit</Link>
+        </p>
+      )}
     </div>
   );
 }
