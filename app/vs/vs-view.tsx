@@ -2,7 +2,7 @@
 // imports. Every word comes from code or from Qloo.
 import Link from "next/link";
 import { btnQuiet } from "@/app/ui";
-import type { RivalRow, VsPayload } from "@/lib/rivals.ts";
+import type { RivalRow, VsPayload, Xray } from "@/lib/rivals.ts";
 import { DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
 import { PAIR_CASE, VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
 import { LEAN_SPLIT, TONE } from "@/lib/collide.ts";
@@ -49,6 +49,9 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
     `Compared ${A} and ${B} (insights/compare): ${d.share.length ? d.share.join(", ") : "no shared category tags"}`,
     ...(d.map
       ? [`Heatmap for ${A} (urn:heatmap, United States)`, `Heatmap for ${B} (urn:heatmap, United States); ${d.map.matched} cells both carry, ${d.map.cells.length} drawn`]
+      : []),
+    ...(d.xray?.length
+      ? [`Same test beyond brands (${d.xray.map((x) => DOMAIN[x.type]).join(", ")}): each side's top 50 per domain, every candidate scored under both`]
       : []),
   ];
   const state = vsState(r);
@@ -103,6 +106,8 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
           Within 0.05 of both: {r.shared.length ? r.shared.map((x) => x.name).join(", ") : "none"}.
         </p>
       )}
+
+      {d.xray?.length ? <XraySection d={d} rows={d.xray} check={log.length} /> : null}
 
       <Fold label={`Same field: ${r.sameField.length}`} rows={r.sameField} d={d} note={`Measured, and set aside from the columns: they share a category with ${A} or ${B}.`} />
       {r.noData.length > 0 && <Fold label={`No data: ${r.noData.length}`} rows={r.noData} d={d} note="Qloo returned a fallback value for these, so they are never ranked or scored." />}
@@ -183,6 +188,37 @@ function MapSection({ d }: { d: VsPayload }) {
       <p className="mt-2 text-sm text-ink-2">
         Top markets. {A}: {m.metrosA.map((x) => x.name).join(", ")}. {B}: {m.metrosB.map((x) => x.name).join(", ")}.
       </p>
+    </section>
+  );
+}
+
+const DOMAIN: Record<string, string> = { "urn:entity:artist": "artists", "urn:entity:tv_show": "TV", "urn:entity:movie": "film", "urn:entity:podcast": "podcasts" };
+
+// the X-ray (real Oct 13): the columns' test in four more domains, counts and the three widest gaps per side
+function XraySection({ d, rows, check }: { d: VsPayload; rows: Xray[]; check: number }) {
+  const A = d.rivals.a.name, B = d.rivals.b.name;
+  const names = (xs: Xray["topA"]) => xs.map((x) => `${x.name} ${x.a.toFixed(2)}/${x.b.toFixed(2)}`).join(", ");
+  return (
+    <section className="mt-10">
+      <h2 className="font-display text-xl">Beyond brands</h2>
+      <p className="mt-1 max-w-[68ch] text-sm text-ink-2">
+        <Cite checks={String(check)}>The same test in four more Qloo domains</Cite>: each side&apos;s top 50, scored under both names, split at 0.05. Scores are {A}/{B}.
+      </p>
+      <dl className="mt-4 grid gap-x-8 gap-y-4 md:grid-cols-2">
+        {rows.map((x) => (
+          <div key={x.type} className="min-w-0 border-t border-rule pt-3">
+            <dt className="text-base font-semibold text-ink">
+              {DOMAIN[x.type][0].toUpperCase() + DOMAIN[x.type].slice(1)}{" "}
+              <span className="block text-sm font-normal text-ink-3 tabular-nums">
+                {x.leansA} closer to {A} · {x.leansB} closer to {B} · {x.shared} within 0.05 of both
+              </span>
+            </dt>
+            {x.topA.length > 0 && <dd className="mt-1 text-sm text-ink-2 tabular-nums">{A}: {names(x.topA)}</dd>}
+            {x.topB.length > 0 && <dd className="mt-1 text-sm text-ink-2 tabular-nums">{B}: {names(x.topB)}</dd>}
+            {!x.topA.length && !x.topB.length && <dd className="mt-1 text-sm text-ink-2">No split here: their fans favor the same {DOMAIN[x.type]}.</dd>}
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }

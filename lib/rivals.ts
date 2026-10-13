@@ -83,17 +83,18 @@ export function compareLists(a: Entity, b: Entity, listA: Entity[], listB: Entit
 
 // Cold: 2 lists + 2 to 4 scoring calls (8 with heatmaps, added on map day). Serial, never fanned out against Qloo.
 // peek: cache only, never a call; null when any piece is cold (the page counts a cold pair against the visitor first).
-export async function getRivals(a: Entity, b: Entity, peek = false): Promise<Rivals | null> {
+// type: brands for the columns; the X-ray runs the same test in other domains (cache only, see runVs)
+export async function getRivals(a: Entity, b: Entity, peek = false, type = BRAND): Promise<Rivals | null> {
   const get = (p: Record<string, string | number>) => (peek ? insights.peek(p) : insights(p));
-  const listA = await get({ "filter.type": BRAND, "signal.interests.entities": a.entity_id, take: 50 }); // = fansTop50's key
-  const listB = listA && (await get({ "filter.type": BRAND, "signal.interests.entities": b.entity_id, take: 50 }));
+  const listA = await get({ "filter.type": type, "signal.interests.entities": a.entity_id, take: 50 }); // = fansTop50's key
+  const listB = listA && (await get({ "filter.type": type, "signal.interests.entities": b.entity_id, take: 50 }));
   if (!listA || !listB) return null;
   const union = [...new Map([...listA, ...listB].map((e) => [e.entity_id, e])).keys()].filter((id) => id !== a.entity_id && id !== b.entity_id);
   const score = async (seed: string) => {
     const out: Scored[] = [];
     for (let i = 0; i < union.length; i += BATCH) {
       const chunk = union.slice(i, i + BATCH);
-      const hits = await get({ "filter.type": BRAND, "signal.interests.entities": seed, "filter.results.entities": chunk.join(","), take: chunk.length });
+      const hits = await get({ "filter.type": type, "signal.interests.entities": seed, "filter.results.entities": chunk.join(","), take: chunk.length });
       if (!hits) return null;
       out.push(...hits);
     }
@@ -107,10 +108,19 @@ export async function getRivals(a: Entity, b: Entity, peek = false): Promise<Riv
 // --- the page's loader (brief-oct13-vs): cards, rivals, compare tags; warm from cache or one counted cold run ---
 // map null: a person seed (flat heatmaps, VERIFY-4 Cedric), so no heatmap calls and the page says so
 export type VsMap = Collision & { metrosA: City[]; metrosB: City[] };
-export type VsData = { a: Entity; b: Entity; rivals: Rivals; share: string[]; map: VsMap | null };
+// X-ray (Perplexity moonshot 2, real Oct 13, scripts/xray-probe.ts): the rivals test in four more domains. Counts and
+// the three widest gaps per side only. Cache only, never a call: a pair shows it once warmed (prepared pairs are).
+export const XRAY_TYPES = ["artist", "tv_show", "movie", "podcast"].map((t) => `urn:entity:${t}`);
+type XrayName = { name: string; a: number; b: number };
+export type Xray = { type: string; leansA: number; leansB: number; shared: number; topA: XrayName[]; topB: XrayName[] };
+const xrayOf = (type: string, r: Rivals): Xray => {
+  const top = (rows: RivalRow[]) => rows.slice(0, 3).map((x) => ({ name: x.name, a: x.a!, b: x.b! }));
+  return { type, leansA: r.leansA.length, leansB: r.leansB.length, shared: r.shared.length, topA: top(r.leansA), topB: top(r.leansB) };
+};
+export type VsData = { a: Entity; b: Entity; rivals: Rivals; share: string[]; map: VsMap | null; xray: Xray[] };
 // what the page needs, without the seeds' full entities (sent to the browser by /api/rivals and the front door)
 export type VsPayload = Omit<VsData, "a" | "b">;
-export const toPayload = ({ rivals, share, map }: VsData): VsPayload => ({ rivals, share, map });
+export const toPayload = ({ rivals, share, map, xray }: VsData): VsPayload => ({ rivals, share, map, xray });
 export type Side = { id: string; type: string };
 export class ColdPairCap extends Error {}
 const COLD_PAIRS_PER_IP = 10; // per UTC day; a cold pair is 8 to 11 Qloo calls (VERIFY-4, plus the compare chip)
@@ -161,6 +171,11 @@ async function runVs(sa0: Side, sb0: Side, peek: boolean): Promise<VsData | null
     if (!ha || !hb) return "cold";
     map = { ...collide(ha, hb), metrosA: rankMetros(ha).slice(0, 5), metrosB: rankMetros(hb).slice(0, 5) };
   }
+  const xray: Xray[] = [];
+  for (const t of XRAY_TYPES) {
+    const x = await getRivals(a, b, true, t);
+    if (x) xray.push(xrayOf(t, x));
+  }
   // a pair warmed before the chip existed stays warm: a cold chip never makes the page cold
-  return { a, b, rivals, share: (share ?? []).slice(0, 4), map };
+  return { a, b, rivals, share: (share ?? []).slice(0, 4), map, xray };
 }
