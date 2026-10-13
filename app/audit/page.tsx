@@ -96,6 +96,13 @@ export default function AuditPage() {
       </section>
 
       <section className="mt-12 max-w-[68ch]">
+        <h2 className="font-display text-xl">Doubles, not swaps</h2>
+        <p className="mt-2 text-base text-ink-2">
+          Measured Oct 13 on the twelve briefs above, after the protocol, so not held out. Each top name scored the others. A three with at least 0.05 less overlap existed in 6 of 12 briefs, but every one gave up more than 0.05 of fit with the seed, and two dropped the strongest name (Liquid Death would trade Death Wish Coffee, 0.83, for Nike, 0.67). So the reveal never suggests a swap. It only names a pair of top names whose audiences sit 0.05 or more closer to each other than any other pair: REI and Patagonia for Mt. Joy (0.97, next 0.89), and 5 of 11 briefs that ran.
+        </p>
+      </section>
+
+      <section className="mt-12 max-w-[68ch]">
         <h2 className="font-display text-xl">Rivals and the collision map</h2>
         <p className="mt-2 text-base text-ink-2">Measured Oct 11 on the hackathon API (probe/VERIFY-4.md and the build reports). These are limits of the front door, not held-out results.</p>
         <ul className="mt-4 grid gap-4 text-base text-ink">
