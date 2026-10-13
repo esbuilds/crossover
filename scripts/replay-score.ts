@@ -1,7 +1,7 @@
 // Historical replay, stage 2 of 2 (audit/replay-protocol.md). Run only after the protocol, the cases and the built
 // lists are frozen in git. One forward call per case; prints the pass threshold before any result.
 // Updates audit/replay.json with ranks (derived numbers only).
-//   QLOO_DAILY_CAP=<n> node --env-file=.env.local scripts/replay-score.ts
+//   QLOO_DAILY_CAP=<n> node --env-file=.env.local scripts/replay-score.ts [audit/replay.json]
 import { readFileSync, writeFileSync } from "node:fs";
 import { insights, qlooCallCount } from "../lib/qloo.ts";
 import { applyMissingRule, GAP } from "../lib/review.ts";
@@ -12,7 +12,8 @@ const tail = (n: number, k: number) => { let s = 0; for (let i = k; i <= n; i++)
 export const threshold = (n: number) => { for (let k = 0; k <= n; k++) if (tail(n, k) < 0.05) return k; return n + 1; };
 
 type Built = { seed: string; partner: string; seedId: string; partnerId: string; decoys: { name: string; id: string; popularity: number }[]; partnerPopularity: number; dropped?: string };
-const file = JSON.parse(readFileSync("audit/replay.json", "utf8"));
+const path = process.argv[2] ?? "audit/replay.json";
+const file = JSON.parse(readFileSync(path, "utf8"));
 const built: Built[] = file.cases.filter((c: Built) => !c.dropped);
 console.log(`${built.length} cases. Pass needs ${threshold(built.length)} or more hits (one-sided binomial under 3 in 8, p < 0.05).\n`);
 
@@ -38,4 +39,4 @@ const need = threshold(scored);
 const mean = ranks.reduce((a, b) => a + b, 0) / (ranks.length || 1);
 const summary = { scored, hits, need, pass: hits >= need, meanRank: two(mean), chanceMeanRank: 4.5, pOfAtLeast: Number(tail(scored, hits).toPrecision(2)) };
 console.log(`\n${hits} hits of ${scored} scored (need ${need}): ${summary.pass ? "PASS" : "FAIL"}; mean rank ${summary.meanRank} vs 4.5 by chance; P(>= ${hits} by chance) = ${summary.pOfAtLeast}. Qloo calls: ${qlooCallCount()}`);
-writeFileSync("audit/replay.json", JSON.stringify({ ...file, stage: "scored", scoredAt: new Date().toISOString().slice(0, 10), summary }, null, 2) + "\n");
+writeFileSync(path, JSON.stringify({ ...file, stage: "scored", scoredAt: new Date().toISOString().slice(0, 10), summary }, null, 2) + "\n");

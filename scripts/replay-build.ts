@@ -4,7 +4,7 @@
 // whose Qloo popularity sits closest to the partner's, excluding the seed. A case is dropped, as the protocol says,
 // when a name doesn't confirm or the tag holds fewer than seven other brands.
 // Writes audit/replay.json (names, ids, tag, popularity to two decimals). No affinity is fetched here.
-//   QLOO_DAILY_CAP=<n> node --env-file=.env.local scripts/replay-build.ts audit/replay-cases.json
+//   QLOO_DAILY_CAP=<n> node --env-file=.env.local scripts/replay-build.ts audit/replay-cases.json [audit/replay.json]
 import { readFileSync, writeFileSync } from "node:fs";
 import { insights, search, qlooCallCount, type Entity } from "../lib/qloo.ts";
 import { resolve } from "../lib/resolve.ts";
@@ -45,5 +45,5 @@ for (const c of cases) {
   console.log(`${c.seed} x ${c.partner}: tag ${tag.name}; decoys ${decoys.map((d) => `${d.name} ${two(d.popularity)}`).join(", ")} (partner ${two(partner.popularity)})`);
 }
 for (const d of out.filter((x) => "dropped" in x)) console.log(`DROPPED ${d.seed} x ${d.partner}: ${(d as { dropped: string }).dropped}`);
-writeFileSync("audit/replay.json", JSON.stringify({ stage: "built, not scored", builtAt: new Date().toISOString().slice(0, 10), cases: out }, null, 2) + "\n");
+writeFileSync(process.argv[3] ?? "audit/replay.json", JSON.stringify({ stage: "built, not scored", builtAt: new Date().toISOString().slice(0, 10), cases: out }, null, 2) + "\n");
 console.log(`\n${out.filter((x) => !("dropped" in x)).length} of ${cases.length} cases built. Qloo calls: ${qlooCallCount()}`);
