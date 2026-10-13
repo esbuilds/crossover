@@ -9,9 +9,10 @@ import type { Decision } from "@/lib/ask/check.ts";
 
 type Body = { query: string } | { id: string; type: string };
 export const PREPARED_ASKS: { label: string; body: Body }[] = [
-  { label: "Liquid Death", body: { id: "4DF7C265-52D9-4A99-8803-F62C2302D561", type: "urn:entity:brand" } },
-  { label: "Olipop", body: { id: "6647FB92-9390-4B58-885B-86D96FF5BB6D", type: "urn:entity:brand" } },
+  // Mt. Joy first: no rival, so the agent changes course to the fans' top 50 and lands on recognizable names. Olipop
+  // dropped Oct 13: its split left four candidates, a thin choice.
   { label: "Mt. Joy", body: { id: "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A", type: "urn:entity:artist" } },
+  { label: "Liquid Death", body: { id: "4DF7C265-52D9-4A99-8803-F62C2302D561", type: "urn:entity:brand" } },
 ];
 type Step = { n: number; tool: string; why: string; summary?: string; output?: unknown };
 const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Eight candidates", review: "Score them", twins: "Check for doubles" };
