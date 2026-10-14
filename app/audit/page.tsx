@@ -109,6 +109,7 @@ export default function AuditPage() {
           The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Every prepared ask&apos;s eight candidates tie within 0.05 by taste, because they are the top of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the doubles check is shown whether it finds a pair or not.
         </p>
         <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far. Each, with the sentence that failed and the reason:</p>
+        <p className="mt-1 text-base text-ink-2">Three of the six are the rule reading a true sentence too strictly. The rule stays as frozen: a looser rule could pass a wrong binding.</p>
         <ul className="mt-2 space-y-2 text-sm text-ink-2">
           {blocked.map((b) => (
             <li key={b.ask + b.version} className="border-t border-rule pt-2">
@@ -283,7 +284,7 @@ function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: Rep
             </p>
             {`${c.seed} x ${c.partner}` === replayAsk.case && (
               <p className="mt-1">
-                Replayed as an ask for the video, chosen before the run; a demonstration, not a test. Protocol rank #{replayAsk.protocolRank}; the agent, given the eight without knowing which was real, called {c.partner} {replayAsk.agentCall}.{" "}
+                Replayed as an ask for the video, chosen before the run; a demonstration, not a test. Protocol rank #{replayAsk.protocolRank}; the agent, given the eight in alphabetical order without knowing which was real, called {c.partner} {replayAsk.agentCall}.{" "}
                 <Link href={replayAsk.href} className="underline decoration-rule-strong underline-offset-4 hover:decoration-ink">Open the ask</Link>
               </p>
             )}

@@ -48,3 +48,19 @@ The ask page and its share card show a display name only where Qloo's entity nam
 | Qloo id | Qloo name | Shown as | Source |
 |---|---|---|---|
 | 26B1E073-D09A-4242-AD7F-EED546CE55A7 | Alternative | Alternative Apparel | Qloo's description: "Alternative Apparel is a sustainable clothing brand" |
+
+## Answer freeze (real Oct 14, Fable)
+
+Prompts and tools change no more before submit. The cached answers below are the frozen answers: captions, the gallery, the shotlist and the script come from them. extend-ttl pinned every cached key to 2026-12-01 on Oct 14 (2,902 keys) and runs again on Oct 22; Oct 22 verifies these hashes with `node --env-file=.env.local scripts/ask-hashes.ts` and does not re-warm. Liquid Death's stale ask key was forgotten on Oct 14.
+
+| Ask | sha1 of cached events | Calls | Checker |
+|---|---|---|---|
+| Allbirds | 1db3003687a633fa32d4f348c16b5cfc7d67abb1 | Bombas, Warby Parker, ClassPass | ok |
+| Mt. Joy | 79a549bdd8b0838452c3f15c5382ee4c3d7837db | Outdoor Voices, Allbirds, Alternative | ok |
+| Coca-Cola x Converse (replay) | 793443bbad52952543f781567872fde57721d9e6 | Converse, Vans | ok |
+
+Any fix that would touch a tool or the prompt reopens the freeze and needs a ruling first.
+
+## First change after judging ends (Nov 16)
+
+The checker's score-binding rule reads the clause after the first brand named as that brand's own numbers, so three true sentences were blocked ("with seven others between 0.94 and 0.95", "within 0.05", a group range). Refine it to end the clause at a boundary ("with", "while", a comma). Not before submit: a strict rule that blocks true sentences is the safe failure on camera; a looser one could pass a wrong binding.
