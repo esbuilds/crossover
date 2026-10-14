@@ -61,9 +61,31 @@ test("dumbbellStep: rows sorted by taste minus fame, unmeasured last", () => {
   const d = dumbbellStep(steps)!;
   assert.deepEqual(d.rows.map((r) => r.name), ["B", "C", "A", "D"]);
   assert.deepEqual(d.rows[0], { name: "B", fame: 0.6, taste: 0.94 });
+  assert.equal(d.rows[3].fame, null);
   assert.equal(d.rows[3].taste, null);
 });
 
 test("dumbbellStep: nothing to draw without popularity in the review output (asks cached before the field)", () => {
-  assert.equal(dumbbellStep(mj), null);
+  assert.equal(dumbbellStep(ld), null); // Liquid Death's fixture predates the field
+});
+
+// the two prepared asks as recaptured after the Pick 1 re-warm (real Oct 14): both draw eight rows
+test("dumbbellStep on the prepared asks: Mt. Joy (the tied hero fallback) and Allbirds (the map hero)", () => {
+  const ab = stepsFrom(load("allbirds"));
+  for (const steps of [mj, ab]) {
+    const d = dumbbellStep(steps)!;
+    assert.equal(d.rows.length, 8);
+    const measured = d.rows.filter((r) => r.fame !== null);
+    assert.ok(measured.every((r) => r.fame! > 0 && r.fame! <= 1 && r.taste !== null));
+    const gaps = measured.map((r) => r.taste! - r.fame!);
+    assert.deepEqual(gaps, [...gaps].sort((a, b) => b - a)); // widest taste-over-fame first
+    // a popularity of 0 is Qloo's missing value, never the widest gap: it reads as no measurement, after the measured rows
+    const firstMissing = d.rows.findIndex((r) => r.fame === null);
+    if (firstMissing >= 0) assert.ok(d.rows.slice(firstMissing).every((r) => r.fame === null));
+  }
+  assert.equal(dumbbellStep(stepsFrom(load("allbirds")))!.rows.find((r) => r.name === "Quince")!.fame, null);
+  {
+  }
+  const m = mapStep(ab)!;
+  assert.deepEqual([m.seed.name, m.rival.name, m.closerToSeed, m.closerToRival, m.withinGapOfBoth], ["Allbirds", "Outdoor Voices", 2, 4, 50]);
 });

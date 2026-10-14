@@ -65,13 +65,16 @@ export const replayLine = (v1: Tally, v2: Tally) =>
   `Against real deals it never saw, the protocol put the real partner in the top three ${v1.hits} of ${v1.scored} times (v1) and ${v2.hits} of ${v2.scored} times (v2). Each is a frozen test; details on /audit.`;
 
 // Step 5's dumbbell (Pick 1, Oct 14): fame (Qloo popularity) at one end, taste (affinity) at the other, one row per
-// candidate, the widest taste-over-fame gap first; unmeasured names last. null for asks cached before popularity
-// joined the review output.
-export type DumbbellRow = { name: string; fame: number; taste: number | null };
+// candidate, the widest taste-over-fame gap first. A popularity of 0 is Qloo's missing value (lib/qloo.ts trims a missing
+// popularity to 0), so it reads as no measurement and sorts after the measured rows, never as the widest gap (Quince,
+// Allbirds' eight, Oct 14). Unmeasured taste last. null for asks cached before popularity joined the review output.
+export type DumbbellRow = { name: string; fame: number | null; taste: number | null };
 export function dumbbellStep(steps: StepRecord[]): { rows: DumbbellRow[] } | null {
   const r = outputOf<{ groups: { name: string; affinity: number; popularity?: number }[][]; notMeasured?: Named[] }>(steps, "review");
   const measured = r?.groups.flat() ?? [];
   if (!r || !measured.length || measured.some((x) => x.popularity == null)) return null;
-  const rows: DumbbellRow[] = measured.map((x) => ({ name: x.name, fame: x.popularity!, taste: x.affinity })).sort((a, b) => b.taste! - b.fame - (a.taste! - a.fame));
-  return { rows: [...rows, ...(r.notMeasured ?? []).map((x) => ({ name: x.name, fame: 0, taste: null }))] };
+  const rows: DumbbellRow[] = measured.map((x) => ({ name: x.name, fame: x.popularity! > 0 ? x.popularity! : null, taste: x.affinity }));
+  const known = rows.filter((x) => x.fame !== null).sort((a, b) => b.taste! - b.fame! - (a.taste! - a.fame!));
+  const noFame = rows.filter((x) => x.fame === null).sort((a, b) => b.taste! - a.taste!);
+  return { rows: [...known, ...noFame, ...(r.notMeasured ?? []).map((x) => ({ name: x.name, fame: null, taste: null }))] };
 }

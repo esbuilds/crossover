@@ -76,7 +76,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
 
   return (
     <>
-      <section className="pt-8">
+      <section className="pt-6">
         <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
         <p className="mt-2 max-w-[68ch] text-lg text-ink-2">The agent decides what to measure next and why; every number comes from Qloo, and every line of its answer is checked against the step behind it.</p>
         <JudgePath />
@@ -96,7 +96,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
 
       {/* phones: decision, picture, steps. From 1024: the picture top left, the decision down the right, steps under the
           picture (Pick 1: a picture in the first viewport at 1280, the decision first at 390) */}
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
+      <div className="mt-6 grid gap-8 lg:grid-cols-2">
         {hero && (
           <section id="hero" className="order-2 scroll-mt-4 lg:order-1">
             {hero === "map" ? <MapPicture m={map!} n={steps.find((s) => s.tool === "split")!.n} /> : <Dumbbell rows={bell!.rows} steps={steps} />}
@@ -225,10 +225,11 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
   const cities = mapLine(m.seed.name, m.rival.name, { metrosA: m.seedMarkets.map((name) => ({ name })), metrosB: m.rivalMarkets.map((name) => ({ name })) } as unknown as Parameters<typeof mapLine>[2]);
   return (
     <div>
+      {/* the counts and the city sentence above the map, so all three sit in the first viewport at 1280 (Pick 1 done) */}
       <p className="font-mono text-sm text-ink-3">Step {n}: the split, {m.seed.name} against {m.rival.name}</p>
-      <div className="mt-2 aspect-[16/10] w-full max-w-lg">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
-      <p className="mt-2 text-base text-ink tabular-nums">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
+      <p className="mt-1 text-base text-ink tabular-nums">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
       {cities && <p className="mt-1 text-base text-ink">{cities}</p>}
+      <div className="mt-2 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
       <p className="mt-1"><Link href={m.href} className={btnQuiet}>Open the full split</Link></p>
     </div>
   );
@@ -258,13 +259,13 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
             <span className="truncate text-ink" title={displayName(r.name)}>{displayName(r.name)}</span>
             <span className="relative h-3">
               <span className="absolute inset-x-0 top-1/2 h-px bg-rule" aria-hidden />
-              {r.taste !== null && (
+              {r.taste !== null && r.fame !== null && (
                 <span className="absolute top-1/2 h-0.5 -translate-y-1/2 bg-ink-3" style={{ left: x(Math.min(r.fame, r.taste)), width: `calc(${x(Math.max(r.fame, r.taste))} - ${x(Math.min(r.fame, r.taste))})` }} aria-hidden />
               )}
-              <span className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink-2 bg-surface" style={{ left: x(r.fame) }} title={`fame ${r.fame.toFixed(2)}`} />
+              {r.fame !== null && <span className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink-2 bg-surface" style={{ left: x(r.fame) }} title={`fame ${r.fame.toFixed(2)}`} />}
               {r.taste !== null && <span className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent" style={{ left: x(r.taste) }} title={`taste ${r.taste.toFixed(2)}`} />}
             </span>
-            <span className="text-right text-ink-2 tabular-nums">{r.taste === null ? "no measurement" : r.taste.toFixed(2)}</span>
+            <span className="text-right text-ink-2 tabular-nums">{r.taste === null ? "no measurement" : r.taste.toFixed(2)}{r.fame === null && r.taste !== null ? <span className="text-ink-3"> · fame: no measurement</span> : null}</span>
           </li>
         ))}
       </ul>
