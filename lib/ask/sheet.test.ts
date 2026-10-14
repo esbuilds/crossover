@@ -24,6 +24,8 @@ for (const name of ["allbirds", "mt-joy"]) {
     const s = sheetModel(events, { proof: PROOF, blocked: 5 })!;
     assert.match(s.question, /^Who should .+ call first\?$/);
     assert.equal(s.calls.length, 3);
+    assert.match(s.heading, /^Call first: /); // the decision leads (Fable tie ruling, Oct 14)
+    assert.match(s.card.first, /^First call: /);
     assert.match(s.doubles, /^Same-audience check: /);
     assert.ok(s.limits.length >= 3);
     assert.equal(s.proof, PROOF);
@@ -36,7 +38,7 @@ for (const name of ["allbirds", "mt-joy"]) {
     const events = load(name);
     const s = sheetModel(events, { proof: PROOF, blocked: 5 })!;
     const allowed = new Set([...numbersIn(stepsFrom(events).map((x) => x.output)), ...numbersIn(PROOF), "5", ...stepsFrom(events).map((x) => String(x.n))]);
-    const shown = numbersIn([s.question, s.heading, s.tiedNote, s.calls.map((c) => c.reason), s.doubles, s.notes.map((x) => x.text), s.footnotes.map((f) => [f.label, f.summary]), s.map && [s.map.closerToSeed, s.map.closerToRival, s.map.withinGapOfBoth]]);
+    const shown = numbersIn([s.question, s.heading, s.tiedNote, s.card.first, s.card.where, s.calls.map((c) => c.reason), s.doubles, s.notes.map((x) => x.text), s.footnotes.map((f) => [f.label, f.summary]), s.map && [s.map.closerToSeed, s.map.closerToRival, s.map.withinGapOfBoth]]);
     const strays = shown.filter((n) => !allowed.has(n) && !allowed.has(Number(n).toFixed(2)));
     assert.deepEqual(strays, []);
   });

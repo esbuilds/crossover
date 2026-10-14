@@ -8,7 +8,7 @@ import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
 import CollisionMap from "../vs/collision-map";
 import { displayName, forDisplay, nameForDisplay, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { askLinks } from "@/lib/ask/links.ts";
-import { cardsStep, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
+import { callCard, cardsStep, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
@@ -56,6 +56,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
   const map = mapStep(steps);
   const bell = dumbbellStep(steps);
   const hero: "map" | "dumbbell" | null = map ? "map" : bell ? "dumbbell" : null;
+  const card = verdict?.ok && verdict.decision ? callCard(steps, verdict.decision) : null;
 
   async function run(body: Body) {
     setEvents([]); setError(""); setStatus("running"); setAsked(body);
@@ -81,12 +82,17 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
     <>
       <section className="pt-6">
         <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
-        <p className="mt-2 max-w-[68ch] text-lg text-ink-2">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</p>
+        <p className="mt-2 max-w-[68ch] text-lg text-ink-2">
+          {/* phones get the short line, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
+          <span className="sm:hidden">Every number comes from Qloo; every name and number in the answer is checked.</span>
+          <span className="max-sm:hidden">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</span>
+        </p>
         <JudgePath />
-        <p className="mt-3 max-w-[80ch] text-sm text-ink-3">{COST}</p>
-        <p className="mt-1 max-w-[80ch] text-sm text-ink-3">{LIMITS}</p>
-        <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-col gap-3 sm:flex-row">
-          <input value={q} onChange={(ev) => setQ(ev.target.value)} aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} sm:max-w-md`} />
+        <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
+        <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
+        <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 20 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
+        <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-row gap-3">
+          <input value={q} onChange={(ev) => setQ(ev.target.value)} aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
           <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
         </form>
         <p className="mt-2 flex flex-wrap items-center gap-x-4 text-base">
@@ -97,11 +103,20 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
         </p>
       </section>
 
-      {/* phones: decision, picture, steps. From 1024: the picture top left, the decision down the right, steps under the
-          picture (Pick 1: a picture in the first viewport at 1280, the decision first at 390) */}
-      <div className="mt-6 grid gap-8 lg:grid-cols-2">
+      {/* phones: the call card, the picture, the decision, the steps (Fable tie ruling, Oct 14). From 1024: the card and
+          the decision down the right, the picture and then the steps down the left. */}
+      <div className="mt-6 grid gap-x-8 gap-y-6 lg:grid-cols-2 lg:items-start">
+        {card && (
+          <section className="order-1 lg:col-start-2 lg:row-start-1">
+            <div className="rounded-sm border border-rule-strong px-4 py-3">
+              <p className="text-xl text-ink">{card.first}</p>
+              {card.where && <p className="mt-1 text-base text-ink-2">{card.where}</p>}
+            </div>
+          </section>
+        )}
+
         {(hero || status === "running") && (
-          <section id="hero" className="order-2 scroll-mt-4 lg:order-1">
+          <section id="hero" className="order-2 scroll-mt-4 lg:col-start-1 lg:row-span-2 lg:row-start-1">
             {hero === "map" ? <MapPicture m={map!} n={steps.find((s) => s.tool === "split")!.n} /> : hero === "dumbbell" ? <Dumbbell rows={bell!.rows} steps={steps} /> : (
               // persona test, Oct 14: the slot is held while the steps run, so nothing jumps columns when the picture lands
               <p className="min-h-48 text-sm text-ink-3">The picture appears here when the split or the scores arrive.</p>
@@ -109,13 +124,15 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
           </section>
         )}
 
-        <section className="order-1 lg:order-2 lg:row-span-2">
+        <section className="order-3 lg:col-start-2 lg:row-span-2 lg:row-start-2">
           {verdict?.ok && verdict.decision && <Call decision={verdict.decision} steps={steps} />}
           {verdict?.ok && verdict.decision && (
             <>
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
               <p className="mt-4 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.</p>
               {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof}</p>}
+              {/* the re-judge's memorable moment lived only on /audit (Fable tie ruling, Oct 14) */}
+              <p className="mt-2 max-w-[60ch] text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">See it on the audit</Link></p>
               <p className="mt-4 flex flex-wrap gap-x-4">
                 {resolved?.id && resolved.type && <CopyAsk href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share} />}
                 {resolved?.id && resolved.type && <Link href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).sheet} className={btnQuiet}>Call sheet: print or save as PDF</Link>}
@@ -138,7 +155,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
           {error && <p className="text-lg text-ink">{error}</p>}
         </section>
 
-        <section id="steps" className="order-3 scroll-mt-4">
+        <section id="steps" className="order-4 scroll-mt-4 lg:col-start-1 lg:row-start-3">
           {steps.length > 0 && <h2 className="font-display text-xl">Steps</h2>}
           <ol className="mt-3 space-y-4">
             {steps.map((s) => (
@@ -156,31 +173,39 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
   );
 }
 
-// The decision. A tie reads as a tie (Fable hero ruling, Oct 14): the review step's own label heads it, the three read
-// as "three from a tied group of N" without numbers, and the doubles result is a line whether a pair was found or not.
+// The decision (Fable tie ruling, Oct 14): it leads. "Call first: X" and the agent's checked reason for X; then, when the
+// review tied, its own label, smaller, with "inside a tie no order is claimed"; then the other calls; then the
+// same-audience line, found or not, and the agent's notes.
 function Call({ decision, steps }: { decision: Decision; steps: StepRecord[] }) {
   const review = steps.find((s) => s.tool === "review");
   const tied = !!(review?.output as { noClearThree?: boolean } | undefined)?.noClearThree;
   const size = cardsStep(steps)?.cards.filter((c) => c.affinity !== null).length ?? 0;
   const twinsStepRec = steps.find((s) => s.tool === "twins");
   const twins = twinsStep(steps);
-  const List = tied ? "ul" : "ol";
+  const [first, ...rest] = decision.calls;
   return (
     <>
-      {decision.calls.length > 0 && (
+      {first && (
         <>
-          <h2 className="font-display text-xl">{tied ? review!.summary : "The call"}</h2>
-          {tied && <p className="mt-1 text-base text-ink-2">The agent&apos;s {WORDS[decision.calls.length] ?? decision.calls.length} from a tied group of {WORDS[size] ?? size}; inside a tie no order is claimed.</p>}
+          <h2 className="font-display text-2xl">Call first: {nameForDisplay(first.name)}</h2>
+          <p className="mt-1 text-base text-ink-2">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
+          {tied && (
+            <p className="mt-3 text-sm text-ink-3">
+              {review!.summary}. Inside a tie no order is claimed; the agent&apos;s {WORDS[decision.calls.length] ?? decision.calls.length} from the group of {WORDS[size] ?? size}:
+            </p>
+          )}
         </>
       )}
-      <List className="mt-3 space-y-3">
-        {decision.calls.map((c, i) => (
-          <li key={c.name + i} className="border-t border-rule pt-3">
-            <p className="text-lg text-ink">{tied ? "" : `${i + 1}. `}{nameForDisplay(c.name)}</p>
-            <p className="mt-1 text-base text-ink-2">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
-          </li>
-        ))}
-      </List>
+      {rest.length > 0 && (
+        <ul className="mt-3 space-y-3">
+          {rest.map((c, i) => (
+            <li key={c.name + i} className="border-t border-rule pt-3">
+              <p className="text-lg text-ink">{tied ? "" : `${i + 2}. `}{nameForDisplay(c.name)}</p>
+              <p className="mt-1 text-base text-ink-2">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
+            </li>
+          ))}
+        </ul>
+      )}
       {twinsStepRec && (
         <p className="mt-3 max-w-[60ch] text-base text-ink-2">
           {twins
@@ -236,9 +261,9 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
   return (
     <div>
       {/* the counts and the city sentence above the map, so all three sit in the first viewport at 1280 (Pick 1 done) */}
-      <p className="font-mono text-sm text-ink-3">Step {n}: the split, {m.seed.name} against {m.rival.name}</p>
-      <p className="mt-1 text-base text-ink tabular-nums">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
-      {cities && <p className="mt-1 text-base text-ink">{cities}</p>}
+      <p className="font-mono text-sm text-ink-3 max-sm:hidden">Step {n}: the split, {m.seed.name} against {m.rival.name}</p>
+      <p className="mt-1 text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
+      {cities && <p className="mt-1 text-base text-ink max-sm:hidden">{cities}</p>}
       <div className="mt-2 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
       <p className="mt-1"><Link href={m.href} className={btnQuiet}>Open the full split</Link></p>
     </div>

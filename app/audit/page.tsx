@@ -118,6 +118,7 @@ export default function AuditPage() {
         </p>
         <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far. Each, with the sentence that failed and the reason:</p>
         <p className="mt-1 text-base text-ink-2">Three of the six are the rule reading a true sentence too strictly. The rule stays as frozen: a looser rule could pass a wrong binding.</p>
+        <p className="mt-1 text-base text-ink-2">The checker reads names and numbers, not meaning; a true sentence can be blocked, a misleading one with correct numbers can pass.</p>
         <ul className="mt-2 space-y-2 text-sm text-ink-2">
           {blocked.map((b) => (
             <li key={b.ask + b.version} className="border-t border-rule pt-2">

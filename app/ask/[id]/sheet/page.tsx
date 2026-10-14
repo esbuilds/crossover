@@ -58,18 +58,24 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
         <p className="print:hidden"><PrintButton /></p>
       </header>
       <h1 className="mt-3 font-display text-2xl">{s.question}</h1>
+      {/* the same call card as the page (Fable tie ruling, Oct 14): two lines, two labels */}
+      <div className="mt-2 rounded-sm border border-rule-strong px-3 py-2">
+        <p className="text-base font-semibold">{s.card.first}</p>
+        {s.card.where && <p className="text-ink-2">{s.card.where}</p>}
+      </div>
 
       <section className="mt-3 grid gap-4 sm:grid-cols-[1fr_auto] print:grid-cols-[1fr_auto]">
         <div>
           <h2 className="font-display text-base">{s.heading}</h2>
-          {s.tiedNote && <p className="text-ink-2">{s.tiedNote}</p>}
-          <ol className="mt-2 space-y-1.5">
-            {s.calls.map((c, i) => (
+          <p className="text-ink-2">{s.calls[0].reason}{fn(s.calls[0].steps)}</p>
+          {s.tiedNote && <p className="mt-1.5 text-[0.9em] text-ink-3">{s.tiedNote}</p>}
+          <ul className="mt-1.5 space-y-1.5">
+            {s.calls.slice(1).map((c, i) => (
               <li key={c.name + i}>
-                <span className="font-semibold">{s.tiedNote ? "" : `${i + 1}. `}{c.name}.</span> {c.reason}{fn(c.steps)}
+                <span className="font-semibold">{s.tiedNote ? "" : `${i + 2}. `}{c.name}.</span> {c.reason}{fn(c.steps)}
               </li>
             ))}
-          </ol>
+          </ul>
           <p className="mt-2 text-ink-2">{s.doubles}{s.doublesStep ? fn([s.doublesStep]) : null}</p>
         </div>
         {s.map && (

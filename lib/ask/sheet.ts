@@ -3,7 +3,7 @@
 // numbers trace to the steps, the replay line (lib/ask/proof.ts) or the blocked count (lib/ask/blocked.json).
 import type { AskEvent } from "./agent.ts";
 import { displayName, forDisplay, nameForDisplay, type StepRecord } from "./check.ts";
-import { cardsStep, mapStep, stepsFrom, twinsStep, type MapStep } from "./steps.ts";
+import { callCard, cardsStep, mapStep, stepsFrom, twinsStep, type MapStep } from "./steps.ts";
 import { DOESNT_ESTABLISH } from "../vs.ts";
 
 const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight"];
@@ -21,6 +21,7 @@ export function doublesLine(steps: StepRecord[]): string | null {
 export type Sheet = {
   question: string;
   heading: string;
+  card: { first: string; where: string | null };
   tiedNote: string | null;
   calls: { name: string; reason: string; steps: number[] }[];
   doubles: string;
@@ -45,8 +46,10 @@ export function sheetModel(events: AskEvent[], o: { proof: string; blocked: numb
   const twins = steps.find((s) => s.tool === "twins");
   return {
     question: `Who should ${displayName(seed)} call first?`,
-    heading: tied ? review!.summary : "The call",
-    tiedNote: tied ? `${(WORDS[d.decision.calls.length] ?? String(d.decision.calls.length)).replace(/^./, (x) => x.toUpperCase())} from a tied group of ${WORDS[size] ?? size}; inside a tie no order is claimed.` : null,
+    // the decision leads; the tie follows, smaller (Fable tie ruling, Oct 14)
+    heading: `Call first: ${nameForDisplay(d.decision.calls[0].name)}`,
+    card: callCard(steps, d.decision)!,
+    tiedNote: tied ? `${review!.summary}. Inside a tie no order is claimed; the agent's ${WORDS[d.decision.calls.length] ?? d.decision.calls.length} from the group of ${WORDS[size] ?? size}.` : null,
     calls: d.decision.calls.map((c) => ({ name: nameForDisplay(c.name), reason: forDisplay(c.reason), steps: c.steps })),
     doubles: doublesLine(steps) ?? "Same-audience check: not run.",
     doublesStep: twins?.n ?? 0,

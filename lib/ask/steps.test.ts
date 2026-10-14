@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { cardsStep, dumbbellStep, mapStep, replayLine, stepsFrom, twinsStep } from "./steps.ts";
+import { callCard, cardsStep, dumbbellStep, mapStep, replayLine, stepsFrom, twinsStep } from "./steps.ts";
 import type { AskEvent } from "./agent.ts";
 
 const load = (name: string): AskEvent[] => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), "utf8"));
@@ -88,4 +88,20 @@ test("dumbbellStep on the prepared asks: Mt. Joy (the tied hero fallback) and Al
   }
   const m = mapStep(ab)!;
   assert.deepEqual([m.seed.name, m.rival.name, m.closerToSeed, m.closerToRival, m.withinGapOfBoth], ["Allbirds", "Outdoor Voices", 2, 4, 50]);
+});
+
+// Fable tie ruling (Oct 14): a two-line call card from existing outputs, two labels, never fused into one claim.
+test("callCard: the first call and where the seed's audience leads, as two separate lines", () => {
+  const ab = stepsFrom(load("allbirds"));
+  const decision = load("allbirds").findLast((e) => e.type === "decision") as Extract<AskEvent, { type: "decision" }>;
+  const card = callCard(ab, decision.decision!)!;
+  assert.equal(card.first, "First call: Bombas.");
+  assert.equal(card.where, "Where Allbirds' audience leads: San Francisco, New York and Denver.");
+  // never one recommendation: the call line names no place, the place line names no call
+  for (const c of decision.decision!.calls) assert.ok(!card.where!.includes(c.name.replace(/\[\[|\]\]/g, "")));
+  assert.ok(!/\b(in|for|test)\b/.test(card.first.replace("First call:", "")));
+  const mjDecision = load("mt-joy").findLast((e) => e.type === "decision") as Extract<AskEvent, { type: "decision" }>;
+  const mjCard = callCard(mj, mjDecision.decision!)!;
+  assert.equal(mjCard.first, "First call: Outdoor Voices.");
+  assert.equal(mjCard.where, null); // no split, so no market in any step: no line
 });

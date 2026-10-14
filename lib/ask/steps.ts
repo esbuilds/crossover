@@ -1,7 +1,7 @@
 // The three step pictures on the ask page (Pick A, Oct 13), shaped from an ask's events. Pure and server-free: the page
 // draws them with existing components; every value here is already in a step output the checker reads.
 import type { AskEvent } from "./agent.ts";
-import type { StepRecord } from "./check.ts";
+import { nameForDisplay, type Decision, type StepRecord } from "./check.ts";
 
 type Named = { name: string; id?: string; type?: string };
 
@@ -78,4 +78,17 @@ export function dumbbellStep(steps: StepRecord[]): { rows: DumbbellRow[] } | nul
   const known = rows.filter((x) => x.fame !== null).sort((a, b) => b.taste! - b.fame! - (a.taste! - a.fame!));
   const noFame = rows.filter((x) => x.fame === null).sort((a, b) => b.taste! - a.taste!);
   return { rows: [...known, ...noFame, ...(r.notMeasured ?? []).map((x) => ({ name: x.name, fame: null, taste: null }))] };
+}
+
+// The call card (Fable tie ruling, Oct 14): two code-generated lines from existing outputs, two labels, never one claim.
+// The first call is the agent's first pick; the place line is the split's "leads in" markets (the seed's own top
+// markets not shared with the rival, as /vs's city sentence), or null when no step measured markets.
+export function callCard(steps: StepRecord[], decision: Decision): { first: string; where: string | null } | null {
+  const first = decision.calls[0];
+  if (!first) return null;
+  const m = mapStep(steps);
+  const own = m ? m.seedMarkets.filter((x) => !m.rivalMarkets.includes(x)).slice(0, 3) : [];
+  const list = own.length > 1 ? `${own.slice(0, -1).join(", ")} and ${own.at(-1)}` : own[0];
+  const whose = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
+  return { first: `First call: ${nameForDisplay(first.name)}.`, where: m && list ? `Where ${whose(m.seed.name)} audience leads: ${list}.` : null };
 }
