@@ -13,6 +13,7 @@ const RUNS: { version: string; input: object; label: string; note?: string }[] =
   { version: "ask-v1.2", input: MJ, label: "Mt. Joy" },
   { version: "ask-v1.4", input: MJ, label: "Mt. Joy", note: "the score-binding rule was then narrowed: the number was the method's gap, not a brand's score" },
   { version: "ask-v1.5", input: MJ, label: "Mt. Joy", note: "the score-binding rule was then narrowed: the sentence was a group range, not one brand's score" },
+  { version: "ask-v1.6+t2", input: MJ, label: "Mt. Joy, re-warm after the popularity fix (real Oct 14)", note: "the numbers after Outdoor Voices described the other seven; the binding rule reads them as Outdoor Voices' own" },
 ];
 type Cited = { text: string; steps: number[] };
 type Decision = { calls: { name: string; reason: string; steps: number[] }[]; cautions: Cited[]; summary: Cited[] };

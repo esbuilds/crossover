@@ -130,5 +130,23 @@
         ]
       }
     ]
+  },
+  {
+    "ask": "Mt. Joy, re-warm after the popularity fix (real Oct 14)",
+    "version": "ask-v1.6+t2",
+    "note": "the numbers after Outdoor Voices described the other seven; the binding rule reads them as Outdoor Voices' own",
+    "failures": [
+      {
+        "where": "summary 3",
+        "text": "[[Outdoor Voices]] sits closest at 0.97, with seven others between 0.94 and 0.95.",
+        "steps": [
+          4
+        ],
+        "reasons": [
+          "0.94 isn't Outdoor Voices's own number",
+          "0.95 isn't Outdoor Voices's own number"
+        ]
+      }
+    ]
   }
 ]
