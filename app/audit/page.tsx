@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import results from "@/audit/results.json";
 import replay from "@/audit/replay.json";
+import replayV2 from "@/audit/replay-v2.json";
 import { Chip, SiteHeader } from "../ui";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
@@ -15,6 +16,7 @@ const NOTES: Record<string, string> = {
   "Red Bull": "The named gate (Monster Energy) missed Rockstar Energy Drink, which lands in the picks; the drafter labelled Rockstar ambiguous, not a competitor. A tag gate on energy drinks catches it.",
 };
 const REPLAY_FREEZE = "9b64c6c";
+const REPLAY_V2_FREEZE = "b770bad";
 const SOURCE = "https://www.marketingdive.com/news/best-marketing-campaigns-2024-advertising-tactics-cmo-lessons/734003/";
 
 const held = results.briefs.filter((b) => b.set === "heldOut");
@@ -219,21 +221,41 @@ function ResolutionRow({ c, after }: { c: Challenge; after?: Challenge }) {
   );
 }
 
-// Historical replay (audit/replay-protocol.md, replay-v1): published as run, pass or fail
+// Historical replay: two frozen tests, each published as run, pass or fail (audit/replay-protocol.md, replay-v1;
+// audit/replay-v2-protocol.md, replay-v2, new cases only after v1 missed). Pooled numbers are labelled after the fact.
+type ReplayFile = typeof replay | typeof replayV2;
 function Replay() {
-  const sum = replay.summary!;
-  const scored = replay.cases.filter((c) => c.result?.state === "scored");
-  const dropped = replay.cases.filter((c) => c.dropped);
+  const [a, b] = [replay.summary!, replayV2.summary!];
   return (
     <section className="mt-12">
       <h2 className="font-display text-xl">Would it have found real partners?</h2>
       <p className="mt-2 max-w-[68ch] text-base text-ink-2">
-        Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans score all eight. Protocol frozen before the run (commit <code className="font-mono text-sm">{REPLAY_FREEZE}</code>, audit/replay-protocol.md): a hit is the real partner in the top three, and passing needed {sum.need} hits of {sum.scored}.
+        Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans score all eight. A hit is the real partner in the top three; chance is three in eight. Each test&apos;s protocol and bar were frozen in git before it ran.
       </p>
-      <p className="mt-3 max-w-[68ch] text-lg text-ink">
-        {sum.pass ? "It passes" : "It fails its bar"}: {sum.hits} of {sum.scored} real partners in the top three (needed {sum.need}; chance gives about {(sum.scored * 3 / 8).toFixed(1)}). No real partner ranked below {Math.max(...scored.map((c) => c.result!.rank!))}th, and the mean rank is {sum.meanRank} against {sum.chanceMeanRank} by chance, reported but not part of the bar.
+      <ReplayRun data={replayV2} freeze={REPLAY_V2_FREEZE} title="Second test (v2): new cases only, after the first missed" protocol="audit/replay-v2-protocol.md"
+        dropped="Ten dropped under the written decoy check: nine had the partner's own parent or a sister brand among the decoys, and Pandora matched the jewelry brand, not the music service."
+        note="Sensitivity: two kept cases (Krispy Kreme x Crocs, Pringles x Crocs) have luxury-house decoys the rules don't cover; both were hits. Without them it is 9 of 12, against a bar of 8 for twelve." />
+      <ReplayRun data={replay} freeze={REPLAY_FREEZE} title="First test (v1)" protocol="audit/replay-protocol.md"
+        dropped="Four had no Qloo category tag for the partner; four had a tag that isn't the partner's category. Red Bull x GoPro and Liquid Death x e.l.f. were left out because their scores were already seen." />
+      <p className="mt-6 max-w-[68ch] text-sm text-ink-2">
+        Pooled after the fact, not a test: {a.hits + b.hits} of {a.scored + b.scored} real partners in the top three across both. A deal that happened is a decision, not proof it worked.
       </p>
-      <ul className="mt-4 grid max-w-[900px] gap-x-8 md:grid-cols-2">
+    </section>
+  );
+}
+
+function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: ReplayFile; freeze: string; title: string; protocol: string; dropped: string; note?: string }) {
+  const sum = data.summary!;
+  const scored = data.cases.filter((c) => c.result?.state === "scored");
+  const out = data.cases.filter((c) => c.dropped);
+  return (
+    <div className="mt-8">
+      <h3 className="text-base font-semibold text-ink">{title}</h3>
+      <p className="mt-1 max-w-[68ch] text-lg text-ink">
+        {sum.pass ? "It passes" : "It fails its bar"}: {sum.hits} of {sum.scored} real partners in the top three (needed {sum.need}; chance gives about {((sum.scored * 3) / 8).toFixed(1)}). No real partner ranked below {Math.max(...scored.map((c) => c.result!.rank!))}th, and the mean rank is {sum.meanRank} against {sum.chanceMeanRank} by chance, reported but not part of the bar.
+      </p>
+      <p className="mt-1 text-sm text-ink-3">Frozen at commit <code className="font-mono">{freeze}</code> ({protocol}).</p>
+      <ul className="mt-3 grid max-w-[900px] gap-x-8 md:grid-cols-2">
         {scored.map((c) => (
           <li key={c.seed + c.partner} className="border-t border-rule py-3 text-sm text-ink-2">
             <p className="text-base text-ink">
@@ -246,9 +268,8 @@ function Replay() {
           </li>
         ))}
       </ul>
-      <p className="mt-4 max-w-[68ch] text-sm text-ink-2">
-        Dropped before scoring: {dropped.map((c) => `${c.seed} x ${c.partner}`).join("; ")}. Four had no Qloo category tag for the partner; four had a tag that isn&apos;t the partner&apos;s category. Red Bull x GoPro and Liquid Death x e.l.f. were left out because their scores were already seen. A deal that happened is a decision, not proof it worked.
-      </p>
-    </section>
+      <p className="mt-3 max-w-[68ch] text-sm text-ink-2">Dropped before scoring: {out.map((c) => `${c.seed} x ${c.partner}`).join("; ")}. {dropped}</p>
+      {note && <p className="mt-2 max-w-[68ch] text-sm text-ink-2">{note}</p>}
+    </div>
   );
 }
