@@ -13,3 +13,14 @@ export function parseAskBody(body: unknown): AskInput | null {
   const q = typeof b.query === "string" ? b.query.trim() : "";
   return q && q.length <= 100 ? { query: q } : null;
 }
+
+// The cached body for a link's params, or null. The caller checks the cached ask resolved to the link's id.
+export function bodyFromParams(id: string, sp: Record<string, string | string[] | undefined>): AskInput | null {
+  const one = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string) : undefined);
+  if (one("case") !== undefined) {
+    const b = parseAskBody({ case: one("case") });
+    return b && b.id === id.toUpperCase() ? b : null;
+  }
+  if (one("q") !== undefined) return parseAskBody({ query: one("q") });
+  return parseAskBody({ id, type: one("t") ?? "urn:entity:brand" });
+}

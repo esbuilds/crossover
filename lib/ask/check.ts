@@ -19,6 +19,8 @@ const DISPLAY: Record<string, string> = {
 };
 export const displayName = (name: string) => DISPLAY[name] ?? name;
 export const forDisplay = (t: string) => t.replace(BRACKET, (_, n: string) => displayName(n));
+// a single name, bracketed or not (a call's name field arrives either way)
+export const nameForDisplay = (n: string) => displayName(unbracket(n));
 
 function walk(v: unknown, names: Set<string>, nums: number[]) {
   if (Array.isArray(v)) return v.forEach((x) => walk(x, names, nums));

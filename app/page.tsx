@@ -33,5 +33,5 @@ async function Replay() {
   await connection(); // request time: the cache read must not run in the prerender
   const first = PREPARED_ASKS[0];
   const events = await peekAsk(first.body).catch(() => null);
-  return <AskView proof={PROOF} initial={events ? { label: first.label, events } : undefined} />;
+  return <AskView proof={PROOF} initial={events ? { label: first.label, events, asked: first.body } : undefined} />;
 }

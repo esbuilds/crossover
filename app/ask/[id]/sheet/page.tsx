@@ -7,12 +7,13 @@ import { btnQuiet } from "@/app/ui";
 import CollisionMap from "@/app/vs/collision-map";
 import PrintButton from "./print-button";
 import { peekAsk } from "@/lib/ask/agent.ts";
-import { parseAskBody } from "@/lib/ask/body.ts";
+import { bodyFromParams } from "@/lib/ask/body.ts";
 import { PROOF } from "@/lib/ask/proof.ts";
 import blocked from "@/lib/ask/blocked.json";
 import { sheetModel } from "@/lib/ask/sheet.ts";
 import { mapLine } from "@/lib/vs.ts";
 import { peekVs } from "@/lib/rivals.ts";
+import { TONE } from "@/lib/collide.ts";
 
 // The call sheet (Pick 2, Oct 14): /ask/<id>/sheet?t=<type>. One printed page from a cached ask only; an ask that isn't
 // cached shows the waiting state and never spends.
@@ -34,13 +35,15 @@ export default function SheetPage({ params, searchParams }: PageProps<"/ask/[id]
 async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">, "params" | "searchParams">) {
   await connection();
   const [{ id }, sp] = [await params, await searchParams];
-  const body = typeof sp.case === "string" ? parseAskBody({ case: sp.case }) : parseAskBody({ id, type: typeof sp.t === "string" ? sp.t : "urn:entity:brand" });
-  const events = body?.id && body.type && body.id === id.toUpperCase() ? await peekAsk(body.caseKey ? { id: body.id, type: body.type, caseKey: body.caseKey } : { id: body.id, type: body.type }).catch(() => null) : null;
+  const body = bodyFromParams(id, sp);
+  const cached = body ? await peekAsk(body).catch(() => null) : null;
+  const seedId = (cached?.find((e) => e.type === "result" && e.n === 1) as { output?: { id?: string } } | undefined)?.output?.id;
+  const events = cached && seedId?.toUpperCase() === id.toUpperCase() ? cached : null;
   const s = events ? sheetModel(events, { proof: PROOF, blocked: blocked.length }) : null;
-  if (!body?.id || !s)
+  if (!body || !s)
     return (
       <p className="pt-10 text-base text-ink-2">
-        No sheet yet: this ask hasn&apos;t been run, or its answer was blocked. <Link href={`/ask/${id}${typeof sp.t === "string" ? `?t=${encodeURIComponent(sp.t)}` : ""}`} className={btnQuiet}>Open the ask</Link>
+        No sheet yet: this ask hasn&apos;t been run, or its answer was blocked. <Link href={`/ask/${id}?${new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => typeof e[1] === "string"))}`} className={btnQuiet}>Open the ask</Link>
       </p>
     );
   const vs = s.map ? await peekVs({ id: s.map.seed.id!, type: s.map.seed.type! }, { id: s.map.rival.id!, type: s.map.rival.type! }).catch(() => null) : null;
@@ -72,6 +75,12 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
         {s.map && (
           <figure className="w-full sm:w-[2.6in] print:w-[2.2in]">
             {cells && <CollisionMap cells={cells.cells} metrosA={cells.metrosA} metrosB={cells.metrosB} a={s.map.seed.name} b={s.map.rival.name} />}
+            {/* persona test, Oct 14: the map needs its own legend on a forwarded page */}
+            <p className="mt-1 flex flex-wrap gap-x-3 text-[11px] text-ink-2">
+              {(["a", "b", "both"] as const).map((k) => (
+                <span key={k} className="inline-flex items-center gap-1"><span className="inline-block size-2 rounded-full" style={{ background: TONE[k] }} aria-hidden />{k === "a" ? `Leans ${s.map!.seed.name}` : k === "b" ? `Leans ${s.map!.rival.name}` : "Both"}</span>
+              ))}
+            </p>
             <figcaption className="mt-1 text-[11px] text-ink-2">
               {s.map.closerToSeed} brands sit closer to {s.map.seed.name}, {s.map.closerToRival} closer to {s.map.rival.name}, {s.map.withinGapOfBoth} within 0.05 of both. {cities}
             </figcaption>
@@ -105,9 +114,9 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
 
       <footer className="mt-3 border-t border-rule pt-2 text-ink-2">
         <p>{s.proof}</p>
-        {body.caseKey && <p className="mt-1">Replay case, a demonstration, not a test: the agent was given the case&apos;s eight in alphabetical order, without knowing which was the real partner.</p>}
+        {body?.caseKey && <p className="mt-1">Replay case, a demonstration, not a test: the agent was given the case&apos;s eight in alphabetical order, without knowing which was the real partner.</p>}
         <p className="mt-1">{s.blocked}</p>
-        <p className="mt-1 text-ink-3">{s.credit} crossover-henna.vercel.app/ask/{body.id}</p>
+        <p className="mt-1 text-ink-3">{s.credit} crossover-henna.vercel.app/ask/{id.toUpperCase()} · printed {new Date().toISOString().slice(0, 10)}</p>
       </footer>
     </article>
   );

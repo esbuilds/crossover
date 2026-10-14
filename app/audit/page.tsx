@@ -45,8 +45,16 @@ export default function AuditPage() {
       <SiteHeader href="/" label="Pick three" />
       <section className="pt-8">
         <h1 className="font-display text-2xl sm:text-3xl">Audit</h1>
+        <p className="mt-2 max-w-[68ch] text-base text-ink-2">Every test here was frozen in git before it ran, and every result is published as it came out, misses included. The replays of real collaborations come first; the earlier held-out briefs, the agent&apos;s blocked answers and the known limits follow.</p>
+      </section>
+
+      {/* persona test, Oct 14: the strongest result led the page from far down; it now comes first */}
+      <Replay />
+
+      <section className="mt-12 border-t border-rule-strong pt-6">
+        <h2 className="font-display text-xl">Held-out briefs, a separate and earlier test (Oct 10)</h2>
         <p className="mt-2 max-w-[68ch] text-base text-ink-2">
-          Twelve briefs, each a brand and eight brands that could partner with it. Six were used to set the rules; six were held out and run once, after the protocol was frozen (commit{" "}
+          These briefs have their own eight names each, written before any run, so their picks differ from the front page&apos;s asks. Twelve briefs, each a brand and eight brands that could partner with it. Six were used to set the rules; six were held out and run once, after the protocol was frozen (commit{" "}
           <code className="font-mono text-sm">{FREEZE_COMMIT}</code>). Everything below is Qloo&apos;s measured affinity read by the {results.rules} rules: a group is every name within 0.05 of its strongest member, and no order is claimed inside a group.
         </p>
       </section>
@@ -122,8 +130,6 @@ export default function AuditPage() {
         </ul>
         <p className="mt-2 text-sm text-ink-2">The fixes went into the tools and the prompt, never into the check: the tools now name both sides of the split and state the method&apos;s own numbers, and the score-binding rule was narrowed to the clause right after a brand. Recovered from the cache by scripts/blocked-extract.ts.</p>
       </section>
-
-      <Replay />
 
       <section className="mt-12 max-w-[68ch]">
         <h2 className="font-display text-xl">Doubles, not swaps</h2>

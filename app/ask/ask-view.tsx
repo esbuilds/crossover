@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
 import CollisionMap from "../vs/collision-map";
-import { displayName, forDisplay, type Decision, type StepRecord } from "@/lib/ask/check.ts";
+import { displayName, forDisplay, nameForDisplay, type Decision, type StepRecord } from "@/lib/ask/check.ts";
+import { askLinks } from "@/lib/ask/links.ts";
 import { cardsStep, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
@@ -43,11 +44,13 @@ const verdictOf = (events: AskEvent[]): Verdict | null => {
 };
 
 // proof: the replay line (lib/ask/steps.ts replayLine), passed from the server so the replay files stay off the client
-export default function AskView({ initial, pending, proof }: { initial?: { label: string; events: AskEvent[] }; pending?: { label: string; body: Body }; proof?: string }) {
+// initial.asked: the body the cached ask was run with, so its share and sheet links find it (typed names are keyed by the name)
+export default function AskView({ initial, pending, proof }: { initial?: { label: string; events: AskEvent[]; asked?: Body }; pending?: { label: string; body: Body }; proof?: string }) {
   const [q, setQ] = useState(initial?.label ?? pending?.label ?? "");
   const [events, setEvents] = useState<AskEvent[]>(initial?.events ?? []);
   const [status, setStatus] = useState<"idle" | "running" | "done" | "error">(initial ? "done" : "idle");
   const [error, setError] = useState("");
+  const [asked, setAsked] = useState<Body | null>(initial?.asked ?? null);
   const steps = stepsFrom(events);
   const verdict = verdictOf(events);
   const map = mapStep(steps);
@@ -55,7 +58,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
   const hero: "map" | "dumbbell" | null = map ? "map" : bell ? "dumbbell" : null;
 
   async function run(body: Body) {
-    setEvents([]); setError(""); setStatus("running");
+    setEvents([]); setError(""); setStatus("running"); setAsked(body);
     // a dropped connection must not leave the button disabled (deferred minor, fixed Oct 13)
     try {
       const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -97,9 +100,12 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
       {/* phones: decision, picture, steps. From 1024: the picture top left, the decision down the right, steps under the
           picture (Pick 1: a picture in the first viewport at 1280, the decision first at 390) */}
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
-        {hero && (
+        {(hero || status === "running") && (
           <section id="hero" className="order-2 scroll-mt-4 lg:order-1">
-            {hero === "map" ? <MapPicture m={map!} n={steps.find((s) => s.tool === "split")!.n} /> : <Dumbbell rows={bell!.rows} steps={steps} />}
+            {hero === "map" ? <MapPicture m={map!} n={steps.find((s) => s.tool === "split")!.n} /> : hero === "dumbbell" ? <Dumbbell rows={bell!.rows} steps={steps} /> : (
+              // persona test, Oct 14: the slot is held while the steps run, so nothing jumps columns when the picture lands
+              <p className="min-h-48 text-sm text-ink-3">The picture appears here when the split or the scores arrive.</p>
+            )}
           </section>
         )}
 
@@ -111,11 +117,20 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
               <p className="mt-4 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.</p>
               {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof}</p>}
               <p className="mt-4 flex flex-wrap gap-x-4">
-                {resolved?.id && resolved.type && <CopyAsk id={resolved.id} type={resolved.type} />}
-                {resolved?.id && resolved.type && <Link href={`/ask/${resolved.id}/sheet?t=${encodeURIComponent(resolved.type)}`} className={btnQuiet}>Call sheet: print or save as PDF</Link>}
+                {resolved?.id && resolved.type && <CopyAsk href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share} />}
+                {resolved?.id && resolved.type && <Link href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).sheet} className={btnQuiet}>Call sheet: print or save as PDF</Link>}
                 <Link href="/audit" className={btnQuiet}>Next: is any of this right? The audit</Link>
               </p>
             </>
+          )}
+          {status === "running" && !verdict && !ambiguous && (
+            <p className="font-mono text-sm text-ink-2 motion-safe:animate-pulse">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
+          )}
+          {ambiguous && (
+            <div>
+              <p className="text-lg text-ink">Which one did you mean?</p>
+              <p className="mt-2 flex flex-wrap gap-x-4">{ambiguous.map((o) => <button key={o.id} type="button" onClick={() => run({ id: o.id, type: o.type })} className={btnQuiet}>{o.name} ({o.type.replace("urn:entity:", "").replace("_", " ")})</button>)}</p>
+            </div>
           )}
           {verdict && !verdict.ok && status !== "running" && (
             <p className="text-base text-ink-2">{verdict.decision ? "The agent's summary didn't match its own steps, so it isn't shown. The steps are what it measured." : verdict.problems[0]}</p>
@@ -135,12 +150,6 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
               </li>
             ))}
           </ol>
-          {ambiguous && (
-            <div className="mt-4">
-              <p className="text-base text-ink">Which one did you mean?</p>
-              <p className="mt-2 flex flex-wrap gap-x-4">{ambiguous.map((o) => <button key={o.id} type="button" onClick={() => run({ id: o.id, type: o.type })} className={btnQuiet}>{o.name} ({o.type.replace("urn:entity:", "").replace("_", " ")})</button>)}</p>
-            </div>
-          )}
         </section>
       </div>
     </>
@@ -161,13 +170,13 @@ function Call({ decision, steps }: { decision: Decision; steps: StepRecord[] }) 
       {decision.calls.length > 0 && (
         <>
           <h2 className="font-display text-xl">{tied ? review!.summary : "The call"}</h2>
-          {tied && <p className="mt-1 text-base text-ink-2">The agent&apos;s three from a tied group of {WORDS[size] ?? size}; inside a tie no order is claimed.</p>}
+          {tied && <p className="mt-1 text-base text-ink-2">The agent&apos;s {WORDS[decision.calls.length] ?? decision.calls.length} from a tied group of {WORDS[size] ?? size}; inside a tie no order is claimed.</p>}
         </>
       )}
       <List className="mt-3 space-y-3">
         {decision.calls.map((c, i) => (
           <li key={c.name + i} className="border-t border-rule pt-3">
-            <p className="text-lg text-ink">{tied ? "" : `${i + 1}. `}{forDisplay(c.name)}</p>
+            <p className="text-lg text-ink">{tied ? "" : `${i + 1}. `}{nameForDisplay(c.name)}</p>
             <p className="mt-1 text-base text-ink-2">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
           </li>
         ))}
@@ -175,8 +184,8 @@ function Call({ decision, steps }: { decision: Decision; steps: StepRecord[] }) 
       {twinsStepRec && (
         <p className="mt-3 max-w-[60ch] text-base text-ink-2">
           {twins
-            ? `Doubles: ${displayName(twins.a)} and ${displayName(twins.b)} sit closest to each other (${twins.value.toFixed(2)}; the next pair ${twins.next.toFixed(2)}), so calling both may reach one audience twice.`
-            : "Doubles: the check ran and no pair of contenders stands out as reaching the same audience."}{" "}
+            ? `Same-audience check: ${displayName(twins.a)} and ${displayName(twins.b)} sit closest to each other (${twins.value.toFixed(2)}; the next pair ${twins.next.toFixed(2)}), so calling both may reach one audience twice.`
+            : "Same-audience check: it ran, and no two contenders stand out as reaching the same audience."}{" "}
           <Steps ns={[twinsStepRec.n]} />
         </p>
       )}
@@ -191,9 +200,9 @@ function Steps({ ns }: { ns: number[] }) {
   return <span className="font-mono text-sm text-ink-3">{ns.map((n) => <a key={n} href={`#step-${n}`} className="ml-1 underline decoration-rule-strong underline-offset-4">step {n}</a>)}</span>;
 }
 
-function CopyAsk({ id, type }: { id: string; type: string }) {
+function CopyAsk({ href }: { href: string }) {
   const [copied, setCopied] = useState(false);
-  const link = () => `${window.location.origin}/ask/${id}?t=${encodeURIComponent(type)}`;
+  const link = () => `${window.location.origin}${href}`;
   return (
     <button type="button" className={btnQuiet} onClick={() => navigator.clipboard.writeText(link()).then(() => setCopied(true), () => {})}>
       {copied ? "Link copied" : "Copy link"}
@@ -270,7 +279,7 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
           </li>
         ))}
       </ul>
-      {pick && <p className="mt-2"><Link href={pick} className={btnQuiet}>Pick your own three from these eight</Link></p>}
+      {pick && <p className="mt-2"><Link href={pick} className={btnQuiet}>Pick your own three from these {WORDS[cands.length] ?? cands.length}</Link></p>}
     </div>
   );
 }

@@ -24,7 +24,7 @@ for (const name of ["allbirds", "mt-joy"]) {
     const s = sheetModel(events, { proof: PROOF, blocked: 5 })!;
     assert.match(s.question, /^Who should .+ call first\?$/);
     assert.equal(s.calls.length, 3);
-    assert.match(s.doubles, /^Doubles: /);
+    assert.match(s.doubles, /^Same-audience check: /);
     assert.ok(s.limits.length >= 3);
     assert.equal(s.proof, PROOF);
     assert.equal(s.blocked, "The checker has blocked 5 answers so far; each is listed on /audit.");

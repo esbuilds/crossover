@@ -2,7 +2,7 @@
 // sentence on it is one the checker already passed, a code-generated line from the step outputs, or static text; the
 // numbers trace to the steps, the replay line (lib/ask/proof.ts) or the blocked count (lib/ask/blocked.json).
 import type { AskEvent } from "./agent.ts";
-import { displayName, forDisplay, type StepRecord } from "./check.ts";
+import { displayName, forDisplay, nameForDisplay, type StepRecord } from "./check.ts";
 import { cardsStep, mapStep, stepsFrom, twinsStep, type MapStep } from "./steps.ts";
 import { DOESNT_ESTABLISH } from "../vs.ts";
 
@@ -14,8 +14,8 @@ export function doublesLine(steps: StepRecord[]): string | null {
   if (!steps.some((s) => s.tool === "twins" && s.output)) return null;
   const t = twinsStep(steps);
   return t
-    ? `Doubles: ${displayName(t.a)} and ${displayName(t.b)} sit closest to each other (${t.value.toFixed(2)}; the next pair ${t.next.toFixed(2)}), so calling both may reach one audience twice.`
-    : "Doubles: the check ran and no pair of contenders stands out as reaching the same audience.";
+    ? `Same-audience check: ${displayName(t.a)} and ${displayName(t.b)} sit closest to each other (${t.value.toFixed(2)}; the next pair ${t.next.toFixed(2)}), so calling both may reach one audience twice.`
+    : "Same-audience check: it ran, and no two contenders stand out as reaching the same audience.";
 }
 
 export type Sheet = {
@@ -46,9 +46,9 @@ export function sheetModel(events: AskEvent[], o: { proof: string; blocked: numb
   return {
     question: `Who should ${displayName(seed)} call first?`,
     heading: tied ? review!.summary : "The call",
-    tiedNote: tied ? `Three from a tied group of ${WORDS[size] ?? size}; inside a tie no order is claimed.` : null,
-    calls: d.decision.calls.map((c) => ({ name: forDisplay(c.name), reason: forDisplay(c.reason), steps: c.steps })),
-    doubles: doublesLine(steps) ?? "Doubles: not checked.",
+    tiedNote: tied ? `${(WORDS[d.decision.calls.length] ?? String(d.decision.calls.length)).replace(/^./, (x) => x.toUpperCase())} from a tied group of ${WORDS[size] ?? size}; inside a tie no order is claimed.` : null,
+    calls: d.decision.calls.map((c) => ({ name: nameForDisplay(c.name), reason: forDisplay(c.reason), steps: c.steps })),
+    doubles: doublesLine(steps) ?? "Same-audience check: not run.",
     doublesStep: twins?.n ?? 0,
     notes: [...d.decision.cautions, ...d.decision.summary].map((c) => ({ text: forDisplay(c.text), steps: c.steps })),
     map: mapStep(steps),

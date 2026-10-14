@@ -1,7 +1,7 @@
 // lib/ask/check.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkDecision, displayName, forDisplay, unbracket, type Decision, type StepRecord } from "./check.ts";
+import { checkDecision, displayName, forDisplay, nameForDisplay, unbracket, type Decision, type StepRecord } from "./check.ts";
 
 const steps: StepRecord[] = [
   { n: 1, tool: "resolve", why: "", summary: "", output: { state: "confirmed", name: "Mt. Joy" } },
@@ -89,4 +89,12 @@ test("displayName renders a bare Qloo name as its brand, in brackets or plain na
   assert.equal(displayName("Allbirds"), "Allbirds");
   assert.equal(forDisplay("[[Alternative]] scores 0.95."), "Alternative Apparel scores 0.95.");
   assert.equal(unbracket("[[Alternative]] scores 0.95."), "Alternative scores 0.95."); // the checker reads Qloo's name
+});
+
+// Persona test, Oct 14 (judge): the frozen call's name arrives unbracketed ("Alternative"), so the display name applies
+// to plain names too.
+test("nameForDisplay: bracketed or plain, the display name applies", () => {
+  assert.equal(nameForDisplay("Alternative"), "Alternative Apparel");
+  assert.equal(nameForDisplay("[[Alternative]]"), "Alternative Apparel");
+  assert.equal(nameForDisplay("Bombas"), "Bombas");
 });
