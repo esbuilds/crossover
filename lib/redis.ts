@@ -4,6 +4,8 @@
 const url = () => process.env.KV_REST_API_URL;
 const token = () => process.env.KV_REST_API_TOKEN;
 export const redisEnabled = () => !!(url() && token());
+// A stalled connection ends as a miss (Oct 13 adversarial pass: an ask hung for minutes on one Redis read).
+export const REDIS_TIMEOUT_MS = 4000;
 
 async function pipeline(commands: (string | number)[][]): Promise<unknown[] | null> {
   if (!redisEnabled()) return null;
@@ -13,6 +15,7 @@ async function pipeline(commands: (string | number)[][]): Promise<unknown[] | nu
       headers: { Authorization: `Bearer ${token()}`, "Content-Type": "application/json" },
       body: JSON.stringify(commands),
       cache: "no-store",
+      signal: AbortSignal.timeout(REDIS_TIMEOUT_MS),
     });
     if (!res.ok) throw new Error(`Redis ${res.status}`);
     const out = (await res.json()) as { result?: unknown; error?: string }[];
