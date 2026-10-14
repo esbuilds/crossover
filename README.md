@@ -2,7 +2,7 @@
 
 One name in: an agent decides who a brand, artist or show should call first. Claude chooses what to measure next through Crossover's own tools (find the rival, split the two audiences, eight candidates by rule, score them, check for doubles), writing why before each step, and three of those steps draw their picture (the split's map, the eight cards, the doubles pair). The answer is shown only if every name and number in it appears in a step it cites (`lib/ask/check.ts`). Affinity and popularity come from Qloo; Crossover computes the comparisons, the percentiles and the layout.
 
-Behind the ask: two names in (/vs, where audiences split, cell by cell on a US map), Pick three (/pick-three), whole categories on one map, and a public audit (/audit) of how well the rules held up, including a frozen replay of real collaborations.
+The nav is four stops: the ask (/), two names in (/vs, where audiences split, cell by cell on a US map), Pick three (/pick-three), and a public audit (/audit) of how well the rules held up, including two frozen replays of real collaborations. Whole-aisle maps (/map/<category>) and the partner slate (/find) sit in /vs's footer; /pair, /triage, /s, /review and /end-card still resolve but are off the nav.
 
 **Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
 
