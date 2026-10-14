@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import results from "@/audit/results.json";
 import replay from "@/audit/replay.json";
 import replayV2 from "@/audit/replay-v2.json";
 import blocked from "@/lib/ask/blocked.json";
+import replayAsk from "@/lib/ask/replay-ask.json";
 import { forDisplay } from "@/lib/ask/check.ts";
 import { Chip, SiteHeader } from "../ui";
 
@@ -279,6 +281,12 @@ function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: Rep
               {c.result!.affinity!.toFixed(2)} against a top of {c.result!.top!.toFixed(2)}. Decoys: {c.decoys!.map((d) => d.name).join(", ")}.{" "}
               <a href={c.source} className="underline decoration-rule-strong underline-offset-4 hover:decoration-ink">Source</a>
             </p>
+            {`${c.seed} x ${c.partner}` === replayAsk.case && (
+              <p className="mt-1">
+                Replayed as an ask for the video, chosen before the run; a demonstration, not a test. Protocol rank #{replayAsk.protocolRank}; the agent, given the eight without knowing which was real, called {c.partner} {replayAsk.agentCall}.{" "}
+                <Link href={replayAsk.href} className="underline decoration-rule-strong underline-offset-4 hover:decoration-ink">Open the ask</Link>
+              </p>
+            )}
           </li>
         ))}
       </ul>

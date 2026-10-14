@@ -1,0 +1,12 @@
+{
+  "case": "Coca-Cola x Converse",
+  "key": "coca-cola-x-converse",
+  "protocolRank": 1,
+  "agentCall": "first",
+  "calls": [
+    "Converse",
+    "Vans"
+  ],
+  "checkerPassed": true,
+  "href": "/ask/A539C8C9-4733-41A9-911A-11AC2B6D475A?t=urn%3Aentity%3Abrand&case=coca-cola-x-converse"
+}
