@@ -3,7 +3,6 @@ import { connection } from "next/server";
 import Link from "next/link";
 import { SiteHeader, btnQuiet } from "@/app/ui";
 import { peekAsk } from "@/lib/ask/agent.ts";
-import { CATEGORIES } from "@/lib/constellation-cases.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
 import { replayLine } from "@/lib/ask/steps.ts";
 import replay from "@/audit/replay.json";
@@ -20,7 +19,7 @@ export default function Home() {
   return (
     <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
       <HashRedirect />
-      <SiteHeader href="/find" label="Find more partners" />
+      <SiteHeader />
       <Suspense fallback={<AskView proof={PROOF} />}>
         <Replay />
       </Suspense>
@@ -28,13 +27,6 @@ export default function Home() {
         <p className="flex flex-wrap gap-x-5 gap-y-2">
           <Link href="/audit" className={btnQuiet}>Is any of this right? The audit</Link>
           <Link href="/vs" className={btnQuiet}>Two names in: where audiences split</Link>
-          <Link href="/find" className={btnQuiet}>Find more partners</Link>
-        </p>
-        <p className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2">
-          <span className="text-ink-2">Whole aisles:</span>
-          {CATEGORIES.map((c) => (
-            <Link key={c.slug} href={`/map/${c.slug}`} className={btnQuiet}>{c.title}</Link>
-          ))}
         </p>
       </footer>
     </main>

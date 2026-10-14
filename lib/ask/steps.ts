@@ -63,3 +63,15 @@ export function twinsStep(steps: StepRecord[]): TwinsStep | null {
 type Tally = { hits: number; scored: number };
 export const replayLine = (v1: Tally, v2: Tally) =>
   `Against real deals it never saw, the protocol put the real partner in the top three ${v1.hits} of ${v1.scored} times (v1) and ${v2.hits} of ${v2.scored} times (v2). Each is a frozen test; details on /audit.`;
+
+// Step 5's dumbbell (Pick 1, Oct 14): fame (Qloo popularity) at one end, taste (affinity) at the other, one row per
+// candidate, the widest taste-over-fame gap first; unmeasured names last. null for asks cached before popularity
+// joined the review output.
+export type DumbbellRow = { name: string; fame: number; taste: number | null };
+export function dumbbellStep(steps: StepRecord[]): { rows: DumbbellRow[] } | null {
+  const r = outputOf<{ groups: { name: string; affinity: number; popularity?: number }[][]; notMeasured?: Named[] }>(steps, "review");
+  const measured = r?.groups.flat() ?? [];
+  if (!r || !measured.length || measured.some((x) => x.popularity == null)) return null;
+  const rows: DumbbellRow[] = measured.map((x) => ({ name: x.name, fame: x.popularity!, taste: x.affinity })).sort((a, b) => b.taste! - b.fame - (a.taste! - a.fame));
+  return { rows: [...rows, ...(r.notMeasured ?? []).map((x) => ({ name: x.name, fame: 0, taste: null }))] };
+}

@@ -140,7 +140,8 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
           clearThree: g.selection.noClearThree ? [] : g.selection.picks.map((id) => ({ name: nameOf(id), affinity: valueOf(id) })),
           noClearThree: g.selection.noClearThree,
           tiedAtCutoff: g.selection.tiedAtCutoff.map((id) => ({ name: nameOf(id) })),
-          groups: g.affinityBands.map((band) => band.map((id) => ({ name: nameOf(id), affinity: valueOf(id) }))),
+          // popularity beside taste: the step 5 dumbbell draws both ends (Pick 1, Oct 14)
+          groups: g.affinityBands.map((band) => band.map((id) => ({ name: nameOf(id), affinity: valueOf(id), popularity: two(g.rows.find((x) => x.entity.entity_id === id)!.popularity) }))),
           fameBands: g.popularityBands.map((band) => band.map((id) => ({ name: nameOf(id) }))),
           ranks: g.rows.map((x) => ({ name: x.entity.name, amongSeedFans: r.ranks[x.entity.entity_id]?.amongSeedFans ?? null, seedAmongTheirs: r.ranks[x.entity.entity_id]?.seedAmongTheirs ?? null })),
           notMeasured: g.rows.filter((x) => x.forward.value === null).map((x) => ({ name: x.entity.name })),

@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { cardsStep, mapStep, replayLine, stepsFrom, twinsStep } from "./steps.ts";
+import { cardsStep, dumbbellStep, mapStep, replayLine, stepsFrom, twinsStep } from "./steps.ts";
 import type { AskEvent } from "./agent.ts";
 
 const load = (name: string): AskEvent[] => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), "utf8"));
@@ -50,4 +50,20 @@ test("replayLine states both frozen tests, never a pooled number", () => {
     replayLine({ hits: 6, scored: 9 }, { hits: 11, scored: 14 }),
     "Against real deals it never saw, the protocol put the real partner in the top three 6 of 9 times (v1) and 11 of 14 times (v2). Each is a frozen test; details on /audit.",
   );
+});
+
+// Pick 1 (world-class brief, Oct 14): step 5 draws a dumbbell, fame (Qloo popularity) at one end, taste (affinity) at
+// the other, one row per candidate, sorted by the gap between them; unmeasured names last.
+test("dumbbellStep: rows sorted by taste minus fame, unmeasured last", () => {
+  const steps = [
+    { n: 1, tool: "review", why: "x", summary: "", output: { groups: [[{ name: "A", affinity: 0.95, popularity: 0.99 }, { name: "B", affinity: 0.94, popularity: 0.6 }], [{ name: "C", affinity: 0.8, popularity: 0.7 }]], notMeasured: [{ name: "D" }] } },
+  ];
+  const d = dumbbellStep(steps)!;
+  assert.deepEqual(d.rows.map((r) => r.name), ["B", "C", "A", "D"]);
+  assert.deepEqual(d.rows[0], { name: "B", fame: 0.6, taste: 0.94 });
+  assert.equal(d.rows[3].taste, null);
+});
+
+test("dumbbellStep: nothing to draw without popularity in the review output (asks cached before the field)", () => {
+  assert.equal(dumbbellStep(mj), null);
 });

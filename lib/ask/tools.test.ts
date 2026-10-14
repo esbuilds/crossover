@@ -134,3 +134,13 @@ test("candidates widens a thin split to the top 50 and says so", async () => {
   const f = (await full.candidates({ why: "x", source: "split" })).output as { source: string; note?: string };
   assert.deepEqual([f.source, f.note], ["split", undefined]);
 });
+
+// Pick 1 (Oct 14): the dumbbell needs each candidate's Qloo popularity in the review output.
+test("review output carries each candidate's popularity beside its taste score", async () => {
+  const review = async () => ({ groups: [{ type: "urn:entity:brand", rows: [{ entity: { entity_id: "T0", name: "T0", type: "urn:entity:brand", popularity: 0.987, tags: [] }, forward: { value: 0.91 }, popularity: 0.987 }], selection: { picks: ["T0"], tiedAtCutoff: [], noClearThree: false }, affinityBands: [["T0"]], popularityBands: [["T0"]] }], ranks: {}, twins: {}, version: "", gap: 0.05, seed: {}, notMeasured: [] }) as unknown as Awaited<ReturnType<Deps["review"]>>;
+  const t = makeTools({ ...base, review }, () => {});
+  await t.resolve({ why: "x", name: "Liquid Death" });
+  await t.candidates({ why: "x", source: "top50" });
+  const out = (await t.review({ why: "x", ids: ["T0"] })).output as { groups: { name: string; affinity: number; popularity: number }[][] };
+  assert.deepEqual(out.groups[0][0], { name: "T0", affinity: 0.91, popularity: 0.99 });
+});

@@ -91,15 +91,23 @@ export function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void 
 
 
 // Wordmark left, one quiet link right. Same on every page.
-export function SiteHeader({ href, label }: { href: string; label: string }) {
+// One nav on every page (Pick 1, Oct 14): ask, two names in, Pick three, the audit. The old per-page link (href, label)
+// is ignored, so the routes cut from the nav (/map, /find, /pair, /triage, /s, /review, /end-card) keep their own code.
+const NAV: [string, string][] = [["/", "Ask"], ["/vs", "Two names in"], ["/pick-three", "Pick three"], ["/audit", "The audit"]];
+export function SiteHeader(props: { href?: string; label?: string }) {
+  void props;
   return (
-    <header className="flex items-center justify-between gap-4 border-b border-rule py-3">
+    <header className="flex flex-wrap items-center justify-between gap-x-4 border-b border-rule py-3">
       <Link href="/" className="inline-flex min-h-11 items-center font-display text-xl">
         Crossover
       </Link>
-      <Link href={href} className={btnQuiet}>
-        {label}
-      </Link>
+      <nav className="flex flex-wrap gap-x-4 text-sm">
+        {NAV.map(([href, label]) => (
+          <Link key={href} href={href} className={btnQuiet}>
+            {label}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }

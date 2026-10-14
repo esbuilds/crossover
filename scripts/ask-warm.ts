@@ -4,7 +4,8 @@
 const base = process.argv[2];
 if (!base) throw new Error("usage: scripts/ask-warm.ts <baseUrl>");
 const ASKS = [
-  // the prepared chips on /ask (app/ask/ask-view.tsx PREPARED_ASKS); the second chip is auditioned Oct 13 night
+  // the prepared chips (lib/ask/prepared.ts), then Liquid Death's (cached, unlinked)
+  { id: "78A44C09-E691-42DA-A553-5CDE6EE9B18A", type: "urn:entity:brand", label: "Allbirds" },
   { id: "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A", type: "urn:entity:artist", label: "Mt. Joy" },
   { id: "4DF7C265-52D9-4A99-8803-F62C2302D561", type: "urn:entity:brand", label: "Liquid Death" },
 ];
