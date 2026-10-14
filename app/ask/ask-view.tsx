@@ -111,6 +111,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
             <div className="rounded-sm border border-rule-strong px-4 py-3">
               <p className="text-xl text-ink">{card.first}</p>
               {card.where && <p className="mt-1 text-base text-ink-2">{card.where}</p>}
+              {resolved?.id && resolved.type && <WhereLine id={resolved.id} type={resolved.type} asked={asked} />}
             </div>
           </section>
         )}
@@ -219,6 +220,22 @@ function Call({ decision, steps }: { decision: Decision; steps: StepRecord[] }) 
       ))}
     </>
   );
+}
+
+// "Where to start" (Eric's features push, Oct 14): venues both audiences favor in the lead market, from /api/ask/where
+// (cache first; computed by code beside the frozen answer). Nothing renders until it arrives, and nothing if it can't.
+function WhereLine({ id, type, asked }: { id: string; type: string; asked: Body | null }) {
+  const [line, setLine] = useState<string | null>(null);
+  const q = new URLSearchParams({ id, t: type });
+  if (asked && "query" in asked) q.set("q", asked.query);
+  if (asked && "case" in asked) q.set("case", asked.case);
+  const key = q.toString();
+  useEffect(() => {
+    let live = true;
+    fetch(`/api/ask/where?${key}`).then((r) => (r.ok ? r.json() : null)).then((d: { line?: string | null } | null) => live && setLine(d?.line ?? null), () => {});
+    return () => { live = false; };
+  }, [key]);
+  return line ? <p className="mt-1 text-base text-ink-2">{line}</p> : null;
 }
 
 function Steps({ ns }: { ns: number[] }) {

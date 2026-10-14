@@ -11,6 +11,7 @@ import { bodyFromParams } from "@/lib/ask/body.ts";
 import { PROOF } from "@/lib/ask/proof.ts";
 import blocked from "@/lib/ask/blocked.json";
 import { sheetModel } from "@/lib/ask/sheet.ts";
+import { whereToStart } from "@/lib/ask/where.ts";
 import { mapLine } from "@/lib/vs.ts";
 import { peekVs } from "@/lib/rivals.ts";
 import { TONE } from "@/lib/collide.ts";
@@ -46,6 +47,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
         No sheet yet: this ask hasn&apos;t been run, or its answer was blocked. <Link href={`/ask/${id}?${new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => typeof e[1] === "string"))}`} className={btnQuiet}>Open the ask</Link>
       </p>
     );
+  const where = events ? await whereToStart(events, null).catch(() => null) : null; // cache only on the sheet
   const vs = s.map ? await peekVs({ id: s.map.seed.id!, type: s.map.seed.type! }, { id: s.map.rival.id!, type: s.map.rival.type! }).catch(() => null) : null;
   const cells = vs && vs !== "cold" ? vs.map : null;
   const cities = s.map ? mapLine(s.map.seed.name, s.map.rival.name, { metrosA: s.map.seedMarkets.map((name) => ({ name })), metrosB: s.map.rivalMarkets.map((name) => ({ name })) } as unknown as Parameters<typeof mapLine>[2]) : null;
@@ -62,6 +64,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
       <div className="mt-2 rounded-sm border border-rule-strong px-3 py-2">
         <p className="text-base font-semibold">{s.card.first}</p>
         {s.card.where && <p className="text-ink-2">{s.card.where}</p>}
+        {where?.line && <p className="text-ink-2">{where.line}</p>}
       </div>
 
       <section className="mt-3 grid gap-4 sm:grid-cols-[1fr_auto] print:grid-cols-[1fr_auto]">
