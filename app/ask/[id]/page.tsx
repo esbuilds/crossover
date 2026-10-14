@@ -5,6 +5,7 @@ import { PerRequest } from "@/app/dynamic";
 import { SiteHeader } from "@/app/ui";
 import { peekAsk, type AskEvent } from "@/lib/ask/agent.ts";
 import { parseAskBody } from "@/lib/ask/body.ts";
+import { PROOF } from "@/app/page";
 import AskView from "../ask-view";
 
 // A shared ask: /ask/<Qloo id>?t=<entity type>. A cached ask replays (no Qloo call, no generation); one that isn't
@@ -45,5 +46,5 @@ export default function SharedAsk({ params, searchParams }: PageProps<"/ask/[id]
 async function Shared({ params, searchParams }: Pick<PageProps<"/ask/[id]">, "params" | "searchParams">) {
   const r = await load(params, searchParams);
   if (!r) return <AskView />;
-  return r.events && r.seed ? <AskView initial={{ label: r.seed, events: r.events }} /> : <AskView pending={{ label: "This ask", body: r.body }} />;
+  return r.events && r.seed ? <AskView proof={PROOF} initial={{ label: r.seed, events: r.events }} /> : <AskView proof={PROOF} pending={{ label: "This ask", body: r.body }} />;
 }

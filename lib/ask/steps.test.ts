@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { cardsStep, mapStep, stepsFrom, twinsStep } from "./steps.ts";
+import { cardsStep, mapStep, replayLine, stepsFrom, twinsStep } from "./steps.ts";
 import type { AskEvent } from "./agent.ts";
 
 const load = (name: string): AskEvent[] => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), "utf8"));
@@ -42,4 +42,12 @@ test("cardsStep: the fame line shows only under its existing rule", () => {
 test("twinsStep: nothing to draw when no pair stands out", () => {
   assert.equal(twinsStep(ld), null);
   assert.deepEqual(twinsStep([{ n: 1, tool: "twins", why: "x", summary: "", output: { found: true, a: { name: "REI" }, b: { name: "Patagonia" }, value: 0.97, next: 0.89 } }]), { a: "REI", b: "Patagonia", value: 0.97, next: 0.89 });
+});
+
+// Fable round 5 ruling 1: the line under the decision reads two numbers, never one, from the two frozen tests.
+test("replayLine states both frozen tests, never a pooled number", () => {
+  assert.equal(
+    replayLine({ hits: 6, scored: 9 }, { hits: 11, scored: 14 }),
+    "Against real deals it never saw, the protocol put the real partner in the top three 6 of 9 times (v1) and 11 of 14 times (v2). Each is a frozen test; details on /audit.",
+  );
 });

@@ -58,3 +58,8 @@ export function twinsStep(steps: StepRecord[]): TwinsStep | null {
   const o = outputOf<{ found: boolean; a?: Named; b?: Named; value?: number; next?: number }>(steps, "twins");
   return o?.found && o.a && o.b ? { a: o.a.name, b: o.b.name, value: o.value!, next: o.next! } : null;
 }
+
+// Under the decision (Fable round 5 ruling 1): the two frozen replay tests, each its own number; pooled stays on /audit.
+type Tally = { hits: number; scored: number };
+export const replayLine = (v1: Tally, v2: Tally) =>
+  `Against real deals it never saw, the protocol put the real partner in the top three ${v1.hits} of ${v1.scored} times (v1) and ${v2.hits} of ${v2.scored} times (v2). Each is a frozen test; details on /audit.`;

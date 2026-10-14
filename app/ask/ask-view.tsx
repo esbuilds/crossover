@@ -35,7 +35,8 @@ const verdictOf = (events: AskEvent[]): Verdict | null => {
   return d && d.type === "decision" ? { decision: d.decision, ok: d.check.ok, problems: d.check.ok ? [] : d.check.problems } : null;
 };
 
-export default function AskView({ initial, pending }: { initial?: { label: string; events: AskEvent[] }; pending?: { label: string; body: Body } }) {
+// proof: the replay line (lib/ask/steps.ts replayLine), passed from the server so the replay files stay off the client
+export default function AskView({ initial, pending, proof }: { initial?: { label: string; events: AskEvent[] }; pending?: { label: string; body: Body }; proof?: string }) {
   const [q, setQ] = useState(initial?.label ?? pending?.label ?? "");
   const [events, setEvents] = useState<AskEvent[]>(initial?.events ?? []);
   const [status, setStatus] = useState<"idle" | "running" | "done" | "error">(initial ? "done" : "idle");
@@ -119,6 +120,7 @@ export default function AskView({ initial, pending }: { initial?: { label: strin
               ))}
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
               <p className="mt-4 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.</p>
+              {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof}</p>}
               <p className="mt-4 flex flex-wrap gap-x-4">
                 {resolved?.id && resolved.type && <CopyAsk id={resolved.id} type={resolved.type} />}
                 <Link href="/audit" className={btnQuiet}>Next: is any of this right? The audit</Link>
