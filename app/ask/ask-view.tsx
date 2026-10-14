@@ -81,7 +81,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
     <>
       <section className="pt-6">
         <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
-        <p className="mt-2 max-w-[68ch] text-lg text-ink-2">The agent decides what to measure next and why; every number comes from Qloo, and every line of its answer is checked against the step behind it.</p>
+        <p className="mt-2 max-w-[68ch] text-lg text-ink-2">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</p>
         <JudgePath />
         <p className="mt-3 max-w-[80ch] text-sm text-ink-3">{COST}</p>
         <p className="mt-1 max-w-[80ch] text-sm text-ink-3">{LIMITS}</p>
