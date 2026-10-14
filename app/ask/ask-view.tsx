@@ -12,6 +12,7 @@ import { callCard, cardsStep, dumbbellStep, mapStep, stepsFrom, twinsStep, type 
 import { mapLine } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
+import { tourHref } from "@/lib/tour.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
 
@@ -88,6 +89,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
           <span className="max-sm:hidden">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</span>
         </p>
         <JudgePath />
+        <p className="mt-1 text-sm"><Link href={tourHref(1)} className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Take the 60-second tour</Link></p>
         <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
         <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
         <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 20 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>

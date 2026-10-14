@@ -100,7 +100,7 @@ export default function AuditPage() {
         </details>
       </section>
 
-      <section className="mt-12 max-w-[68ch]">
+      <section id="counterexample" className="mt-12 max-w-[68ch] scroll-mt-4">
         <h2 className="font-display text-xl">One honest counterexample</h2>
         <p className="mt-2 text-base text-ink-2">
           Liquid Death and e.l.f. made Corpse Paint together. It sold out in 45 minutes and drew more than 250 million social impressions (
