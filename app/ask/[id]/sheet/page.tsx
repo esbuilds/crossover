@@ -70,7 +70,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
           <p className="mt-2 text-ink-2">{s.doubles}{s.doublesStep ? fn([s.doublesStep]) : null}</p>
         </div>
         {s.map && (
-          <figure className="w-[2.6in] print:w-[2.2in]">
+          <figure className="w-full sm:w-[2.6in] print:w-[2.2in]">
             {cells && <CollisionMap cells={cells.cells} metrosA={cells.metrosA} metrosB={cells.metrosB} a={s.map.seed.name} b={s.map.rival.name} />}
             <figcaption className="mt-1 text-[11px] text-ink-2">
               {s.map.closerToSeed} brands sit closer to {s.map.seed.name}, {s.map.closerToRival} closer to {s.map.rival.name}, {s.map.withinGapOfBoth} within 0.05 of both. {cities}
