@@ -19,3 +19,7 @@ As v1: every case, hit or miss, with its eight names and source, plus every drop
 ## Case list (locked before any build)
 
 24 cases in audit/replay-v2-cases.json, sourced by a research agent with a URL each. Left out before locking: Reese's x Reebok (announced for Oct 20, 2026, not yet released).
+
+## Decoy check before the freeze (Eric, real Oct 13 night)
+
+All 24 cases built (59 calls, no affinity read). Ten dropped under the written rules, none hand-edited. Rule c (a decoy is the partner's parent or a brand under the same parent): KFC x Cheetos and Burger King x Cheetos (Frito-Lay), Oreo x Coca-Cola and Jack Daniel's x Coca-Cola (Sprite, Fanta), Forever 21 x Pepsi (Mountain Dew), Forever 21 x Hershey's (Reese's), Crocs x Cinnamon Toast Crunch (General Mills, Lucky Charms), IHOP x Xbox (Microsoft), Monster Energy x Call of Duty (Call of Duty: Vanguard). Rule b (the tag names something the partner isn't known for): Cheez-It x Pandora (tag Jewelry; Qloo matched the jewelry brand, the collaboration was the music service). Kept on review: Coca-Cola x Converse (tag Skateboarding, a Converse line), Krispy Kreme x Crocs and Pringles x Crocs (tag right; luxury decoys are not covered by the rules). Fourteen cases remain; the scoring script prints the bar for fourteen before any result.
