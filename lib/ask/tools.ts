@@ -103,14 +103,22 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
     candidates: async ({ why, source }: { why: string; source: "split" | "top50" }, at?: number) => {
       if (!st.seed) return refuse("candidates", why, at, "run resolve first");
       if (source === "split" && !st.vs) return refuse("candidates", why, at, "run split first, or use source top50");
-      let list: Candidate[];
-      if (source === "split") list = fromSplit(st.vs!.rivals.leansA);
-      else {
-        const seedCard = await deps.card(st.seed.entity_id, st.seed.type);
-        list = seedCard ? fromTop50(seedCard, await deps.top50(st.seed.entity_id), st.rival ? [st.rival.id] : []) : [];
+      const top50 = async () => {
+        const seedCard = await deps.card(st.seed!.entity_id, st.seed!.type);
+        return seedCard ? fromTop50(seedCard, await deps.top50(st.seed!.entity_id), st.rival ? [st.rival.id] : []) : [];
+      };
+      let list = source === "split" ? fromSplit(st.vs!.rivals.leansA) : await top50();
+      let used: "split" | "top50" = source;
+      let note: string | undefined;
+      // a split too tight to choose from widens to the top 50 (Fable reconcile, Oct 14: Allbirds' split left 2 names)
+      if (source === "split" && list.length < 4) {
+        note = `The split left ${list.length} name${list.length === 1 ? "" : "s"}; widened to the top 50.`;
+        list = await top50();
+        used = "top50";
       }
       st.candidates = list;
-      return step("candidates", why, at, { output: { method: { topN: METHOD.topN }, source, candidates: list.map((c) => ({ name: c.name, id: c.id })) }, summary: `${list.length} candidates from ${source === "split" ? "the seed's side of the split" : "the fans' top 50, own field left out"}` });
+      const from = used === "split" ? "the seed's side of the split" : "the fans' top 50, own field left out";
+      return step("candidates", why, at, { output: { method: { topN: METHOD.topN }, source: used, ...(note ? { note } : {}), candidates: list.map((c) => ({ name: c.name, id: c.id })) }, summary: `${note ? `${note} ` : ""}${list.length} candidates from ${from}` });
     },
 
     review: async ({ why, ids }: { why: string; ids: string[] }, at?: number) => {

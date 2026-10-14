@@ -110,3 +110,27 @@ test("findRival and split carry the ids and types the map and /vs link need", as
   const s = (await t.split({ why: "x" })).output as { seed: { id: string; type: string }; rival: { id: string; type: string } };
   assert.deepEqual([s.seed.id, s.seed.type, s.rival.id, s.rival.type], ["LD", "urn:entity:brand", "CEL", "urn:entity:brand"]);
 });
+
+// Fable reconcile ruling (Oct 14): when the split leaves fewer than four candidates (Allbirds: 2), the tool widens to
+// the top 50 and says so; the step renders the note. A split with enough names is untouched.
+test("candidates widens a thin split to the top 50 and says so", async () => {
+  const row = (id: string) => ({ id, name: id, kind: [], a: 0.9, b: 0.8, lean: "a", rankA: 1, rankB: null });
+  const vsWith = (n: number) => ({ rivals: { a: { name: "Allbirds" }, b: { name: "Outdoor Voices" }, leansA: Array.from({ length: n }, (_, i) => row(`S${i}`)), leansB: [], shared: [], sameField: [] }, map: null }) as unknown as NonNullable<Awaited<ReturnType<Deps["vs"]>>>;
+  const thin = makeTools({ ...base, vs: async () => vsWith(2) }, () => {});
+  await thin.resolve({ why: "x", name: "Liquid Death" });
+  await thin.findRival({ why: "x" });
+  await thin.split({ why: "x" });
+  const c = await thin.candidates({ why: "x", source: "split" });
+  const out = c.output as { source: string; candidates: unknown[]; note?: string };
+  assert.equal(out.source, "top50");
+  assert.equal(out.candidates.length, 8);
+  assert.equal(out.note, "The split left 2 names; widened to the top 50.");
+  assert.match(c.summary, /widened to the top 50/);
+
+  const full = makeTools({ ...base, vs: async () => vsWith(8) }, () => {});
+  await full.resolve({ why: "x", name: "Liquid Death" });
+  await full.findRival({ why: "x" });
+  await full.split({ why: "x" });
+  const f = (await full.candidates({ why: "x", source: "split" })).output as { source: string; note?: string };
+  assert.deepEqual([f.source, f.note], ["split", undefined]);
+});
