@@ -1,0 +1,134 @@
+[
+  {
+    "ask": "Liquid Death, first live run",
+    "version": "ask-v1",
+    "note": null,
+    "failures": [
+      {
+        "where": "call 1",
+        "text": "[[Whatnot]] scores highest in the top group at 0.86 and sits closer to [[Liquid Death]] (0.86) than to [[Death Wish Coffee Co.]] (0.75).",
+        "steps": [
+          3,
+          5
+        ],
+        "reasons": [
+          "Liquid Death isn't in a cited step",
+          "Death Wish Coffee Co. isn't in a cited step",
+          "[[Whatnot]] isn't in a cited step"
+        ]
+      },
+      {
+        "where": "call 2",
+        "text": "[[Rose In Good Faith]] scores 0.85, and it is the only candidate whose fans also rank [[Liquid Death]], at 11.",
+        "steps": [
+          5
+        ],
+        "reasons": [
+          "Liquid Death isn't in a cited step",
+          "[[Rose In Good Faith]] isn't in a cited step"
+        ]
+      },
+      {
+        "where": "call 3",
+        "text": "[[The Berrics]] scores 0.84 and ranks 9 among [[Liquid Death]] fans.",
+        "steps": [
+          5
+        ],
+        "reasons": [
+          "Liquid Death isn't in a cited step",
+          "[[The Berrics]] isn't in a cited step"
+        ]
+      },
+      {
+        "where": "summary 2",
+        "text": "Only 12 brands sit closer to [[Liquid Death]], while 39 sit closer to [[Death Wish Coffee Co.]].",
+        "steps": [
+          3
+        ],
+        "reasons": [
+          "Liquid Death isn't in a cited step",
+          "Death Wish Coffee Co. isn't in a cited step"
+        ]
+      },
+      {
+        "where": "summary 3",
+        "text": "[[Liquid Death]]'s top markets are Los Angeles, San Diego, Denver, Portland and Austin, while the rival's are Buffalo, Boston, Pittsburgh, Philadelphia and Cleveland.",
+        "steps": [
+          3
+        ],
+        "reasons": [
+          "Liquid Death isn't in a cited step"
+        ]
+      }
+    ]
+  },
+  {
+    "ask": "Olipop",
+    "version": "ask-v1.2",
+    "note": null,
+    "failures": [
+      {
+        "where": "caution 1",
+        "text": "There is no clear three: all four candidates sit in one group within 0.05 of each other.",
+        "steps": [
+          5
+        ],
+        "reasons": [
+          "0.05 isn't in a cited step"
+        ]
+      }
+    ]
+  },
+  {
+    "ask": "Mt. Joy",
+    "version": "ask-v1.2",
+    "note": null,
+    "failures": [
+      {
+        "where": "summary 2",
+        "text": "No same-field rival was found, so the candidates came from the fans' top 50.",
+        "steps": [
+          2,
+          3
+        ],
+        "reasons": [
+          "50 isn't in a cited step"
+        ]
+      }
+    ]
+  },
+  {
+    "ask": "Mt. Joy",
+    "version": "ask-v1.4",
+    "note": "the score-binding rule was then narrowed: the number was the method's gap, not a brand's score",
+    "failures": [
+      {
+        "where": "summary 3",
+        "text": "[[Outdoor Voices]] sits closer to [[Mt. Joy]] fans than the rest at 0.97, but the other seven are within 0.05 of it.",
+        "steps": [
+          4
+        ],
+        "reasons": [
+          "0.05 isn't Outdoor Voices's own number"
+        ]
+      }
+    ]
+  },
+  {
+    "ask": "Mt. Joy",
+    "version": "ask-v1.5",
+    "note": "the score-binding rule was then narrowed: the sentence was a group range, not one brand's score",
+    "failures": [
+      {
+        "where": "summary 3",
+        "text": "All eight candidates scored between 0.94 and 0.97, with [[Outdoor Voices]] at the top.",
+        "steps": [
+          4
+        ],
+        "reasons": [
+          "0.94 isn't Outdoor Voices's own number"
+        ]
+      }
+    ]
+  }
+]

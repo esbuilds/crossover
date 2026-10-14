@@ -70,10 +70,11 @@ export const replayLine = (v1: Tally, v2: Tally) =>
 // Allbirds' eight, Oct 14). Unmeasured taste last. null for asks cached before popularity joined the review output.
 export type DumbbellRow = { name: string; fame: number | null; taste: number | null };
 export function dumbbellStep(steps: StepRecord[]): { rows: DumbbellRow[] } | null {
-  const r = outputOf<{ groups: { name: string; affinity: number; popularity?: number }[][]; notMeasured?: Named[] }>(steps, "review");
+  const r = outputOf<{ groups: { name: string; affinity: number; popularity?: number | null }[][]; notMeasured?: Named[] }>(steps, "review");
   const measured = r?.groups.flat() ?? [];
-  if (!r || !measured.length || measured.some((x) => x.popularity == null)) return null;
-  const rows: DumbbellRow[] = measured.map((x) => ({ name: x.name, fame: x.popularity! > 0 ? x.popularity! : null, taste: x.affinity }));
+  // a payload without the field at all (cached before Pick 1) has nothing to draw; null is a measured "no measurement"
+  if (!r || !measured.length || measured.some((x) => x.popularity === undefined)) return null;
+  const rows: DumbbellRow[] = measured.map((x) => ({ name: x.name, fame: x.popularity && x.popularity > 0 ? x.popularity : null, taste: x.affinity }));
   const known = rows.filter((x) => x.fame !== null).sort((a, b) => b.taste! - b.fame! - (a.taste! - a.fame!));
   const noFame = rows.filter((x) => x.fame === null).sort((a, b) => b.taste! - a.taste!);
   return { rows: [...known, ...noFame, ...(r.notMeasured ?? []).map((x) => ({ name: x.name, fame: null, taste: null }))] };

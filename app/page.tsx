@@ -4,12 +4,8 @@ import Link from "next/link";
 import { SiteHeader, btnQuiet } from "@/app/ui";
 import { peekAsk } from "@/lib/ask/agent.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
-import { replayLine } from "@/lib/ask/steps.ts";
-import replay from "@/audit/replay.json";
-import replayV2 from "@/audit/replay-v2.json";
+import { PROOF } from "@/lib/ask/proof.ts";
 import AskView from "./ask/ask-view";
-
-export const PROOF = replayLine(replay.summary!, replayV2.summary!);
 import HashRedirect from "./hash-redirect";
 
 // The front door (Pick A, Oct 13): one name in, the agent decides who to call first. The first prepared ask replays

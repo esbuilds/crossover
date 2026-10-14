@@ -144,3 +144,14 @@ test("review output carries each candidate's popularity beside its taste score",
   const out = (await t.review({ why: "x", ids: ["T0"] })).output as { groups: { name: string; affinity: number; popularity: number }[][] };
   assert.deepEqual(out.groups[0][0], { name: "T0", affinity: 0.91, popularity: 0.99 });
 });
+
+// Found on the Allbirds call sheet (Oct 14): the model wrote "Quince has a popularity of 0". Qloo's missing popularity
+// is trimmed to 0 upstream, so the tool reports it as null (no measurement), never as a number to quote.
+test("review output reports a popularity of 0 as null", async () => {
+  const review = async () => ({ groups: [{ type: "urn:entity:brand", rows: [{ entity: { entity_id: "T0", name: "Quince", type: "urn:entity:brand", popularity: 0, tags: [] }, forward: { value: 0.92 }, popularity: 0 }], selection: { picks: ["T0"], tiedAtCutoff: [], noClearThree: false }, affinityBands: [["T0"]], popularityBands: [["T0"]] }], ranks: {}, twins: {}, version: "", gap: 0.05, seed: {}, notMeasured: [] }) as unknown as Awaited<ReturnType<Deps["review"]>>;
+  const t = makeTools({ ...base, review }, () => {});
+  await t.resolve({ why: "x", name: "Liquid Death" });
+  await t.candidates({ why: "x", source: "top50" });
+  const out = (await t.review({ why: "x", ids: ["T0"] })).output as { groups: { popularity: number | null }[][] };
+  assert.equal(out.groups[0][0].popularity, null);
+});

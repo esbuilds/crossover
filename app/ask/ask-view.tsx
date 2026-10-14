@@ -112,6 +112,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
               {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof}</p>}
               <p className="mt-4 flex flex-wrap gap-x-4">
                 {resolved?.id && resolved.type && <CopyAsk id={resolved.id} type={resolved.type} />}
+                {resolved?.id && resolved.type && <Link href={`/ask/${resolved.id}/sheet?t=${encodeURIComponent(resolved.type)}`} className={btnQuiet}>Call sheet: print or save as PDF</Link>}
                 <Link href="/audit" className={btnQuiet}>Next: is any of this right? The audit</Link>
               </p>
             </>

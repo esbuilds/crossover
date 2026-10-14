@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import results from "@/audit/results.json";
 import replay from "@/audit/replay.json";
 import replayV2 from "@/audit/replay-v2.json";
+import blocked from "@/lib/ask/blocked.json";
+import { forDisplay } from "@/lib/ask/check.ts";
 import { Chip, SiteHeader } from "../ui";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
@@ -102,8 +104,20 @@ export default function AuditPage() {
       <section className="mt-12 max-w-[68ch]">
         <h2 className="font-display text-xl">What the ask agent may say</h2>
         <p className="mt-2 text-base text-ink-2">
-          The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Building it, the check blocked three early answers: two quoted the method&apos;s own numbers (the 0.05 gap, top 50) that no step stated, and one named the rival under a step that didn&apos;t include it. The tools now state those, and every number still has to match a cited step. Every prepared ask&apos;s eight candidates tie within 0.05 by taste, because they are the top of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the doubles check is shown whether it finds a pair or not.
+          The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Every prepared ask&apos;s eight candidates tie within 0.05 by taste, because they are the top of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the doubles check is shown whether it finds a pair or not.
         </p>
+        <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far. Each, with the sentence that failed and the reason:</p>
+        <ul className="mt-2 space-y-2 text-sm text-ink-2">
+          {blocked.map((b) => (
+            <li key={b.ask + b.version} className="border-t border-rule pt-2">
+              <p className="text-ink">{b.ask} <span className="font-mono text-ink-3">({b.version})</span>{b.note ? `: ${b.note}` : ""}</p>
+              {b.failures.map((f) => (
+                <p key={f.where} className="mt-1">&ldquo;{forDisplay(f.text)}&rdquo; <span className="font-mono text-ink-3">(cited step {f.steps.join(", ")})</span>: {f.reasons.map((r) => forDisplay(r)).join("; ")}.</p>
+              ))}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-sm text-ink-2">The fixes went into the tools and the prompt, never into the check: the tools now name both sides of the split and state the method&apos;s own numbers, and the score-binding rule was narrowed to the clause right after a brand. Recovered from the cache by scripts/blocked-extract.ts.</p>
       </section>
 
       <Replay />

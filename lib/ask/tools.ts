@@ -134,6 +134,8 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       st.review = r;
       const nameOf = (id: string) => g.rows.find((x) => x.entity.entity_id === id)!.entity.name;
       const valueOf = (id: string) => two(g.rows.find((x) => x.entity.entity_id === id)!.forward.value);
+      // Qloo's missing popularity arrives trimmed to 0 (lib/qloo.ts): report it as no measurement, never a number to quote
+      const popOf = (id: string) => { const p = g.rows.find((x) => x.entity.entity_id === id)!.popularity; return p > 0 ? two(p) : null; };
       return step("review", why, at, {
         output: {
           method: { gap: METHOD.gap },
@@ -141,7 +143,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
           noClearThree: g.selection.noClearThree,
           tiedAtCutoff: g.selection.tiedAtCutoff.map((id) => ({ name: nameOf(id) })),
           // popularity beside taste: the step 5 dumbbell draws both ends (Pick 1, Oct 14)
-          groups: g.affinityBands.map((band) => band.map((id) => ({ name: nameOf(id), affinity: valueOf(id), popularity: two(g.rows.find((x) => x.entity.entity_id === id)!.popularity) }))),
+          groups: g.affinityBands.map((band) => band.map((id) => ({ name: nameOf(id), affinity: valueOf(id), popularity: popOf(id) }))),
           fameBands: g.popularityBands.map((band) => band.map((id) => ({ name: nameOf(id) }))),
           ranks: g.rows.map((x) => ({ name: x.entity.name, amongSeedFans: r.ranks[x.entity.entity_id]?.amongSeedFans ?? null, seedAmongTheirs: r.ranks[x.entity.entity_id]?.seedAmongTheirs ?? null })),
           notMeasured: g.rows.filter((x) => x.forward.value === null).map((x) => ({ name: x.entity.name })),

@@ -5,7 +5,7 @@ import { PerRequest } from "@/app/dynamic";
 import { SiteHeader } from "@/app/ui";
 import { peekAsk, type AskEvent } from "@/lib/ask/agent.ts";
 import { parseAskBody } from "@/lib/ask/body.ts";
-import { PROOF } from "@/app/page";
+import { PROOF } from "@/lib/ask/proof.ts";
 import AskView from "../ask-view";
 
 // A shared ask: /ask/<Qloo id>?t=<entity type>. A cached ask replays (no Qloo call, no generation); one that isn't
