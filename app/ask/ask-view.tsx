@@ -14,7 +14,7 @@ import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
 
-type Body = { query: string } | { id: string; type: string };
+type Body = { query: string } | { id: string; type: string } | { case: string };
 const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Eight candidates", review: "Score them", twins: "Check for doubles" };
 type Verdict = { decision: Decision | null; ok: boolean; problems: string[] };
 const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight"];
@@ -72,7 +72,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
   }
   const resolved = steps.find((s) => s.tool === "resolve")?.output as { state?: string; name?: string; id?: string; type?: string; options?: { name: string; id: string; type: string }[] } | undefined;
   const ambiguous = resolved?.state === "ambiguous" ? resolved.options : undefined;
-  const chips = [...PREPARED_ASKS, ...(pending && "id" in pending.body ? [{ label: pending.label, body: pending.body }] : [])];
+  const chips: { label: string; body: Body }[] = [...PREPARED_ASKS, ...(pending && !("query" in pending.body) ? [{ label: pending.label, body: pending.body }] : [])];
 
   return (
     <>

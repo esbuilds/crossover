@@ -11,3 +11,8 @@ test("a name, or a UUID id with a known type; anything else is refused", () => {
   assert.equal(parseAskBody({ query: "" }), null);
   assert.equal(parseAskBody(null), null);
 });
+
+test("a replay case is prepared only: its exact key is accepted, nothing else", () => {
+  assert.deepEqual(parseAskBody({ case: "coca-cola-x-converse" }), { id: "A539C8C9-4733-41A9-911A-11AC2B6D475A", type: "urn:entity:brand", caseKey: "coca-cola-x-converse" });
+  assert.equal(parseAskBody({ case: "anything-else" }), null);
+});

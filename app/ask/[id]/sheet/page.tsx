@@ -34,8 +34,8 @@ export default function SheetPage({ params, searchParams }: PageProps<"/ask/[id]
 async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">, "params" | "searchParams">) {
   await connection();
   const [{ id }, sp] = [await params, await searchParams];
-  const body = parseAskBody({ id, type: typeof sp.t === "string" ? sp.t : "urn:entity:brand" });
-  const events = body?.id && body.type ? await peekAsk({ id: body.id, type: body.type }).catch(() => null) : null;
+  const body = typeof sp.case === "string" ? parseAskBody({ case: sp.case }) : parseAskBody({ id, type: typeof sp.t === "string" ? sp.t : "urn:entity:brand" });
+  const events = body?.id && body.type && body.id === id.toUpperCase() ? await peekAsk(body.caseKey ? { id: body.id, type: body.type, caseKey: body.caseKey } : { id: body.id, type: body.type }).catch(() => null) : null;
   const s = events ? sheetModel(events, { proof: PROOF, blocked: blocked.length }) : null;
   if (!body?.id || !s)
     return (

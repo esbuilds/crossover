@@ -155,3 +155,18 @@ test("review output reports a popularity of 0 as null", async () => {
   const out = (await t.review({ why: "x", ids: ["T0"] })).output as { groups: { popularity: number | null }[][] };
   assert.equal(out.groups[0][0].popularity, null);
 });
+
+// Pick 2 (Oct 14): one replay case as a prepared ask. The tool hands over the case's eight in alphabetical order with no
+// field that marks the real partner (the protocol stored it first, so file order would give it away).
+test("candidates source case: the case's eight, alphabetical, no partner field; refused on a normal ask", async () => {
+  const eight = ["Vans", "Converse", "HUF", "A Bathing Ape", "DC Shoes", "Off-white", "Etnies Skateboarding", "Yves Saint Laurent"].map((name, i) => ({ name, id: `C${i}` }));
+  const t = makeTools(base, () => {}, { caseCandidates: eight });
+  await t.resolve({ why: "x", name: "Liquid Death" });
+  const out = (await t.candidates({ why: "x", source: "case" })).output as Record<string, unknown> & { candidates: Record<string, unknown>[] };
+  assert.deepEqual(out.candidates.map((c) => c.name), ["A Bathing Ape", "Converse", "DC Shoes", "Etnies Skateboarding", "HUF", "Off-white", "Vans", "Yves Saint Laurent"]);
+  assert.ok(out.candidates.every((c) => Object.keys(c).sort().join() === "id,name"));
+  assert.ok(!JSON.stringify(out).match(/partner|real|true/i));
+  const normal = makeTools(base, () => {});
+  await normal.resolve({ why: "x", name: "Liquid Death" });
+  assert.match(((await normal.candidates({ why: "x", source: "case" })).output as { error: string }).error, /case/);
+});

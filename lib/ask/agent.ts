@@ -7,9 +7,11 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { MODEL } from "../agent/rank.ts";
 import { streamCache, type Streamed } from "../agent/stream-cache.ts";
 import { makeTools, qlooDeps } from "./tools.ts";
+import { caseCandidates } from "./replay-case.ts";
 import { checkDecision, type Check, type Decision, type StepRecord } from "./check.ts";
 
-export type AskInput = { query?: string; id?: string; type?: string };
+// caseKey: the one prepared replay case (lib/ask/prepared.ts REPLAY_ASK); a visitor can't supply one
+export type AskInput = { query?: string; id?: string; type?: string; caseKey?: string };
 export type AskEvent =
   | { type: "call"; n: number; tool: string; why: string }
   | { type: "result"; n: number; summary: string; output: unknown }
@@ -35,6 +37,21 @@ Deciding: up to three calls, from the review's clear three, or from its top grou
 
 Writing: wrap every brand, artist or show name in double brackets, like [[Oreo]]. Use only numbers that appear in the steps you cite, with two decimals for scores. Name places and brands exactly as the steps give them; never group them into regions or describe what kind of brand they are. Say "sits closer to", never "prefers" or "wins". No percentages. Each reason and sentence is one short sentence and cites the step numbers it rests on. Steps are numbered in the order you ran them, starting at 1.`;
 
+// The replay ask's prompt (Pick 2, Oct 14): its own path, then the normal prompt's deciding and writing rules verbatim.
+// SYSTEM itself is untouched, so every normal ask's prompt and cache key stay byte-identical.
+const SYSTEM_CASE = `You decide which brands a partnerships team should call first, for one brand, from a fixed list of eight candidates the case gives you. You can only measure through the tools. You never add a fact the tools didn't return.
+
+Before every tool call, put one plain sentence in the tool's "why" field saying what you need to know and why.
+
+Path:
+1. resolve the brand by its id.
+2. candidates with source "case".
+3. review the eight ids exactly as candidates returned them.
+4. twins, to check whether two contenders reach the same audience.
+5. decide.
+
+${SYSTEM.slice(SYSTEM.indexOf("Deciding:"))}`;
+
 export function finalize(decision: Decision | null, steps: StepRecord[]): { decision: Decision | null; check: Check } {
   if (!decision) return { decision: null, check: { ok: false, problems: ["The agent stopped before deciding."] } };
   return { decision, check: checkDecision(decision, steps) };
@@ -48,7 +65,9 @@ async function generate(input: AskInput, say: (t: string) => void, write: (d: st
   const trace: string[] = [];
   const emit = (e: AskEvent) => { const s = JSON.stringify(e); trace.push(s); say(s); };
   const steps: StepRecord[] = [];
-  const t = makeTools(qlooDeps(ip), (s) => { steps.push(s); emit({ type: "result", n: s.n, summary: s.summary, output: s.output }); });
+  const cased = input.caseKey ? caseCandidates(input.caseKey) : null;
+  if (input.caseKey && !cased) throw new Error("unknown case");
+  const t = makeTools(qlooDeps(ip), (s) => { steps.push(s); emit({ type: "result", n: s.n, summary: s.summary, output: s.output }); }, cased ? { caseCandidates: cased } : {});
   let decision: Decision | null = null;
   let calls = 0;
   const guard = <A, R>(name: string, fn: (a: A, at: number) => Promise<R>) => async (a: A) => {
@@ -63,13 +82,15 @@ async function generate(input: AskInput, say: (t: string) => void, write: (d: st
     maxOutputTokens: 8000,
     providerOptions: { anthropic: { effort: "medium", fallbacks: "default", disableParallelToolUse: true } },
     stopWhen: [hasToolCall("decide"), isStepCount(MAX_TOOLS + 2)],
-    instructions: { role: "system", content: SYSTEM, providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
-    prompt: input.id ? `The visitor picked the Qloo entity ${input.id} (${input.type}). Resolve it by id.` : `Who should "${(input.query ?? "").slice(0, 100)}" call first?`,
+    instructions: { role: "system", content: cased ? SYSTEM_CASE : SYSTEM, providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
+    prompt: cased ? `Replay case: the Qloo entity ${input.id} (${input.type}) and the case's eight candidates. Resolve it by id, then score the case.` : input.id ? `The visitor picked the Qloo entity ${input.id} (${input.type}). Resolve it by id.` : `Who should "${(input.query ?? "").slice(0, 100)}" call first?`,
     tools: {
       resolve: tool({ description: "Find the name in Qloo. Exact names confirm; anything else returns options.", inputSchema: jsonSchema<{ why: string; name?: string; id?: string; type?: string }>(obj({ ...why, name: { type: "string" }, id: { type: "string" }, type: { type: "string" } }, ["why"])), execute: guard("resolve", t.resolve) }),
       findRival: tool({ description: "The closest same-field brand in the seed's fans' top 50 (genre tag, then Qloo product category).", inputSchema: jsonSchema<{ why: string }>(obj(why, ["why"])), execute: guard("findRival", t.findRival) }),
       split: tool({ description: "Seed vs rival: each side's top 50 brands scored under both names; which sit closer to each side, and each side's top markets.", inputSchema: jsonSchema<{ why: string }>(obj(why, ["why"])), execute: guard("split", t.split) }),
-      candidates: tool({ description: "Eight candidate brands by rule. source 'split': the seed's side of the split, widest gap first. source 'top50': the seed's fans' top 50 minus its own field.", inputSchema: jsonSchema<{ why: string; source: "split" | "top50" }>(obj({ ...why, source: { type: "string", enum: ["split", "top50"] } }, ["why", "source"])), execute: guard("candidates", t.candidates) }),
+      candidates: cased
+        ? tool({ description: "The case's eight candidate brands, fixed by the case.", inputSchema: jsonSchema<{ why: string; source: "case" }>(obj({ ...why, source: { type: "string", enum: ["case"] } }, ["why", "source"])), execute: guard("candidates", t.candidates) })
+        : tool({ description: "Eight candidate brands by rule. source 'split': the seed's side of the split, widest gap first. source 'top50': the seed's fans' top 50 minus its own field.", inputSchema: jsonSchema<{ why: string; source: "split" | "top50" }>(obj({ ...why, source: { type: "string", enum: ["split", "top50"] } }, ["why", "source"])), execute: guard("candidates", t.candidates) }),
       review: tool({ description: "Score the candidate ids under the seed's fans: groups within 0.05, a clear three or not, fame bands, two-way ranks.", inputSchema: jsonSchema<{ why: string; ids: string[] }>(obj({ ...why, ids: { type: "array", items: { type: "string" } } }, ["why", "ids"])), execute: guard("review", t.review) }),
       twins: tool({ description: "Among the review's contenders, the pair whose audiences sit closest to each other, if one stands out by 0.05.", inputSchema: jsonSchema<{ why: string }>(obj(why, ["why"])), execute: guard("twins", t.twins) }),
       decide: tool({
@@ -91,10 +112,11 @@ async function generate(input: AskInput, say: (t: string) => void, write: (d: st
   return { text: JSON.stringify(final), trace };
 }
 
-const keyOf = (i: AskInput) => (i.id ? i.id.toUpperCase() : (i.query ?? "").trim().toLowerCase());
+const keyOf = (i: AskInput) => `${i.id ? i.id.toUpperCase() : (i.query ?? "").trim().toLowerCase()}${i.caseKey ? `#${i.caseKey}` : ""}`;
 // ASK_TOOLS bumps when tool outputs change without the prompt changing (t2, Oct 13: ids for the step 3 map and /vs link)
 export const ASK_TOOLS = "t2";
-const run = streamCache<AskInput, Streamed>("ask", `${ASK_VERSION}+${ASK_TOOLS}`, keyOf, generate);
+// a case ask gains a suffix only on its own key; every normal ask's version string is unchanged
+const run = streamCache<AskInput, Streamed>("ask", (i) => (i.caseKey ? `${ASK_VERSION}+case1+${ASK_TOOLS}` : `${ASK_VERSION}+${ASK_TOOLS}`), keyOf, generate);
 
 // cache only, never a call or a generation: the events of a cached ask, or null
 export async function peekAsk(input: AskInput): Promise<AskEvent[] | null> {

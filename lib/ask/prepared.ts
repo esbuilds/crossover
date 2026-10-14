@@ -5,3 +5,7 @@ export const PREPARED_ASKS: { label: string; body: { id: string; type: string } 
   { label: "Allbirds", body: { id: "78A44C09-E691-42DA-A553-5CDE6EE9B18A", type: "urn:entity:brand" } },
   { label: "Mt. Joy", body: { id: "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A", type: "urn:entity:artist" } },
 ];
+
+// The one replay case run as an ask (Pick 2, real Oct 14), named before it ran: a v2 rank-1 case a judge can place. A
+// demonstration for the video, not a test; prepared only (a visitor can't type a case).
+export const REPLAY_ASK = { key: "coca-cola-x-converse", label: "Coca-Cola x Converse", seed: "Coca-Cola", partner: "Converse", body: { id: "A539C8C9-4733-41A9-911A-11AC2B6D475A", type: "urn:entity:brand" } };

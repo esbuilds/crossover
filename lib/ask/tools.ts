@@ -53,7 +53,8 @@ export function qlooDeps(ip: string): Deps {
 type Out = { output: object; summary: string };
 export type AskTools = ReturnType<typeof makeTools>;
 
-export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
+// opts.caseCandidates: a replay case's eight (lib/ask/replay-case.ts), only on the prepared replay ask
+export function makeTools(deps: Deps, record: (s: StepRecord) => void, opts: { caseCandidates?: Candidate[] } = {}) {
   let n = 0;
   const st: { seed?: Ref; rival?: { id: string; name: string; type: string }; vs?: VsData; candidates?: Candidate[]; review?: ReviewRun } = {};
   // at: the step number the agent loop assigned when the call started (parallel calls finish out of order)
@@ -100,8 +101,13 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void) {
       });
     },
 
-    candidates: async ({ why, source }: { why: string; source: "split" | "top50" }, at?: number) => {
+    candidates: async ({ why, source }: { why: string; source: "split" | "top50" | "case" }, at?: number) => {
       if (!st.seed) return refuse("candidates", why, at, "run resolve first");
+      if (source === "case") {
+        if (!opts.caseCandidates) return refuse("candidates", why, at, "no case on this ask; use split or top50");
+        st.candidates = [...opts.caseCandidates].sort((a, b) => a.name.localeCompare(b.name));
+        return step("candidates", why, at, { output: { source: "case", candidates: st.candidates.map((c) => ({ name: c.name, id: c.id })) }, summary: `The case's ${st.candidates.length} names, in alphabetical order` });
+      }
       if (source === "split" && !st.vs) return refuse("candidates", why, at, "run split first, or use source top50");
       const top50 = async () => {
         const seedCard = await deps.card(st.seed!.entity_id, st.seed!.type);
