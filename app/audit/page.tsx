@@ -162,6 +162,9 @@ export default function AuditPage() {
             <span className="font-semibold">An age bracket doesn&apos;t split the map.</span> Run real Oct 12, before anything was built (8 calls, scripts/age-probe.ts). At 24 and under, every drawn cell reads &ldquo;both&rdquo; (Olipop vs Poppi 1,500 of 1,500; Liquid Death vs Celsius 1,485). At 55 and over, a slight lean. 0 percent of leaned cells flip between the brackets, against a 15 percent gate, and about 40 of the 1,500 hottest cells are shared between them. An age-bracketed heatmap shows where that bracket lives, not where the two brands part, so the map stays national.
           </li>
           <li>
+            <span className="font-semibold">An audience segment doesn&apos;t reorder the eight.</span> Run real Oct 14 (about 8 calls, scripts/audience-probe.ts), gate set first: for each prepared seed, some Qloo audience must change the top three and move a name by two ranks. Under &ldquo;Parents With Young Children&rdquo; and &ldquo;Vintage Apparel&rdquo; every one of Allbirds&apos; and Mt. Joy&apos;s eight dropped by the same amount (0.06) and kept its order, and the two segments returned identical numbers. On this key the audience signal reads as a flat discount, not a lens, so no audience step was built.
+          </li>
+          <li>
             <span className="font-semibold">A typed aisle can&apos;t ship honestly.</span> Probe run real Oct 12 (9 calls, scripts/aisle-probe.ts): Qloo&apos;s brand tag that best matches a typed category, then its top twelve brands. Running shoes, hard seltzer and skincare gave lists a partnerships lead would recognise. &ldquo;Streaming services&rdquo; matched &ldquo;Financial Services&rdquo; and returned banks, and &ldquo;fast-casual burgers&rdquo; matched no tag at all: 3 of 5 against a gate of 4. A word match that confidently shows the wrong aisle is the reason the three aisles stay prepared.
           </li>
           <li>

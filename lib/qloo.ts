@@ -297,3 +297,11 @@ export const tags = cached("tags", async (query: string): Promise<Tag[]> => {
   const r = body.results;
   return (Array.isArray(r) ? r : (r?.tags ?? [])).map((t: Raw) => ({ tag_id: t.id ?? t.tag_id, name: t.name, type: t.type }));
 });
+
+// Audience ids for one parent type (urn:audience:life_stage, ...), for signal.demographics.audiences (Oct 14 probe).
+export const audiences = cached("audiences", async (parentType: string, take: number = 20): Promise<{ id: string; name: string }[]> => {
+  const body = await request("/v2/audiences", { query: { "filter.parents.types": parentType, take } });
+  const r = (body as { results?: unknown }).results as { audiences?: unknown[] } | unknown[] | undefined;
+  const list = (Array.isArray(r) ? r : (r?.audiences ?? [])) as Record<string, unknown>[];
+  return list.map((a) => ({ id: String(a.entity_id ?? a.id ?? ""), name: String(a.name ?? "") })).filter((a) => a.id);
+});
