@@ -15,6 +15,13 @@ const KEY = "crossover:replay-challenge:v1";
 const load = (): Saved | null => { try { const v = localStorage.getItem(KEY); return v ? (JSON.parse(v) as Saved) : null; } catch { return null; } };
 const save = (s: Saved) => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* private mode: the game still works, it just won't resume */ } };
 const whose = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
+// after a pick the verdict can sit below a phone's fold; after Next the question can sit above it (challenge persona, Oct 15)
+const bringIntoView = (id: string, always = false) => requestAnimationFrame(() => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  if (always ? r.top < 0 || r.top > innerHeight : r.bottom > innerHeight) el.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
 
 export default function Challenge({ cases, protocol }: { cases: ChallengeCase[]; protocol: { v1: Tally; v2: Tally } }) {
@@ -32,7 +39,7 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
 
   return (
     <section className="mt-6">
-      <p className="font-mono text-sm text-ink-3">{done ? `All ${order.length} done` : `Case ${state.at + 1} of ${order.length} (${c!.test === "v1" ? "first test" : "second test"})`}</p>
+      <p id="case-top" className="scroll-mt-4 font-mono text-sm text-ink-3">{done ? `All ${order.length} done` : `Case ${state.at + 1} of ${order.length}`}</p>
 
       {c && (
         <>
@@ -43,7 +50,7 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
               const tone = !picked ? "border-rule-strong hover:border-ink" : isReal ? "border-accent bg-accent/10" : isPick ? "border-ink-2" : "border-rule opacity-70";
               return (
                 <li key={x.name}>
-                  <button type="button" disabled={!!picked} onClick={() => setState({ ...state, picks: { ...state.picks, [c.key]: x.name } })} className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-md border px-3 text-left text-base text-ink ${tone}`}>
+                  <button type="button" disabled={!!picked} onClick={() => { setState({ ...state, picks: { ...state.picks, [c.key]: x.name } }); bringIntoView("verdict"); }} className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-md border px-3 text-left text-base text-ink ${tone}`}>
                     <span>{x.name}{picked && isReal ? " (the real partner)" : picked && isPick ? " (your pick)" : ""}</span>
                     {picked && <span className="font-mono text-sm text-ink-2">{x.score.toFixed(2)}</span>}
                   </button>
@@ -53,19 +60,20 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
           </ul>
 
           {picked && (
-            <div className="mt-4 max-w-[60ch] text-base text-ink-2">
+            <div id="verdict" className="mt-4 max-w-[60ch] scroll-mt-4 text-base text-ink-2">
               <p className="text-lg text-ink">{picked === c.partner ? "You found it." : `It was ${c.partner}.`} {c.seed} x {c.partner}: {c.what} ({c.year}). <a href={c.source} target="_blank" rel="noreferrer" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Source</a></p>
-              <p className="mt-2">Under {whose(c.seed)} fans, {c.partner} scored {c.eight.find((x) => x.name === c.partner)!.score.toFixed(2)} against a top score of {c.top.toFixed(2)}, {th(c.rank)} of 8. {c.hit ? "In the top three: a hit for the protocol." : "Outside the top three: a miss for the protocol, shown as it came out."}</p>
-              <p className="mt-3"><button type="button" onClick={() => setState({ ...state, at: state.at + 1 })} className={btnPrimary}>{state.at + 1 < order.length ? "Next case" : "See the tally"}</button></p>
+              <p className="mt-2">Under {whose(c.seed)} fans, {c.partner} scored {c.eight.find((x) => x.name === c.partner)!.score.toFixed(2)} against a top score of {c.top.toFixed(2)}, {th(c.rank)} of 8. {c.hit ? "In the top three of eight: a hit." : "Outside the top three: a miss for the test, shown as it came out."}</p>
+              <p className="mt-3"><button type="button" onClick={() => { setState({ ...state, at: state.at + 1 }); bringIntoView("case-top", true); }} className={btnPrimary}>{state.at + 1 < order.length ? "Next case" : "See the tally"}</button></p>
             </div>
           )}
         </>
       )}
 
       <div className="mt-8 border-t border-rule pt-4 text-base text-ink-2">
-        <p className="text-ink">You: {mine} of {answered.length} picked the real partner. Chance, picking one of eight, is one in eight.</p>
-        <p className="mt-1">The protocol: {protocol.v1.hits} of {protocol.v1.scored} in its top three in the first test, which missed its bar of {protocol.v1.need}; {protocol.v2.hits} of {protocol.v2.scored} in the second, against a bar of {protocol.v2.need}. Chance for a top three is three in eight. Each test was frozen in git before it ran.</p>
-        <p className="mt-1 text-sm text-ink-3">A hit for the protocol is the real partner in its top three, not first. The two tallies count different things and aren&apos;t added together.</p>
+        {answered.length > 0 && <p className="text-ink">You: {mine} of {answered.length} picked the real partner. Chance, picking one of eight, is one in eight.</p>}
+        {/* challenge persona (Oct 15): six numbers in one sentence; lead with the one that passed */}
+        <p className="mt-1">Qloo&apos;s data put the real partner in its top three {protocol.v2.hits} times in {protocol.v2.scored}, where chance gives about five. An earlier test, {protocol.v1.hits} of {protocol.v1.scored}, missed its bar. Both were frozen in git before they ran.</p>
+        <p className="mt-1 text-sm text-ink-3">A hit for Qloo&apos;s data is the real partner in its top three of eight, not first. Your score and its score count different things and aren&apos;t added together.</p>
         <p className="mt-2 flex flex-wrap gap-x-4">
           <Link href="/audit#replays" className={btnQuiet}>The tests on the audit</Link>
           {done && <button type="button" onClick={() => setState({ seed: Math.floor(Math.random() * 2 ** 31) + 1, at: 0, picks: {} })} className={btnQuiet}>Start over</button>}
