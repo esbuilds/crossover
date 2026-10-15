@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
   try {
     return Response.json({ both: await bothWays(events, generationKey(request)) }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
-    if (err instanceof ColdPairCap) return Response.json({ both: null, error: "cap" }, { status: 503 });
+    // 200: a side line that can't load isn't an error in the visitor's console (Oct 15)
+    if (err instanceof ColdPairCap) return Response.json({ both: null, error: "cap" });
     console.error("[ask/both]", err);
     return Response.json({ both: null }, { status: 502 });
   }

@@ -116,3 +116,19 @@ export function forkLine(step: StepRecord): string | null {
   }
   return null;
 }
+
+// The tie line (persona round 2, Olipop lead: "the agent's two from the group of four" was followed by one name, the first
+// being above it). Counts the picks listed under it.
+export function tieLine(summary: string, first: string, others: number, size: number, words: string[]): string {
+  const w = (n: number) => words[n] ?? String(n);
+  const tail = others === 0 ? `the agent's one pick from the group of ${w(size)}.` : `besides ${first}, the agent's other ${others === 1 ? "pick" : `${w(others)} picks`} from the group of ${w(size)}:`;
+  return `${summary}. Inside a tie no order is claimed; ${tail}`;
+}
+
+// The rival found by Qloo category, not genre tag (persona round 2: the caveat sat only in the step line, not beside the
+// claim). null when the finder used a genre tag or found no rival.
+export function categoryRival(steps: StepRecord[]): { rival: string; line: string } | null {
+  const o = steps.find((s) => s.tool === "findRival")?.output as { found?: boolean; rival?: { name: string }; by?: string } | undefined;
+  if (!o?.found || !o.rival || !o.by?.startsWith("Qloo category ")) return null;
+  return { rival: o.rival.name, line: `Closest by Qloo category (${o.by.slice(14)}), not a shared genre tag: ${nameForDisplay(o.rival.name)}. That's the finder's weaker rule.` };
+}

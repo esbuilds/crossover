@@ -12,7 +12,7 @@ import { PROOF } from "@/lib/ask/proof.ts";
 import blocked from "@/lib/ask/blocked.json";
 import { sheetModel } from "@/lib/ask/sheet.ts";
 import { whereToStart } from "@/lib/ask/where.ts";
-import { bothWays } from "@/lib/ask/both-ways.ts";
+import { bothWays, firstCallHeading } from "@/lib/ask/both-ways.ts";
 import { fieldNotesFor } from "@/lib/ask/field-notes.ts";
 import { BothTable } from "../../both-table";
 import { mapLine } from "@/lib/vs.ts";
@@ -56,10 +56,11 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
   const vs = s.map ? await peekVs({ id: s.map.seed.id!, type: s.map.seed.type! }, { id: s.map.rival.id!, type: s.map.rival.type! }).catch(() => null) : null;
   const cells = vs && vs !== "cold" ? vs.map : null;
   const cities = s.map ? mapLine(s.map.seed.name, s.map.rival.name, { metrosA: s.map.seedMarkets.map((name) => ({ name })), metrosB: s.map.rivalMarkets.map((name) => ({ name })) } as unknown as Parameters<typeof mapLine>[2]) : null;
-  const fn = (ns: number[]) => <sup className="ml-0.5 font-mono text-[0.7em] text-ink-3">{ns.join(",")}</sup>;
+  // persona round 2 (Live Nation): copied text read "rank 1.4"; brackets keep the step apart from the number
+  const fn = (ns: number[]) => <sup className="ml-0.5 font-mono text-[0.7em] text-ink-3">[{ns.join(",")}]</sup>;
 
   return (
-    <article className="pt-6 text-[13px] leading-snug print:pt-0 print:text-[11px]">
+    <article className="pt-6 text-[13px] leading-snug print:pt-0 print:text-[10px]">
       <header className="flex items-baseline justify-between border-b border-rule-strong pb-2">
         <p className="font-display text-lg">Crossover · call sheet</p>
         <p className="print:hidden"><PrintButton /></p>
@@ -74,7 +75,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
 
       <section className="mt-3 grid gap-4 sm:grid-cols-[1fr_auto] print:grid-cols-[1fr_auto]">
         <div>
-          <h2 className="font-display text-base">{s.heading}</h2>
+          <h2 className="font-display text-base">{firstCallHeading(both, s.calls[0].name)}</h2>
           <p className="text-ink-2">{s.calls[0].reason}{fn(s.calls[0].steps)}</p>
           {both && <BothTable b={both} compact />}
           {s.tiedNote && <p className="mt-1.5 text-[0.9em] text-ink-3">{s.tiedNote}</p>}

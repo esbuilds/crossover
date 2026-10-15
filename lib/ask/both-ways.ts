@@ -11,27 +11,9 @@ import type { AskEvent } from "./agent.ts";
 import { nameForDisplay } from "./check.ts";
 import { decisionEvent, stepsFrom } from "./steps.ts";
 
-export const OUT = 51; // "not in their top 50", for the gate's arithmetic only
-export type Rank = number | "out" | null; // null: no measurement (never fetched), never shown as a blank
-export type Row = { name: string; fwd: Rank; rev: Rank; call: boolean };
-export type BothWays = { seed: string; noun: string; rows: Row[]; sentence: string | null };
+import { gate, NOUN, oneWay, sentence, type BothWays, type Row } from "./both-rules.ts";
+export * from "./both-rules.ts";
 type Get = (p: Record<string, string | number>) => Promise<Entity[]>;
-
-const ORD = ["first", "second", "third"];
-const NOUN: Record<string, string> = { "urn:entity:brand": "brands", "urn:entity:artist": "artists" };
-
-export function gate(rows: Row[]): boolean {
-  const calls = rows.filter((r) => r.call);
-  const at = (r: Rank) => (typeof r === "number" ? r : OUT);
-  const revs = calls.map((r) => at(r.rev));
-  if (calls.length < 2 || Math.max(...revs) - Math.min(...revs) < 5) return false;
-  const byRev = [...rows].sort((x, y) => at(x.rev) - at(y.rev));
-  return calls.some((r, i) => byRev[i] !== r);
-}
-
-export function sentence(seed: string, noun: string, first: Row | undefined): string | null {
-  return first && typeof first.rev === "number" && first.rev <= 3 ? `${first.name} fans rank ${seed} ${ORD[first.rev - 1]} among ${noun}.` : null;
-}
 
 // Pure over the ask's events and a Qloo getter, so tests run without the API.
 export async function bothWaysFrom(events: AskEvent[], get: Get): Promise<BothWays | null> {
@@ -51,9 +33,10 @@ export async function bothWaysFrom(events: AskEvent[], get: Get): Promise<BothWa
     // tools.ts collapses "never fetched" and "not in the top 50" into null; the block can't tell them apart, so says so
     rows.push({ name: nameForDisplay(r.name), fwd: r.amongSeedFans ?? null, rev: at || "out", call: calls.includes(nameForDisplay(r.name)) });
   }
-  if (!gate(rows)) return null;
   const noun = NOUN[seed.type] ?? "names";
-  return { seed: seed.name, noun, rows, sentence: sentence(seed.name, noun, rows.find((r) => r.name === calls[0])) };
+  const first = rows.find((r) => r.name === calls[0]);
+  if (!gate(rows)) return { seed: seed.name, noun, rows, shown: false, sentence: null, oneWay: null };
+  return { seed: seed.name, noun, rows, shown: true, sentence: sentence(seed.name, noun, first), oneWay: oneWay(seed.name, noun, rows, first) };
 }
 
 const must = <T,>(v: T | null): T => { if (v === null) throw new Cold(); return v; };

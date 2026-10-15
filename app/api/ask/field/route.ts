@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
   try {
     return Response.json({ notes: await fieldNotesFor(events, generationKey(request)) }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
-    if (err instanceof ColdPairCap) return Response.json({ notes: null, error: "cap" }, { status: 503 });
+    // 200: a side line that can't load isn't an error in the visitor's console (Oct 15)
+    if (err instanceof ColdPairCap) return Response.json({ notes: null, error: "cap" });
     console.error("[ask/field]", err);
     return Response.json({ notes: null }, { status: 502 });
   }

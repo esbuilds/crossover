@@ -3,6 +3,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { bothWaysFrom, gate, sentence, type Row } from "./both-ways.ts";
 import allbirds from "./fixtures/allbirds.json" with { type: "json" };
+import mtJoy from "./fixtures/mt-joy.json" with { type: "json" };
+import { firstCallHeading, oneWay } from "./both-rules.ts";
 import type { AskEvent } from "./agent.ts";
 
 // Allbirds' rank among each candidate's fans' brands, as scripts/reverse-probe.ts measured it (0 = not in their top 50)
@@ -43,4 +45,29 @@ test("gate: no block when the three don't separate (the Converse case: all outsi
   assert.equal(gate([row("Converse", "out", true), row("Vans", "out", true), row("HUF", "out")]), false);
   assert.equal(gate([row("A", 1, true), row("B", 3, true), row("C", 4)]), false); // spread under 5
   assert.equal(gate([row("A", 1, true), row("B", 11, true), row("C", 9)]), true);
+});
+
+// The heading follows the measurement (Fable's persona round 2 ruling, Eric approved Oct 15), on the frozen fixtures.
+const MJ_REV: Record<string, number> = { "Outdoor Voices": 26, Allbirds: 4, Alternative: 0, "Felix Gray": 0, "LaCroix Sparkling Water": 28, Summersalt: 0, "Marine Layer": 0, "Carve Designs": 0 };
+const MJ = "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A";
+
+test("heading: Allbirds keeps 'Call first' (Bombas fans rank it 1st); Mt. Joy and no table read 'The agent's first call'", async () => {
+  const ab = (await bothWaysFrom(events, recorded()))!;
+  assert.equal(firstCallHeading(ab, "Bombas"), "Call first: Bombas");
+  const mjEvents = mtJoy as unknown as AskEvent[];
+  const mjCands = (mjEvents.find((e) => (e as { output?: { candidates?: unknown } }).output?.candidates) as unknown as { output: { candidates: { name: string; id: string }[] } }).output.candidates;
+  const mj = (await bothWaysFrom(mjEvents, async (p) => Array.from({ length: 50 }, (_, i) => ({ entity_id: i + 1 === MJ_REV[mjCands.find((c) => c.id === p["signal.interests.entities"])!.name] ? MJ : `x${i}`, name: "x" })) as never))!;
+  assert.equal(mj.shown, true);
+  assert.equal(firstCallHeading(mj, "Outdoor Voices"), "The agent's first call: Outdoor Voices");
+  assert.equal(mj.sentence, null);
+  assert.equal(mj.oneWay, null); // 26th is inside the 50: neither sentence
+  assert.equal(firstCallHeading(null, "Converse"), "The agent's first call: Converse");
+  assert.equal(firstCallHeading({ ...ab, shown: false }, "Bombas"), "The agent's first call: Bombas");
+});
+
+test("one-way line: the first call's fans don't have the seed in their top 50; names the highest reverse rank", () => {
+  const r = (name: string, rev: number | "out", call = false) => ({ name, fwd: null, rev, call });
+  const rows = [r("Shinesty", "out", true), r("Chubbies", 18, true), r("Birddogs", 9)];
+  assert.equal(oneWay("Tyler Childers", "artists", rows, rows[0]), "Shinesty fans don't have Tyler Childers in their top 50 artists; the pull runs one way. Birddogs fans rank Tyler Childers 9th, the highest of the eight.");
+  assert.equal(oneWay("Allbirds", "brands", [r("Bombas", 1, true)], r("Bombas", 1, true)), null);
 });

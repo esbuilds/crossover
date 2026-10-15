@@ -69,3 +69,6 @@ The checker's score-binding rule reads the clause after the first brand named as
 
 - check.ts rule v2, real Oct 15 (Fable judge-probe ruling, Eric approved): a contrast marker ends the first brand's number segment. Gates: frozen three identical, 29 passing cached asks still pass, real failures still block, leak test. Re-checked on render (lib/ask/steps.ts decisionEvent); stored events and hashes unchanged.
 - First tool change after Nov 16: the candidates filter should also cut by Qloo category and by a seed's top-level genre when it has no specific one (Chipotle/MOD Pizza, Dodgers/NFL; /audit#judge-names).
+
+- First prompt change after Nov 16 (Fable persona round 2 ruling): the agent reads the both-ways reverse rank before it chooses (Tyler Childers: Shinesty fans don't have him in their top 50).
+- Tool change after Nov 16: a popularity floor or tour-sponsor source for artist seeds' candidates (artist answers lead with small DTC apparel; persona round 2, Live Nation).

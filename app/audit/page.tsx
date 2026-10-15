@@ -57,6 +57,13 @@ export default function AuditPage() {
         <p className="mt-2 max-w-[68ch] text-base text-ink-2">Every test here was frozen in git before it ran, and every result is published as it came out, misses included. The replays of real collaborations come first; the earlier held-out briefs, the agent&apos;s blocked answers and the known limits follow.</p>
       </section>
 
+      {/* persona round 2 (both readers): the page is long; a contents list up top */}
+      <nav aria-label="On this page" className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        {[["#replays", "Real partners, replayed"], ["#counterexample", "The counterexample"], ["#checker", "What the agent may say, and what was blocked"], ["#probes", "Probes, the judge names and the limits"], ["#held-out", "Held-out briefs"]].map(([href, label]) => (
+          <a key={href} href={href} className="text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-ink">{label}</a>
+        ))}
+      </nav>
+
       {/* persona test, Oct 14: the strongest result led the page from far down; it now comes first */}
       <Replay />
 
@@ -77,7 +84,7 @@ export default function AuditPage() {
         Roles like &ldquo;famous&rdquo; and &ldquo;small&rdquo; were written into the briefs before any run, as the drafter&apos;s expectation for coverage. They are not labels of truth, and a real past deal isn&apos;t a positive label either. &ldquo;4 of 6&rdquo; and &ldquo;0 of 12&rdquo; measure the protocol&apos;s output against the drafter&apos;s labels, not whether a partnership works. {unmeasured} of {names} held-out names couldn&apos;t be measured; they are listed, never scored.
       </p>
 
-      <section className="mt-12">
+      <section id="held-out" className="mt-12 scroll-mt-4">
         <h2 className="font-display text-xl">Held-out briefs</h2>
         <ol className="mt-4 grid gap-6 md:grid-cols-2">
           {held.map((b) => (
@@ -120,10 +127,10 @@ export default function AuditPage() {
         </p>
       </section>
 
-      <section className="mt-12 max-w-[68ch]">
+      <section id="checker" className="mt-12 max-w-[68ch] scroll-mt-4">
         <h2 className="font-display text-xl">What the ask agent may say</h2>
         <p className="mt-2 text-base text-ink-2">
-          The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Every prepared ask&apos;s eight candidates tie within 0.05 by taste, because they are the top of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the doubles check is shown whether it finds a pair or not.
+          The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Every prepared ask&apos;s eight candidates tie within 0.05 by taste, because they are the top of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the overlap check is shown whether it finds a pair or not.
         </p>
         <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far; blocked under the current rule: {blocked.filter((b) => b.underV2 !== "passes").length}. Each, with the sentence that failed, the reason and what the current rule says:</p>
         <p className="mt-1 text-base text-ink-2">The rule was refined on Oct 15 (rule v2) after the judge-name probe blocked a true answer for Noah Kahan: a number after &ldquo;against&rdquo;, &ldquo;versus&rdquo;, &ldquo;while&rdquo;, &ldquo;for the others&rdquo;, a count of others (&ldquo;seven others&rdquo;) or a semicolon now has to be the next named brand&apos;s own number, or with none named, another candidate&apos;s, instead of the brand before the comma&apos;s. Every number still has to be in a cited step. Before it shipped, all 29 cached answers that passed still passed, the three real failures below still block, and a test proves a misattributed number still blocks. Answers are re-checked under the current rule when shown; the stored runs aren&apos;t changed.</p>
@@ -142,13 +149,13 @@ export default function AuditPage() {
       </section>
 
       <section className="mt-12 max-w-[68ch]">
-        <h2 className="font-display text-xl">Doubles, not swaps</h2>
+        <h2 className="font-display text-xl">Overlap, not swaps</h2>
         <p className="mt-2 text-base text-ink-2">
           Measured Oct 13 on the twelve briefs above, after the protocol, so not held out. Each top name scored the others. A three with at least 0.05 less overlap existed in 6 of 12 briefs, but every one gave up more than 0.05 of fit with the seed, and two dropped the strongest name (Liquid Death would trade Death Wish Coffee, 0.83, for Nike, 0.67). So the reveal never suggests a swap. It only names a pair of top names whose audiences sit 0.05 or more closer to each other than any other pair: REI and Patagonia for Mt. Joy (0.97, next 0.89), and 5 of 11 briefs that ran.
         </p>
       </section>
 
-      <section className="mt-12 max-w-[68ch]">
+      <section id="probes" className="mt-12 max-w-[68ch] scroll-mt-4">
         <h2 className="font-display text-xl">Rivals and the collision map</h2>
         <p className="mt-2 text-base text-ink-2">Measured Oct 11 on the hackathon API (probe/VERIFY-4.md and the build reports). These are limits of the front door, not held-out results.</p>
         <ul className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 text-base text-ink">
@@ -213,7 +220,7 @@ export default function AuditPage() {
           <li>
             <span className="font-semibold">Agent or pipeline: the routes, counted.</span> Across 29 cached asks the agent took 5 distinct routes; 2 stopped at the name, before a call (scripts/routes.ts reads them from the cache, 0 calls). The order of tools is set in its instructions, and the branches follow what Qloo returned: whether it knew the name, whether a rival came back, and whether the split left enough names. 15 went through the split, 9 had no rival and used the fans&apos; top 50, 2 widened from a thin split, and 1 is the replay case. Each step on an ask now says where it forked.
           </li>
-          <li>
+          <li id="both-ways" className="scroll-mt-4">
             <span className="font-semibold">The other direction does separate them.</span> Run real Oct 15 (18 calls, scripts/reverse-probe.ts), gate set first: the agent&apos;s three must sit 5 or more places apart on the seed&apos;s rank among each one&apos;s own fans&apos; top 50, and that order must differ from the taste order. Two of three asks pass, and the page now shows the table under &ldquo;Call first&rdquo;; it never reorders the agent&apos;s calls.
             <div className="mt-2 overflow-x-auto"><table className="text-sm">
               <thead><tr className="text-left text-ink-3"><th className="pr-6 font-normal">Ask</th><th className="pr-6 font-normal">The agent&apos;s three rank the seed</th><th className="pr-6 font-normal">The rest</th><th className="font-normal">Gate</th></tr></thead>
@@ -312,7 +319,7 @@ type ReplayFile = typeof replay | typeof replayV2;
 function Replay() {
   const [a, b] = [replay.summary!, replayV2.summary!];
   return (
-    <section className="mt-12">
+    <section id="replays" className="mt-12 scroll-mt-4">
       <h2 className="font-display text-xl">Would it have found real partners?</h2>
       <p className="mt-2 max-w-[68ch] text-base text-ink-2">
         Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans score all eight. A hit is the real partner in the top three; chance is three in eight. Each test&apos;s protocol and bar were frozen in git before it ran.

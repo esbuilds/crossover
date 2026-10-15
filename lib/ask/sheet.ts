@@ -3,11 +3,11 @@
 // numbers trace to the steps, the replay line (lib/ask/proof.ts) or the blocked count (lib/ask/blocked.json).
 import type { AskEvent } from "./agent.ts";
 import { displayName, forDisplay, nameForDisplay, type StepRecord } from "./check.ts";
-import { callCard, cardsStep, decisionEvent, mapStep, stepsFrom, twinsStep, type MapStep } from "./steps.ts";
+import { callCard, cardsStep, decisionEvent, mapStep, stepsFrom, tieLine, twinsStep, type MapStep } from "./steps.ts";
 import { DOESNT_ESTABLISH } from "../vs.ts";
 
 const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight"];
-export const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Eight candidates", review: "Score them", twins: "Overlap check" };
+export const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Candidates", review: "Score them", twins: "Overlap check" };
 
 // the doubles result as one line, found or not (the page and the sheet share it)
 export function doublesLine(steps: StepRecord[]): string | null {
@@ -20,7 +20,6 @@ export function doublesLine(steps: StepRecord[]): string | null {
 
 export type Sheet = {
   question: string;
-  heading: string;
   card: { first: string; where: string | null };
   tiedNote: string | null;
   calls: { name: string; reason: string; steps: number[] }[];
@@ -46,10 +45,8 @@ export function sheetModel(events: AskEvent[], o: { proof: string; blocked: numb
   const twins = steps.find((s) => s.tool === "twins");
   return {
     question: `Who should ${displayName(seed)} call first?`,
-    // the decision leads; the tie follows, smaller (Fable tie ruling, Oct 14)
-    heading: `Call first: ${nameForDisplay(d.decision.calls[0].name)}`,
     card: callCard(steps, d.decision)!,
-    tiedNote: tied ? `${review!.summary}. Inside a tie no order is claimed; the agent's ${WORDS[d.decision.calls.length] ?? d.decision.calls.length} from the group of ${WORDS[size] ?? size}.` : null,
+    tiedNote: tied ? tieLine(review!.summary, nameForDisplay(d.decision.calls[0].name), d.decision.calls.length - 1, size, WORDS) : null,
     calls: d.decision.calls.map((c) => ({ name: nameForDisplay(c.name), reason: forDisplay(c.reason), steps: c.steps })),
     doubles: doublesLine(steps) ?? "Overlap check: not run.",
     doublesStep: twins?.n ?? 0,

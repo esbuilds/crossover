@@ -99,3 +99,8 @@ summary::-webkit-details-marker {
     opacity: 0;
   }
 }
+
+/* the call sheet prints on one page at Letter as well as A4 (persona round 2, Live Nation: page two held only the footer) */
+@page {
+  margin: 0.4in;
+}

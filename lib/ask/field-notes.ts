@@ -20,7 +20,10 @@ export function fieldNotes(seed: Entity, top: Entity[], calls: string[]): FieldN
   const own = fields(seed);
   if (own.size) {
     const names = seed.tags.filter((t) => own.has(t.tag_id)).map((t) => t.name);
-    return { cut: names.length ? `Own field left out: ${list(names)}.` : null, shared: null };
+    // persona round 2 (Sweetgreen got Dig Inn): name the wider Qloo category the cut didn't exclude
+    const wider = [...new Set([...own].map((f) => f.split(":").slice(0, 5).join(":")))].flatMap((id) => seed.tags.filter((t) => t.tag_id === id).map((t) => t.name.toLowerCase()));
+    const not = wider.length ? ` Qloo's wider category, ${list(wider)}, was not.` : "";
+    return { cut: names.length ? `Own field left out: ${list(names)}.${not}` : null, shared: null };
   }
   const mine = seed.tags.filter((t) => t.tag_id.startsWith(GENRE));
   const hits = calls.flatMap((n) => {
