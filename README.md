@@ -1,6 +1,15 @@
 # Crossover
 
-One name in: an agent decides who a brand, artist or show should call first. Claude chooses what to measure next through Crossover's own tools (find the rival, split the two audiences, eight candidates by rule, score them, check for doubles), writing why before each step, and three of those steps draw their picture (the split's map, the eight cards, the doubles pair). The answer is shown only if every name and number in it appears in a step it cites (`lib/ask/check.ts`). Affinity and popularity come from Qloo; Crossover computes the comparisons, the percentiles and the layout.
+One name in: an agent decides who a brand, artist or show should call first. Claude chooses what to measure next through Crossover's own tools (find the rival, split the two audiences, eight candidates by rule, score them, check whether two reach the same audience), writing why before each step, and three of those steps draw their picture (the split's map, the eight cards, the overlap pair). The answer is shown only if every name and number in it appears in a step it cites (`lib/ask/check.ts`). Affinity and popularity come from Qloo; Crossover computes the comparisons, the percentiles and the layout.
+
+## The ask, in five minutes
+
+- **The tie, and what separates it.** A prepared ask's eight tie within 0.05 by taste, because they are the top of the seed's own list; the page says so. Under "Call first", code beside the frozen answer draws the other direction: each candidate's fans' rank of the seed (`lib/ask/both-ways.ts`). Bombas fans rank Allbirds 1st; the other seven rank it 9th to 31st or not in their top 50. Shown only when the agent's three separate on it (Allbirds and Mt. Joy do, the Converse replay doesn't), never reordered.
+- **The checker** (`lib/ask/check.ts`, rule v2 since Oct 15). Every name and number must appear in a cited step; a score right after a brand, in the same clause, must be that brand's own. Answers are re-checked under the current rule when shown (`decisionEvent` in `lib/ask/steps.ts`), so the cached runs and their hashes (`docs/freeze.md`) never change. `scripts/check-v2-gates.ts` re-runs the rule over every cached ask at 0 calls.
+- **Agent or pipeline.** The order of tools is set in the prompt; the branches follow what Qloo returned. `scripts/routes.ts` counts them from the cache: 29 asks, 5 routes, 2 stopped at the name. Each step on the page says where it forked.
+- **Six names a judge might type** (`scripts/judge-names.ts`, results in `audit/judge-names.json` and on /audit): run on the live site before judging; the gate failed and is published.
+- **Probes that failed stay on /audit**: where a candidate leads, the collision diff candidate against seed, an audience segment, an age bracket.
+- **Field notes** (`lib/ask/field-notes.ts`): the same `fields()` the candidates cut uses names the field it cut ("Own field left out: Baseball"), or says it had nothing to cut with (Chipotle).
 
 The nav is four stops: the ask (/), two names in (/vs, where audiences split, cell by cell on a US map), Pick three (/pick-three), and a public audit (/audit) of how well the rules held up, including two frozen replays of real collaborations. Whole-aisle maps (/map/<category>) and the partner slate (/find) sit in /vs's footer; /pair, /triage, /s, /review and /end-card still resolve but are off the nav.
 
@@ -30,7 +39,9 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 | `GET /v2/insights` | `filter.type=urn:entity:brand`, `signal.interests.entities` (each seed), `take=50` | Each side's top 50 for a rivals pair; the finder's candidate list | `lib/rivals.ts`, `lib/rival.ts` |
 | `GET /v2/insights` | `filter.type=urn:entity:brand`, `signal.interests.entities` (each seed), `filter.results.entities` (up to 50 of the union), `take` | Scoring the union under both seeds | `lib/rivals.ts` (`getRivals`) |
 | `GET /v2/insights` | the rivals calls above with `filter.type` set to artist, tv_show, movie, podcast | "Beyond brands": the split in four more domains, read from the cache only | `lib/rivals.ts` (`XRAY_TYPES`) |
-| `GET /v2/insights` | the review desk calls above, plus each contender scoring the others (`filter.results.entities`) | The /ask agent's tools; the doubles check | `lib/ask/tools.ts`, `lib/review.ts` (`scorePairs`) |
+| `GET /v2/insights` | the review desk calls above, plus each contender scoring the others (`filter.results.entities`) | The /ask agent's tools; the overlap check | `lib/ask/tools.ts`, `lib/review.ts` (`scorePairs`) |
+| `GET /v2/insights` | `filter.type` (the seed's type), `signal.interests.entities` (each of the eight), `take=50` | Both ways: the seed's rank among each candidate's fans, up to 8 calls on a cold ask | `lib/ask/both-ways.ts` |
+| `GET /v2/insights` | `filter.type=urn:entity:place`, `filter.location.query` (the lead market), `filter.tags` (restaurant, bar, live music), seed and first call as signals, `take=8` | The ask's "where to start" venues | `lib/ask/venues.ts`, `lib/ask/where.ts` |
 | `GET /v2/insights/compare` | `a.signal.interests.entities`, `b.signal.interests.entities` | Shared category tags for "Share by category" | `lib/qloo.ts` (`compareTags`) |
 | `GET /v2/insights` | `filter.type=urn:heatmap`, `signal.interests.entities`, `filter.location.query=United States` | The two heatmaps behind the collision map (same key as the single map) | `lib/rivals.ts`, `lib/collide.ts` |
 | `GET /v2/insights` | the seed's card and top-50 params, tags kept untrimmed | Genre, product category and competitor tags for the rival finder | `lib/qloo.ts` (`fullTags`), `lib/rival.ts` |
@@ -48,7 +59,7 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 
 ## Tests
 
-`npm test` runs 127 offline tests in about a second, with no API calls. `npm run lint` and `npx tsc --noEmit` are clean. Full list below the fold.
+`npm test` runs 207 offline tests in a few seconds, with no API calls. `npm run lint` and `npx tsc --noEmit` are clean. Full list below the fold.
 
 ## Run it
 
@@ -67,13 +78,13 @@ npm run dev                  # http://localhost:3000
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis: the shared cache and the counters |
 | `QLOO_DAILY_CAP` | Qloo calls allowed per UTC day across all instances (300 by default) |
 | `WARM_TOKEN` | Optional: lets `scripts/warm.ts` keep its briefs off the per-visitor limit |
-| `CROSSOVER_FORCE` | Development only: `qloo429,anthropic,novenues,noheatmap` force each failure path |
+| `CROSSOVER_FORCE` | Development only: `qloo429,qloo5xx,qloostall,anthropic,novenues,noheatmap` force each failure path (`CROSSOVER_FORCE_AT=<n>` picks the call that fails or stalls; the outage drill on /audit) |
 
 **Fixtures.** `fixtures/search.json` holds recorded `/search` results for the resolver tests (`node --env-file=.env.local scripts/record-fixtures.ts` re-records them). `fixtures/demo/` (gitignored, since it is Qloo data) holds the four example slates so local UI work spends no quota (`scripts/record-demo.ts`). In development, a file cache in `.cache/` sits in front of Redis.
 
 **Warming.** `node --env-file=.env.local scripts/warm.ts <url> scripts/warm-list.json [--no-cohort]` runs resolve, the full slate, badges and the top brand's brief for each name, one at a time. It stops before the daily cap, logs Qloo calls per name, skips names that don't resolve confidently (or uses a hand-picked id recorded with a note), and records progress so it can resume.
 
-**Why a daily cap.** The hackathon key has 10,000 calls a month, and one cold name costs about 15. The cap is counted in Redis across every serverless instance, so a burst of new names or a crawler can't spend the month. Each visitor also gets 20 new briefs a day; anything already generated is free. When either limit or the Anthropic balance runs out, the app says so plainly and points to the example brands.
+**Why a daily cap.** The hackathon key has 10,000 calls a month, and one cold ask costs about 28 (9 to 22 for the steps, up to 8 for the both-ways table). The cap is counted in Redis across every serverless instance, so a burst of new names or a crawler can't spend the month. Each visitor also gets 20 new briefs a day; anything already generated is free. When either limit or the Anthropic balance runs out, the app says so plainly and points to the example brands.
 
 ---
 
@@ -82,11 +93,11 @@ npm run dev                  # http://localhost:3000
 
 ## The 30-second path
 
-1. Open https://crossover-henna.vercel.app. Liquid Death vs Celsius is loaded: the map, then three columns (leans one way, leans the other, shared). Swap in a prepared pair, or type your own.
-2. Leave the second name blank and click **Compare**: the finder picks the closest same-field brand and says how.
-3. Under "Whole aisles", open **Energy drinks**. Click Celsius and Red Bull (mutual affinity 0.61), then open the pair.
-4. Scroll to Pick three: pick three of Mt. Joy's eight brands and click **Show me**. Turn on **Exclude energy drinks** to see a buyer gate quote Qloo's tag.
-5. Open **/audit** for the held-out results and the limits we found.
+1. Open https://crossover-henna.vercel.app. Allbirds is asked: the split map against Outdoor Voices, "Call first: Bombas", the both-ways table under it, and the steps with their why lines.
+2. Click **An artist's tour sponsor: Mt. Joy**: no same-field rival, so the agent takes the fans' top 50 and the picture becomes fame against taste.
+3. Open **Call sheet** under any answer for the one-page version.
+4. Open **/audit** for the replays of real collaborations (11 of 14, about 1 in 469 by chance), the checker's blocked list, the six judge names and the probes that failed.
+5. **Two names in** (/vs) splits any two names on a US map; **Pick three** asks you to choose before it reveals.
 
 ## Rivals (/vs and the front door)
 
@@ -125,6 +136,8 @@ A fully cold pair is 8 or 9 calls; a warm one is 0.
 `audit/briefs.json` is the protocol (audit-v1): twelve brand briefs of eight candidates, split six dev and six held-out by a fixed seed, plus 24 resolution challenges. It was frozen in git (commit `d244ee2`) before the held-out briefs ran once through `scripts/audit-run.ts`. `audit/results.json` keeps derived numbers only, and `/audit` shows them: 4 of 6 held-out briefs give a clear three; 0 of 12 "famous" names reach the picks; resolution was 20 of 24 as run and 24 of 24 after the review-v3 fix, labelled as not held-out.
 
 ## Architecture
+
+The front door's agent is `lib/ask/agent.ts` with its tools in `lib/ask/tools.ts`, streamed by `app/api/ask/route.ts` and cached per name and prompt version. The diagram below is the older slate path (/find), which still runs behind /vs.
 
 ![Crossover architecture: the browser streams /api/run over server-sent events; retrieval against Qloo is deterministic code; a ranking agent reviews each domain; a brief agent with four Qloo tools writes the brief; Upstash Redis caches every response.](docs/architecture.svg)
 
