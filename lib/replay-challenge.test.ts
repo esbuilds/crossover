@@ -25,3 +25,8 @@ test("rotation: every case once, misses included, the same order for the same se
   assert.deepEqual(rotation(keys, 12345), r); // a refresh with the saved seed resumes the same order
   assert.ok(CHALLENGE.filter((c) => !c.hit).every((c) => r.includes(c.key)));
 });
+
+test("repeated sets of eight are counted (the sneaker aisle shows up more than once)", () => {
+  assert.ok(CHALLENGE.some((c) => c.sameEight > 1));
+  for (const c of CHALLENGE) assert.equal(c.sameEight, CHALLENGE.filter((x) => x.eight.map((y) => y.name).join() === c.eight.map((y) => y.name).join()).length);
+});

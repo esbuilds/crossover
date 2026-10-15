@@ -63,6 +63,7 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
             <div id="verdict" className="mt-4 max-w-[60ch] scroll-mt-4 text-base text-ink-2">
               <p className="text-lg text-ink">{picked === c.partner ? "You found it." : `It was ${c.partner}.`} {c.seed} x {c.partner}: {c.what} ({c.year}). <a href={c.source} target="_blank" rel="noreferrer" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Source</a></p>
               <p className="mt-2">Under {whose(c.seed)} fans, {c.partner} scored {c.eight.find((x) => x.name === c.partner)!.score.toFixed(2)} against a top score of {c.top.toFixed(2)}, {th(c.rank)} of 8. {c.hit ? "In the top three of eight: a hit." : "Outside the top three: a miss for the test, shown as it came out."}</p>
+              {c.sameEight > 1 && <p className="mt-2 text-sm text-ink-3">These eight appear in {c.sameEight} of the {cases.length} cases; decoys come from the partner&apos;s Qloo category and fame band, so deals in the same aisle share them.</p>}
               <p className="mt-3"><button type="button" onClick={() => { setState({ ...state, at: state.at + 1 }); bringIntoView("case-top", true); }} className={btnPrimary}>{state.at + 1 < order.length ? "Next case" : "See the tally"}</button></p>
             </div>
           )}

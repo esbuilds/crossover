@@ -16,6 +16,7 @@ export type ChallengeCase = {
   rank: number; // the protocol's published rank for the real partner, of 8
   top: number; // the top score among the eight
   hit: boolean; // the protocol's hit: the real partner in its top three
+  sameEight: number; // how many of the cases show this exact eight (1 = unique); said after the reveal, never before
 };
 
 // the audit files' case shape, loosely: unscored and dropped cases lack some fields
@@ -39,6 +40,7 @@ function toCase(c: Raw, test: "v1" | "v2"): ChallengeCase | null {
     rank: r.rank,
     top: r.top ?? Math.max(...ids.map((x) => scores[x.id])),
     hit: r.rank <= 3,
+    sameEight: 1,
   };
 }
 
@@ -46,5 +48,9 @@ export const CHALLENGE: ChallengeCase[] = [
   ...(replay.cases as unknown as Raw[]).map((c) => toCase(c, "v1")),
   ...(replayV2.cases as unknown as Raw[]).map((c) => toCase(c, "v2")),
 ].filter((c): c is ChallengeCase => c !== null);
+
+// Fable's ruling (Oct 15): deals in the same aisle share decoys; count each set of eight across the cases
+const setOf = (c: ChallengeCase) => c.eight.map((x) => x.name).join("|");
+for (const c of CHALLENGE) c.sameEight = CHALLENGE.filter((x) => setOf(x) === setOf(c)).length;
 
 export const PROTOCOL = { v1: replay.summary!, v2: replayV2.summary! };

@@ -93,7 +93,9 @@ export function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void 
 // Wordmark left, one quiet link right. Same on every page.
 // One nav on every page (Pick 1, Oct 14): ask, two names in, Pick three, the audit. The old per-page link (href, label)
 // is ignored, so the routes cut from the nav (/map, /find, /pair, /triage, /s, /review, /end-card) keep their own code.
-const NAV: [string, string][] = [["/", "Ask"], ["/vs", "Two names in"], ["/pick-three", "Pick three"], ["/audit", "The audit"]];
+// Fable's ruling (Oct 15): the challenge takes Pick three's place; Pick three stays one click from every answer and the footer.
+// "Real deals", not "Spot the real partner": the long label wrapped the nav at 390 and 360 and moved the card (523 to 567)
+const NAV: [string, string][] = [["/", "Ask"], ["/vs", "Two names in"], ["/replay", "Real deals"], ["/audit", "The audit"]];
 export function SiteHeader(props: { href?: string; label?: string }) {
   void props;
   return (
