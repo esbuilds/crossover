@@ -10,6 +10,9 @@ import { FAIL_COPY } from "@/lib/fail-copy.ts";
 import { sse } from "@/lib/sse.ts";
 import { parseAskBody } from "@/lib/ask/body.ts";
 
+// a cold ask runs about 40 s; the stalled outage drill ran 70 (Fable, Oct 15): an explicit limit, not the plan default
+export const maxDuration = 120;
+
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
