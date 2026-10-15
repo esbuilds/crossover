@@ -21,6 +21,8 @@ const NOTES: Record<string, string> = {
 };
 const REPLAY_FREEZE = "9b64c6c";
 const REPLAY_V2_FREEZE = "b770bad";
+// From scripts/markets-probe.ts, real Oct 15: metros scoring within one point of each brand's fifth (lib/cities.ts over-index)
+const MARKET_TIES: [string, number][] = [["Allbirds", 13], ["Bombas", 7], ["Warby Parker", 26], ["ClassPass", 8], ["Parachute", 14], ["Tuft & Needle", 11], ["Felix Gray", 7], ["Quince", 12], ["Summersalt", 8]];
 const SOURCE = "https://www.marketingdive.com/news/best-marketing-campaigns-2024-advertising-tactics-cmo-lessons/734003/";
 
 const held = results.briefs.filter((b) => b.set === "heldOut");
@@ -163,6 +165,16 @@ export default function AuditPage() {
           </li>
           <li>
             <span className="font-semibold">An audience segment doesn&apos;t reorder the eight.</span> Run real Oct 14 (about 8 calls, scripts/audience-probe.ts), gate set first: for each prepared seed, some Qloo audience must change the top three and move a name by two ranks. Under &ldquo;Parents With Young Children&rdquo; and &ldquo;Vintage Apparel&rdquo; every one of Allbirds&apos; and Mt. Joy&apos;s eight dropped by the same amount (0.06) and kept its order, and the two segments returned identical numbers. On this key the audience signal reads as a flat discount, not a lens, so no audience step was built.
+          </li>
+          <li>
+            <span className="font-semibold">Where a candidate leads doesn&apos;t separate the eight.</span> Run real Oct 15 (8 calls, scripts/markets-probe.ts), gate set first: two of Allbirds&apos; eight must differ from Allbirds&apos; top five metros in two or more, and one of the agent&apos;s three must have an Outdoor Voices city in its top five. It passed on paper (8 of 8; Warby Parker and ClassPass have Austin), but each brand&apos;s top five sits inside a tie, so the difference is tie-break order:
+            <table className="mt-2 text-sm">
+              <thead><tr className="text-left text-ink-3"><th className="pr-6 font-normal">Brand</th><th className="font-normal">Metros within a point of its fifth</th></tr></thead>
+              <tbody>
+                {MARKET_TIES.map(([b, n]) => <tr key={b}><td className="pr-6">{b}</td><td className="tabular-nums">{n}</td></tr>)}
+              </tbody>
+            </table>
+            <span className="mt-2 block">Warby Parker &ldquo;leading in Austin&rdquo; is one of 26 metros at the same score, and Allbirds scores Austin the same as its own top four. The split map&apos;s own diff was tried too, candidate against Allbirds at 0 calls (scripts/lean-probe.ts): 92 to 99 percent of drawn cells read &ldquo;both&rdquo;, and none of the three leans its way in a metro outside Allbirds&apos; top eight except a single Dallas cell. So no market column and no rings for the first call.</span>
           </li>
           <li>
             <span className="font-semibold">A typed aisle can&apos;t ship honestly.</span> Probe run real Oct 12 (9 calls, scripts/aisle-probe.ts): Qloo&apos;s brand tag that best matches a typed category, then its top twelve brands. Running shoes, hard seltzer and skincare gave lists a partnerships lead would recognise. &ldquo;Streaming services&rdquo; matched &ldquo;Financial Services&rdquo; and returned banks, and &ldquo;fast-casual burgers&rdquo; matched no tag at all: 3 of 5 against a gate of 4. A word match that confidently shows the wrong aisle is the reason the three aisles stay prepared.
