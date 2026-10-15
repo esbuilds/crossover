@@ -102,7 +102,7 @@ export function callCard(steps: StepRecord[], decision: Decision): { first: stri
 }
 
 // The fork under a step (Fable's destroy brief 2d, real Oct 15): only where the path branches. The order of tools is
-// set in the agent's instructions and the branches follow what Qloo returned (scripts/routes.ts: 29 cached asks, 5
+// set in the agent's instructions and the branches follow what Qloo returned (scripts/routes.ts: 39 cached asks on Oct 15, 5
 // routes). The candidates step already names its source in its own summary, so it gets no line.
 export function forkLine(step: StepRecord): string | null {
   const o = step.output as { state?: string; found?: boolean; by?: string } | undefined;

@@ -57,6 +57,20 @@ export default function AuditPage() {
         <p className="mt-2 max-w-[68ch] text-base text-ink-2">Every test here was frozen in git before it ran, and every result is published as it came out, misses included. The replays of real collaborations come first; the earlier held-out briefs, the agent&apos;s blocked answers and the known limits follow.</p>
       </section>
 
+      {/* Fable's re-judge ruling (Oct 15): one funnel strip from numbers already on this page. Asks and routes are
+          scripts/routes.ts' count over the cache (Oct 15); blocked and the replays are read from their files. */}
+      <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 border-y border-rule py-3 text-sm sm:grid-cols-5">
+        {[
+          ["Cached asks (Oct 15)", "39"],
+          ["Reached a decision", "36 (3 stopped at the name)"],
+          ["Distinct routes", "5"],
+          ["Blocked by the checker", `${blocked.length}, ${blocked.filter((b) => b.underV2 !== "passes").length} under the current rule`],
+          ["Replays, real partner in the top three", `${replay.summary!.hits} of ${replay.summary!.scored} (missed its bar), ${replayV2.summary!.hits} of ${replayV2.summary!.scored}`],
+        ].map(([k, v]) => (
+          <div key={k}><dt className="text-ink-3">{k}</dt><dd className="font-mono text-ink">{v}</dd></div>
+        ))}
+      </dl>
+
       {/* persona round 2 (both readers): the page is long; a contents list up top */}
       <nav aria-label="On this page" className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
         {[["#replays", "Real partners, replayed"], ["#counterexample", "The counterexample"], ["#checker", "What the agent may say, and what was blocked"], ["#probes", "Probes, the judge names and the limits"], ["#held-out", "Held-out briefs"]].map(([href, label]) => (
@@ -133,7 +147,7 @@ export default function AuditPage() {
           The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Every prepared ask&apos;s eight candidates tie within 0.05 by taste, because they are the top of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the overlap check is shown whether it finds a pair or not.
         </p>
         <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far; blocked under the current rule: {blocked.filter((b) => b.underV2 !== "passes").length}. Each, with the sentence that failed, the reason and what the current rule says:</p>
-        <p className="mt-1 text-base text-ink-2">The rule was refined on Oct 15 (rule v2) after the judge-name probe blocked a true answer for Noah Kahan: a number after &ldquo;against&rdquo;, &ldquo;versus&rdquo;, &ldquo;while&rdquo;, &ldquo;for the others&rdquo;, a count of others (&ldquo;seven others&rdquo;) or a semicolon now has to be the next named brand&apos;s own number, or with none named, another candidate&apos;s, instead of the brand before the comma&apos;s. Every number still has to be in a cited step. Before it shipped, all 29 cached answers that passed still passed, the three real failures below still block, and a test proves a misattributed number still blocks. Answers are re-checked under the current rule when shown; the stored runs aren&apos;t changed.</p>
+        <p className="mt-1 text-base text-ink-2">The rule was refined on Oct 15 (rule v2) after the judge-name probe blocked a true answer for Noah Kahan: a number after &ldquo;against&rdquo;, &ldquo;versus&rdquo;, &ldquo;while&rdquo;, &ldquo;for the others&rdquo;, a count of others (&ldquo;seven others&rdquo;) or a semicolon now has to be the next named brand&apos;s own number, or with none named, another candidate&apos;s, instead of the brand before the comma&apos;s. Every number still has to be in a cited step. Before it shipped, all 29 cached answers that passed still passed (33 on a re-run the same afternoon, 0 failing), the three real failures below still block, and a test proves a misattributed number still blocks. Answers are re-checked under the current rule when shown; the stored runs aren&apos;t changed.</p>
         <p className="mt-1 text-base text-ink-2">The checker reads names and numbers, not meaning; a true sentence can be blocked, a misleading one with correct numbers can pass.</p>
         <ul className="mt-2 space-y-2 text-sm text-ink-2">
           {blocked.map((b) => (
@@ -218,7 +232,7 @@ export default function AuditPage() {
             <span className="font-semibold">When Qloo fails mid-ask.</span> Drilled real Oct 15 on a local build with forced faults (lib/force.ts, development only). A Qloo 503 on the fourth call stopped Hoka after two steps; the page kept them, the unanswered step said Qloo didn&apos;t answer it, and the message said so. The retry reused the three answered calls and finished. A 12-second stall on Oatly&apos;s fourth call: the page kept its steps and kept measuring, and the answer arrived at 70 seconds. At the daily cap the page keeps its steps and says the allowance is used.
           </li>
           <li>
-            <span className="font-semibold">Agent or pipeline: the routes, counted.</span> Across 29 cached asks the agent took 5 distinct routes; 2 stopped at the name, before a call (scripts/routes.ts reads them from the cache, 0 calls). The order of tools is set in its instructions, and the branches follow what Qloo returned: whether it knew the name, whether a rival came back, and whether the split left enough names. 15 went through the split, 9 had no rival and used the fans&apos; top 50, 2 widened from a thin split, and 1 is the replay case. Each step on an ask now says where it forked.
+            <span className="font-semibold">Agent or pipeline: the routes, counted.</span> Across 39 cached asks, counted Oct 15, the agent took 5 distinct routes; 3 stopped at the name, before a call (scripts/routes.ts reads them from the cache, 0 calls). The order of tools is set in its instructions, and the branches follow what Qloo returned: whether it knew the name, whether a rival came back, and whether the split left enough names. 18 went through the split, 13 had no rival and used the fans&apos; top 50, 4 widened from a thin split, and 1 is the replay case. Each step on an ask now says where it forked.
           </li>
           <li id="both-ways" className="scroll-mt-4">
             <span className="font-semibold">The other direction does separate them.</span> Run real Oct 15 (18 calls, scripts/reverse-probe.ts), gate set first: the agent&apos;s three must sit 5 or more places apart on the seed&apos;s rank among each one&apos;s own fans&apos; top 50, and that order must differ from the taste order. Two of three asks pass, and the page now shows the table under &ldquo;Call first&rdquo;; it never reorders the agent&apos;s calls.
