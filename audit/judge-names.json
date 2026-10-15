@@ -1,0 +1,112 @@
+{
+  "ranAt": "2026-10-15T14:41:38.272Z",
+  "base": "https://crossover-henna.vercel.app",
+  "rows": [
+    {
+      "name": "Los Angeles Dodgers",
+      "resolved": "confirmed: Los Angeles Dodgers (brand)",
+      "rival": "Oakland Athletics by genre tag",
+      "route": "resolve > findRival > split > candidates > review > twins",
+      "secs": 32,
+      "calls": 19,
+      "cached": false,
+      "check": "checked",
+      "calls3": [
+        "Las Vegas Raiders",
+        "San Francisco 49ers",
+        "Los Angeles Chargers"
+      ],
+      "summary": "The closest rival is [[Oakland Athletics]] at 0.97. | Only [[Los Angeles Dodgers Foundation]] sits closer to [[Los Angeles Dodgers]] fans than to [[Oakland Athletics]] fans, at 0.91 against 0.83. | The top markets for [[Los Angeles Dodgers]] fans are Los Angeles, San Diego, Las Vegas, Phoenix and Ho"
+    },
+    {
+      "name": "Noah Kahan",
+      "resolved": "confirmed: Noah Kahan (artist)",
+      "rival": "none",
+      "route": "resolve > findRival > candidates > review > twins",
+      "secs": 24.6,
+      "calls": 17,
+      "cached": false,
+      "check": "blocked",
+      "calls3": [
+        "Pura Vida Bracelets",
+        "Altar'd State",
+        "Love Your Melon"
+      ],
+      "summary": "Qloo confirmed [[Noah Kahan]] as an artist. | No same-field rival was found, so the eight candidates came from the fans' top 50. | All eight sit in one group under [[Noah Kahan]] fans, so the calls follow rank order within that group. | There is no clear three, because all eight candidates sit in on",
+      "blockedBy": "caution 4: \"Little Words Project sits in a lower fame band with popularity 0.69, against 0.95 to 0.99 for the others.\" The checker binds 0.95 and 0.99 to Little Words Project; the sentence is right. A checker false positive."
+    },
+    {
+      "name": "Cedric the Entertainer",
+      "resolved": "confirmed: Cedric the Entertainer (person)",
+      "rival": "none",
+      "route": "resolve > findRival > candidates > review > twins",
+      "secs": 0.1,
+      "calls": 0,
+      "cached": true,
+      "check": "checked",
+      "calls3": [
+        "Cadillac",
+        "Ford Motor Company",
+        "Lamborghini"
+      ],
+      "summary": "Qloo confirmed [[Cedric the Entertainer]], and no same-field rival was found, so candidates came from his fans' top 50. | [[Cadillac]], [[Ford Motor Company]], [[Lamborghini]] and [[Maserati]] score 0.95, and [[BMW]], [[Audi]], [[Bentley Motors]] and [[Chevrolet]] score 0.94. | The three calls follo"
+    },
+    {
+      "name": "PlayStation",
+      "resolved": "confirmed: Playstation (brand)",
+      "rival": "Xbox by genre tag",
+      "route": "resolve > findRival > split > candidates > review > twins",
+      "secs": 39.3,
+      "calls": 21,
+      "cached": false,
+      "check": "checked",
+      "calls3": [
+        "Twitch",
+        "Electronic Arts",
+        "Razer"
+      ],
+      "summary": "Qloo confirmed [[Playstation]], and its closest rival is [[Xbox]] at 0.97. | Top markets for [[Playstation]] are Los Angeles, New York, Orlando, Atlanta and Detroit. | [[Twitch]], [[Electronic Arts]] and [[Razer]] score highest in a top group that also holds [[Gamestop]], [[Square Enix]], [[Youtube]"
+    },
+    {
+      "name": "Calm",
+      "resolved": "ambiguous",
+      "rival": "not run",
+      "route": "resolve",
+      "secs": 4.4,
+      "calls": 1,
+      "cached": false,
+      "check": "no calls",
+      "calls3": [],
+      "summary": "Qloo has two matches for [[Calm]], one brand and one artist, so tell me which one you mean before I measure anything.",
+      "followUp": {
+        "picked": "brand (Calm, the app)",
+        "secs": 36.0,
+        "calls": 20,
+        "rival": "Headspace by genre tag",
+        "route": "resolve > findRival > split > candidates > review > twins",
+        "check": "checked",
+        "calls3": [
+          "Peak",
+          "MasterClass",
+          "Joytunes"
+        ]
+      }
+    },
+    {
+      "name": "Chipotle",
+      "resolved": "confirmed: Chipotle (brand)",
+      "rival": "none",
+      "route": "resolve > findRival > candidates > review > twins",
+      "secs": 26.3,
+      "calls": 14,
+      "cached": false,
+      "check": "checked",
+      "calls3": [
+        "F'real Milkshakes",
+        "MOD Pizza",
+        "Thomas' Breakfast"
+      ],
+      "summary": "Qloo confirmed [[Chipotle]] as a brand. | All eight candidates score between 0.93 and 0.95 under [[Chipotle]] fans, so there is no clear three. | [[F'real Milkshakes]], [[MOD Pizza]] and [[Thomas' Breakfast]] rank 1 to 3 among [[Chipotle]] fans, so they are the picks from the top group. | [[Dunkin' "
+    }
+  ]
+}

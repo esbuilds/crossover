@@ -5,6 +5,7 @@ import replay from "@/audit/replay.json";
 import replayV2 from "@/audit/replay-v2.json";
 import blocked from "@/lib/ask/blocked.json";
 import replayAsk from "@/lib/ask/replay-ask.json";
+import judgeNames from "@/audit/judge-names.json";
 import { forDisplay } from "@/lib/ask/check.ts";
 import { Chip, SiteHeader } from "../ui";
 
@@ -150,7 +151,7 @@ export default function AuditPage() {
       <section className="mt-12 max-w-[68ch]">
         <h2 className="font-display text-xl">Rivals and the collision map</h2>
         <p className="mt-2 text-base text-ink-2">Measured Oct 11 on the hackathon API (probe/VERIFY-4.md and the build reports). These are limits of the front door, not held-out results.</p>
-        <ul className="mt-4 grid gap-4 text-base text-ink">
+        <ul className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 text-base text-ink">
           <li>
             <span className="font-semibold">Chelsea vs Arsenal fails both gates.</span> Of 60 brands in the two top-50 lists, 6 lean Chelsea, none lean Arsenal and 54 are shared, and the two maps share 9 of their top 10 US metros. To Qloo, two Premier League clubs read as one US audience, so the pair isn&apos;t offered. The other three test pairs passed both gates.
           </li>
@@ -182,17 +183,41 @@ export default function AuditPage() {
             </table>
             <span className="mt-2 block">Warby Parker &ldquo;leading in Austin&rdquo; is one of 26 metros at the same score, and Allbirds scores Austin the same as its own top four. The split map&apos;s own diff was tried too, candidate against Allbirds at 0 calls (scripts/lean-probe.ts): 1,375 to 1,487 of the 1,500 drawn cells read &ldquo;both&rdquo;, and none of the three leans its way in a metro outside Allbirds&apos; top eight except a single Dallas cell. So no market column and no rings for the first call.</span>
           </li>
+          <li id="judge-names" className="scroll-mt-4">
+            <span className="font-semibold">Six names a judge might type, run before you do.</span> Real Oct 15 on the live site (scripts/judge-names.ts, about 92 calls), names and gate written first: four of six return a checked answer cold in under 45 seconds with none blocked, and each first call sits outside the seed&apos;s own field. <span className="font-semibold">It fails.</span> Four came back checked in time, but one was blocked and two first calls sit in the seed&apos;s own field as a reader would put it.
+            <div className="mt-2 overflow-x-auto">
+              <table className="text-sm">
+                <thead><tr className="text-left text-ink-3"><th className="pr-4 font-normal">Typed</th><th className="pr-4 font-normal">Rival</th><th className="pr-4 font-normal">Seconds</th><th className="pr-4 font-normal">Calls</th><th className="pr-4 font-normal">Answer</th><th className="font-normal">The agent&apos;s three</th></tr></thead>
+                <tbody>
+                  {judgeNames.rows.map((r) => {
+                    const f = (r as { followUp?: { secs: number; calls: number; check: string; calls3: string[]; rival: string } }).followUp;
+                    return (
+                      <tr key={r.name} className="align-top">
+                        <td className="pr-4">{r.name}{f ? " (asked which one; brand picked)" : ""}</td>
+                        <td className="pr-4">{(f?.rival ?? r.rival).replace(/ by .*/, "")}</td>
+                        <td className="pr-4 tabular-nums">{r.cached ? "cached" : f ? `${r.secs} + ${f.secs}` : r.secs}</td>
+                        <td className="pr-4 tabular-nums">{f ? r.calls! + f.calls : r.calls}</td>
+                        <td className="pr-4">{f?.check ?? r.check}</td>
+                        <td>{(f?.calls3 ?? r.calls3).join(", ")}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <span className="mt-2 block">What it shows. The Dodgers&apos; three are NFL teams and Chipotle&apos;s include MOD Pizza: the own-field cut is a shared genre tag, and baseball and football carry different ones, while Chipotle carries none, so neither cut caught a reader&apos;s idea of the same field. PlayStation&apos;s three (Twitch, Electronic Arts, Razer) sit outside its genre tag and inside gaming. Noah Kahan&apos;s answer was blocked by the checker on a sentence that was right (&ldquo;Little Words Project sits in a lower fame band with popularity 0.69, against 0.95 to 0.99 for the others&rdquo;): it binds a range to the first brand named. Cedric the Entertainer replayed from an earlier cold run and his three are carmakers, the fame-saturated case. Calm asked which one first, as it should.</span>
+          </li>
           <li>
             <span className="font-semibold">Agent or pipeline: the routes, counted.</span> Across 29 cached asks the agent took 5 distinct routes; 2 stopped at the name, before a call (scripts/routes.ts reads them from the cache, 0 calls). The order of tools is set in its instructions, and the branches follow what Qloo returned: whether it knew the name, whether a rival came back, and whether the split left enough names. 15 went through the split, 9 had no rival and used the fans&apos; top 50, 2 widened from a thin split, and 1 is the replay case. Each step on an ask now says where it forked.
           </li>
           <li>
             <span className="font-semibold">The other direction does separate them.</span> Run real Oct 15 (18 calls, scripts/reverse-probe.ts), gate set first: the agent&apos;s three must sit 5 or more places apart on the seed&apos;s rank among each one&apos;s own fans&apos; top 50, and that order must differ from the taste order. Two of three asks pass, and the page now shows the table under &ldquo;Call first&rdquo;; it never reorders the agent&apos;s calls.
-            <table className="mt-2 text-sm">
+            <div className="mt-2 overflow-x-auto"><table className="text-sm">
               <thead><tr className="text-left text-ink-3"><th className="pr-6 font-normal">Ask</th><th className="pr-6 font-normal">The agent&apos;s three rank the seed</th><th className="pr-6 font-normal">The rest</th><th className="font-normal">Gate</th></tr></thead>
               <tbody>
                 {REVERSE_RANKS.map(([a, three, rest, ok]) => <tr key={a}><td className="pr-6">{a}</td><td className="pr-6 tabular-nums">{three}</td><td className="pr-6 tabular-nums">{rest}</td><td>{ok ? "passes" : "fails, no table shown"}</td></tr>)}
               </tbody>
-            </table>
+            </table></div>
           </li>
           <li>
             <span className="font-semibold">A typed aisle can&apos;t ship honestly.</span> Probe run real Oct 12 (9 calls, scripts/aisle-probe.ts): Qloo&apos;s brand tag that best matches a typed category, then its top twelve brands. Running shoes, hard seltzer and skincare gave lists a partnerships lead would recognise. &ldquo;Streaming services&rdquo; matched &ldquo;Financial Services&rdquo; and returned banks, and &ldquo;fast-casual burgers&rdquo; matched no tag at all: 3 of 5 against a gate of 4. A word match that confidently shows the wrong aisle is the reason the three aisles stay prepared.
