@@ -111,3 +111,11 @@ test("rule v2: a contrast clause's numbers bind to the others, not the first bra
   assert.equal(say("[[A]] scores 0.94, against 0.94 for the others.").ok, false); // A's own number can't stand for the others
   assert.equal(say("[[A]] scores 0.95, against 0.80 for [[B]].").ok, false); // before the marker, still A's own
 });
+
+// Fable's checker sign-off (Oct 15): "with seven others between 0.94 and 0.95" is a contrast clause too.
+test("rule v2: a count of others binds as 'the others' does", () => {
+  const s5: StepRecord[] = [steps[0], { ...steps[1], output: { groups: [[{ name: "A", affinity: 0.97 }, { name: "B", affinity: 0.95 }, { name: "C", affinity: 0.94 }]] } }];
+  const say = (text: string) => checkDecision({ ...ok, calls: [], cautions: [], summary: [{ text, steps: [2] }] }, s5);
+  assert.deepEqual(say("[[A]] sits closest at 0.97, with seven others between 0.94 and 0.95."), { ok: true });
+  assert.equal(say("[[A]] sits closest at 0.97, with seven others at 0.97.").ok, false); // A's own number can't stand for the others
+});

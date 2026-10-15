@@ -159,8 +159,8 @@
       }
     ],
     "rule": "v1",
-    "underV2": "still blocked",
-    "v2Note": "re-checked against the same cached steps; the blocked run itself was replaced by the Oct 14 re-warm. 'With seven others' isn't on the contrast list, so it still binds to Outdoor Voices."
+    "underV2": "passes",
+    "v2Note": "re-checked against the same cached steps; the blocked run itself was replaced by the Oct 14 re-warm."
   },
   {
     "ask": "Noah Kahan, the judge-name probe (real Oct 15)",

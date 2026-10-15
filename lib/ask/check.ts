@@ -12,7 +12,8 @@ export type Check = { ok: true } | { ok: false; problems: string[] };
 const BRACKET = /\[\[([^\]]+)\]\]/g;
 const DECIMAL = /(?<![\w.])\d+\.\d+/g;
 // the fixed list from Fable's judge-probe ruling (Oct 15); a semicolon counts too
-const CONTRAST = /\b(?:against|versus|vs\.?|compared with|while|whereas|for the others|for the rest|the others|the rest)\b|;/i;
+// plus a count of others ("seven others", "7 others"; Fable's checker sign-off, Oct 15), bound as "the others" is
+const CONTRAST = /\b(?:against|versus|vs\.?|compared with|while|whereas|for the others|for the rest|the others|the rest|(?:[2-9]|\d{2,}|two|three|four|five|six|seven|eight|nine) others?)\b|;/i;
 export const CHECK_RULE = "v2"; // v1 until real Oct 15: a number after the first brand, up to the next name, was its own
 export const unbracket = (t: string) => t.replace(BRACKET, "$1");
 

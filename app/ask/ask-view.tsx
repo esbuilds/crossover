@@ -16,6 +16,7 @@ import { tourHref } from "@/lib/tour.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
 import type { BothWays } from "@/lib/ask/both-ways.ts";
+import type { FieldNotes } from "@/lib/ask/field-notes.ts";
 import { BothTable } from "./both-table";
 
 type Body = { query: string } | { id: string; type: string } | { case: string };
@@ -79,6 +80,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
     }
   }
   const resolved = steps.find((s) => s.tool === "resolve")?.output as { state?: string; name?: string; id?: string; type?: string; options?: { name: string; id: string; type: string }[] } | undefined;
+  const notes = useFieldNotes(resolved?.id && resolved.type && verdict?.ok ? { id: resolved.id, type: resolved.type } : null, asked);
   const ambiguous = resolved?.state === "ambiguous" ? resolved.options : undefined;
   const chips: { label: string; body: Body }[] = [...PREPARED_ASKS, ...(pending && !("query" in pending.body) ? [{ label: pending.label, body: pending.body }] : [])];
 
@@ -131,7 +133,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
         )}
 
         <section className="order-3 lg:col-start-2 lg:row-span-2 lg:row-start-2">
-          {verdict?.ok && verdict.decision && <Call decision={verdict.decision} steps={steps} under={resolved?.id && resolved.type ? <BothBlock id={resolved.id} type={resolved.type} asked={asked} /> : null} />}
+          {verdict?.ok && verdict.decision && <Call decision={verdict.decision} steps={steps} shared={notes?.shared ?? null} under={resolved?.id && resolved.type ? <BothBlock id={resolved.id} type={resolved.type} asked={asked} /> : null} />}
           {verdict?.ok && verdict.decision && (
             <>
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
@@ -170,6 +172,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
                 <p className="mt-1 text-base text-ink-2">{s.why}</p>
                 <p className="mt-1 text-base text-ink">{s.summary || <span className="font-mono text-sm motion-safe:animate-pulse">Reading Qloo...</span>}</p>
                 {forkLine(s) && <p className="mt-1 text-sm text-ink-3">{forkLine(s)}</p>}
+                {s.tool === "candidates" && notes?.cut && <p className="mt-1 text-sm text-ink-3">{notes.cut}</p>}
                 <Picture step={s} steps={steps} hero={hero} />
               </li>
             ))}
@@ -183,7 +186,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
 // The decision (Fable tie ruling, Oct 14): it leads. "Call first: X" and the agent's checked reason for X; then, when the
 // review tied, its own label, smaller, with "inside a tie no order is claimed"; then the other calls; then the
 // same-audience line, found or not, and the agent's notes.
-function Call({ decision, steps, under }: { decision: Decision; steps: StepRecord[]; under?: React.ReactNode }) {
+function Call({ decision, steps, under, shared }: { decision: Decision; steps: StepRecord[]; under?: React.ReactNode; shared?: string | null }) {
   const review = steps.find((s) => s.tool === "review");
   const tied = !!(review?.output as { noClearThree?: boolean } | undefined)?.noClearThree;
   const size = cardsStep(steps)?.cards.filter((c) => c.affinity !== null).length ?? 0;
@@ -225,6 +228,7 @@ function Call({ decision, steps, under }: { decision: Decision; steps: StepRecor
       {[...decision.cautions, ...decision.summary].map((c) => (
         <p key={c.text} className="mt-3 max-w-[60ch] text-base text-ink-2">{forDisplay(c.text)} <Steps ns={c.steps} /></p>
       ))}
+      {shared && <p className="mt-3 max-w-[60ch] text-base text-ink-2">{shared}</p>}
     </>
   );
 }
@@ -259,6 +263,22 @@ function BothBlock({ id, type, asked }: { id: string; type: string; asked: Body 
     return () => { live = false; };
   }, [key]);
   return b ? <BothTable b={b} /> : null;
+}
+
+// Field notes (Fable's checker sign-off, Oct 15): from /api/ask/field, the same fields() the candidates cut uses.
+function useFieldNotes(seed: { id: string; type: string } | null, asked: Body | null): FieldNotes | null {
+  const [notes, setNotes] = useState<FieldNotes | null>(null);
+  const q = seed ? new URLSearchParams({ id: seed.id, t: seed.type }) : null;
+  if (q && asked && "query" in asked) q.set("q", asked.query);
+  if (q && asked && "case" in asked) q.set("case", asked.case);
+  const key = q?.toString() ?? "";
+  useEffect(() => {
+    if (!key) return setNotes(null);
+    let live = true;
+    fetch(`/api/ask/field?${key}`).then((r) => (r.ok ? r.json() : null)).then((d: { notes?: FieldNotes | null } | null) => live && setNotes(d?.notes ?? null), () => {});
+    return () => { live = false; };
+  }, [key]);
+  return notes;
 }
 
 function Steps({ ns }: { ns: number[] }) {
