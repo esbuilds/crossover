@@ -180,7 +180,7 @@ export default function AuditPage() {
                 {MARKET_TIES.map(([b, n]) => <tr key={b}><td className="pr-6">{b}</td><td className="tabular-nums">{n}</td></tr>)}
               </tbody>
             </table>
-            <span className="mt-2 block">Warby Parker &ldquo;leading in Austin&rdquo; is one of 26 metros at the same score, and Allbirds scores Austin the same as its own top four. The split map&apos;s own diff was tried too, candidate against Allbirds at 0 calls (scripts/lean-probe.ts): 92 to 99 percent of drawn cells read &ldquo;both&rdquo;, and none of the three leans its way in a metro outside Allbirds&apos; top eight except a single Dallas cell. So no market column and no rings for the first call.</span>
+            <span className="mt-2 block">Warby Parker &ldquo;leading in Austin&rdquo; is one of 26 metros at the same score, and Allbirds scores Austin the same as its own top four. The split map&apos;s own diff was tried too, candidate against Allbirds at 0 calls (scripts/lean-probe.ts): 1,375 to 1,487 of the 1,500 drawn cells read &ldquo;both&rdquo;, and none of the three leans its way in a metro outside Allbirds&apos; top eight except a single Dallas cell. So no market column and no rings for the first call.</span>
           </li>
           <li>
             <span className="font-semibold">The other direction does separate them.</span> Run real Oct 15 (18 calls, scripts/reverse-probe.ts), gate set first: the agent&apos;s three must sit 5 or more places apart on the seed&apos;s rank among each one&apos;s own fans&apos; top 50, and that order must differ from the taste order. Two of three asks pass, and the page now shows the table under &ldquo;Call first&rdquo;; it never reorders the agent&apos;s calls.
