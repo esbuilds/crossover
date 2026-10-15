@@ -98,3 +98,16 @@ test("nameForDisplay: bracketed or plain, the display name applies", () => {
   assert.equal(nameForDisplay("[[Alternative]]"), "Alternative Apparel");
   assert.equal(nameForDisplay("Bombas"), "Bombas");
 });
+
+// Rule v2 (Fable's judge-probe ruling, real Oct 15): Noah Kahan's true caution was blocked because the numbers after
+// "against" were charged to the brand before it. A contrast marker ends the first brand's segment; what follows binds to
+// the next bracketed brand, or with none, to some other candidate. Every number must still be in a cited step.
+test("rule v2: a contrast clause's numbers bind to the others, not the first brand, and still can't leak", () => {
+  const s4: StepRecord[] = [steps[0], { ...steps[1], output: { groups: [[{ name: "A", affinity: 0.94, popularity: 0.69 }, { name: "B", affinity: 0.8, popularity: 0.95 }, { name: "C", affinity: 0.79, popularity: 0.99 }]] } }];
+  const say = (text: string) => checkDecision({ ...ok, calls: [], cautions: [], summary: [{ text, steps: [2] }] }, s4);
+  assert.deepEqual(say("[[A]] sits in a lower fame band with popularity 0.69, against 0.95 to 0.99 for the others."), { ok: true });
+  assert.deepEqual(say("[[A]] scores 0.94, against 0.80 for [[B]]."), { ok: true });
+  assert.equal(say("[[A]] scores 0.94, against 0.79 for [[B]].").ok, false); // the leak: 0.79 is C's, not B's
+  assert.equal(say("[[A]] scores 0.94, against 0.94 for the others.").ok, false); // A's own number can't stand for the others
+  assert.equal(say("[[A]] scores 0.95, against 0.80 for [[B]].").ok, false); // before the marker, still A's own
+});

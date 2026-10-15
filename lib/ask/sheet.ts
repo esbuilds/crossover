@@ -3,7 +3,7 @@
 // numbers trace to the steps, the replay line (lib/ask/proof.ts) or the blocked count (lib/ask/blocked.json).
 import type { AskEvent } from "./agent.ts";
 import { displayName, forDisplay, nameForDisplay, type StepRecord } from "./check.ts";
-import { callCard, cardsStep, mapStep, stepsFrom, twinsStep, type MapStep } from "./steps.ts";
+import { callCard, cardsStep, decisionEvent, mapStep, stepsFrom, twinsStep, type MapStep } from "./steps.ts";
 import { DOESNT_ESTABLISH } from "../vs.ts";
 
 const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight"];
@@ -37,7 +37,7 @@ export type Sheet = {
 
 export function sheetModel(events: AskEvent[], o: { proof: string; blocked: number }): Sheet | null {
   const steps = stepsFrom(events);
-  const d = events.findLast((e) => e.type === "decision");
+  const d = decisionEvent(events);
   if (!d || d.type !== "decision" || !d.check.ok || !d.decision || !d.decision.calls.length) return null;
   const seed = (steps.find((s) => s.tool === "resolve")?.output as { name?: string } | undefined)?.name ?? "this name";
   const review = steps.find((s) => s.tool === "review");
@@ -58,7 +58,7 @@ export function sheetModel(events: AskEvent[], o: { proof: string; blocked: numb
     footnotes: steps.map((s) => ({ n: s.n, label: TOOL_LABEL[s.tool] ?? s.tool, summary: s.summary })),
     limits: DOESNT_ESTABLISH,
     proof: o.proof,
-    blocked: `The checker has blocked ${o.blocked} answers so far; each is listed on /audit.`,
+    blocked: `Blocked by the checker under its current rule: ${o.blocked} answers, each listed on /audit with the rule that blocked it.`,
     credit: "Data: Qloo. Drawn by code. Every number cites a step.",
   };
 }

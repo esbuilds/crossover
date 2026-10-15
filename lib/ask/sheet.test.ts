@@ -29,7 +29,7 @@ for (const name of ["allbirds", "mt-joy"]) {
     assert.match(s.doubles, /^Same-audience check: /);
     assert.ok(s.limits.length >= 3);
     assert.equal(s.proof, PROOF);
-    assert.equal(s.blocked, "The checker has blocked 5 answers so far; each is listed on /audit.");
+    assert.equal(s.blocked, "Blocked by the checker under its current rule: 5 answers, each listed on /audit with the rule that blocked it.");
     if (name === "allbirds") assert.deepEqual([s.map?.closerToSeed, s.map?.closerToRival, s.map?.withinGapOfBoth], [2, 4, 50]);
     else assert.equal(s.map, null);
   });

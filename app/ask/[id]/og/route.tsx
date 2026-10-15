@@ -2,7 +2,7 @@ import { ogCard } from "@/lib/og.tsx";
 import { peekAsk } from "@/lib/ask/agent.ts";
 import { parseAskBody } from "@/lib/ask/body.ts";
 import { forDisplay, unbracket } from "@/lib/ask/check.ts";
-import { cardsStep, stepsFrom } from "@/lib/ask/steps.ts";
+import { cardsStep, decisionEvent, stepsFrom } from "@/lib/ask/steps.ts";
 
 // GET /ask/<id>/og?t=<type>: a shared ask's preview card, from the cached decision only (never a call). The first call
 // and its measured score, as the page shows them; a missing or blocked decision falls back to the question alone.
@@ -12,7 +12,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const events = body ? await peekAsk(body).catch(() => null) : null;
   const steps = events ? stepsFrom(events) : [];
   const seed = (steps.find((s) => s.tool === "resolve")?.output as { name?: string } | undefined)?.name;
-  const d = events?.findLast((e) => e.type === "decision");
+  const d = (events ? decisionEvent(events) : undefined);
   const first = d && d.type === "decision" && d.check.ok ? d.decision?.calls[0] : undefined;
   const score = first ? cardsStep(steps)?.cards.find((c) => c.name === unbracket(first.name))?.affinity : undefined;
   const res = await ogCard({

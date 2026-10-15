@@ -7,14 +7,14 @@ import { spendColdPair } from "../rivals.ts";
 import { Cold, warmFirst } from "../review-run.ts";
 import type { AskEvent } from "./agent.ts";
 import { nameForDisplay } from "./check.ts";
-import { mapStep, stepsFrom } from "./steps.ts";
+import { decisionEvent, mapStep, stepsFrom } from "./steps.ts";
 import { venueLine, venuesIn } from "./venues.ts";
 
 const must = <T,>(v: T | null): T => { if (v === null) throw new Cold(); return v; };
 
 export async function whereToStart(events: AskEvent[], ip: string | null): Promise<{ market: string; line: string | null } | null> {
   const steps = stepsFrom(events);
-  const d = events.findLast((e) => e.type === "decision");
+  const d = decisionEvent(events);
   const first = d && d.type === "decision" && d.check.ok ? d.decision?.calls[0] : undefined;
   const seed = steps.find((s) => s.tool === "resolve")?.output as { name?: string; id?: string; type?: string } | undefined;
   const cands = (steps.find((s) => s.tool === "candidates")?.output as { candidates?: { name: string; id: string }[] } | undefined)?.candidates ?? [];

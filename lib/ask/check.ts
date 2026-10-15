@@ -10,6 +10,10 @@ export type StepRecord = { n: number; tool: string; why: string; output: unknown
 export type Check = { ok: true } | { ok: false; problems: string[] };
 
 const BRACKET = /\[\[([^\]]+)\]\]/g;
+const DECIMAL = /(?<![\w.])\d+\.\d+/g;
+// the fixed list from Fable's judge-probe ruling (Oct 15); a semicolon counts too
+const CONTRAST = /\b(?:against|versus|vs\.?|compared with|while|whereas|for the others|for the rest|the others|the rest)\b|;/i;
+export const CHECK_RULE = "v2"; // v1 until real Oct 15: a number after the first brand, up to the next name, was its own
 export const unbracket = (t: string) => t.replace(BRACKET, "$1");
 
 // Render only: a Qloo name that reads as a word gets the brand name from Qloo's own description. The checker never sees
@@ -73,10 +77,20 @@ export function checkDecision(d: Decision, steps: StepRecord[]): Check {
     const first = [...it.text.matchAll(BRACKET)].find((m) => !seed.has(m[1]));
     if (first) {
       const after = it.text.slice(first.index! + first[0].length);
-      const segment = after.slice(0, after.includes("[[") ? after.indexOf("[[") : undefined);
+      const upto = after.includes("[[") ? after.indexOf("[[") : after.length;
+      // rule v2 (Fable's judge-probe ruling, real Oct 15): the first brand's segment also ends at a contrast marker.
+      // Numbers after the marker belong to the next bracketed brand if one follows, else to some other candidate.
+      const cut = after.slice(0, upto).search(CONTRAST);
+      const segment = after.slice(0, cut >= 0 ? cut : upto);
+      const is = (vs: number[], x: string) => vs.some((v) => v.toFixed(2) === Number(x).toFixed(2));
       const mine = [...(own.get(first[1]) ?? []), ...method];
-      for (const m of segment.matchAll(/(?<![\w.])\d+\.\d+/g))
-        if (!mine.some((v) => v.toFixed(2) === Number(m[0]).toFixed(2))) problems.push(`${it.label}: ${m[0]} isn't ${first[1]}'s own number`);
+      for (const m of segment.matchAll(DECIMAL)) if (!is(mine, m[0])) problems.push(`${it.label}: ${m[0]} isn't ${first[1]}'s own number`);
+      if (cut >= 0) {
+        const next = after.slice(upto).match(/^\[\[([^\]]+)\]\]/)?.[1];
+        const theirs = next ? [...(own.get(next) ?? []), ...method] : [...[...own].filter(([n]) => n !== first[1]).flatMap(([, v]) => v), ...method];
+        for (const m of after.slice(cut, upto).matchAll(DECIMAL))
+          if (!is(theirs, m[0])) problems.push(`${it.label}: ${m[0]} isn't ${next ? `${next}'s own number` : "another candidate's own number"}`);
+      }
     }
     for (const m of plain.matchAll(/(?<![\w.])\d+(?:\.\d+)?/g)) {
       const x = m[0];

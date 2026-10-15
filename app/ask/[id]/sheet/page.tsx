@@ -42,7 +42,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
   const cached = body ? await peekAsk(body).catch(() => null) : null;
   const seedId = (cached?.find((e) => e.type === "result" && e.n === 1) as { output?: { id?: string } } | undefined)?.output?.id;
   const events = cached && seedId?.toUpperCase() === id.toUpperCase() ? cached : null;
-  const s = events ? sheetModel(events, { proof: PROOF, blocked: blocked.length }) : null;
+  const s = events ? sheetModel(events, { proof: PROOF, blocked: blocked.filter((b) => b.underV2 !== "passes").length }) : null;
   if (!body || !s)
     return (
       <p className="pt-10 text-base text-ink-2">

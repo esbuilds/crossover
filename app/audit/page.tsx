@@ -125,20 +125,20 @@ export default function AuditPage() {
         <p className="mt-2 text-base text-ink-2">
           The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Every prepared ask&apos;s eight candidates tie within 0.05 by taste, because they are the top of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the doubles check is shown whether it finds a pair or not.
         </p>
-        <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far. Each, with the sentence that failed and the reason:</p>
-        <p className="mt-1 text-base text-ink-2">Three of the six are the rule reading a true sentence too strictly. The rule stays as frozen: a looser rule could pass a wrong binding.</p>
+        <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far; blocked under the current rule: {blocked.filter((b) => b.underV2 !== "passes").length}. Each, with the sentence that failed, the reason and what the current rule says:</p>
+        <p className="mt-1 text-base text-ink-2">The rule was refined on Oct 15 (rule v2) after the judge-name probe blocked a true answer for Noah Kahan: a number after &ldquo;against&rdquo;, &ldquo;versus&rdquo;, &ldquo;while&rdquo;, &ldquo;for the others&rdquo; or a semicolon now has to be the next named brand&apos;s own number, or with none named, another candidate&apos;s, instead of the brand before the comma&apos;s. Every number still has to be in a cited step. Before it shipped, all 29 cached answers that passed still passed, the three real failures below still block, and a test proves a misattributed number still blocks. Answers are re-checked under the current rule when shown; the stored runs aren&apos;t changed. One true sentence still blocks (&ldquo;with seven others&rdquo; isn&apos;t on the rule&apos;s list).</p>
         <p className="mt-1 text-base text-ink-2">The checker reads names and numbers, not meaning; a true sentence can be blocked, a misleading one with correct numbers can pass.</p>
         <ul className="mt-2 space-y-2 text-sm text-ink-2">
           {blocked.map((b) => (
             <li key={b.ask + b.version} className="border-t border-rule pt-2">
-              <p className="text-ink">{b.ask} <span className="font-mono text-ink-3">({b.version})</span>{b.note ? `: ${b.note}` : ""}</p>
+              <p className="text-ink">{b.ask} <span className="font-mono text-ink-3">({b.version}, rule {b.rule})</span>{b.note ? `: ${b.note}` : ""} <span className="font-semibold">Under rule v2: {b.underV2}.</span>{(b as { v2Note?: string }).v2Note ? ` ${(b as { v2Note?: string }).v2Note}` : ""}</p>
               {b.failures.map((f) => (
                 <p key={f.where} className="mt-1">&ldquo;{forDisplay(f.text)}&rdquo; <span className="font-mono text-ink-3">(cited step {f.steps.join(", ")})</span>: {f.reasons.map((r) => forDisplay(r)).join("; ")}.</p>
               ))}
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-sm text-ink-2">The fixes went into the tools and the prompt, never into the check: the tools now name both sides of the split and state the method&apos;s own numbers, and the score-binding rule was narrowed to the clause right after a brand. Recovered from the cache by scripts/blocked-extract.ts.</p>
+        <p className="mt-2 text-sm text-ink-2">Until Oct 15 the fixes went into the tools and the prompt, never into the check: the tools now name both sides of the split and state the method&apos;s own numbers, and the score-binding rule was narrowed to the clause right after a brand. Recovered from the cache by scripts/blocked-extract.ts.</p>
       </section>
 
       <section className="mt-12 max-w-[68ch]">
@@ -205,7 +205,7 @@ export default function AuditPage() {
                 </tbody>
               </table>
             </div>
-            <span className="mt-2 block">What it shows. The Dodgers&apos; three are NFL teams and Chipotle&apos;s include MOD Pizza: the own-field cut is a shared genre tag, and baseball and football carry different ones, while Chipotle carries none, so neither cut caught a reader&apos;s idea of the same field. PlayStation&apos;s three (Twitch, Electronic Arts, Razer) sit outside its genre tag and inside gaming. Noah Kahan&apos;s answer was blocked by the checker on a sentence that was right (&ldquo;Little Words Project sits in a lower fame band with popularity 0.69, against 0.95 to 0.99 for the others&rdquo;): it binds a range to the first brand named. Cedric the Entertainer replayed from an earlier cold run and his three are carmakers, the fame-saturated case. Calm asked which one first, as it should.</span>
+            <span className="mt-2 block">What it shows. The Dodgers&apos; three are NFL teams and Chipotle&apos;s include MOD Pizza: the own-field cut is a shared genre tag, and baseball and football carry different ones, while Chipotle carries none, so neither cut caught a reader&apos;s idea of the same field. PlayStation&apos;s three (Twitch, Electronic Arts, Razer) sit outside its genre tag and inside gaming. Noah Kahan&apos;s answer was blocked by the checker on a sentence that was right (&ldquo;Little Words Project sits in a lower fame band with popularity 0.69, against 0.95 to 0.99 for the others&rdquo;): it bound a range to the first brand named. The rule was refined the same day and the answer now shows; see the blocked list above. Cedric the Entertainer replayed from an earlier cold run and his three are carmakers, the fame-saturated case. Calm asked which one first, as it should.</span>
           </li>
           <li>
             <span className="font-semibold">Agent or pipeline: the routes, counted.</span> Across 29 cached asks the agent took 5 distinct routes; 2 stopped at the name, before a call (scripts/routes.ts reads them from the cache, 0 calls). The order of tools is set in its instructions, and the branches follow what Qloo returned: whether it knew the name, whether a rival came back, and whether the split left enough names. 15 went through the split, 9 had no rival and used the fans&apos; top 50, 2 widened from a thin split, and 1 is the replay case. Each step on an ask now says where it forked.

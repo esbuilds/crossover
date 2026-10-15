@@ -1,9 +1,17 @@
 // The three step pictures on the ask page (Pick A, Oct 13), shaped from an ask's events. Pure and server-free: the page
 // draws them with existing components; every value here is already in a step output the checker reads.
 import type { AskEvent } from "./agent.ts";
-import { nameForDisplay, type Decision, type StepRecord } from "./check.ts";
+import { checkDecision, nameForDisplay, type Decision, type StepRecord } from "./check.ts";
 
 type Named = { name: string; id?: string; type?: string };
+
+// The ask's decision, re-checked under the current rule (check v2, Fable's judge-probe ruling, real Oct 15) instead of
+// trusting the check stored when it ran. Deterministic, 0 calls; the cached events, and so the frozen hashes, don't change.
+export function decisionEvent(events: AskEvent[]): Extract<AskEvent, { type: "decision" }> | undefined {
+  const d = events.findLast((e) => e.type === "decision");
+  if (!d || d.type !== "decision" || !d.decision) return d && d.type === "decision" ? d : undefined;
+  return { ...d, check: checkDecision(d.decision, stepsFrom(events)) };
+}
 
 export function stepsFrom(events: AskEvent[]): StepRecord[] {
   const out = new Map<number, StepRecord>();

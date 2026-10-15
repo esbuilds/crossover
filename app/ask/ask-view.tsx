@@ -8,7 +8,7 @@ import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
 import CollisionMap from "../vs/collision-map";
 import { displayName, forDisplay, nameForDisplay, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { askLinks } from "@/lib/ask/links.ts";
-import { callCard, cardsStep, forkLine, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
+import { callCard, cardsStep, decisionEvent, forkLine, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
@@ -43,7 +43,7 @@ async function streamEvents(res: Response, onEvent: (e: AskEvent) => void) {
 }
 
 const verdictOf = (events: AskEvent[]): Verdict | null => {
-  const d = events.findLast((e) => e.type === "decision");
+  const d = decisionEvent(events);
   return d && d.type === "decision" ? { decision: d.decision, ok: d.check.ok, problems: d.check.ok ? [] : d.check.problems } : null;
 };
 

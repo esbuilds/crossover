@@ -60,7 +60,9 @@
           "Liquid Death isn't in a cited step"
         ]
       }
-    ]
+    ],
+    "rule": "v1",
+    "underV2": "still blocked"
   },
   {
     "ask": "Olipop",
@@ -77,7 +79,9 @@
           "0.05 isn't in a cited step"
         ]
       }
-    ]
+    ],
+    "rule": "v1",
+    "underV2": "still blocked"
   },
   {
     "ask": "Mt. Joy",
@@ -95,7 +99,9 @@
           "50 isn't in a cited step"
         ]
       }
-    ]
+    ],
+    "rule": "v1",
+    "underV2": "still blocked"
   },
   {
     "ask": "Mt. Joy",
@@ -112,7 +118,9 @@
           "0.05 isn't Outdoor Voices's own number"
         ]
       }
-    ]
+    ],
+    "rule": "v1",
+    "underV2": "passes"
   },
   {
     "ask": "Mt. Joy",
@@ -129,7 +137,9 @@
           "0.94 isn't Outdoor Voices's own number"
         ]
       }
-    ]
+    ],
+    "rule": "v1",
+    "underV2": "passes"
   },
   {
     "ask": "Mt. Joy, re-warm after the popularity fix (real Oct 14)",
@@ -147,6 +157,29 @@
           "0.95 isn't Outdoor Voices's own number"
         ]
       }
-    ]
+    ],
+    "rule": "v1",
+    "underV2": "still blocked",
+    "v2Note": "re-checked against the same cached steps; the blocked run itself was replaced by the Oct 14 re-warm. 'With seven others' isn't on the contrast list, so it still binds to Outdoor Voices."
+  },
+  {
+    "ask": "Noah Kahan, the judge-name probe (real Oct 15)",
+    "version": "ask-v1.6+t2",
+    "note": "the numbers after 'against' described the other candidates; rule v1 read them as Little Words Project's own",
+    "failures": [
+      {
+        "where": "caution 4",
+        "text": "[[Little Words Project]] sits in a lower fame band with popularity 0.69, against 0.95 to 0.99 for the others.",
+        "steps": [
+          4
+        ],
+        "reasons": [
+          "0.95 isn't Little Words Project's own number",
+          "0.99 isn't Little Words Project's own number"
+        ]
+      }
+    ],
+    "rule": "v1",
+    "underV2": "passes"
   }
 ]

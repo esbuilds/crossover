@@ -9,7 +9,7 @@ import { Cold, warmFirst } from "../review-run.ts";
 import { spendColdPair } from "../rivals.ts";
 import type { AskEvent } from "./agent.ts";
 import { nameForDisplay } from "./check.ts";
-import { stepsFrom } from "./steps.ts";
+import { decisionEvent, stepsFrom } from "./steps.ts";
 
 export const OUT = 51; // "not in their top 50", for the gate's arithmetic only
 export type Rank = number | "out" | null; // null: no measurement (never fetched), never shown as a blank
@@ -36,7 +36,7 @@ export function sentence(seed: string, noun: string, first: Row | undefined): st
 // Pure over the ask's events and a Qloo getter, so tests run without the API.
 export async function bothWaysFrom(events: AskEvent[], get: Get): Promise<BothWays | null> {
   const steps = stepsFrom(events);
-  const d = events.findLast((e) => e.type === "decision");
+  const d = decisionEvent(events);
   const calls = d && d.type === "decision" && d.check.ok ? (d.decision?.calls ?? []).map((c) => nameForDisplay(c.name)) : [];
   const seed = steps.find((s) => s.tool === "resolve")?.output as { name?: string; id?: string; type?: string } | undefined;
   const cands = (steps.find((s) => s.tool === "candidates")?.output as { candidates?: { name: string; id: string }[] } | undefined)?.candidates ?? [];
