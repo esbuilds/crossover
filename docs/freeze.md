@@ -72,3 +72,6 @@ The checker's score-binding rule reads the clause after the first brand named as
 
 - First prompt change after Nov 16 (Fable persona round 2 ruling): the agent reads the both-ways reverse rank before it chooses (Tyler Childers: Shinesty fans don't have him in their top 50).
 - Tool change after Nov 16: a popularity floor or tour-sponsor source for artist seeds' candidates (artist answers lead with small DTC apparel; persona round 2, Live Nation).
+
+## Freeze checklist additions (Oct 15)
+- Recount routes (node --env-file=.env.local scripts/routes.ts) and update the dated count on /audit (routes entry, funnel strip), README and devpost-v7 final.
