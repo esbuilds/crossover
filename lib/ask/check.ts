@@ -23,7 +23,10 @@ const DISPLAY: Record<string, string> = {
   Alternative: "Alternative Apparel", // Qloo 26B1E073-D09A-4242-AD7F-EED546CE55A7: "Alternative Apparel is a sustainable clothing brand"
 };
 export const displayName = (name: string) => DISPLAY[name] ?? name;
-export const forDisplay = (t: string) => t.replace(BRACKET, (_, n: string) => displayName(n));
+// Also render only: the agent calls the overlap step by its tool name, "twins"; a reader sees "the overlap check" (agency
+// persona, Oct 14). Outside brackets only, and never right after a capitalised word, so [[Minnesota Twins]] stays.
+const overlap = (t: string) => t.split(/(\[\[[^\]]+\]\])/).map((p) => (p.startsWith("[[") ? p : p.replace(/(?<![A-Z][a-z]+ )\b([Tt])wins\b/g, (_, c: string) => `${c === "T" ? "The" : "the"} overlap check`))).join("");
+export const forDisplay = (t: string) => overlap(t).replace(BRACKET, (_, n: string) => displayName(n));
 // a single name, bracketed or not (a call's name field arrives either way)
 export const nameForDisplay = (n: string) => displayName(unbracket(n));
 

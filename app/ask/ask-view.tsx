@@ -3,7 +3,7 @@
 // split, the fame-to-taste dumbbell) above the fold, and the decision once the checker passes it (Pick 1, Oct 14).
 // initial: a cached ask the server replayed (no POST, no Qloo call); pending: a share link whose ask isn't cached yet.
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
 import CollisionMap from "../vs/collision-map";
 import { displayName, forDisplay, nameForDisplay, type Decision, type StepRecord } from "@/lib/ask/check.ts";
@@ -20,7 +20,7 @@ import type { FieldNotes } from "@/lib/ask/field-notes.ts";
 import { BothTable } from "./both-table";
 
 type Body = { query: string } | { id: string; type: string } | { case: string };
-const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Eight candidates", review: "Score them", twins: "Check for doubles" };
+const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Eight candidates", review: "Score them", twins: "Overlap check" };
 type Verdict = { decision: Decision | null; ok: boolean; problems: string[] };
 const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight"];
 // Measured on cold asks real Oct 13 to 14 (Allbirds, Yeti, Dove, Cedric the Entertainer, Dr. Squatch): 5 to 6 steps,
@@ -63,8 +63,9 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
   const hero: "map" | "dumbbell" | null = map ? "map" : bell ? "dumbbell" : null;
   const card = verdict?.ok && verdict.decision ? callCard(steps, verdict.decision) : null;
 
+  const ranHere = useRef(false); // the front page keeps "/" until the visitor asks something
   async function run(body: Body) {
-    setEvents([]); setError(""); setStatus("running"); setAsked(body);
+    setEvents([]); setError(""); setStatus("running"); setAsked(body); ranHere.current = true;
     // a dropped connection must not leave the button disabled (deferred minor, fixed Oct 13)
     try {
       const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -81,6 +82,12 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
   }
   const resolved = steps.find((s) => s.tool === "resolve")?.output as { state?: string; name?: string; id?: string; type?: string; options?: { name: string; id: string; type: string }[] } | undefined;
   const notes = useFieldNotes(resolved?.id && resolved.type && verdict?.ok ? { id: resolved.id, type: resolved.type } : null, asked);
+  // persona test (agency strategist, Oct 14): the answer's permalink in the address bar once it arrives
+  useEffect(() => {
+    if (!ranHere.current || status !== "done" || !verdict?.ok || !resolved?.id || !resolved.type) return;
+    const href = askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share;
+    if (location.pathname + location.search !== href) history.replaceState(null, "", href);
+  }, [status, verdict?.ok, resolved?.id, resolved?.type, asked]);
   const ambiguous = resolved?.state === "ambiguous" ? resolved.options : undefined;
   const chips: { label: string; body: Body }[] = [...PREPARED_ASKS, ...(pending && !("query" in pending.body) ? [{ label: pending.label, body: pending.body }] : [])];
 
@@ -220,8 +227,8 @@ function Call({ decision, steps, under, shared }: { decision: Decision; steps: S
       {twinsStepRec && (
         <p className="mt-3 max-w-[60ch] text-base text-ink-2">
           {twins
-            ? `Same-audience check: ${displayName(twins.a)} and ${displayName(twins.b)} sit closest to each other (${twins.value.toFixed(2)}; the next pair ${twins.next.toFixed(2)}), so calling both may reach one audience twice.`
-            : "Same-audience check: it ran, and no two contenders stand out as reaching the same audience."}{" "}
+            ? `Overlap check: ${displayName(twins.a)} and ${displayName(twins.b)} sit closest to each other (${twins.value.toFixed(2)}; the next pair ${twins.next.toFixed(2)}), so calling both may reach one audience twice.`
+            : "Overlap check: it ran, and no two contenders stand out as reaching the same audience."}{" "}
           <Steps ns={[twinsStepRec.n]} />
         </p>
       )}

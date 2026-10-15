@@ -7,15 +7,15 @@ import { callCard, cardsStep, decisionEvent, mapStep, stepsFrom, twinsStep, type
 import { DOESNT_ESTABLISH } from "../vs.ts";
 
 const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight"];
-export const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Eight candidates", review: "Score them", twins: "Check for doubles" };
+export const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Eight candidates", review: "Score them", twins: "Overlap check" };
 
 // the doubles result as one line, found or not (the page and the sheet share it)
 export function doublesLine(steps: StepRecord[]): string | null {
   if (!steps.some((s) => s.tool === "twins" && s.output)) return null;
   const t = twinsStep(steps);
   return t
-    ? `Same-audience check: ${displayName(t.a)} and ${displayName(t.b)} sit closest to each other (${t.value.toFixed(2)}; the next pair ${t.next.toFixed(2)}), so calling both may reach one audience twice.`
-    : "Same-audience check: it ran, and no two contenders stand out as reaching the same audience.";
+    ? `Overlap check: ${displayName(t.a)} and ${displayName(t.b)} sit closest to each other (${t.value.toFixed(2)}; the next pair ${t.next.toFixed(2)}), so calling both may reach one audience twice.`
+    : "Overlap check: it ran, and no two contenders stand out as reaching the same audience.";
 }
 
 export type Sheet = {
@@ -51,7 +51,7 @@ export function sheetModel(events: AskEvent[], o: { proof: string; blocked: numb
     card: callCard(steps, d.decision)!,
     tiedNote: tied ? `${review!.summary}. Inside a tie no order is claimed; the agent's ${WORDS[d.decision.calls.length] ?? d.decision.calls.length} from the group of ${WORDS[size] ?? size}.` : null,
     calls: d.decision.calls.map((c) => ({ name: nameForDisplay(c.name), reason: forDisplay(c.reason), steps: c.steps })),
-    doubles: doublesLine(steps) ?? "Same-audience check: not run.",
+    doubles: doublesLine(steps) ?? "Overlap check: not run.",
     doublesStep: twins?.n ?? 0,
     notes: [...d.decision.cautions, ...d.decision.summary].map((c) => ({ text: forDisplay(c.text), steps: c.steps })),
     map: mapStep(steps),

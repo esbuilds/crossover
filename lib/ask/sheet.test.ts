@@ -26,7 +26,7 @@ for (const name of ["allbirds", "mt-joy"]) {
     assert.equal(s.calls.length, 3);
     assert.match(s.heading, /^Call first: /); // the decision leads (Fable tie ruling, Oct 14)
     assert.match(s.card.first, /^First call: /);
-    assert.match(s.doubles, /^Same-audience check: /);
+    assert.match(s.doubles, /^Overlap check: /);
     assert.ok(s.limits.length >= 3);
     assert.equal(s.proof, PROOF);
     assert.equal(s.blocked, "Blocked by the checker under its current rule: 5 answers, each listed on /audit with the rule that blocked it.");

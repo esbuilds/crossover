@@ -119,3 +119,11 @@ test("rule v2: a count of others binds as 'the others' does", () => {
   assert.deepEqual(say("[[A]] sits closest at 0.97, with seven others between 0.94 and 0.95."), { ok: true });
   assert.equal(say("[[A]] sits closest at 0.97, with seven others at 0.97.").ok, false); // A's own number can't stand for the others
 });
+
+// Agency persona (Oct 14): "twins" is an internal name; the reader sees "the overlap check". Brand names stay.
+test("forDisplay: the twins tool reads as the overlap check; a brand named Twins doesn't change", () => {
+  assert.equal(forDisplay("Twins found no pair that reaches the same audience."), "The overlap check found no pair that reaches the same audience.");
+  assert.equal(forDisplay("so twins gives no pair to keep apart."), "so the overlap check gives no pair to keep apart.");
+  assert.equal(forDisplay("[[Minnesota Twins]] scores 0.90."), "Minnesota Twins scores 0.90.");
+  assert.equal(forDisplay("Minnesota Twins fans"), "Minnesota Twins fans");
+});
