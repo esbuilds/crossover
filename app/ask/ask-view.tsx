@@ -148,7 +148,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
             <>
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
               <p className="mt-4 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
-              {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof}</p>}
+              {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof} <Link href="/replay" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Try the 23 yourself</Link></p>}
               {/* the re-judge's memorable moment lived only on /audit (Fable tie ruling, Oct 14) */}
               <p className="mt-2 max-w-[60ch] text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">See it on the audit</Link></p>
               <p className="mt-4 flex flex-wrap gap-x-4">
