@@ -22,6 +22,12 @@ const NOTES: Record<string, string> = {
 const REPLAY_FREEZE = "9b64c6c";
 const REPLAY_V2_FREEZE = "b770bad";
 // From scripts/markets-probe.ts, real Oct 15: metros scoring within one point of each brand's fifth (lib/cities.ts over-index)
+// From scripts/reverse-probe.ts, real Oct 15: the seed's rank among each candidate's fans' top 50 of its type ("out": not in it)
+const REVERSE_RANKS: [string, string, string, boolean][] = [
+  ["Allbirds", "Bombas 1, Warby Parker 11, ClassPass 16", "9, 12, 30, 31, out", true],
+  ["Mt. Joy", "Outdoor Voices 26, Allbirds 4, Alternative Apparel out", "28, out, out, out, out", true],
+  ["Coca-Cola (the Converse replay)", "Converse out, Vans out", "all out", false],
+];
 const MARKET_TIES: [string, number][] = [["Allbirds", 13], ["Bombas", 7], ["Warby Parker", 26], ["ClassPass", 8], ["Parachute", 14], ["Tuft & Needle", 11], ["Felix Gray", 7], ["Quince", 12], ["Summersalt", 8]];
 const SOURCE = "https://www.marketingdive.com/news/best-marketing-campaigns-2024-advertising-tactics-cmo-lessons/734003/";
 
@@ -175,6 +181,15 @@ export default function AuditPage() {
               </tbody>
             </table>
             <span className="mt-2 block">Warby Parker &ldquo;leading in Austin&rdquo; is one of 26 metros at the same score, and Allbirds scores Austin the same as its own top four. The split map&apos;s own diff was tried too, candidate against Allbirds at 0 calls (scripts/lean-probe.ts): 92 to 99 percent of drawn cells read &ldquo;both&rdquo;, and none of the three leans its way in a metro outside Allbirds&apos; top eight except a single Dallas cell. So no market column and no rings for the first call.</span>
+          </li>
+          <li>
+            <span className="font-semibold">The other direction does separate them.</span> Run real Oct 15 (18 calls, scripts/reverse-probe.ts), gate set first: the agent&apos;s three must sit 5 or more places apart on the seed&apos;s rank among each one&apos;s own fans&apos; top 50, and that order must differ from the taste order. Two of three asks pass, and the page now shows the table under &ldquo;Call first&rdquo;; it never reorders the agent&apos;s calls.
+            <table className="mt-2 text-sm">
+              <thead><tr className="text-left text-ink-3"><th className="pr-6 font-normal">Ask</th><th className="pr-6 font-normal">The agent&apos;s three rank the seed</th><th className="pr-6 font-normal">The rest</th><th className="font-normal">Gate</th></tr></thead>
+              <tbody>
+                {REVERSE_RANKS.map(([a, three, rest, ok]) => <tr key={a}><td className="pr-6">{a}</td><td className="pr-6 tabular-nums">{three}</td><td className="pr-6 tabular-nums">{rest}</td><td>{ok ? "passes" : "fails, no table shown"}</td></tr>)}
+              </tbody>
+            </table>
           </li>
           <li>
             <span className="font-semibold">A typed aisle can&apos;t ship honestly.</span> Probe run real Oct 12 (9 calls, scripts/aisle-probe.ts): Qloo&apos;s brand tag that best matches a typed category, then its top twelve brands. Running shoes, hard seltzer and skincare gave lists a partnerships lead would recognise. &ldquo;Streaming services&rdquo; matched &ldquo;Financial Services&rdquo; and returned banks, and &ldquo;fast-casual burgers&rdquo; matched no tag at all: 3 of 5 against a gate of 4. A word match that confidently shows the wrong aisle is the reason the three aisles stay prepared.

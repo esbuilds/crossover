@@ -12,6 +12,8 @@ import { PROOF } from "@/lib/ask/proof.ts";
 import blocked from "@/lib/ask/blocked.json";
 import { sheetModel } from "@/lib/ask/sheet.ts";
 import { whereToStart } from "@/lib/ask/where.ts";
+import { bothWays } from "@/lib/ask/both-ways.ts";
+import { BothTable } from "../../both-table";
 import { mapLine } from "@/lib/vs.ts";
 import { peekVs } from "@/lib/rivals.ts";
 import { TONE } from "@/lib/collide.ts";
@@ -48,6 +50,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
       </p>
     );
   const where = events ? await whereToStart(events, null).catch(() => null) : null; // cache only on the sheet
+  const both = events ? await bothWays(events, null).catch(() => null) : null; // cache only; one page or it comes off
   const vs = s.map ? await peekVs({ id: s.map.seed.id!, type: s.map.seed.type! }, { id: s.map.rival.id!, type: s.map.rival.type! }).catch(() => null) : null;
   const cells = vs && vs !== "cold" ? vs.map : null;
   const cities = s.map ? mapLine(s.map.seed.name, s.map.rival.name, { metrosA: s.map.seedMarkets.map((name) => ({ name })), metrosB: s.map.rivalMarkets.map((name) => ({ name })) } as unknown as Parameters<typeof mapLine>[2]) : null;
@@ -71,6 +74,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
         <div>
           <h2 className="font-display text-base">{s.heading}</h2>
           <p className="text-ink-2">{s.calls[0].reason}{fn(s.calls[0].steps)}</p>
+          {both && <BothTable b={both} compact />}
           {s.tiedNote && <p className="mt-1.5 text-[0.9em] text-ink-3">{s.tiedNote}</p>}
           <ul className="mt-1.5 space-y-1.5">
             {s.calls.slice(1).map((c, i) => (

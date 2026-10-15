@@ -2,15 +2,22 @@
 // the same rankIn as lib/review-run.ts (take 50), fetched into the same cache so the ask's block can read it later.
 // Gate written before the run: A) the agent's three differ by 5+ positions (or one is outside the top 50);
 // B) the reverse order isn't the forward order for the three.
-//   QLOO_DAILY_CAP=<n> node --env-file=.env.local scripts/reverse-probe.ts [fixture]
+//   QLOO_DAILY_CAP=<n> node --env-file=.env.local scripts/reverse-probe.ts [allbirds|mt-joy|converse]
+// Reads the frozen answers from the cache (peekAsk, as scripts/ask-hashes.ts), never re-runs them.
 import { insights } from "../lib/qloo.ts";
+import { peekAsk } from "../lib/ask/agent.ts";
 
-const fixture = process.argv[2] ?? "allbirds";
-const steps = (await import(`../lib/ask/fixtures/${fixture}.json`, { with: { type: "json" } })).default as any[];
+const ASKS = {
+  allbirds: { id: "78A44C09-E691-42DA-A553-5CDE6EE9B18A", type: "urn:entity:brand" },
+  "mt-joy": { id: "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A", type: "urn:entity:artist" },
+  converse: { id: "A539C8C9-4733-41A9-911A-11AC2B6D475A", type: "urn:entity:brand", caseKey: "coca-cola-x-converse" },
+} as const;
+const steps = (await peekAsk(ASKS[(process.argv[2] ?? "allbirds") as keyof typeof ASKS])) as any[];
+if (!steps) throw new Error("frozen ask not cached");
 const seed = steps.find((e) => e.output?.state && e.output?.id).output;
 const ranks = steps.find((e) => e.output?.ranks).output.ranks as { name: string; amongSeedFans: number | null }[];
 const cands = steps.find((e) => e.output?.candidates).output.candidates as { name: string; id: string }[];
-const three = steps.find((e) => e.type === "decision").decision.calls.map((c: { name: string }) => c.name) as string[];
+const three = steps.findLast((e) => e.type === "decision").decision.calls.map((c: { name: string }) => c.name.replace(/\[\[|\]\]/g, "")) as string[];
 
 const rows = [];
 for (const c of cands) {

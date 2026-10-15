@@ -15,14 +15,17 @@ import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
 import { tourHref } from "@/lib/tour.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
+import type { BothWays } from "@/lib/ask/both-ways.ts";
+import { BothTable } from "./both-table";
 
 type Body = { query: string } | { id: string; type: string } | { case: string };
 const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Eight candidates", review: "Score them", twins: "Check for doubles" };
 type Verdict = { decision: Decision | null; ok: boolean; problems: string[] };
 const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight"];
 // Measured on cold asks real Oct 13 to 14 (Allbirds, Yeti, Dove, Cedric the Entertainer, Dr. Squatch): 5 to 6 steps,
-// 9 to 22 Qloo calls, 25 to 47 seconds. Rounded; update if the tools change.
-const COST = "About 6 steps, about 20 Qloo calls and 40 seconds on a name nobody has asked about yet; a name already asked replays at once.";
+// 9 to 22 Qloo calls, 25 to 47 seconds, plus up to 8 for the both-ways table (one per candidate, reverse-probe Oct 15).
+// Rounded; update if the tools change.
+const COST = "About 6 steps, about 28 Qloo calls and 40 seconds on a name nobody has asked about yet; a name already asked replays at once.";
 // the same limits line Pick three's evidence shows (lib/vs.ts DOESNT_ESTABLISH, condensed)
 const LIMITS = "What this doesn't establish: purchases, visits, commercial eligibility, or whether the deal makes money.";
 
@@ -92,7 +95,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
         <p className="mt-1 text-sm"><Link href={tourHref(1)} className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Take the 60-second tour</Link></p>
         <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
         <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
-        <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 20 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
+        <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
         <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-row gap-3">
           <input value={q} onChange={(ev) => setQ(ev.target.value)} aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
           <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
@@ -128,7 +131,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
         )}
 
         <section className="order-3 lg:col-start-2 lg:row-span-2 lg:row-start-2">
-          {verdict?.ok && verdict.decision && <Call decision={verdict.decision} steps={steps} />}
+          {verdict?.ok && verdict.decision && <Call decision={verdict.decision} steps={steps} under={resolved?.id && resolved.type ? <BothBlock id={resolved.id} type={resolved.type} asked={asked} /> : null} />}
           {verdict?.ok && verdict.decision && (
             <>
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
@@ -179,7 +182,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
 // The decision (Fable tie ruling, Oct 14): it leads. "Call first: X" and the agent's checked reason for X; then, when the
 // review tied, its own label, smaller, with "inside a tie no order is claimed"; then the other calls; then the
 // same-audience line, found or not, and the agent's notes.
-function Call({ decision, steps }: { decision: Decision; steps: StepRecord[] }) {
+function Call({ decision, steps, under }: { decision: Decision; steps: StepRecord[]; under?: React.ReactNode }) {
   const review = steps.find((s) => s.tool === "review");
   const tied = !!(review?.output as { noClearThree?: boolean } | undefined)?.noClearThree;
   const size = cardsStep(steps)?.cards.filter((c) => c.affinity !== null).length ?? 0;
@@ -192,6 +195,7 @@ function Call({ decision, steps }: { decision: Decision; steps: StepRecord[] }) 
         <>
           <h2 className="font-display text-2xl">Call first: {nameForDisplay(first.name)}</h2>
           <p className="mt-1 text-base text-ink-2">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
+          {under}
           {tied && (
             <p className="mt-3 text-sm text-ink-3">
               {review!.summary}. Inside a tie no order is claimed; the agent&apos;s {WORDS[decision.calls.length] ?? decision.calls.length} from the group of {WORDS[size] ?? size}:
@@ -238,6 +242,22 @@ function WhereLine({ id, type, asked }: { id: string; type: string; asked: Body 
     return () => { live = false; };
   }, [key]);
   return line ? <p className="mt-1 text-base text-ink-2">{line}</p> : null;
+}
+
+// Both ways (Fable's columns ruling, Oct 15): the eight ranked in each direction, from /api/ask/both (cache first; code
+// beside the frozen answer). Nothing renders until it arrives, and nothing when the ask's three don't separate.
+function BothBlock({ id, type, asked }: { id: string; type: string; asked: Body | null }) {
+  const [b, setB] = useState<BothWays | null>(null);
+  const q = new URLSearchParams({ id, t: type });
+  if (asked && "query" in asked) q.set("q", asked.query);
+  if (asked && "case" in asked) q.set("case", asked.case);
+  const key = q.toString();
+  useEffect(() => {
+    let live = true;
+    fetch(`/api/ask/both?${key}`).then((r) => (r.ok ? r.json() : null)).then((d: { both?: BothWays | null } | null) => live && setB(d?.both ?? null), () => {});
+    return () => { live = false; };
+  }, [key]);
+  return b ? <BothTable b={b} /> : null;
 }
 
 function Steps({ ns }: { ns: number[] }) {
