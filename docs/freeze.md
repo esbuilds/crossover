@@ -64,3 +64,5 @@ Any fix that would touch a tool or the prompt reopens the freeze and needs a rul
 ## First change after judging ends (Nov 16)
 
 The checker's score-binding rule reads the clause after the first brand named as that brand's own numbers, so three true sentences were blocked ("with seven others between 0.94 and 0.95", "within 0.05", a group range). Refine it to end the clause at a boundary ("with", "while", a comma). Not before submit: a strict rule that blocks true sentences is the safe failure on camera; a looser one could pass a wrong binding.
+
+- tools.ts:154 collapses "never fetched" (undefined) and "not in top 50" (null) ranks into null; fix after Nov 16 (Fable columns ruling, Oct 15). The both-ways block reads ranks itself.
