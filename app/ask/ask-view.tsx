@@ -8,7 +8,7 @@ import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
 import CollisionMap from "../vs/collision-map";
 import { displayName, forDisplay, nameForDisplay, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { askLinks } from "@/lib/ask/links.ts";
-import { callCard, cardsStep, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
+import { callCard, cardsStep, forkLine, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
@@ -169,6 +169,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
                 <p className="font-mono text-sm text-ink-3">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</p>
                 <p className="mt-1 text-base text-ink-2">{s.why}</p>
                 <p className="mt-1 text-base text-ink">{s.summary || <span className="font-mono text-sm motion-safe:animate-pulse">Reading Qloo...</span>}</p>
+                {forkLine(s) && <p className="mt-1 text-sm text-ink-3">{forkLine(s)}</p>}
                 <Picture step={s} steps={steps} hero={hero} />
               </li>
             ))}

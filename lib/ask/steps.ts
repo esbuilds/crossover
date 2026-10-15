@@ -92,3 +92,19 @@ export function callCard(steps: StepRecord[], decision: Decision): { first: stri
   const whose = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
   return { first: `First call: ${nameForDisplay(first.name)}.`, where: m && list ? `Where ${whose(m.seed.name)} audience leads: ${list}.` : null };
 }
+
+// The fork under a step (Fable's destroy brief 2d, real Oct 15): only where the path branches. The order of tools is
+// set in the agent's instructions and the branches follow what Qloo returned (scripts/routes.ts: 29 cached asks, 5
+// routes). The candidates step already names its source in its own summary, so it gets no line.
+export function forkLine(step: StepRecord): string | null {
+  const o = step.output as { state?: string; found?: boolean; by?: string } | undefined;
+  if (!o) return null;
+  if (step.tool === "resolve") return o.state === "confirmed" ? "Fork: Qloo knew the name, so the agent went on. An ambiguous or unknown name stops here." : null;
+  if (step.tool === "findRival") {
+    if (o.found === false) return "Fork: no rival, so the eight come from the fans' top 50. With a rival, the split comes next.";
+    if (!o.found) return null;
+    const category = o.by?.startsWith("Qloo category ") ? ` Found by Qloo's product category (${o.by.slice(14)}), not a shared genre tag, which is the finder's weaker rule.` : "";
+    return `Fork: a rival came back, so the split comes next. Without one, the agent goes to the fans' top 50.${category}`;
+  }
+  return null;
+}
