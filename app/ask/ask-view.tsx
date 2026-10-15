@@ -305,7 +305,7 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
       <p className="mt-1 text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
       {cities && <p className="mt-1 text-base text-ink max-sm:hidden">{cities}</p>}
       <div className="mt-2 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
-      <p className="mt-1"><Link href={m.href} className={btnQuiet}>Open the full split</Link></p>
+      <p className="mt-1"><Link href={m.href} prefetch={false} className={btnQuiet}>Open the full split</Link></p>
     </div>
   );
 }
