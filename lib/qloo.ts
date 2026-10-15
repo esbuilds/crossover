@@ -62,6 +62,9 @@ async function request(path: string, init: { query?: Record<string, string | num
     await slot();
     calls++;
     console.log(`[qloo] call #${calls} ${opts.method} ${path}`);
+    // outage drill (Fable's v7 review, Oct 15), dev only: the Nth call of the process fails as a 5xx after its retry, or stalls 12 s
+    if (forced("qloo5xx") && calls === Number(process.env.CROSSOVER_FORCE_AT ?? 3)) throw new Error(`Qloo 503 ${path}: forced`);
+    if (forced("qloostall") && calls === Number(process.env.CROSSOVER_FORCE_AT ?? 3)) await sleep(12000);
     const res = await fetch(BASE + path + qs, opts);
     const left = res.headers.get("X-Month-RateLimit-Remaining");
     if (left !== null) {

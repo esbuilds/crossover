@@ -177,7 +177,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
               <li key={s.n} id={`step-${s.n}`} className="scroll-mt-4 border-t border-rule pt-3">
                 <p className="font-mono text-sm text-ink-3">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</p>
                 <p className="mt-1 text-base text-ink-2">{s.why}</p>
-                <p className="mt-1 text-base text-ink">{s.summary || <span className="font-mono text-sm motion-safe:animate-pulse">Reading Qloo...</span>}</p>
+                <p className="mt-1 text-base text-ink">{s.summary || (status === "running" ? <span className="font-mono text-sm motion-safe:animate-pulse">Reading Qloo...</span> : <span className="text-ink-2">Qloo didn&apos;t answer this step; the steps above are what was measured.</span>)}</p>
                 {forkLine(s) && <p className="mt-1 text-sm text-ink-3">{forkLine(s)}</p>}
                 {s.tool === "candidates" && notes?.cut && <p className="mt-1 text-sm text-ink-3">{notes.cut}</p>}
                 <Picture step={s} steps={steps} hero={hero} />
