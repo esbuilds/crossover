@@ -1,0 +1,36 @@
+{
+ "searchedOn": "2026-10-16",
+ "sources": [
+  "Marketing Dive",
+  "Food Dive"
+ ],
+ "window": [
+  "2026-08-17",
+  "2026-10-16"
+ ],
+ "found": 13,
+ "excluded": [
+  {
+   "seed": "Papa Johns",
+   "partner": "Disney/Pixar",
+   "rule": "b",
+   "reason": "the tie-in is to a film (Toy Story 5); a film is not a brand under rule 3"
+  },
+  {
+   "seed": "Wonka",
+   "partner": "Netflix",
+   "rule": "a",
+   "reason": "Netflix is a partner in a scored case (Doritos x Netflix, Nike x Netflix); the tie is also to a show"
+  },
+  {
+   "seed": "Wendy's",
+   "partner": "Bravo",
+   "rule": "a",
+   "reason": "Wendy's is a seed in a scored case (Wendy's x Pringles); a network sponsorship"
+  }
+ ],
+ "kept": 10,
+ "cap": 10,
+ "coverage": "Both sites' listing pagination returned page 1 only, so coverage rests on 26 domain-restricted web searches, page 1 of each listing and article fetches (research/v3-search-found.md in the planning folder).",
+ "seedReadings": "Toblerone is the seed (Mondelez's Toblerone truffles made with Biscoff); BuzzBallz (its canned cocktails); Pilgrim's (its tenders)."
+}
