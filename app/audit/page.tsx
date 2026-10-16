@@ -73,7 +73,7 @@ export default function AuditPage() {
 
       {/* persona round 2 (both readers): the page is long; a contents list up top */}
       <nav aria-label="On this page" className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        {[["#replays", "Real partners, replayed"], ["#counterexample", "The counterexample"], ["#checker", "What the agent may say, and what was blocked"], ["#probes", "Probes, the judge names and the limits"], ["#held-out", "Held-out briefs"]].map(([href, label]) => (
+        {[["#replays", "Real partners, replayed"], ["#counterexample", "The counterexample"], ["#checker", "What the agent may say, and what was blocked"], ["#probes", "Probes, the judge names and the limits"], ["#held-out", "Held-out briefs"], ["#api-notes", "Notes on the API"]].map(([href, label]) => (
           <a key={href} href={href} className="text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-ink">{label}</a>
         ))}
       </nav>
@@ -263,6 +263,16 @@ export default function AuditPage() {
         </details>
       </section>
 
+      {/* Fable's Oct 16 ruling, pick 3: what we asked, what came back, what we shipped, the probe file. No adjectives, no asks. */}
+      <section id="api-notes" className="mt-12 max-w-[68ch] scroll-mt-4">
+        <h2 className="font-display text-xl">Notes on the API</h2>
+        <ul className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-3 text-base text-ink">
+          {API_NOTES.map(([asked, came, shipped, file]) => (
+            <li key={file}>{asked} {came} Shipped: {shipped} <span className="text-ink-3">({file})</span></li>
+          ))}
+        </ul>
+      </section>
+
       <section className="mt-12 max-w-[68ch] border-t border-rule pt-4 text-sm text-ink-3">
         <p>What this doesn&apos;t establish: purchases, visits, commercial eligibility, or whether a deal makes money.</p>
         <p className="mt-2">
@@ -272,6 +282,15 @@ export default function AuditPage() {
     </main>
   );
 }
+
+const API_NOTES: [string, string, string, string][] = [
+  ["Ten small food, drink and beauty brands searched by name, Oct 8.", "None came back as itself; search returned another brand (Fruition Chocolate Works as Bath & Body Works).", "every name is confirmed before a call, and an unknown name stops the ask.", "probe run Oct 8, probe/out"],
+  ["Twenty-four typed names resolved, Oct 10.", "Corona, Mars, Ghost and Prime confirmed to an entity of another type that Qloo listed first.", "an exact name that another type also carries asks which one.", "audit/results.json"],
+  ["Five category words matched to brand tags, Oct 12.", "“Streaming services” matched Financial Services and returned banks; “fast-casual burgers” matched no tag.", "the three aisles stay prepared; no typed aisle.", "scripts/aisle-probe.ts"],
+  ["Olipop scored against six brands in both directions.", "The reverse values were identical to the forward ones.", "the other direction is read as a rank among each brand’s own fans’ top 50, never as a second score.", "probe/VERIFY-3.md, scripts/reverse-probe.ts"],
+  ["Top five metros for each of Allbirds’ eight, Oct 15.", "Each top five sits inside a tie within a point of its fifth.", "no card names a call and a place together.", "scripts/markets-probe.ts"],
+  ["Genre tags for nine test brands, Oct 11.", "Olipop, Erewhon and A24 carry no brand genre tag among 98 to 114 tags each.", "the rival finder falls back to Qloo’s product category.", "lib/rival.ts, probe/VERIFY-4.md"],
+];
 
 function Stat({ figure, label }: { figure: string; label: string }) {
   return (
