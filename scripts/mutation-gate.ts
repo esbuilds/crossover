@@ -35,7 +35,10 @@ const namesIn = (steps: StepRecord[]) => {
   const out = new Set<string>();
   const walk = (v: unknown): void => {
     if (Array.isArray(v)) return v.forEach(walk);
-    if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) k === "name" && typeof x === "string" ? out.add(x) : walk(x);
+    if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) {
+      if (k === "name" && typeof x === "string") out.add(x);
+      else walk(x);
+    }
   };
   steps.forEach((s) => walk(s.output));
   return out;

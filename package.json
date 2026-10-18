@@ -11,16 +11,20 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.78",
+    "@modelcontextprotocol/server": "^2.3.1",
     "ai": "^7.0.135",
     "d3-geo": "^3.1.1",
+    "mcp-handler": "^2.3.0",
     "next": "16.4.0",
     "p-limit": "^7.3.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-simple-maps": "^5.0.5",
-    "topojson-client": "^3.1.0"
+    "topojson-client": "^3.1.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "^2.3.1",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
