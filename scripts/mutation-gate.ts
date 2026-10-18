@@ -1,7 +1,9 @@
 // Break-the-checker gate (moonshots round 4, real Oct 18), over the cache only: 0 Qloo, 0 Anthropic calls.
 // Every passing cached ask is copied, one fact is tampered with per copy, and rule v2 re-checks the copy. Nothing is
 // written back. Reports the catch rate per tamper kind and lists every miss.
-//   node --env-file=.env.local scripts/mutation-gate.ts
+//   node --env-file=.env.local scripts/mutation-gate.ts [--write]   (--write saves audit/mutation.json for /audit)
+import { writeFileSync } from "node:fs";
+import { CHECK_RULE } from "../lib/ask/check.ts";
 import { checkDecision, type Check, type Decision, type StepRecord } from "../lib/ask/check.ts";
 import { stepsFrom } from "../lib/ask/steps.ts";
 import type { AskEvent } from "../lib/ask/agent.ts";
@@ -105,9 +107,11 @@ const KINDS: Kind[] = [
 if (runs.some((r) => namesIn(r.steps).has(INVENTED))) throw new Error(`${INVENTED} appears in a cached step; pick another invented name`);
 console.log(`${keys.length} cached asks scanned, ${runs.length} passing answers tampered with\n`);
 let total = 0, caught = 0, expectedTotal = 0, expectedCaught = 0;
+const report: { kind: string; gated: boolean; applied: number; rejected: number; misses: { seed: string; text: string }[] }[] = [];
 for (const k of KINDS) {
   let applied = 0, rejected = 0;
   const misses: string[] = [];
+  const missed: { seed: string; text: string }[] = [];
   for (const r of runs) {
     const m = k.make(r);
     if (!m) continue;
@@ -116,13 +120,14 @@ for (const k of KINDS) {
     if (!res.ok) rejected++;
     else {
       misses.push(r.seed);
-      if (process.env.VERBOSE) { // the tampered sentence, for reading why it passed
-        const before = items(r.d).map((i) => i.text), after = items(m).map((i) => i.text);
-        const at = after.findIndex((t, i) => t !== before[i]);
-        if (at >= 0) console.log(`      ${r.seed}: ${after[at].slice(0, 220)}`);
-      }
+      // the tampered sentence (a citation-only tamper changes no text), published on /audit
+      const before = items(r.d).map((i) => i.text), after = items(m).map((i) => i.text);
+      const at = after.findIndex((t, i) => t !== before[i]);
+      missed.push({ seed: r.seed, text: at >= 0 ? after[at] : "" });
+      if (process.env.VERBOSE && at >= 0) console.log(`      ${r.seed}: ${after[at].slice(0, 220)}`);
     }
   }
+  report.push({ kind: k.kind, gated: k.expectCatch, applied, rejected, misses: missed });
   total += applied; caught += rejected;
   if (k.expectCatch) { expectedTotal += applied; expectedCaught += rejected; }
   console.log(`${k.expectCatch ? "  " : "* "}${k.kind}: ${rejected} of ${applied} rejected${misses.length ? ` | passed: ${misses.join(", ")}` : ""}`);
@@ -131,3 +136,7 @@ console.log(`\nAll tampers: ${caught} of ${total} rejected`);
 console.log(`Tampers the rule claims to catch: ${expectedCaught} of ${expectedTotal} rejected (${expectedTotal ? ((expectedCaught / expectedTotal) * 100).toFixed(1) : "-"} percent; gate is 95)`);
 console.log(`GATE ${expectedTotal && expectedCaught / expectedTotal >= 0.95 ? "PASS" : "FAIL"}`);
 console.log("* the documented ceiling in check.ts: published as a known miss, not counted in the gate");
+if (process.argv.includes("--write")) {
+  writeFileSync("audit/mutation.json", JSON.stringify({ date: new Date().toISOString().slice(0, 10), rule: CHECK_RULE, answers: runs.length, gated: { rejected: expectedCaught, of: expectedTotal }, before: { rule: "v2", rejected: 207, of: 228 }, kinds: report }, null, 2) + "\n");
+  console.log("wrote audit/mutation.json");
+}

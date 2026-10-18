@@ -1,0 +1,270 @@
+{
+  "date": "2026-10-18",
+  "rule": "v3",
+  "answers": 36,
+  "gated": {
+    "rejected": 217,
+    "of": 228
+  },
+  "before": {
+    "rule": "v2",
+    "rejected": 207,
+    "of": 228
+  },
+  "kinds": [
+    {
+      "kind": "score nudged by 0.03",
+      "gated": true,
+      "applied": 33,
+      "rejected": 25,
+      "misses": [
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] has the top score under [[Mt. Joy]] fans at 1.00, and [[Mt. Joy]] ranks 26 among its fans."
+        },
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] ranks 1 among [[Mt. Joy]] fans with the top score of 1.00."
+        },
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] ranks 1 among [[Mt. Joy]] fans with the top score of 1.00."
+        },
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] scores highest under [[Mt. Joy]] fans at 1.00, and [[Mt. Joy]] ranks 26 among its fans."
+        },
+        {
+          "seed": "Playstation",
+          "text": "[[Twitch]] has the highest score in the top group at 1.00 among [[Playstation]] fans."
+        },
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] has the highest score under [[Mt. Joy]] fans at 1.00 and ranks 1 among them."
+        },
+        {
+          "seed": "Patagonia",
+          "text": "[[Backcountry]] scores 0.98 under [[Patagonia]] fans and ranks 3 among them."
+        },
+        {
+          "seed": "Taylor Swift",
+          "text": "[[Forever 21]] has the top score under [[Taylor Swift]] fans at 1.00 and ranks 1st among them."
+        }
+      ]
+    },
+    {
+      "kind": "count or rank changed by 1",
+      "gated": true,
+      "applied": 30,
+      "rejected": 27,
+      "misses": [
+        {
+          "seed": "Playstation",
+          "text": "The split left only 4 names, so the candidates came from the whole top 50 instead of the [[Playstation]] side of the split."
+        },
+        {
+          "seed": "Noah Kahan",
+          "text": "It ranks 2 among [[Noah Kahan]] fans with affinity 0.98, inside a single top group."
+        },
+        {
+          "seed": "Chipotle",
+          "text": "It scores highest under [[Chipotle]] fans at 0.95 and ranks 2 among them."
+        }
+      ]
+    },
+    {
+      "kind": "bracketed brand swapped for an invented one",
+      "gated": true,
+      "applied": 35,
+      "rejected": 35,
+      "misses": []
+    },
+    {
+      "kind": "bracketed brand swapped for a real one the cited steps don't hold",
+      "gated": true,
+      "applied": 18,
+      "rejected": 18,
+      "misses": []
+    },
+    {
+      "kind": "unbracketed real brand the cited steps don't hold, added",
+      "gated": true,
+      "applied": 33,
+      "rejected": 33,
+      "misses": []
+    },
+    {
+      "kind": "unbracketed invented brand, added",
+      "gated": false,
+      "applied": 36,
+      "rejected": 0,
+      "misses": [
+        {
+          "seed": "Allbirds",
+          "text": "[[Bombas]] has the highest score among [[Allbirds]] fans at 0.94 and ranks 2 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Olipop",
+          "text": "[[Myro]] scores 0.94 under [[Olipop]] fans and ranks 4 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] has the top score under [[Mt. Joy]] fans at 0.97, and [[Mt. Joy]] ranks 26 among its fans. Vantorra fits too."
+        },
+        {
+          "seed": "Olipop",
+          "text": "[[Myro]] scores highest under [[Olipop]] fans at 0.94 and ranks 4 among them. Vantorra fits too."
+        },
+        {
+          "seed": "?",
+          "text": "Qloo has two matches for [[Patagonia]], one brand and one movie, so tell me which one you mean before any calls can be made. Vantorra fits too."
+        },
+        {
+          "seed": "Liquid Death",
+          "text": "[[Whatnot]] scores 0.86 under [[Liquid Death]] fans, the top of the group, and sits closer to [[Liquid Death]] than to [[Death Wish Coffee Co.]] at 0.75. Vantorra fits too."
+        },
+        {
+          "seed": "Liquid Death",
+          "text": "[[Whatnot]] scores highest under [[Liquid Death]] fans at 0.86 and sits closer to [[Liquid Death]] (0.86) than to [[Death Wish Coffee Co.]] (0.75). Vantorra fits too."
+        },
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] ranks 1 among [[Mt. Joy]] fans with the top score of 0.97. Vantorra fits too."
+        },
+        {
+          "seed": "?",
+          "text": "Qloo has two matches for [[Calm]], one brand and one artist, so tell me which one you mean before I measure anything. Vantorra fits too."
+        },
+        {
+          "seed": "Oatly",
+          "text": "[[Apple Fitness+]] has the highest score under [[Oatly]] fans at 0.88 and ranks 8 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Liquid Death",
+          "text": "[[Whatnot]] scores highest in the top group at 0.86 and sits closer to [[Liquid Death]] (0.86) than to [[Death Wish Coffee Co.]] (0.75). Vantorra fits too."
+        },
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] ranks 1 among [[Mt. Joy]] fans with the top score of 0.97. Vantorra fits too."
+        },
+        {
+          "seed": "HOKA",
+          "text": "[[Tracksmith]] scores 0.95 under [[HOKA]] fans, the highest of the eight, and ranks 2 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] scores highest under [[Mt. Joy]] fans at 0.97, and [[Mt. Joy]] ranks 26 among its fans. Vantorra fits too."
+        },
+        {
+          "seed": "Olipop",
+          "text": "[[Myro]] scores highest under [[Olipop]] fans at 0.94 and ranks 4 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Liquid Death",
+          "text": "[[Whatnot]] scores highest under [[Liquid Death]] fans at 0.86 and sits closer to [[Liquid Death]] than to [[Death Wish Coffee Co.]] (0.86 vs 0.75). Vantorra fits too."
+        },
+        {
+          "seed": "Sweetgreen",
+          "text": "[[Dig Inn]] ranks first among [[Sweetgreen]] fans with an affinity of 0.95. Vantorra fits too."
+        },
+        {
+          "seed": "Calm",
+          "text": "[[Peak]] scores 0.90 with [[Calm]] fans and sits closer to [[Calm]] (0.90) than to [[Headspace]] (0.85). Vantorra fits too."
+        },
+        {
+          "seed": "Liquid Death",
+          "text": "[[Whatnot]] scores highest in the top group at 0.86 and sits closer to [[Liquid Death]] (0.86) than to [[Death Wish Coffee Co.]] (0.75). Vantorra fits too."
+        },
+        {
+          "seed": "Olipop",
+          "text": "[[Myro]] has the highest score under [[Olipop]] fans at 0.94 and ranks 4 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Cedric the Entertainer",
+          "text": "[[Cadillac]] scores 0.95 and ranks 1 among [[Cedric the Entertainer]]'s fans, in the top group. Vantorra fits too."
+        },
+        {
+          "seed": "Dove",
+          "text": "[[Tampax Tampons]] scores highest under [[Dove]] fans at 0.91 and ranks 11 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Los Angeles Dodgers",
+          "text": "[[Las Vegas Raiders]] scores highest under [[Los Angeles Dodgers]] fans at 0.95, and ranks 4 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Playstation",
+          "text": "[[Twitch]] has the highest score in the top group at 0.97 among [[Playstation]] fans. Vantorra fits too."
+        },
+        {
+          "seed": "Dr. Squatch Soap Co.",
+          "text": "[[Thread Beast]] scores 0.94 with [[Dr. Squatch Soap Co.]] fans and ranks 1 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Mt. Joy",
+          "text": "[[Outdoor Voices]] has the highest score under [[Mt. Joy]] fans at 0.97 and ranks 1 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Liquid Death",
+          "text": "[[Whatnot]] scores highest under [[Liquid Death]] fans at 0.86, and it sits closer to [[Liquid Death]] (0.86) than to [[Death Wish Coffee Co.]] (0.75). Vantorra fits too."
+        },
+        {
+          "seed": "Noah Kahan",
+          "text": "It ranks 1 among [[Noah Kahan]] fans with affinity 0.98, inside a single top group. Vantorra fits too."
+        },
+        {
+          "seed": "Olipop",
+          "text": "[[Myro]] scores 0.94 with [[Olipop]] fans and 0.88 with [[Casamara Club]] fans, so it sits closer to [[Olipop]]. Vantorra fits too."
+        },
+        {
+          "seed": "Chipotle",
+          "text": "It scores highest under [[Chipotle]] fans at 0.95 and ranks 1 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Fruition Chocolate Works",
+          "text": "Qloo doesn't know [[Fruition Chocolate Works]], so there is nothing to measure or call. Vantorra fits too."
+        },
+        {
+          "seed": "YETI",
+          "text": "[[Cabela's]] ranks first among [[YETI]] fans at 0.96, inside the one top group. Vantorra fits too."
+        },
+        {
+          "seed": "Tyler Childers",
+          "text": "[[Shinesty]] sits closest to [[Tyler Childers]] fans, with a score of 0.99 and rank 1. Vantorra fits too."
+        },
+        {
+          "seed": "Patagonia",
+          "text": "[[Backcountry]] scores 0.95 under [[Patagonia]] fans and ranks 3 among them. Vantorra fits too."
+        },
+        {
+          "seed": "Taylor Swift",
+          "text": "[[Forever 21]] has the top score under [[Taylor Swift]] fans at 0.97 and ranks 1st among them. Vantorra fits too."
+        },
+        {
+          "seed": "Coca-Cola",
+          "text": "[[Converse]] sits closer to [[Coca-Cola]] fans than any other candidate at 0.85. Vantorra fits too."
+        }
+      ]
+    },
+    {
+      "kind": "citation pointed at a step that doesn't exist",
+      "gated": true,
+      "applied": 36,
+      "rejected": 36,
+      "misses": []
+    },
+    {
+      "kind": "citation pointed at the resolve step only",
+      "gated": true,
+      "applied": 33,
+      "rejected": 33,
+      "misses": []
+    },
+    {
+      "kind": "first call renamed to an uncited brand",
+      "gated": true,
+      "applied": 10,
+      "rejected": 10,
+      "misses": []
+    }
+  ]
+}

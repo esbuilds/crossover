@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
 import CollisionMap from "../vs/collision-map";
-import { displayName, forDisplay, nameForDisplay, type Decision, type StepRecord } from "@/lib/ask/check.ts";
+import { displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
+import { checkEdit, nudge } from "@/lib/ask/fool.ts";
 import { askLinks } from "@/lib/ask/links.ts";
 import { callCard, cardsStep, categoryRival, decisionEvent, forkLine, tieLine, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine } from "@/lib/vs.ts";
@@ -210,6 +211,7 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
         <>
           <h2 className="font-display text-2xl">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
           <p className="mt-1 text-base text-ink-2">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
+          <FoolIt decision={decision} steps={steps} />
           {both && <BothTable b={both} />}
           {tied && (
             <p className="mt-3 text-sm text-ink-3">
@@ -279,6 +281,32 @@ function useAskGet<T>(path: "both" | "field", field: "both" | "notes", seed: { i
     return () => { live = false; };
   }, [key, path, field]);
   return v;
+}
+
+// Break the checker (moonshots round 4, real Oct 18): edit the reason above and the same checker that gates every answer
+// re-checks it here in the browser. Pure code, 0 calls; the answer itself never changes.
+function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }) {
+  const shown = forDisplay(decision.calls[0].reason);
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState(shown);
+  const [result, setResult] = useState<Check | null>(null);
+  const check = (t: string) => setResult(checkEdit(decision, steps, shown, t));
+  if (!open) return <p className="mt-2"><button type="button" onClick={() => setOpen(true)} className={btnQuiet}>Try to fool the checker</button></p>;
+  return (
+    <div className="mt-3 rounded-sm border border-rule px-3 py-3">
+      <p className="text-sm text-ink-2">Change a number or swap in another brand, then check it. The same code that gates every answer runs here, in your browser.</p>
+      <textarea value={text} onChange={(ev) => (setText(ev.target.value), setResult(null))} aria-label="The first call's reason, editable" rows={3} className={`${field} mt-2 w-full`} />
+      <p className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+        <button type="button" onClick={() => check(text)} className={btnPrimary}>Check it</button>
+        <button type="button" onClick={() => { const t = nudge(text); setText(t); check(t); }} className={btnQuiet}>Nudge a score</button>
+        <button type="button" onClick={() => (setText(shown), setResult(null))} className={btnQuiet}>Reset</button>
+      </p>
+      {result && (result.ok
+        ? <p className="mt-2 text-base text-ink">Passes: every name and number traces to {decision.calls[0].steps.length === 1 ? "the step" : "the steps"} it cites.</p>
+        : <div className="mt-2" role="status"><p className="text-base text-ink">Rejected. This answer wouldn&apos;t be shown:</p><ul className="mt-1 list-disc pl-5 font-mono text-sm text-ink-2">{result.problems.map((p) => <li key={p}>{forDisplay(p.replace(/^call 1: /, ""))}</li>)}</ul></div>)}
+      <p className="mt-2 text-sm text-ink-3">We attacked it ourselves first: <Link href="/audit#fool-it" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">what it catches, and what got through</Link>.</p>
+    </div>
+  );
 }
 
 function Steps({ ns }: { ns: number[] }) {

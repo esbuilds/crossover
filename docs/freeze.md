@@ -68,6 +68,7 @@ The checker's score-binding rule reads the clause after the first brand named as
 - tools.ts:154 collapses "never fetched" (undefined) and "not in top 50" (null) ranks into null; fix after Nov 16 (Fable columns ruling, Oct 15). The both-ways block reads ranks itself.
 
 - check.ts rule v2, real Oct 15 (Fable judge-probe ruling, Eric approved): a contrast marker ends the first brand's number segment. Gates: frozen three identical, 29 passing cached asks still pass, real failures still block, leak test. Re-checked on render (lib/ask/steps.ts decisionEvent); stored events and hashes unchanged.
+- check.ts rule v3, real Oct 18 (moonshots round 4, Eric's go): scripts/mutation-gate.ts showed v2 rejected 207 of 228 tampered copies; v3 binds a score after the seed's bracket and ranks to the named brand (217 of 228). Gates: frozen three identical, 33 passing cached asks still pass, blocked list unchanged, 216 tests. Re-checked on render; stored events and hashes unchanged.
 - First tool change after Nov 16: the candidates filter should also cut by Qloo category and by a seed's top-level genre when it has no specific one (Chipotle/MOD Pizza, Dodgers/NFL; /audit#judge-names).
 
 - First prompt change after Nov 16 (Fable persona round 2 ruling): the agent reads the both-ways reverse rank before it chooses (Tyler Childers: Shinesty fans don't have him in their top 50).

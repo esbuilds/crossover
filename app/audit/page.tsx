@@ -6,6 +6,7 @@ import replayV2 from "@/audit/replay-v2.json";
 import blocked from "@/lib/ask/blocked.json";
 import replayAsk from "@/lib/ask/replay-ask.json";
 import judgeNames from "@/audit/judge-names.json";
+import mutation from "@/audit/mutation.json";
 import { forDisplay } from "@/lib/ask/check.ts";
 import { Chip, SiteHeader } from "../ui";
 
@@ -73,7 +74,7 @@ export default function AuditPage() {
 
       {/* persona round 2 (both readers): the page is long; a contents list up top */}
       <nav aria-label="On this page" className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        {[["#replays", "Real partners, replayed"], ["#counterexample", "The counterexample"], ["#checker", "What the agent may say, and what was blocked"], ["#probes", "Probes, the judge names and the limits"], ["#held-out", "Held-out briefs"], ["#api-notes", "Notes on the API"]].map(([href, label]) => (
+        {[["#replays", "Real partners, replayed"], ["#counterexample", "The counterexample"], ["#checker", "What the agent may say, and what was blocked"], ["#fool-it", "Can the checker be fooled?"], ["#probes", "Probes, the judge names and the limits"], ["#held-out", "Held-out briefs"], ["#api-notes", "Notes on the API"]].map(([href, label]) => (
           <a key={href} href={href} className="text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-ink">{label}</a>
         ))}
       </nav>
@@ -148,11 +149,12 @@ export default function AuditPage() {
         </p>
         <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far; blocked under the current rule: {blocked.filter((b) => b.underV2 !== "passes").length}. Each, with the sentence that failed, the reason and what the current rule says:</p>
         <p className="mt-1 text-base text-ink-2">The rule was refined on Oct 15 (rule v2) after the judge-name probe blocked a true answer for Noah Kahan: a number after &ldquo;against&rdquo;, &ldquo;versus&rdquo;, &ldquo;while&rdquo;, &ldquo;for the others&rdquo;, a count of others (&ldquo;seven others&rdquo;) or a semicolon now has to be the next named brand&apos;s own number, or with none named, another candidate&apos;s, instead of the brand before the comma&apos;s. Every number still has to be in a cited step. Before it shipped, all 29 cached answers that passed still passed (33 on a re-run the same afternoon, 0 failing), the three real failures below still block, and a test proves a misattributed number still blocks. Answers are re-checked under the current rule when shown; the stored runs aren&apos;t changed.</p>
+        <p className="mt-1 text-base text-ink-2">Rule v3 (Oct 18) came from attacking the checker, below: a score written after the seed&apos;s name, and any rank, now has to be the named brand&apos;s own. The three frozen answers check identically, all 33 cached answers that passed still pass, and every entry in this list reads the same under v3 as under v2.</p>
         <p className="mt-1 text-base text-ink-2">The checker reads names and numbers, not meaning; a true sentence can be blocked, a misleading one with correct numbers can pass.</p>
         <ul className="mt-2 space-y-2 text-sm text-ink-2">
           {blocked.map((b) => (
             <li key={b.ask + b.version} className="border-t border-rule pt-2">
-              <p className="text-ink">{b.ask} <span className="font-mono text-ink-3">({b.version}, rule {b.rule})</span>{b.note ? `: ${b.note}` : ""} <span className="font-semibold">Under rule v2: {b.underV2}.</span>{(b as { v2Note?: string }).v2Note ? ` ${(b as { v2Note?: string }).v2Note}` : ""}</p>
+              <p className="text-ink">{b.ask} <span className="font-mono text-ink-3">({b.version}, rule {b.rule})</span>{b.note ? `: ${b.note}` : ""} <span className="font-semibold">Under rules v2 and v3: {b.underV2}.</span>{(b as { v2Note?: string }).v2Note ? ` ${(b as { v2Note?: string }).v2Note}` : ""}</p>
               {b.failures.map((f) => (
                 <p key={f.where} className="mt-1">&ldquo;{forDisplay(f.text)}&rdquo; <span className="font-mono text-ink-3">(cited step {f.steps.join(", ")})</span>: {f.reasons.map((r) => forDisplay(r)).join("; ")}.</p>
               ))}
@@ -160,6 +162,28 @@ export default function AuditPage() {
           ))}
         </ul>
         <p className="mt-2 text-sm text-ink-2">Until Oct 15 the fixes went into the tools and the prompt, never into the check: the tools now name both sides of the split and state the method&apos;s own numbers, and the score-binding rule was narrowed to the clause right after a brand. Recovered from the cache by scripts/blocked-extract.ts.</p>
+      </section>
+
+      {/* moonshots round 4, real Oct 18: the checker attacked by script before a visitor gets to try (scripts/mutation-gate.ts) */}
+      <section id="fool-it" className="mt-12 max-w-[68ch] scroll-mt-4">
+        <h2 className="font-display text-xl">Can the checker be fooled?</h2>
+        <p className="mt-2 text-base text-ink-2">
+          Every answer the site shows ({mutation.answers} cached on {mutation.date}) was copied and one fact was changed per copy: a score moved by 0.03, a rank or count moved by one, a brand swapped, a citation pointed at the wrong step. The checker re-checked each copy. 0 Qloo calls, 0 model calls. Under rule {mutation.before.rule} it rejected {mutation.before.rejected} of {mutation.before.of}; the misses showed two holes, both closed in rule {mutation.rule}, which rejects {mutation.gated.rejected} of {mutation.gated.of}. Any answer on the site has a &ldquo;Try to fool the checker&rdquo; box that runs the same code on your edit.
+        </p>
+        <ul className="mt-3 space-y-2 text-sm text-ink-2">
+          {mutation.kinds.map((k) => (
+            <li key={k.kind} className="border-t border-rule pt-2">
+              <p className="text-ink"><span className="font-mono">{k.rejected} of {k.applied}</span> rejected: {k.kind}{k.gated ? "" : " (a known limit, not counted above)"}.</p>
+              {k.misses.length > 0 && k.gated && (
+                <details className="mt-1">
+                  <summary className="cursor-pointer">What got through ({k.misses.length})</summary>
+                  <ul className="mt-1 space-y-1">{k.misses.map((m, i) => <li key={i}>{m.seed}: &ldquo;{forDisplay(m.text)}&rdquo;</li>)}</ul>
+                </details>
+              )}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-base text-ink-2">What got through, read by hand: seven of the eight nudged scores became 1.00, which the checker reads as the brand&apos;s own rank of 1 (it compares decimals at two places, so 1.00 and 1 are the same number to it); the eighth landed on another of Backcountry&apos;s own scores. The three ranks that got through sit in sentences that open with &ldquo;It&rdquo; or no brand at all, so there is no brand to bind them to. The known limit: a brand that no step ever returned, typed without the agent&apos;s brackets, can&apos;t be matched by name. The agent brackets every name it writes, and the box on the answer page brackets any new capitalised name you type, so swapping in &ldquo;Nike&rdquo; there is rejected.</p>
       </section>
 
       <section className="mt-12 max-w-[68ch]">
@@ -248,6 +272,10 @@ export default function AuditPage() {
           </li>
           <li>
             <span className="font-semibold">A brand&apos;s footprint decides an aisle map, so the leaders map uses three.</span> Run real Oct 12 on cached heatmaps (scripts/leaders-probe.ts), gate: no brand above its share limit, and most coloured cells agreeing with their neighbours. All nine energy brands, each ranked within its own cells: Red Bull leads 47.0% of 6,134 coloured cells, because its map has 11,060 cells and 5-hour Energy&apos;s 1,235, so a small map can&apos;t lead where it has no reading (69.8% regional; fails the 40% share limit). Ranked within the 1,208 cells all nine carry: largest share 18.5%, but only 56.4% regional. The top four by cell count (Red Bull, Monster, Bang, Rockstar; 7,018 shared cells): 40.4% and 75.0%, but Celsius drops out. The camp heads (Red Bull, Monster, Celsius; 3,957 shared cells, all of Celsius&apos;s map): Celsius 43.1%, 80.1% regional. The shipped rule: three camp heads per aisle, ranked within the cells all three carry, gate of at least 3,000 shared cells, no brand above 50%, at least 60% regional. Soda passes with Olipop, LaCroix and Simply Pop (4,681 cells; 41.2%; 78.3%; Poppi shares only 1,961). Outdoor fails on regions (Patagonia, The North Face, REI: 11,240 cells; 35.2%; 56.5%) and has no leaders map.
+          </li>
+          {/* moonshots round 4, real Oct 18: the audience lens gate failed, published as found */}
+          <li id="audience-lens">
+            <span className="font-semibold">Qloo&apos;s named audiences barely separate partners, so there is no audience lens.</span> Real Oct 18 (about 40 of 54 calls that day). Four seeds (Liquid Death, Olipop, Celsius, Allbirds), each with its top three brand partners, scored under eight Qloo audiences (Single, Parents With Young Children, Technology Enthusiast, Discount Shoppers, Running, Travel, Foodie, Music Festivals) with signal.demographics.audiences and the four ids in filter.results.entities. Gate, written before the run: most of the twelve partners spread at least 0.10 between their highest and lowest audience, and not the same top audience everywhere. 3 of 12 spread 0.10 or more (the largest 0.111); Foodie tops 6 of 12; Olipop, its three partners, Celsius and Fallen Footwear return 0.76 under every audience, which reads as a value with nothing behind it. Failed, not built. File: audit/audience-probe.json.
           </li>
           {/* Fable's Oct 16 ruling, pick 1: below the floor of 5 it is a probe entry, not a v3 line */}
           <li id="fresh-deals">
