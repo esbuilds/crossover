@@ -8,6 +8,7 @@ import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
 import CollisionMap from "../vs/collision-map";
 import { displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { checkEdit, nudge } from "@/lib/ask/fool.ts";
+import { smallerLine, type Smaller } from "@/lib/ask/smaller-rules.ts";
 import { askLinks } from "@/lib/ask/links.ts";
 import { callCard, cardsStep, categoryRival, decisionEvent, forkLine, tieLine, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine } from "@/lib/vs.ts";
@@ -86,6 +87,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
   const answered = resolved?.id && resolved.type && verdict?.ok ? { id: resolved.id, type: resolved.type } : null;
   const notes = useAskGet<FieldNotes>("field", "notes", answered, asked);
   const both = useAskGet<BothWays>("both", "both", answered, asked);
+  const small = useAskGet<Smaller>("smaller", "smaller", answered, asked);
   // persona test (agency strategist, Oct 14): the answer's permalink in the address bar once it arrives
   useEffect(() => {
     if (!ranHere.current || status !== "done" || !verdict?.ok || !resolved?.id || !resolved.type) return;
@@ -159,6 +161,8 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
               </p>
             </>
           )}
+          {/* below the "every number above comes from a step" line: these numbers are code's, not the agent's steps */}
+          {verdict?.ok && small && <SmallerBlock s={small} />}
           {status === "running" && !verdict && !ambiguous && (
             <p className="font-mono text-sm text-ink-2 motion-safe:animate-pulse">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
           )}
@@ -268,7 +272,7 @@ function WhereLine({ id, type, asked }: { id: string; type: string; asked: Body 
 
 // Code beside the frozen answer, from a cached ask (cache first): /api/ask/both, the eight ranked in each direction
 // (Fable's columns ruling, Oct 15), and /api/ask/field, the field notes (checker sign-off, Oct 15). null until it arrives.
-function useAskGet<T>(path: "both" | "field", field: "both" | "notes", seed: { id: string; type: string } | null, asked: Body | null): T | null {
+function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes" | "smaller", seed: { id: string; type: string } | null, asked: Body | null): T | null {
   const [v, setV] = useState<T | null>(null);
   const q = seed ? new URLSearchParams({ id: seed.id, t: seed.type }) : null;
   if (q && asked && "query" in asked) q.set("q", asked.query);
@@ -281,6 +285,27 @@ function useAskGet<T>(path: "both" | "field", field: "both" | "notes", seed: { i
     return () => { live = false; };
   }, [key, path, field]);
   return v;
+}
+
+// Smaller names, nearly the same fit (moonshots round 4 pick 5, real Oct 18): Qloo's list for the seed's fans, capped by
+// popularity, beside the frozen answer. Code, not the agent; nothing above is reordered.
+function SmallerBlock({ s }: { s: Smaller }) {
+  return (
+    <section className="mt-6 border-t border-rule pt-4">
+      <h3 className="font-display text-lg">Smaller names, nearly the same fit</h3>
+      <p className="mt-1 max-w-[60ch] text-base text-ink-2">{smallerLine(s)}</p>
+      {s.rows.length > 0 && (
+        <table className="mt-2 w-full max-w-md text-sm">
+          <thead><tr className="text-left text-ink-3"><th className="font-normal">Brand</th><th className="text-right font-normal">Fit</th><th className="text-right font-normal">Popularity</th></tr></thead>
+          <tbody className="font-mono">
+            <tr className="border-t border-rule text-ink-3"><td className="py-1 font-sans">{s.leader.name} (leader)</td><td className="text-right">{s.leader.affinity.toFixed(2)}</td><td className="text-right">{s.leader.popularity.toFixed(2)}</td></tr>
+            {s.rows.map((r) => <tr key={r.name} className="border-t border-rule text-ink"><td className="py-1 font-sans">{r.name}</td><td className="text-right">{r.affinity.toFixed(2)}</td><td className="text-right">{r.popularity.toFixed(2)}</td></tr>)}
+          </tbody>
+        </table>
+      )}
+      <p className="mt-2 text-sm text-ink-3">Fit and popularity are Qloo&apos;s; the cap and the 0.05 rule are Crossover&apos;s. Brands Qloo has no popularity for are left out. Not a price: popularity stands in for how well known a brand is.</p>
+    </section>
+  );
 }
 
 // Break the checker (moonshots round 4, real Oct 18): edit the reason above and the same checker that gates every answer
