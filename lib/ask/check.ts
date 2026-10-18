@@ -14,7 +14,7 @@ const DECIMAL = /(?<![\w.])\d+\.\d+/g;
 // the fixed list from Fable's judge-probe ruling (Oct 15); a semicolon counts too
 // plus a count of others ("seven others", "7 others"; Fable's checker sign-off, Oct 15), bound as "the others" is
 const CONTRAST = /\b(?:against|versus|vs\.?|compared with|while|whereas|for the others|for the rest|the others|the rest|(?:[2-9]|\d{2,}|two|three|four|five|six|seven|eight|nine) others?)\b|;/i;
-export const CHECK_RULE = "v2"; // v1 until real Oct 15: a number after the first brand, up to the next name, was its own
+export const CHECK_RULE = "v3"; // v2 until real Oct 18 (mutation gate); v1 until real Oct 15: a number after the first brand, up to the next name, was its own
 export const unbracket = (t: string) => t.replace(BRACKET, "$1");
 
 // Render only: a Qloo name that reads as a word gets the brand name from Qloo's own description. The checker never sees
@@ -81,19 +81,28 @@ export function checkDecision(d: Decision, steps: StepRecord[]): Check {
     const first = [...it.text.matchAll(BRACKET)].find((m) => !seed.has(m[1]));
     if (first) {
       const after = it.text.slice(first.index! + first[0].length);
-      const upto = after.includes("[[") ? after.indexOf("[[") : after.length;
+      // rule v3 (mutation gate, real Oct 18): the seed's bracket doesn't end the segment ("X has the top score under
+      // [[seed]] fans at 0.97" is X's number); only another brand's bracket does
+      const nextOther = [...after.matchAll(BRACKET)].find((m) => !seed.has(m[1]));
+      const upto = nextOther ? nextOther.index! : after.length;
       // rule v2 (Fable's judge-probe ruling, real Oct 15): the first brand's segment also ends at a contrast marker.
       // Numbers after the marker belong to the next bracketed brand if one follows, else to some other candidate.
       const cut = after.slice(0, upto).search(CONTRAST);
-      const segment = after.slice(0, cut >= 0 ? cut : upto);
+      const segment = after.slice(0, cut >= 0 ? cut : upto).replace(BRACKET, " ");
       const is = (vs: number[], x: string) => vs.some((v) => v.toFixed(2) === Number(x).toFixed(2));
       const mine = [...(own.get(first[1]) ?? []), ...method];
       for (const m of segment.matchAll(DECIMAL)) if (!is(mine, m[0])) problems.push(`${it.label}: ${m[0]} isn't ${first[1]}'s own number`);
+      // v3: a rank or count in the segment is bound too, exactly (every rank 1 to 50 sits somewhere in a top-50 step)
+      for (const m of segment.matchAll(/(?<![\w.])\d+(?![\d.])/g)) if (!mine.includes(Number(m[0]))) problems.push(`${it.label}: ${m[0]} isn't ${first[1]}'s own number`);
       if (cut >= 0) {
         const next = after.slice(upto).match(/^\[\[([^\]]+)\]\]/)?.[1];
         const theirs = next ? [...(own.get(next) ?? []), ...method] : [...[...own].filter(([n]) => n !== first[1]).flatMap(([, v]) => v), ...method];
+        // v3: once the seed's fans are named before the marker, the contrast is between audiences, so the first brand's
+        // own number under the other side counts ("[[quip]] 0.91 under [[Olipop]] fans, against 0.84 under [[Casamara
+        // Club]] fans"); without the seed, v2 holds: A's own number can't stand for the others
+        const audiences = /\[\[/.test(after.slice(0, cut));
         for (const m of after.slice(cut, upto).matchAll(DECIMAL))
-          if (!is(theirs, m[0])) problems.push(`${it.label}: ${m[0]} isn't ${next ? `${next}'s own number` : "another candidate's own number"}`);
+          if (!is(theirs, m[0]) && !(audiences && is(mine, m[0]))) problems.push(`${it.label}: ${m[0]} isn't ${next ? `${next}'s own number` : "another candidate's own number"}`);
       }
     }
     for (const m of plain.matchAll(/(?<![\w.])\d+(?:\.\d+)?/g)) {

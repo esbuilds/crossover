@@ -121,6 +121,22 @@ test("rule v2: a count of others binds as 'the others' does", () => {
 });
 
 // Agency persona (Oct 14): "twins" is an internal name; the reader sees "the overlap check". Brand names stay.
+// Rule v3 (mutation gate, real Oct 18): tampered copies of cached answers slipped through when the number sat after the
+// seed's bracket, or was a rank (every rank 1 to 50 sits somewhere in a top-50 step).
+test("rule v3: the seed's bracket doesn't end a brand's segment, and ranks bind too", () => {
+  const say = (text: string) => checkDecision({ ...ok, calls: [], cautions: [], summary: [{ text, steps: [2] }] }, steps);
+  assert.deepEqual(say("[[Allbirds]] has the top score under [[Mt. Joy]] fans at 0.95 and ranks 2 among them."), { ok: true });
+  assert.equal(say("[[Allbirds]] has the top score under [[Mt. Joy]] fans at 0.91 and ranks 2 among them.").ok, false); // 0.91 is REI's
+  assert.equal(say("[[Allbirds]] has the top score under [[Mt. Joy]] fans at 0.95 and ranks 1 among them.").ok, false); // rank is 2
+});
+
+test("rule v3: after the seed's fans are named, a contrast may give the brand's own score under the other side", () => {
+  const s6: StepRecord[] = [steps[0], { ...steps[1], output: { rows: [{ name: "quip", a: 0.91, b: 0.84 }, { name: "Casamara Club", affinity: 0.7 }] } }];
+  const say = (text: string) => checkDecision({ ...ok, calls: [], cautions: [], summary: [{ text, steps: [2] }] }, s6);
+  assert.deepEqual(say("[[quip]] scores 0.91 under [[Mt. Joy]] fans, against 0.84 under [[Casamara Club]] fans."), { ok: true });
+  assert.equal(say("[[quip]] scores 0.91, against 0.84 for the others.").ok, false); // no seed named: v2 holds
+});
+
 test("forDisplay: the twins tool reads as the overlap check; a brand named Twins doesn't change", () => {
   assert.equal(forDisplay("Twins found no pair that reaches the same audience."), "The overlap check found no pair that reaches the same audience.");
   assert.equal(forDisplay("so twins gives no pair to keep apart."), "so the overlap check gives no pair to keep apart.");
