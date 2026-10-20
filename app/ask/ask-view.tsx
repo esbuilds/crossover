@@ -173,7 +173,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
         {card && (
           <section className="order-1 lg:col-start-2 lg:row-start-1">
             <div className="rounded-sm border border-rule-strong px-4 py-3">
-              <p className="text-xl text-ink">{card.first}</p>
+              <p className="font-display text-2xl text-ink">{card.first}</p>
               {card.where && <p className="mt-1 text-base text-ink-2">{card.where}</p>}
               {resolved?.id && resolved.type && <WhereLine id={resolved.id} type={resolved.type} asked={asked} />}
             </div>
@@ -262,7 +262,7 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
     <>
       {first && (
         <>
-          <h2 className="font-display text-2xl">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
+          <h2 className="font-display text-lg">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
           <p className="claim mt-1 text-base text-ink-2">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
           <FoolIt decision={decision} steps={steps} />
           {both && <BothTable b={both} />}
