@@ -4,7 +4,7 @@
 // initial: a cached ask the server replayed (no POST, no Qloo call); pending: a share link whose ask isn't cached yet.
 import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
+import { btnPrimary, btnText, chip, field, JudgePath, linkInline } from "../ui";
 import CollisionMap from "../vs/collision-map";
 import { CHECK_RULE, claimCount, displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { checkEdit, nudge } from "@/lib/ask/fool.ts";
@@ -83,9 +83,9 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
     <>
       {/* phones skip the stamp sentence (the stamps are below their first screen), so both versions wrap to the same height */}
       {p ? <>Replaying the {initial?.label} run, sped up: step {Math.min(landed + 1, steps.length)} of {steps.length}.<span className="max-sm:hidden"> Each claim is stamped when the step it cites lands.</span></> : `The ${initial?.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
-      <span className="whitespace-nowrap">
-        <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={btnQuiet}>{p ? "Skip" : "Replay it"}</button>{" "}
-        <a href="#ask" className={btnQuiet}>Ask your own</a>
+      <span className="inline-flex gap-x-4 whitespace-nowrap">
+        <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={btnText}>{p ? "Skip" : "Replay it"}</button>{" "}
+        <a href="#ask" className={btnText}>Ask your own</a>
       </span>
     </>
   );
@@ -124,7 +124,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   const askBox = (
     <>
       <JudgePath />
-      <p className="mt-1 text-sm"><Link href={tourHref(1)} className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Take the 60-second tour</Link> · <Link href="/replay" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Spot the real partner</Link></p>
+      <p className="mt-1 text-sm"><Link href={tourHref(1)} className={linkInline}>Take the 60-second tour</Link> · <Link href="/replay" className={linkInline}>Spot the real partner</Link></p>
       <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
       <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
       <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
@@ -132,10 +132,10 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
         <input value={q} onChange={(ev) => setQ(ev.target.value)} aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
         <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
       </form>
-      <p className="mt-2 flex flex-wrap items-center gap-x-4 text-base">
+      <p className="mt-2 flex flex-wrap items-center gap-2 text-base">
         <span className="text-ink-2">Try:</span>
         {chips.map((p) => (
-          <button key={p.label} type="button" disabled={status === "running"} onClick={() => (setQ(p.label), run(p.body))} className={btnQuiet}>{p.label}</button>
+          <button key={p.label} type="button" disabled={status === "running"} onClick={() => (setQ(p.label), run(p.body))} className={chip}>{p.label}</button>
         ))}
       </p>
     </>
@@ -200,13 +200,13 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
               <p className={`mt-4 font-mono text-sm text-ink ${playing ? "invisible" : ""}`} aria-hidden={playing || undefined}>Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
               <p className="mt-2 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
-              {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof} <Link href="/replay" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Try the 23 yourself</Link></p>}
+              {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof} <Link href="/replay" className={linkInline}>Try the 23 yourself</Link></p>}
               {/* the re-judge's memorable moment lived only on /audit (Fable tie ruling, Oct 14) */}
-              <p className="mt-2 max-w-[60ch] text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">See it on the audit</Link></p>
+              <p className="mt-2 max-w-[60ch] text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className={linkInline}>See it on the audit</Link></p>
               <p className="mt-4 flex flex-wrap gap-x-4">
                 {resolved?.id && resolved.type && <CopyAsk href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share} />}
-                {resolved?.id && resolved.type && <Link href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).sheet} className={btnQuiet}>Call sheet: print or save as PDF</Link>}
-                <Link href="/audit" className={btnQuiet}>Next: is any of this right? The audit</Link>
+                {resolved?.id && resolved.type && <Link href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).sheet} className={btnText}>Call sheet: print or save as PDF</Link>}
+                <Link href="/audit" className={btnText}>Next: is any of this right? The audit</Link>
               </p>
             </>
           )}
@@ -218,7 +218,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {ambiguous && (
             <div>
               <p className="text-lg text-ink">Which one did you mean?</p>
-              <p className="mt-2 flex flex-wrap gap-x-4">{ambiguous.map((o) => <button key={o.id} type="button" onClick={() => run({ id: o.id, type: o.type })} className={btnQuiet}>{o.name} ({o.type.replace("urn:entity:", "").replace("_", " ")})</button>)}</p>
+              <p className="mt-2 flex flex-wrap gap-2">{ambiguous.map((o) => <button key={o.id} type="button" onClick={() => run({ id: o.id, type: o.type })} className={chip}>{o.name} ({o.type.replace("urn:entity:", "").replace("_", " ")})</button>)}</p>
             </div>
           )}
           {verdict && !verdict.ok && status !== "running" && (
@@ -368,20 +368,20 @@ function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }
   const [text, setText] = useState(shown);
   const [result, setResult] = useState<Check | null>(null);
   const check = (t: string) => setResult(checkEdit(decision, steps, shown, t));
-  if (!open) return <p className="mt-2"><button type="button" onClick={() => setOpen(true)} className={btnQuiet}>Try to fool the checker</button></p>;
+  if (!open) return <p className="mt-2"><button type="button" onClick={() => setOpen(true)} className={btnText}>Try to fool the checker</button></p>;
   return (
     <div className="mt-3 rounded-sm border border-rule px-3 py-3">
       <p className="text-sm text-ink-2">Change a number or swap in another brand, then check it. The same code that gates every answer runs here, in your browser.</p>
       <textarea value={text} onChange={(ev) => (setText(ev.target.value), setResult(null))} aria-label="The first call's reason, editable" rows={3} className={`${field} mt-2 w-full`} />
       <p className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
         <button type="button" onClick={() => check(text)} className={btnPrimary}>Check it</button>
-        <button type="button" onClick={() => { const t = nudge(text); setText(t); check(t); }} className={btnQuiet}>Nudge a score</button>
-        <button type="button" onClick={() => (setText(shown), setResult(null))} className={btnQuiet}>Reset</button>
+        <button type="button" onClick={() => { const t = nudge(text); setText(t); check(t); }} className={btnText}>Nudge a score</button>
+        <button type="button" onClick={() => (setText(shown), setResult(null))} className={btnText}>Reset</button>
       </p>
       {result && (result.ok
         ? <p className="mt-2 text-base text-ink">Passes: every name and number traces to {decision.calls[0].steps.length === 1 ? "the step" : "the steps"} it cites.</p>
         : <div className="mt-2" role="status"><p className="text-base text-ink">Rejected. This answer wouldn&apos;t be shown:</p><ul className="mt-1 list-disc pl-5 font-mono text-sm text-ink-2">{result.problems.map((p) => <li key={p}>{forDisplay(p.replace(/^call 1: /, ""))}</li>)}</ul></div>)}
-      <p className="mt-2 text-sm text-ink-3">We attacked it ourselves first: <Link href="/audit#fool-it" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">what it catches, and what got through</Link>.</p>
+      <p className="mt-2 text-sm text-ink-3">We attacked it ourselves first: <Link href="/audit#fool-it" className={linkInline}>what it catches, and what got through</Link>.</p>
     </div>
   );
 }
@@ -390,7 +390,7 @@ function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }
 function Steps({ ns }: { ns: number[] }) {
   const landed = useContext(Landed);
   // the stamp's room is held from the start (visibility), so a landing never reflows the sentence (MO F2)
-  return <span className="font-mono text-sm text-ink-3">{ns.map((n) => <a key={n} href={`#step-${n}`} className="ml-1 whitespace-nowrap underline decoration-rule-strong underline-offset-4">step {n}{landed !== Infinity && (
+  return <span className="font-mono text-sm text-ink-3">{ns.map((n) => <a key={n} href={`#step-${n}`} className={`ml-1 whitespace-nowrap ${linkInline}`}>step {n}{landed !== Infinity && (
     <span className={`stamp${n <= landed ? " is-on" : ""}`} aria-hidden={n > landed}> <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.6 2.6L10 3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" pathLength="1" /></svg>checked</span>
   )}</a>)}</span>;
 }
@@ -399,7 +399,7 @@ function CopyAsk({ href }: { href: string }) {
   const [copied, setCopied] = useState(false);
   const link = () => `${window.location.origin}${href}`;
   return (
-    <button type="button" className={btnQuiet} onClick={() => navigator.clipboard.writeText(link()).then(() => setCopied(true), () => {})}>
+    <button type="button" className={btnText} onClick={() => navigator.clipboard.writeText(link()).then(() => setCopied(true), () => {})}>
       {copied ? "Link copied" : "Copy link"}
     </button>
   );
@@ -409,7 +409,7 @@ function CopyAsk({ href }: { href: string }) {
 // hero picture is drawn once, at the top; its step points up to it.
 function Picture({ step, steps, hero }: { step: StepRecord; steps: StepRecord[]; hero: "map" | "dumbbell" | null }) {
   if (!step.output) return null;
-  const above = <p className="mt-2"><a href="#hero" className={btnQuiet}>Drawn above</a></p>;
+  const above = <p className="mt-2"><a href="#hero" className={btnText}>Drawn above</a></p>;
   if (step.tool === "split") return hero === "map" ? above : null;
   if (step.tool === "review") {
     if (hero === "dumbbell") return above;
@@ -435,7 +435,7 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
       <p className="mt-1 text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
       {cities && <p className="mt-1 text-base text-ink max-sm:hidden">{cities}</p>}
       <div className="mt-2 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
-      <p className="mt-1"><Link href={m.href} prefetch={false} className={btnQuiet}>Open the full split</Link></p>
+      <p className="mt-1"><Link href={m.href} prefetch={false} className={btnText}>Open the full split</Link></p>
     </div>
   );
 }
@@ -474,7 +474,7 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
           </li>
         ))}
       </ul>
-      {pick && <p className="mt-2"><Link href={pick} className={btnQuiet}>Pick your own three from these {WORDS[cands.length] ?? cands.length}</Link></p>}
+      {pick && <p className="mt-2"><Link href={pick} className={btnText}>Pick your own three from these {WORDS[cands.length] ?? cands.length}</Link></p>}
     </div>
   );
 }

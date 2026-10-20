@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import Link from "next/link";
 import { PerRequest } from "@/app/dynamic";
-import { btnQuiet } from "@/app/ui";
+import { linkInline } from "@/app/ui";
 import CollisionMap from "@/app/vs/collision-map";
 import PrintButton from "./print-button";
 import { peekAsk } from "@/lib/ask/agent.ts";
@@ -47,7 +47,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
   if (!body || !s)
     return (
       <p className="pt-10 text-base text-ink-2">
-        No sheet yet: this ask hasn&apos;t been run, or its answer was blocked. <Link href={`/ask/${id}?${new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => typeof e[1] === "string"))}`} className={btnQuiet}>Open the ask</Link>
+        No sheet yet: this ask hasn&apos;t been run, or its answer was blocked. <Link href={`/ask/${id}?${new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => typeof e[1] === "string"))}`} className={linkInline}>Open the ask</Link>
       </p>
     );
   const where = events ? await whereToStart(events, null).catch(() => null) : null; // cache only on the sheet

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Card, Pick } from "@/lib/slate.ts";
 import { BUCKET_LABEL, formatNames, MAX_NAMES, sortRows, type Bucket, type TriageName } from "@/lib/triage.ts";
 import BriefPanel, { Skeleton } from "../brief-panel";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL, WhichOne } from "../ui";
+import { btnPrimary, btnSecondary, btnText, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL, WhichOne } from "../ui";
 
 type Fit = {
   bucket: Bucket;
@@ -245,7 +245,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
                     <span className="flex flex-wrap items-center gap-x-4">
                       <span className="text-ink-3">Matched</span>
                       {r.query && phase !== "fitting" && (
-                        <button type="button" onClick={() => update((x) => x === r, { state: r.candidates?.length ? "ambiguous" : "not_found", card: undefined })} className={`${btnQuiet} text-sm`}>
+                        <button type="button" onClick={() => update((x) => x === r, { state: r.candidates?.length ? "ambiguous" : "not_found", card: undefined })} className={`${btnText} text-sm`}>
                           Not it
                         </button>
                       )}
@@ -289,7 +289,7 @@ export default function TriageView({ initial }: { initial?: { seed: TriageName; 
                           </button>
                         )}
                         {seed.card && r.card && (
-                          <a href={`/pair/${seed.card.entity_id}/${r.card.entity_id}?ta=${encodeURIComponent(seed.card.type)}&tb=${encodeURIComponent(r.card.type)}`} className={`${btnQuiet} text-sm`}>
+                          <a href={`/pair/${seed.card.entity_id}/${r.card.entity_id}?ta=${encodeURIComponent(seed.card.type)}&tb=${encodeURIComponent(r.card.type)}`} className={`${btnText} text-sm`}>
                             Check this pairing
                           </a>
                         )}

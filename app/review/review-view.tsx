@@ -6,7 +6,7 @@ import type { Ref, Review, ReviewGroup, ReviewRow, Twins } from "@/lib/review.ts
 import { CASES, type CaseName, type PreparedCase } from "@/lib/review-cases.ts";
 import { nameOf, shareQuery, type Shared } from "@/lib/review-share.ts";
 import BriefPanel from "../brief-panel";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, field, SiteHeader, TYPE_LABEL, WhichOne } from "../ui";
+import { btnPrimary, btnSecondary, btnText, chip, Chip, field, linkInline, SiteHeader, TYPE_LABEL, WhichOne } from "../ui";
 
 // Renders /api/review (review-v3). Groups, picks, gates and evidence labels all come from the route; this page only
 // hides them until the visitor has picked, then lays fame and taste side by side.
@@ -110,14 +110,14 @@ export default function ReviewView({ initial, embedded = false }: { initial?: Sh
     <Shell id="pick-three" className={embedded ? "mt-16 scroll-mt-4 border-t border-rule-strong" : "mx-auto max-w-[1120px] px-4 pb-24 sm:px-8"}>
       {!embedded && <SiteHeader href="/find" label="Find partners" />}
       <section className="pt-8">
-        <div className="flex flex-wrap items-center gap-x-4 text-base">
+        <div className="flex flex-wrap items-center gap-2 text-base">
           <span className="text-ink-2">Prepared cases:</span>
           {CASES.map((c) => (
-            <button key={c.key} onClick={() => start(caseBody(c, false), c.key)} className={btnQuiet} aria-current={caseKey === c.key}>
+            <button key={c.key} onClick={() => start(caseBody(c, false), c.key)} className={chip} aria-current={caseKey === c.key}>
               {c.seed.name}
             </button>
           ))}
-          <a href="#own" className={btnQuiet}>
+          <a href="#own" className={btnText}>
             Try your own
           </a>
         </div>
@@ -160,7 +160,7 @@ export default function ReviewView({ initial, embedded = false }: { initial?: Sh
 
         <p className="mt-10 border-t border-rule pt-4 text-sm text-ink-3">
           What this doesn&apos;t establish: purchases, visits, commercial eligibility, or whether the deal makes money.{" "}
-          <a href="/audit" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">
+          <a href="/audit" className={linkInline}>
             How these rules did on briefs they weren&apos;t tuned on
           </a>
         </p>
@@ -268,10 +268,10 @@ function Reveal({ embedded, data, group, picks, share, open, onOpen, gate, gateO
           </button>
         )}
         <CopyLink share={share} />
-        <button onClick={onAgain} className={btnQuiet}>
+        <button onClick={onAgain} className={btnText}>
           Pick again
         </button>
-        <a href={`/s/${data.seed.entity_id}?t=${encodeURIComponent(data.seed.type)}`} className={btnQuiet}>
+        <a href={`/s/${data.seed.entity_id}?t=${encodeURIComponent(data.seed.type)}`} className={btnText}>
           Find more partners for {data.seed.name}
         </a>
       </div>
@@ -310,7 +310,7 @@ function Reveal({ embedded, data, group, picks, share, open, onOpen, gate, gateO
       </div>
       {embedded && (
         <p className="mt-8 text-base">
-          <Link href="/audit" className={btnQuiet}>Next: is any of this right? The audit</Link>
+          <Link href="/audit" className={btnText}>Next: is any of this right? The audit</Link>
         </p>
       )}
     </div>

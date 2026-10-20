@@ -7,7 +7,7 @@ import type { Found, RivalPick } from "@/lib/rival.ts";
 import { VS_CASES, VS_MORE, vsHref, type VsCase } from "@/lib/rivals-cases.ts";
 import { CATEGORIES } from "@/lib/constellation-cases.ts";
 import Link from "next/link";
-import { btnPrimary, btnQuiet, field, JudgePath, TYPE_LABEL, WhichOne } from "../ui";
+import { btnPrimary, btnText, chip, field, JudgePath, TYPE_LABEL, WhichOne } from "../ui";
 import { Skeleton } from "../brief-panel";
 import { VsResult } from "./vs-view";
 import { COMPETITOR_LABEL, finderOrder } from "@/lib/vs.ts";
@@ -173,10 +173,10 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
   const method = inside ? { line: finder!.line, node: block } : undefined;
   const tryRow = (label: string, cases: VsCase[]) => (
     // one line each on phones, scrolling sideways inside the row, so the map stays near the top; wrapping from 640 up
-    <p className="mt-2 flex items-center gap-x-4 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
+    <p className="mt-2 flex items-center gap-2 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
       <span className="shrink-0 text-ink-2">{label}</span>
       {cases.map((c) => (
-        <button key={key(c.a, c.b)} type="button" onClick={() => (setFinder(null), load(c.a, c.b))} className={`${btnQuiet} shrink-0`} aria-current={active === key(c.a, c.b)}>
+        <button key={key(c.a, c.b)} type="button" onClick={() => (setFinder(null), load(c.a, c.b))} className={chip} aria-current={active === key(c.a, c.b)}>
           {c.a.name} vs {c.b.name}
         </button>
       ))}
@@ -200,10 +200,10 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
       <div className="mt-1">
         {tryRow("Try:", VS_CASES)}
         {VS_MORE.length > 0 && tryRow("or try", VS_MORE)}
-        <p className="mt-2 flex items-center gap-x-4 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
+        <p className="mt-2 flex items-center gap-2 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
           <span className="shrink-0 text-ink-2">Whole aisles:</span>
           {CATEGORIES.map((c) => (
-            <Link key={c.slug} href={`/map/${c.slug}`} className={`${btnQuiet} shrink-0`}>
+            <Link key={c.slug} href={`/map/${c.slug}`} className={chip}>
               {c.title}
             </Link>
           ))}
@@ -222,7 +222,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
           {busy && <p className="mt-6 font-mono text-sm text-ink-2 motion-safe:animate-pulse">Comparing in Qloo...</p>}
           <VsResult d={payload} method={method} />
           <p className="mt-8 text-base">
-            <Link href="/pick-three" className={btnQuiet}>Next: the partnerships question, Pick three</Link>
+            <Link href="/pick-three" className={btnText}>Next: the partnerships question, Pick three</Link>
           </p>
         </div>
       ) : null}
@@ -258,10 +258,10 @@ function FinderBlock({ finder, active, onPick, onLabel }: { finder: Finder; acti
 function CompetitorChips({ names, onPick }: { names: string[]; onPick: (n: string) => void }) {
   if (!names.length) return null;
   return (
-    <p className="mt-1 flex flex-wrap items-center gap-x-4 text-base">
+    <p className="mt-1 flex flex-wrap items-center gap-2 text-base">
       <span className="text-ink-2">{COMPETITOR_LABEL}</span>
       {names.map((n) => (
-        <button key={n} type="button" onClick={() => onPick(n)} className={btnQuiet}>
+        <button key={n} type="button" onClick={() => onPick(n)} className={chip}>
           {n}
         </button>
       ))}
@@ -271,10 +271,10 @@ function CompetitorChips({ names, onPick }: { names: string[]; onPick: (n: strin
 
 function FoundChips({ options, onPick, active }: { options: Found[]; onPick: (f: Found) => void; active: string | null }) {
   return (
-    <p className="mt-1 flex flex-wrap items-center gap-x-4 text-base">
+    <p className="mt-1 flex flex-wrap items-center gap-2 text-base">
       <span className="text-ink-2">Compare with:</span>
       {options.map((f) => (
-        <button key={f.id} type="button" onClick={() => onPick(f)} className={btnQuiet} aria-current={active === f.id}>
+        <button key={f.id} type="button" onClick={() => onPick(f)} className={chip} aria-current={active === f.id}>
           {f.name}
         </button>
       ))}

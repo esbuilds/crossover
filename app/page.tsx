@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
 import Link from "next/link";
-import { SiteHeader, btnQuiet } from "@/app/ui";
+import { SiteHeader, btnText } from "@/app/ui";
 import { peekAsk } from "@/lib/ask/agent.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
 import { PROOF } from "@/lib/ask/proof.ts";
@@ -21,8 +21,8 @@ export default function Home() {
       </Suspense>
       <footer className="mt-16 border-t border-rule pt-6 text-base">
         <p className="flex flex-wrap gap-x-5 gap-y-2">
-          <Link href="/audit" className={btnQuiet}>Is any of this right? The audit</Link>
-          <Link href="/vs" className={btnQuiet}>Two names in: where audiences split</Link>
+          <Link href="/audit" className={btnText}>Is any of this right? The audit</Link>
+          <Link href="/vs" className={btnText}>Two names in: where audiences split</Link>
         </p>
       </footer>
     </main>

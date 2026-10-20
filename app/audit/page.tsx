@@ -8,7 +8,7 @@ import replayAsk from "@/lib/ask/replay-ask.json";
 import judgeNames from "@/audit/judge-names.json";
 import mutation from "@/audit/mutation.json";
 import { forDisplay } from "@/lib/ask/check.ts";
-import { Chip, SiteHeader } from "../ui";
+import { Chip, linkInline, SiteHeader } from "../ui";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
 // responses stay out of the repo. Not linked yet.
@@ -75,7 +75,7 @@ export default function AuditPage() {
       {/* persona round 2 (both readers): the page is long; a contents list up top */}
       <nav aria-label="On this page" className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
         {[["#replays", "Real partners, replayed"], ["#counterexample", "The counterexample"], ["#checker", "What the agent may say, and what was blocked"], ["#fool-it", "Can the checker be fooled?"], ["#probes", "Probes, the judge names and the limits"], ["#held-out", "Held-out briefs"], ["#api-notes", "Notes on the API"]].map(([href, label]) => (
-          <a key={href} href={href} className="text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-ink">{label}</a>
+          <a key={href} href={href} className={`text-ink-2 ${linkInline}`}>{label}</a>
         ))}
       </nav>
 
@@ -135,7 +135,7 @@ export default function AuditPage() {
         <h2 className="font-display text-xl">One honest counterexample</h2>
         <p className="mt-2 text-base text-ink-2">
           Liquid Death and e.l.f. made Corpse Paint together. It sold out in 45 minutes and drew more than 250 million social impressions (
-          <a href={SOURCE} className="underline decoration-rule-strong underline-offset-4 hover:decoration-ink">
+          <a href={SOURCE} className={linkInline}>
             Marketing Dive
           </a>
           ). On a Liquid Death shortlist run Oct 10, e.l.f. measured 0.62, 0.25 below the strongest name and in the lowest group, while being one of the best-known brands on the list. Taste is one input for deciding who to call first, not a verdict on a deal.
@@ -432,12 +432,12 @@ function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: Rep
             </p>
             <p className="mt-1 tabular-nums">
               {c.result!.affinity!.toFixed(2)} against a top of {c.result!.top!.toFixed(2)}. Decoys: {c.decoys!.map((d) => d.name).join(", ")}.{" "}
-              <a href={c.source} className="underline decoration-rule-strong underline-offset-4 hover:decoration-ink">Source</a>
+              <a href={c.source} className={linkInline}>Source</a>
             </p>
             {`${c.seed} x ${c.partner}` === replayAsk.case && (
               <p className="mt-1">
                 Replayed as an ask for the video, chosen before the run; a demonstration, not a test. Protocol rank #{replayAsk.protocolRank}; the agent, given the eight in alphabetical order without knowing which was real, called {c.partner} {replayAsk.agentCall}.{" "}
-                <Link href={replayAsk.href} className="underline decoration-rule-strong underline-offset-4 hover:decoration-ink">Open the ask</Link>
+                <Link href={replayAsk.href} className={linkInline}>Open the ask</Link>
               </p>
             )}
           </li>

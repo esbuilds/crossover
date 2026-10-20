@@ -9,7 +9,7 @@ import { AGE_LABEL } from "@/lib/ages.ts";
 import type { Cohort } from "@/lib/cohort.ts";
 import type { ProxySpec } from "./crossover";
 import { BasedOn } from "./proxy-form";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, ExampleLinks, field } from "./ui";
+import { btnPrimary, btnSecondary, btnText, Chip, ExampleLinks, field } from "./ui";
 
 type Venue = { name: string; city: string | null; price_level: number | null; affinity: number | null };
 type Event =
@@ -222,7 +222,7 @@ export default function BriefPanel({
             ) : (
               <div className="mt-6 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
                 <span className="py-2">{b.error}</span>
-                <button onClick={() => setAttempt((n) => n + 1)} className={btnQuiet}>
+                <button onClick={() => setAttempt((n) => n + 1)} className={btnText}>
                   Try again
                 </button>
               </div>
@@ -237,7 +237,7 @@ export default function BriefPanel({
               {mail.status === "error" && (
                 <p className="mt-3 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
                   <span className="py-2">{mail.error}</span>
-                  <button onClick={() => setAttempt((n) => n + 1)} className={btnQuiet}>
+                  <button onClick={() => setAttempt((n) => n + 1)} className={btnText}>
                     Try again
                   </button>
                 </p>
@@ -266,7 +266,7 @@ export default function BriefPanel({
                 <button disabled={!reason.trim()} className={`${btnSecondary} flex-1 sm:flex-none`}>
                   Decline
                 </button>
-                <button type="button" onClick={() => setDeclining(false)} className={`${btnQuiet} px-3`}>
+                <button type="button" onClick={() => setDeclining(false)} className={`${btnText} px-3`}>
                   Cancel
                 </button>
               </div>

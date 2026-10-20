@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { TOUR, tourHref } from "@/lib/tour.ts";
-import { btnPrimary, btnQuiet } from "./ui";
+import { btnPrimary, btnText } from "./ui";
 
 export default function TourBar() {
   const n = Number(useSearchParams().get("tour"));
@@ -19,7 +19,7 @@ export default function TourBar() {
         <p className="shrink-0 font-mono text-sm text-ink-3">{n} of {TOUR.length}</p>
         <p className="min-w-0 flex-1 text-sm text-ink sm:text-base">{TOUR[n - 1].line}</p>
         <p className="flex shrink-0 items-center gap-4">
-          <Link href={here} className={btnQuiet}>Close</Link>
+          <Link href={here} className={btnText}>Close</Link>
           <Link href={n < TOUR.length ? tourHref(n + 1) : here} className={btnPrimary}>{n < TOUR.length ? "Next" : "Done"}</Link>
         </p>
       </div>

@@ -1,7 +1,7 @@
 // The rivals result (brief-oct12-front): shared by the front door (client) and /vs (server). No hooks, no server
 // imports. Every word comes from code or from Qloo.
 import Link from "next/link";
-import { btnQuiet } from "@/app/ui";
+import { btnText, chip } from "@/app/ui";
 import type { RivalRow, VsPayload, Xray } from "@/lib/rivals.ts";
 import { DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
 import { PAIR_CASE, VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
@@ -23,9 +23,9 @@ export function Calm({ message }: { message: string }) {
 
 export function PreparedPairs() {
   return (
-    <p className="mt-3 flex flex-wrap gap-x-4">
+    <p className="mt-3 flex flex-wrap gap-2">
       {VS_CASES.map((c) => (
-        <Link key={c.a.id} href={vsHref(c)} prefetch={false} className={btnQuiet}>
+        <Link key={c.a.id} href={vsHref(c)} prefetch={false} className={chip}>
           {c.a.name} vs {c.b.name}
         </Link>
       ))}
@@ -249,7 +249,7 @@ function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow
           <Rows rows={rows.slice(0, SHOWN)} d={d} side={side} cls={(i) => (i >= SHOWN_SMALL ? "max-sm:hidden" : "")} />
           {rows.length > SHOWN_SMALL && (
             <details className={`group ${rows.length > SHOWN ? "" : "sm:hidden"}`}>
-              <summary className={`${btnQuiet} cursor-pointer`}>
+              <summary className={`${btnText} cursor-pointer`}>
                 <span className="group-open:hidden">Show all {rows.length}</span>
                 <span className="hidden group-open:inline">Show fewer</span>
               </summary>

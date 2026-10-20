@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import TourBar from "./tour-bar";
+import { linkInline } from "./ui";
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
 import "./globals.css";
@@ -22,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${newsreader.variable} h-full antialiased`}>
       <body className="min-h-full">
         {children}
-        <p className="px-4 py-6 text-center text-sm text-ink-3 print:hidden">Data: Qloo · <Link href="/pick-three" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Pick three</Link></p>
+        <p className="px-4 py-6 text-center text-sm text-ink-3 print:hidden">Data: Qloo · <Link href="/pick-three" className={linkInline}>Pick three</Link></p>
         {/* the judge tour bar reads ?tour=n; Suspense because it reads the search params */}
         <Suspense>
           <TourBar />

@@ -9,7 +9,7 @@ import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ConstraintSet } from "@/lib/refine.ts";
 import UsMap from "./map";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, EXAMPLES, ExampleLinks, field, MatchCard, MORE_EXAMPLES, SiteHeader } from "./ui";
+import { btnPrimary, btnSecondary, btnText, chip, Chip, EXAMPLES, ExampleLinks, field, MatchCard, MORE_EXAMPLES, SiteHeader } from "./ui";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 
@@ -291,10 +291,10 @@ export default function Crossover({
                 </a>
               ))}
             </div>
-            <p className="mt-2 flex flex-wrap items-center gap-x-4 text-base text-ink-3">
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-base text-ink-3">
               <span>or try</span>
               {MORE_EXAMPLES.map((e) => (
-                <a key={e.name} href={e.href} className={btnQuiet}>
+                <a key={e.name} href={e.href} className={chip}>
                   {e.name}
                 </a>
               ))}
@@ -353,7 +353,7 @@ export default function Crossover({
         <div className="mt-6 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
           <span className="py-2">Couldn&apos;t build the slate: {slate.message}</span>
           {entity && (
-            <button onClick={() => loadSlate(entity.entity_id, entity.name, entity.type)} className={btnQuiet}>
+            <button onClick={() => loadSlate(entity.entity_id, entity.name, entity.type)} className={btnText}>
               Try again
             </button>
           )}
@@ -755,7 +755,7 @@ function PickRow({
       </button>
       {pairHref && (
         // no prefetch: partial prefetching drops the query, and /pair without ta/tb is a 404 by design (proxy.ts)
-        <Link href={pairHref} prefetch={false} className={`${btnQuiet} self-start text-sm`}>
+        <Link href={pairHref} prefetch={false} className={`${btnText} self-start text-sm`}>
           Check this pairing
         </Link>
       )}
@@ -821,7 +821,7 @@ function RefineBar({
             </button>
           ))}
           {refineText && (
-            <button onClick={() => onRefine("")} disabled={running} className={`${btnQuiet} text-sm`}>
+            <button onClick={() => onRefine("")} disabled={running} className={`${btnText} text-sm`}>
               Clear all
             </button>
           )}

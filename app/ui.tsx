@@ -6,8 +6,13 @@ export const btnPrimary =
   "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-accent px-5 text-base font-medium text-white hover:bg-accent-strong disabled:opacity-50";
 export const btnSecondary =
   "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-rule-strong bg-surface px-4 text-base text-ink hover:border-ink disabled:opacity-50";
-export const btnQuiet =
-  "inline-flex min-h-11 items-center text-base text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-ink hover:decoration-ink disabled:opacity-50";
+// Three click styles (DC F2, CT F3): linkInline for links inside a sentence, btnText for actions and standalone links,
+// chip for the rows of names to try. Underlines belong to linkInline only, until hover.
+export const linkInline = "underline decoration-ink-3 underline-offset-4 hover:text-ink hover:decoration-ink";
+export const btnText =
+  "inline-flex min-h-11 items-center text-base font-medium text-ink decoration-ink-3 underline-offset-4 hover:underline disabled:opacity-50";
+export const chip =
+  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-rule px-3 py-1 text-sm text-ink hover:border-ink aria-[current=true]:border-ink disabled:opacity-50";
 export const field =
   "min-h-11 w-full min-w-0 rounded-md border border-rule-strong bg-surface px-3 text-base text-ink placeholder:text-ink-3 outline-none focus:border-ink";
 export const panel = "rounded-lg border border-rule bg-surface";
@@ -39,15 +44,15 @@ export const CHIP_LABEL: Partial<Record<ChipKind, string>> = {
 // "Which one?": the one-click picker for a name with several Qloo matches (triage rows, triage seed, the review desk).
 export function WhichOne<T>({ options, label, onPick, onNone, className = "" }: { options: T[]; label: (o: T) => string; onPick: (o: T) => void; onNone?: () => void; className?: string }) {
   return (
-    <span className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-base ${className}`}>
+    <span className={`flex flex-wrap items-center gap-2 text-base ${className}`}>
       <span className="text-ink-2">Which one?</span>
       {options.map((o, i) => (
-        <button key={i} type="button" onClick={() => onPick(o)} className={btnQuiet}>
+        <button key={i} type="button" onClick={() => onPick(o)} className={chip}>
           {label(o)}
         </button>
       ))}
       {onNone && (
-        <button type="button" onClick={onNone} className={`${btnQuiet} text-ink-3`}>
+        <button type="button" onClick={onNone} className={btnText}>
           None of these
         </button>
       )}
@@ -126,10 +131,10 @@ export const MORE_EXAMPLES = [
 ];
 export function ExampleLinks() {
   return (
-    <span className="flex flex-wrap items-center gap-x-4">
+    <span className="flex flex-wrap items-center gap-2">
       <span className="text-ink-2">Try:</span>
       {EXAMPLES.map((e) => (
-        <a key={e.name} href={e.href} className={btnQuiet}>
+        <a key={e.name} href={e.href} className={chip}>
           {e.name}
         </a>
       ))}
@@ -139,13 +144,12 @@ export function ExampleLinks() {
 
 // The judge path (Pick A, Oct 13), on every main page: the ask, the measurement behind any step, the audit.
 export function JudgePath() {
-  const a = "underline decoration-rule-strong underline-offset-4 hover:text-ink";
   return (
     <p className="mt-2 text-sm text-ink-3">
       Three stops:{" "}
-      <Link href="/" className={a}>ask</Link> ·{" "}
-      <Link href="/#steps" className={a}>the evidence behind any step</Link> ·{" "}
-      <Link href="/audit" className={a}>is any of this right?</Link>
+      <Link href="/" className={linkInline}>ask</Link> ·{" "}
+      <Link href="/#steps" className={linkInline}>the evidence behind any step</Link> ·{" "}
+      <Link href="/audit" className={linkInline}>is any of this right?</Link>
     </p>
   );
 }

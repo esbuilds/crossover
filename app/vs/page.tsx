@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { Skeleton } from "@/app/brief-panel";
 import Link from "next/link";
-import { SiteHeader, btnQuiet } from "@/app/ui";
+import { SiteHeader, btnText, chip } from "@/app/ui";
 import { CATEGORIES } from "@/lib/constellation-cases.ts";
 import { peekVs, toPayload } from "@/lib/rivals.ts";
 import { VS_CASES } from "@/lib/rivals-cases.ts";
@@ -22,12 +22,12 @@ export default function Vs() {
       </Suspense>
       {/* moved from the home footer (Pick 1, Oct 14): one judge path up front, the rest of Crossover behind /vs */}
       <footer className="mt-16 border-t border-rule pt-6 text-base">
-        <p className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <p className="flex flex-wrap items-center gap-2">
           <span className="text-ink-2">Whole aisles:</span>
           {CATEGORIES.map((c) => (
-            <Link key={c.slug} href={`/map/${c.slug}`} className={btnQuiet}>{c.title}</Link>
+            <Link key={c.slug} href={`/map/${c.slug}`} className={chip}>{c.title}</Link>
           ))}
-          <Link href="/find" className={btnQuiet}>Find more partners</Link>
+          <Link href="/find" className={btnText}>Find more partners</Link>
         </p>
       </footer>
     </main>

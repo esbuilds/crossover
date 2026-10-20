@@ -1,9 +1,9 @@
 "use client";
-import { btnQuiet } from "@/app/ui";
+import { btnText } from "@/app/ui";
 
 export default function PrintButton() {
   return (
-    <button type="button" className={btnQuiet} onClick={() => window.print()}>
+    <button type="button" className={btnText} onClick={() => window.print()}>
       Print or save as PDF
     </button>
   );

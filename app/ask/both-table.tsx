@@ -1,6 +1,7 @@
 // The "both ways" table (Fable's columns ruling, real Oct 15): all eight rows in the frozen review's order, the agent's
 // calls marked, both ranks, one static caption. Shared by the ask page and the sheet; no hooks.
 import Link from "next/link";
+import { linkInline } from "@/app/ui";
 import type { BothWays, Rank } from "@/lib/ask/both-rules.ts";
 
 const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
@@ -13,7 +14,7 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
     return (
       <p className={compact ? "mt-1.5 text-ink-2" : "mt-3 max-w-[60ch] text-sm text-ink-3"}>
         The other direction (each one&apos;s fans&apos; rank of {b.seed}) was measured and doesn&apos;t separate these {b.rows.length}, so there&apos;s no table.{" "}
-        {compact ? "The rule is on /audit." : <Link href="/audit#both-ways" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">How that&apos;s decided</Link>}
+        {compact ? "The rule is on /audit." : <Link href="/audit#both-ways" className={linkInline}>How that&apos;s decided</Link>}
       </p>
     );
   return (

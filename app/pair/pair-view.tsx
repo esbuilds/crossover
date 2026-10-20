@@ -8,7 +8,7 @@ import type { Direction } from "@/lib/fit.ts";
 import type { City } from "@/lib/cities.ts";
 import UsMap from "../map";
 import BriefPanel, { Skeleton } from "../brief-panel";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL } from "../ui";
+import { btnPrimary, btnSecondary, btnText, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL } from "../ui";
 
 type Side = { query: string; state: "idle" | "loading" | "picked" | "ambiguous" | "not_found" | "error"; card?: Card; candidates?: Card[]; message?: string };
 const empty: Side = { query: "", state: "idle" };
@@ -132,7 +132,7 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
           <section className="border-b border-ink pb-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Chip kind={KIND[p.kind].chip}>{KIND[p.kind].label}</Chip>
-              <button onClick={() => navigator.clipboard.writeText(window.location.href).then(() => setCopied(true))} className={`${btnQuiet} text-sm`}>
+              <button onClick={() => navigator.clipboard.writeText(window.location.href).then(() => setCopied(true))} className={`${btnText} text-sm`}>
                 {copied ? "Link copied" : "Copy link to this pairing"}
               </button>
             </div>

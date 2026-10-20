@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Card } from "@/lib/slate.ts";
-import { btnPrimary, btnQuiet, btnSecondary, Chip, field, panel } from "./ui";
+import { btnPrimary, btnSecondary, btnText, Chip, field, panel } from "./ui";
 
 export type ProxyDraft = { name: string; description: string; brands: string[] };
 type Checked = { proxies: Card[]; rejected: { name: string; reason: string }[]; proposed: string[]; tag: { tag_id: string; name: string } | null; guessed: boolean };
@@ -137,7 +137,7 @@ export default function ProxyForm({
                     <button type="button" disabled={i === proxies.length - 1} onClick={() => move(i, 1)} className="min-h-11 min-w-11 rounded-md text-ink-2 hover:bg-surface-2 disabled:opacity-30" aria-label={`Move ${p.name} down`}>
                       &darr;
                     </button>
-                    <button type="button" onClick={() => setProxies((all) => all.filter((x) => x !== p))} className={`${btnQuiet} px-1 text-sm`}>
+                    <button type="button" onClick={() => setProxies((all) => all.filter((x) => x !== p))} className={`${btnText} px-1 text-sm`}>
                       Remove
                     </button>
                   </li>
@@ -171,7 +171,7 @@ export function BasedOn({ cards, onEdit }: { cards: Card[]; onEdit?: () => void 
         Based on fans of <strong className="font-semibold">{cards.map((c) => c.name).join(", ")}</strong>
       </span>
       {onEdit && (
-        <button onClick={onEdit} className={btnQuiet}>
+        <button onClick={onEdit} className={btnText}>
           Edit
         </button>
       )}
