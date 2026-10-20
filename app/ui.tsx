@@ -3,18 +3,19 @@ import Link from "next/link";
 import NavLinks from "./nav-links";
 // Shared pieces of the design system (tokens live in globals.css). One primary button per screen.
 export const btnPrimary =
-  "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-accent px-5 text-base font-medium text-white hover:bg-accent-strong disabled:cursor-wait disabled:bg-ink-3";
+  "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-accent px-5 text-base font-medium text-white transition-[background-color,transform] duration-150 ease-out motion-reduce:transition-none hover:bg-accent-strong active:translate-y-px disabled:cursor-wait disabled:bg-ink-3 motion-reduce:active:translate-y-0";
 export const btnSecondary =
-  "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-rule-ui bg-surface px-4 text-base text-ink hover:border-ink disabled:opacity-50";
+  "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-rule-ui bg-surface px-4 text-base text-ink transition-[border-color] duration-150 ease-out motion-reduce:transition-none hover:border-ink disabled:opacity-50";
 // Three click styles (DC F2, CT F3): linkInline for links inside a sentence, btnText for actions and standalone links,
 // chip for the rows of names to try. Underlines belong to linkInline only, until hover.
-export const linkInline = "underline decoration-ink-3 underline-offset-4 hover:text-ink hover:decoration-ink";
+export const linkInline =
+  "underline decoration-ink-3 underline-offset-4 transition-[color,text-decoration-color] duration-150 ease-out motion-reduce:transition-none hover:text-ink hover:decoration-ink";
 export const btnText =
-  "inline-flex min-h-11 items-center text-base font-medium text-ink decoration-ink-3 underline-offset-4 hover:underline disabled:text-ink-3 disabled:no-underline";
+  "inline-flex min-h-11 items-center text-base font-medium text-ink decoration-ink-3 underline-offset-4 transition-[color,text-decoration-color] duration-150 ease-out motion-reduce:transition-none hover:underline disabled:text-ink-3 disabled:no-underline";
 export const chip =
-  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-rule px-3 py-1 text-sm text-ink hover:border-ink aria-[current=true]:border-ink disabled:text-ink-3";
+  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-rule px-3 py-1 text-sm text-ink transition-[border-color] duration-150 ease-out motion-reduce:transition-none hover:border-ink aria-[current=true]:border-ink disabled:text-ink-3";
 export const field =
-  "min-h-11 w-full min-w-0 rounded-md border border-rule-ui bg-surface px-3 text-base text-ink placeholder:text-ink-3 outline-none focus:border-ink";
+  "min-h-11 w-full min-w-0 rounded-md border border-rule-ui bg-surface px-3 text-base text-ink placeholder:text-ink-3 outline-none transition-[border-color] duration-150 ease-out motion-reduce:transition-none focus:border-ink";
 export const panel = "rounded-lg border border-rule bg-surface";
 
 // The one chip system: status on a pick or a market. Text always says what the color means.

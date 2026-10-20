@@ -67,6 +67,35 @@ body {
   font-family: var(--font-sans);
 }
 
+/* feel (TR F2, TR F9): a warm selection, smooth jumps to a cited step, and the step it lands on lights once */
+::selection {
+  background: var(--color-accent-tint);
+  color: var(--color-ink);
+}
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [id^="step-"]:target,
+  [id^="check-"]:target {
+    animation: landed 1.6s ease-out;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  [id^="step-"]:target,
+  [id^="check-"]:target {
+    box-shadow: -6px 0 0 -3px var(--color-accent);
+  }
+}
+@keyframes landed {
+  from {
+    background-color: var(--color-accent-tint);
+  }
+}
+
 h1,
 h2,
 h3 {

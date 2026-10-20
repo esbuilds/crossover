@@ -13,7 +13,7 @@ export default function NavLinks() {
     // -mb-3 with pb-3 on the links: each link reaches down to the header's bottom rule, so the current mark lies on it
     <nav className="-mb-3 flex flex-wrap gap-x-4">
       {NAV.map(([href, label]) => (
-        <Link key={href} href={href} aria-current={current(href) ? "page" : undefined} className="inline-flex min-h-11 items-center pb-3 box-content text-sm text-ink-2 hover:text-ink aria-[current=page]:text-ink aria-[current=page]:shadow-[0_1px_0_var(--color-ink)]">
+        <Link key={href} href={href} aria-current={current(href) ? "page" : undefined} className="inline-flex min-h-11 items-center pb-3 box-content text-sm text-ink-2 transition-colors duration-150 ease-out motion-reduce:transition-none hover:text-ink aria-[current=page]:text-ink aria-[current=page]:shadow-[0_1px_0_var(--color-ink)]">
           {label}
         </Link>
       ))}
