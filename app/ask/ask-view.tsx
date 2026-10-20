@@ -252,7 +252,8 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
 
 // The decision (Fable tie ruling, Oct 14): it leads. "Call first: X" and the agent's checked reason for X; then, when the
 // review tied, its own label, smaller, with "inside a tie no order is claimed"; then the other calls; then the
-// same-audience line, found or not, and the agent's notes.
+// same-audience line, found or not, and the agent's notes. Ink for what the agent decided (its reasons), ink-2 for its
+// notes, ink-3 for caveats and captions (DC F7).
 function Call({ decision, steps, shared, both }: { decision: Decision; steps: StepRecord[]; shared?: string | null; both: BothWays | null }) {
   const review = steps.find((s) => s.tool === "review");
   const tied = !!(review?.output as { noClearThree?: boolean } | undefined)?.noClearThree;
@@ -266,7 +267,7 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
       {first && (
         <>
           <h2 className="font-display text-lg">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
-          <p className="claim mt-1 text-base text-ink-2">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
+          <p className="claim mt-1 text-base text-ink">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
           <FoolIt decision={decision} steps={steps} />
           {both && <BothTable b={both} />}
           {tied && (
@@ -281,7 +282,7 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
           {rest.map((c, i) => (
             <li key={c.name + i} className="border-t border-rule pt-3">
               <p className="text-lg text-ink">{tied ? "" : `${i + 2}. `}{nameForDisplay(c.name)}</p>
-              <p className="claim mt-1 text-base text-ink-2">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
+              <p className="claim mt-1 text-base text-ink">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
             </li>
           ))}
         </ul>
@@ -294,9 +295,10 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
           <Steps ns={[twinsStepRec.n]} />
         </p>
       )}
+      {decision.cautions.length + decision.summary.length > 0 && <p className="mt-4 text-sm text-ink-3">The agent&apos;s notes</p>}
       {[...decision.cautions, ...decision.summary].map((c, i, all) => (
         <div key={c.text}>
-          <p className="claim mt-3 max-w-[60ch] text-base text-ink-2">{forDisplay(c.text)} <Steps ns={c.steps} /></p>
+          <p className={`claim ${i ? "mt-2" : "mt-1"} max-w-[60ch] text-base text-ink-2`}>{forDisplay(c.text)} <Steps ns={c.steps} /></p>
           {byCategory && i === all.findIndex((x) => x.text.includes(`[[${byCategory.rival}]]`)) && <p className="mt-1 max-w-[60ch] text-sm text-ink-3">{byCategory.line}</p>}
         </div>
       ))}
