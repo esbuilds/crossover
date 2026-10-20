@@ -150,6 +150,14 @@ summary::-webkit-details-marker {
   }
 }
 
+/* a replayed step rising into the room it already holds (MO F4); applied under motion-safe only */
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 /* the call sheet prints on one page at Letter as well as A4 (persona round 2, Live Nation: page two held only the footer) */
 @page {
   margin: 0.4in;

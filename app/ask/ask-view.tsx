@@ -145,7 +145,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             <ol className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-sm" aria-label="The agent's steps">
               {steps.map((s) => (
                 <li key={s.n} className={s.n <= landed ? "text-ink" : "text-ink-3 opacity-40"}>
-                  <a href={`#step-${s.n}`} className="underline decoration-rule underline-offset-4">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</a>
+                  <a href={`#step-${s.n}`} onClick={() => setLanded((l) => Math.max(l, s.n))} className="underline decoration-rule underline-offset-4">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</a>
                 </li>
               ))}
             </ol>
@@ -185,7 +185,8 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {verdict?.ok && verdict.decision && <Call decision={verdict.decision} steps={steps} shared={notes?.shared ?? null} both={both} />}
           {verdict?.ok && verdict.decision && (
             <>
-              {!playing && <p className="mt-4 font-mono text-sm text-ink">Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>}
+              {/* held (invisible) while the replay plays, so its arrival doesn't shift the steps */}
+              <p className={`mt-4 font-mono text-sm text-ink ${playing ? "invisible" : ""}`} aria-hidden={playing || undefined}>Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
               <p className="mt-2 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
               {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof} <Link href="/replay" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Try the 23 yourself</Link></p>}
@@ -218,8 +219,9 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
         <section id="steps" className="order-4 scroll-mt-4 lg:col-start-1 lg:row-start-3">
           {steps.length > 0 && <h2 className="font-display text-xl">Steps</h2>}
           <ol className="mt-3 space-y-4">
-            {steps.filter((s) => s.n <= landed).map((s) => (
-              <li key={s.n} id={`step-${s.n}`} className="scroll-mt-4 border-t border-rule pt-3">
+            {/* every step holds its room from the start, so the grid doesn't re-row as the replay lands them (MO F4) */}
+            {steps.map((s) => (
+              <li key={s.n} id={`step-${s.n}`} aria-hidden={s.n > landed || undefined} className={`scroll-mt-4 border-t border-rule pt-3 ${s.n > landed ? "invisible" : landed !== Infinity ? "motion-safe:animate-[step-in_360ms_cubic-bezier(0.22,1,0.36,1)_backwards]" : ""}`}>
                 <p className="font-mono text-sm text-ink-3">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</p>
                 <p className="mt-1 text-base text-ink-2">{s.why}</p>
                 <p className="mt-1 text-base text-ink">{s.summary || (status === "running" ? <span className="font-mono text-sm motion-safe:animate-pulse">Reading Qloo...</span> : <span className="text-ink-2">Qloo didn&apos;t answer this step; the steps above are what was measured.</span>)}</p>
