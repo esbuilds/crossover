@@ -7,8 +7,11 @@ import type { Metadata, Viewport } from "next";
 import { Newsreader } from "next/font/google";
 import "./globals.css";
 
-// Display face for headings and map labels only. One weight; body text stays on the system font.
+// Display face for headings and map labels only; body text stays on the system font. One static weight: the variable
+// cut with optical size (TR F4) measured 129 KB preloaded against 24 KB, for a difference barely visible at 36 px
+// (real Oct 20). The italic is its own small file, not preloaded, and only the "vs" on /vs uses it.
 const newsreader = Newsreader({ subsets: ["latin"], weight: "600", display: "swap", variable: "--font-newsreader" });
+const newsreaderItalic = Newsreader({ subsets: ["latin"], weight: "600", style: "italic", display: "swap", preload: false, variable: "--font-newsreader-italic" });
 
 const DESCRIPTION = "One name in: an agent measures in Qloo step by step and says who to call first, with every line checked against the step behind it.";
 export const metadata: Metadata = {
@@ -24,7 +27,7 @@ export const viewport: Viewport = { themeColor: "#ffffff" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${newsreader.variable} h-full antialiased`}>
+    <html lang="en" className={`${newsreader.variable} ${newsreaderItalic.variable} h-full antialiased`}>
       <body className="min-h-full">
         {children}
         {/* one colophon on every page (DC F6, TR F10): it carries the three stops (Pick A) and the tour */}

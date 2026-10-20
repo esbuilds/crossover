@@ -104,6 +104,18 @@ h3 {
   text-wrap: balance;
 }
 
+/* the display face says its weight instead of leaning on the one loaded cut (TR F4). In the base layer, so an
+   explicit weight utility on the same element still wins. .font-italic-display is the "vs" on /vs only. */
+@layer base {
+  .font-display {
+    font-weight: 600;
+  }
+  .font-italic-display {
+    font-family: var(--font-newsreader-italic), var(--font-display);
+    font-style: italic;
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;

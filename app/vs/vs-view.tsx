@@ -64,7 +64,7 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
         <header className="order-1 mt-8">
           {/* the page's h1 is the question above the form (DC F8); the pair is the result's headline */}
           <h2 className="font-display text-2xl">
-            {A} <span className="text-ink-3">vs</span> {B}
+            {A} <span className="font-italic-display text-ink-3">vs</span> {B}
           </h2>
           {(r.a.kind.length > 0 || r.b.kind.length > 0) && (
             <p className="mt-1 text-sm text-ink-3">
