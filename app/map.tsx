@@ -29,6 +29,7 @@ export const StatesLayer = memo(function StatesLayer() {
             stroke="#ffffff"
             strokeWidth={0.75}
             style={{ outline: "none" }}
+            tabIndex={-1} // react-simple-maps makes every state a tab stop; the map isn't interactive (CT F7)
           />
         ))
       }
