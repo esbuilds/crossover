@@ -55,7 +55,7 @@ export default function AuditPage() {
       <SiteHeader href="/" label="Pick three" />
       <section className="pt-8">
         <h1 className="font-display text-2xl sm:text-3xl">Audit</h1>
-        <p className="mt-2 max-w-[68ch] text-base text-ink-2">Every test here was frozen in git before it ran, and every result is published as it came out, misses included. The replays of real collaborations come first; the earlier held-out briefs, the agent&apos;s blocked answers and the known limits follow.</p>
+        <p className="mt-2 max-w-[52ch] text-base text-ink-2">Every test here was frozen in git before it ran, and every result is published as it came out, misses included. The replays of real collaborations come first; the earlier held-out briefs, the agent&apos;s blocked answers and the known limits follow.</p>
       </section>
 
       {/* Fable's re-judge ruling (Oct 15): one funnel strip from numbers already on this page. Asks and routes are
@@ -89,7 +89,7 @@ export default function AuditPage() {
 
       <section className="mt-12 border-t border-rule-strong pt-6">
         <h2 className="font-display text-xl">Held-out briefs, a separate and earlier test (Oct 10)</h2>
-        <p className="mt-2 max-w-[68ch] text-base text-ink-2">
+        <p className="mt-2 max-w-[52ch] text-base text-ink-2">
           These briefs have their own eight names each, written before any run, so their picks differ from the front page&apos;s asks. Twelve briefs, each a brand and eight brands that could partner with it. Six were used to set the rules; six were held out and run once, after the protocol was frozen (commit{" "}
           <code className="font-mono text-sm">{FREEZE_COMMIT}</code>). Everything below is Qloo&apos;s measured affinity read by the {results.rules} rules: a group is every name within 0.05 of its strongest member, and no order is claimed inside a group.
         </p>
@@ -100,7 +100,7 @@ export default function AuditPage() {
         <Stat figure={`${famousPicked.length} of ${famous.length}`} label="household names (the drafter's label) among the held-out picks" />
         <Stat figure={`${smallPicked.length} of ${small.length}`} label="small brands (the drafter's label) among the held-out picks" />
       </section>
-      <p className="mt-4 max-w-[68ch] text-base text-ink-2">
+      <p className="mt-4 max-w-[52ch] text-base text-ink-2">
         Roles like &ldquo;famous&rdquo; and &ldquo;small&rdquo; were written into the briefs before any run, as the drafter&apos;s expectation for coverage. They are not labels of truth, and a real past deal isn&apos;t a positive label either. &ldquo;4 of 6&rdquo; and &ldquo;0 of 12&rdquo; measure the protocol&apos;s output against the drafter&apos;s labels, not whether a partnership works. {unmeasured} of {names} held-out names couldn&apos;t be measured; they are listed, never scored.
       </p>
 
@@ -115,14 +115,14 @@ export default function AuditPage() {
 
       <section className="mt-12">
         <h2 className="font-display text-xl">Name resolution</h2>
-        <p className="mt-2 max-w-[68ch] text-base text-ink-2">
+        <p className="mt-2 max-w-[52ch] text-base text-ink-2">
           Twenty-four typed names: obscure brands, words with several meanings, misspellings and brands that don&apos;t exist. The rule: never confirm the wrong entity. Unresolved or &ldquo;more than one match&rdquo; is allowed.
         </p>
-        <p className="mt-4 max-w-[68ch] text-base text-ink">
+        <p className="mt-4 max-w-[52ch] text-base text-ink">
           As run: {asRun.length - wrong.length} of {asRun.length} never wrong. {count(wrong.length, "failure")}: {wrong.map((c) => `${c.q} confirmed to a namesake`).join("; ")}. Each had an exact-name entity of another type that Qloo listed first.
         </p>
         {recheck.length > 0 && (
-          <p className="mt-2 max-w-[68ch] text-base text-ink">
+          <p className="mt-2 max-w-[52ch] text-base text-ink">
             Fix ({results.resolutionRecheck?.rule}): an exact name that a known entity of another type also carries now asks which one. Rechecked: {recheck.filter((c) => c.neverWrong).length} of {recheck.length} never wrong. That recheck is not a held-out result; the rule was written after seeing these four.
           </p>
         )}
@@ -136,7 +136,7 @@ export default function AuditPage() {
         </details>
       </section>
 
-      <section id="counterexample" className="mt-12 max-w-[68ch] scroll-mt-4">
+      <section id="counterexample" className="mt-12 max-w-[52ch] scroll-mt-4">
         <h2 className="font-display text-xl">One honest counterexample</h2>
         <p className="mt-2 text-base text-ink-2">
           Liquid Death and e.l.f. made Corpse Paint together. It sold out in 45 minutes and drew more than 250 million social impressions (
@@ -147,7 +147,7 @@ export default function AuditPage() {
         </p>
       </section>
 
-      <section id="checker" className="mt-12 max-w-[68ch] scroll-mt-4">
+      <section id="checker" className="mt-12 max-w-[52ch] scroll-mt-4">
         <h2 className="font-display text-xl">What the ask agent may say</h2>
         <p className="mt-2 text-base text-ink-2">
           The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Every prepared ask&apos;s eight candidates tie within 0.05 by taste, because they are the top of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the overlap check is shown whether it finds a pair or not.
@@ -156,7 +156,7 @@ export default function AuditPage() {
         <p className="mt-1 text-base text-ink-2">The rule was refined on Oct 15 (rule v2) after the judge-name probe blocked a true answer for Noah Kahan: a number after &ldquo;against&rdquo;, &ldquo;versus&rdquo;, &ldquo;while&rdquo;, &ldquo;for the others&rdquo;, a count of others (&ldquo;seven others&rdquo;) or a semicolon now has to be the next named brand&apos;s own number, or with none named, another candidate&apos;s, instead of the brand before the comma&apos;s. Every number still has to be in a cited step. Before it shipped, all 29 cached answers that passed still passed (33 on a re-run the same afternoon, 0 failing), the three real failures below still block, and a test proves a misattributed number still blocks. Answers are re-checked under the current rule when shown; the stored runs aren&apos;t changed.</p>
         <p className="mt-1 text-base text-ink-2">Rule v3 (Oct 18) came from attacking the checker, below: a score written after the seed&apos;s name, and any rank, now has to be the named brand&apos;s own. The three frozen answers check identically, all 33 cached answers that passed still pass, and every entry in this list reads the same under v3 as under v2.</p>
         <p className="mt-1 text-base text-ink-2">The checker reads names and numbers, not meaning; a true sentence can be blocked, a misleading one with correct numbers can pass.</p>
-        <ul className="mt-2 space-y-2 text-sm text-ink-2">
+        <ul className="mt-2 max-w-[52ch] space-y-2 text-sm text-ink-2">
           {blocked.map((b) => (
             <li key={b.ask + b.version} className="border-t border-rule pt-2">
               <p className="text-ink">{b.ask} <span className="font-mono text-ink-3">({b.version}, rule {b.rule})</span>{b.note ? `: ${b.note}` : ""} <span className="font-semibold">Under rules v2 and v3: {b.underV2}.</span>{(b as { v2Note?: string }).v2Note ? ` ${(b as { v2Note?: string }).v2Note}` : ""}</p>
@@ -166,16 +166,16 @@ export default function AuditPage() {
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-sm text-ink-2">Until Oct 15 the fixes went into the tools and the prompt, never into the check: the tools now name both sides of the split and state the method&apos;s own numbers, and the score-binding rule was narrowed to the clause right after a brand. Recovered from the cache by scripts/blocked-extract.ts.</p>
+        <p className="mt-2 max-w-[52ch] text-sm text-ink-2">Until Oct 15 the fixes went into the tools and the prompt, never into the check: the tools now name both sides of the split and state the method&apos;s own numbers, and the score-binding rule was narrowed to the clause right after a brand. Recovered from the cache by scripts/blocked-extract.ts.</p>
       </section>
 
       {/* moonshots round 4, real Oct 18: the checker attacked by script before a visitor gets to try (scripts/mutation-gate.ts) */}
-      <section id="fool-it" className="mt-12 max-w-[68ch] scroll-mt-4">
+      <section id="fool-it" className="mt-12 max-w-[52ch] scroll-mt-4">
         <h2 className="font-display text-xl">Can the checker be fooled?</h2>
         <p className="mt-2 text-base text-ink-2">
           Every answer the site shows ({mutation.answers} cached on {mutation.date}) was copied and one fact was changed per copy: a score moved by 0.03, a rank or count moved by one, a brand swapped, a citation pointed at the wrong step. The checker re-checked each copy. 0 Qloo calls, 0 model calls. Under rule {mutation.before.rule} it rejected {mutation.before.rejected} of {mutation.before.of}; the misses showed two holes, both closed in rule {mutation.rule}, which rejects {mutation.gated.rejected} of {mutation.gated.of}. Any answer on the site has a &ldquo;Try to fool the checker&rdquo; box that runs the same code on your edit.
         </p>
-        <ul className="mt-3 space-y-2 text-sm text-ink-2">
+        <ul className="mt-3 max-w-[52ch] space-y-2 text-sm text-ink-2">
           {mutation.kinds.map((k) => (
             <li key={k.kind} className="border-t border-rule pt-2">
               <p className="text-ink"><span>{k.rejected} of {k.applied}</span> rejected: {k.kind}{k.gated ? "" : " (a known limit, not counted above)"}.</p>
@@ -191,14 +191,14 @@ export default function AuditPage() {
         <p className="mt-2 text-base text-ink-2">What got through, read by hand: seven of the eight nudged scores became 1.00, which the checker reads as the brand&apos;s own rank of 1 (it compares decimals at two places, so 1.00 and 1 are the same number to it); the eighth landed on another of Backcountry&apos;s own scores. The three ranks that got through sit in sentences that open with &ldquo;It&rdquo; or no brand at all, so there is no brand to bind them to. The known limit: a brand that no step ever returned, typed without the agent&apos;s brackets, can&apos;t be matched by name. The agent brackets every name it writes, and the box on the answer page brackets any new capitalised name you type, so swapping in &ldquo;Nike&rdquo; there is rejected.</p>
       </section>
 
-      <section className="mt-12 max-w-[68ch]">
+      <section className="mt-12 max-w-[52ch]">
         <h2 className="font-display text-xl">Overlap, not swaps</h2>
         <p className="mt-2 text-base text-ink-2">
           Measured Oct 13 on the twelve briefs above, after the protocol, so not held out. Each top name scored the others. A three with at least 0.05 less overlap existed in 6 of 12 briefs, but every one gave up more than 0.05 of fit with the seed, and two dropped the strongest name (Liquid Death would trade Death Wish Coffee, 0.83, for Nike, 0.67). So the reveal never suggests a swap. It only names a pair of top names whose audiences sit 0.05 or more closer to each other than any other pair: REI and Patagonia for Mt. Joy (0.97, next 0.89), and 5 of 11 briefs that ran.
         </p>
       </section>
 
-      <section id="probes" className="mt-12 max-w-[68ch] scroll-mt-4">
+      <section id="probes" className="mt-12 max-w-[52ch] scroll-mt-4">
         <h2 className="font-display text-xl">Rivals and the collision map</h2>
         <p className="mt-2 text-base text-ink-2">Measured Oct 11 on the hackathon API (probe/VERIFY-4.md and the build reports). These are limits of the front door, not held-out results.</p>
         <ul className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 text-base text-ink">
@@ -305,7 +305,7 @@ export default function AuditPage() {
       </section>
 
       {/* Fable's Oct 16 ruling, pick 3: what we asked, what came back, what we shipped, the probe file. No adjectives, no asks. */}
-      <section id="api-notes" className="mt-12 max-w-[68ch] scroll-mt-4">
+      <section id="api-notes" className="mt-12 max-w-[52ch] scroll-mt-4">
         <h2 className="font-display text-xl">Notes on the API</h2>
         <ul className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-3 text-base text-ink">
           {API_NOTES.map(([asked, came, shipped, file]) => (
@@ -314,7 +314,7 @@ export default function AuditPage() {
         </ul>
       </section>
 
-      <section className="mt-12 max-w-[68ch] border-t border-rule pt-4 text-sm text-ink-3">
+      <section className="mt-12 max-w-[52ch] border-t border-rule pt-4 text-sm text-ink-3">
         <p>What this doesn&apos;t establish: purchases, visits, commercial eligibility, or whether a deal makes money.</p>
         <p className="mt-2">
           Method: brand names resolved brand-only; buyer gates come from each brief and are examples, not facts about the companies. Affinities are rounded to two decimals; Qloo&apos;s raw responses aren&apos;t published. Protocol and rules: audit/briefs.json, lib/review.ts. Run {results.ranAt}.
@@ -395,7 +395,7 @@ function Replay() {
   return (
     <section id="replays" className="mt-12 scroll-mt-4">
       <h2 className="font-display text-xl">Would it have found real partners?</h2>
-      <p className="mt-2 max-w-[68ch] text-base text-ink-2">
+      <p className="mt-2 max-w-[52ch] text-base text-ink-2">
         Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans score all eight. A hit is the real partner in the top three; chance is three in eight. Each test&apos;s protocol and bar were frozen in git before it ran.
       </p>
       <ReplayRun data={replayV2} freeze={REPLAY_V2_FREEZE} title="Second test (v2): new cases only, after the first missed" protocol="audit/replay-v2-protocol.md"
@@ -403,7 +403,7 @@ function Replay() {
         note="Sensitivity: two kept cases (Krispy Kreme x Crocs, Pringles x Crocs) have luxury-house decoys the rules don't cover; both were hits. Without them it is 9 of 12, against a bar of 8 for twelve." />
       <ReplayRun data={replay} freeze={REPLAY_FREEZE} title="First test (v1)" protocol="audit/replay-protocol.md"
         dropped="Four had no Qloo category tag for the partner; four had a tag that isn't the partner's category. Red Bull x GoPro and Liquid Death x e.l.f. were left out because their scores were already seen." />
-      <p className="mt-6 max-w-[68ch] text-sm text-ink-2">
+      <p className="mt-6 max-w-[52ch] text-sm text-ink-2">
         Pooled after the fact, not a test: {a.hits + b.hits} of {a.scored + b.scored} real partners in the top three across both. A deal that happened is a decision, not proof it worked.
       </p>
     </section>
@@ -425,7 +425,7 @@ function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: Rep
   return (
     <div className="mt-8">
       <h3 className="text-base font-semibold text-ink">{title}</h3>
-      <p className="mt-1 max-w-[68ch] text-lg text-ink">
+      <p className="mt-1 max-w-[52ch] text-lg text-ink">
         {sum.pass ? "It passes" : "It fails its bar"}: {sum.hits} of {sum.scored} real partners in the top three (needed {sum.need}; chance gives about {((sum.scored * 3) / 8).toFixed(1)}, and {sum.hits} or more by chance is about 1 in {Math.round(1 / chanceAtLeast(sum.scored, sum.hits))}). No real partner ranked below {Math.max(...scored.map((c) => c.result!.rank!))}th, and the mean rank is {sum.meanRank} against {sum.chanceMeanRank} by chance, reported but not part of the bar.
       </p>
       <p className="mt-1 text-sm text-ink-3">Frozen at commit <code className="font-mono">{freeze}</code> ({protocol}).</p>
@@ -448,8 +448,8 @@ function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: Rep
           </li>
         ))}
       </ul>
-      <p className="mt-3 max-w-[68ch] text-sm text-ink-2">Dropped before scoring: {out.map((c) => `${c.seed} x ${c.partner}`).join("; ")}. {dropped}</p>
-      {note && <p className="mt-2 max-w-[68ch] text-sm text-ink-2">{note}</p>}
+      <p className="mt-3 max-w-[52ch] text-sm text-ink-2">Dropped before scoring: {out.map((c) => `${c.seed} x ${c.partner}`).join("; ")}. {dropped}</p>
+      {note && <p className="mt-2 max-w-[52ch] text-sm text-ink-2">{note}</p>}
     </div>
   );
 }
