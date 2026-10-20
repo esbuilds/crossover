@@ -9,7 +9,7 @@ import { CATEGORIES } from "@/lib/constellation-cases.ts";
 import Link from "next/link";
 import { btnPrimary, btnText, chip, field, TYPE_LABEL, WhichOne } from "../ui";
 import { Skeleton } from "../brief-panel";
-import { VsResult } from "./vs-view";
+import { CheckTag, VsResult } from "./vs-view";
 import { COMPETITOR_LABEL, finderOrder } from "@/lib/vs.ts";
 
 // The front door (brief-oct12-front): two names in, the collision map and the columns out. Prepared pairs swap the
@@ -184,10 +184,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
   );
   return (
     <section className="pt-8">
-      <p className="max-w-[60ch] text-lg text-ink-2">
-        <span className="sm:hidden">Two names in. See where their audiences split.</span>
-        <span className="max-sm:hidden">Put two names in. See where their audiences split on the map, and which brands sit closer to each.</span>
-      </p>
+      <h1 className="font-display text-2xl sm:text-3xl">Two names in. See where their audiences split.</h1>
       <form onSubmit={compare} className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-start">
         <SideInput label="First name" value={qa} onChange={setQa} ask={asks[0]} onPick={(c) => choose(0, c)} />
         <span className="hidden min-h-11 items-center text-ink-3 sm:inline-flex">vs</span>
@@ -197,8 +194,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
         </button>
       </form>
       <div className="mt-1">
-        {tryRow("Try:", VS_CASES)}
-        {VS_MORE.length > 0 && tryRow("or try", VS_MORE)}
+        {tryRow("Try:", [...VS_CASES, ...VS_MORE])}
         <p className="mt-2 flex items-center gap-2 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
           <span className="shrink-0 text-ink-2">Whole aisles:</span>
           {CATEGORIES.map((c) => (
@@ -230,17 +226,15 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
 }
 
 // The finder's two lines as ruled rows, in the field's order (lib/vs.ts finderOrder): the measured line cites log
-// step 0 in the log's monospace; Qloo's competitor line is Qloo's label, searched only when a chip is clicked.
+// step 0 with a check tag; Qloo's competitor line is Qloo's label, searched only when a chip is clicked.
 function FinderBlock({ finder, active, onPick, onLabel }: { finder: Finder; active: string | null; onPick: (f: Found) => void; onLabel: (n: string) => void }) {
   const r = finder.result;
   const options = r.kind === "pick" ? [r.pick, ...r.alternates] : "options" in r ? r.options : [];
   const rows = {
     measured: (
       <div key="measured" className="border-t border-rule py-2">
-        <p className="font-mono text-sm text-ink-2">
-          <span title="From Qloo check 0" className="cursor-help underline decoration-rule-strong decoration-dotted underline-offset-4">
-            {finder.line}
-          </span>
+        <p className="text-sm text-ink-2">
+          {finder.line} <CheckTag checks="0" />
         </p>
         {options.length > 0 && <FoundChips options={options} onPick={onPick} active={active} />}
       </div>

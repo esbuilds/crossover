@@ -1,7 +1,7 @@
 // The rivals result (brief-oct12-front): shared by the front door (client) and /vs (server). No hooks, no server
 // imports. Every word comes from code or from Qloo.
 import Link from "next/link";
-import { btnText, chip } from "@/app/ui";
+import { btnText, chip, Chip } from "@/app/ui";
 import type { RivalRow, VsPayload, Xray } from "@/lib/rivals.ts";
 import { DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
 import { PAIR_CASE, VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
@@ -62,9 +62,10 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
       {/* under 640 px the map comes before the verdict (CSS order, one copy of each); from 640 up, the verdict first */}
       <div className="flex flex-col">
         <header className="order-1 mt-8">
-          <h1 className="font-display text-2xl sm:text-3xl">
+          {/* the page's h1 is the question above the form (DC F8); the pair is the result's headline */}
+          <h2 className="font-display text-2xl">
             {A} <span className="text-ink-3">vs</span> {B}
-          </h1>
+          </h2>
           {(r.a.kind.length > 0 || r.b.kind.length > 0) && (
             <p className="mt-1 text-sm text-ink-3">
               {[r.a, r.b].map((s) => (s.kind.length ? `${s.name}: ${s.kind.join(", ")}` : null)).filter(Boolean).join(" · ")}
@@ -84,10 +85,9 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
           {stateLine && <p className="mt-2 max-w-[68ch] text-base text-ink-2">{stateLine}</p>}
           {d.share.length > 0 && (
             <p className="mt-3 text-sm">
-              <span className="inline-flex min-h-8 items-center rounded-sm border border-rule-strong px-2 text-ink" title="From Qloo check 7 (Qloo compare)">
+              <Chip kind="note" title="From Qloo check 7 (Qloo compare)">
                 Share by category: {d.share.join(", ")}
-              </span>
-              <span className="ml-2 text-ink-3">Qloo compare</span>
+              </Chip>
             </p>
           )}
         </div>
@@ -231,10 +231,15 @@ function XraySection({ d, rows, check }: { d: VsPayload; rows: Xray[]; check: nu
 // a number tied to its log line, as the brief panel does
 function Cite({ checks, children }: { checks: string; children: React.ReactNode }) {
   return (
-    <span title={`From Qloo check${checks.includes(" ") ? "s" : ""} ${checks}`} className="cursor-help underline decoration-rule-strong decoration-dotted underline-offset-4">
-      {children}
-    </span>
+    // a trailing citation tag, like the ask's "step n", instead of a dotted underline that read as a dead link (DC F8)
+    <>
+      {children} <CheckTag checks={checks} />
+    </>
   );
+}
+
+export function CheckTag({ checks }: { checks: string }) {
+  return <span className="whitespace-nowrap font-mono text-sm text-ink-3">Qloo check{checks.includes(" ") ? "s" : ""} {checks}</span>;
 }
 
 function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow[]; d: VsPayload; side: "a" | "b"; empty: string }) {
