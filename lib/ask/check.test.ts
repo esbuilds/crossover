@@ -1,7 +1,7 @@
 // lib/ask/check.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkDecision, displayName, forDisplay, nameForDisplay, unbracket, type Decision, type StepRecord } from "./check.ts";
+import { checkDecision, claimCount, displayName, forDisplay, nameForDisplay, unbracket, type Decision, type StepRecord } from "./check.ts";
 
 const steps: StepRecord[] = [
   { n: 1, tool: "resolve", why: "", summary: "", output: { state: "confirmed", name: "Mt. Joy" } },
@@ -142,4 +142,9 @@ test("forDisplay: the twins tool reads as the overlap check; a brand named Twins
   assert.equal(forDisplay("so twins gives no pair to keep apart."), "so the overlap check gives no pair to keep apart.");
   assert.equal(forDisplay("[[Minnesota Twins]] scores 0.90."), "Minnesota Twins scores 0.90.");
   assert.equal(forDisplay("Minnesota Twins fans"), "Minnesota Twins fans");
+});
+
+test("claimCount counts the names, decimals and ranks the checker binds", () => {
+  // call: Allbirds, 0.95, #2; caution: REI, Patagonia, 0.97, 0.89; summary: Allbirds
+  assert.equal(claimCount(ok), 8);
 });

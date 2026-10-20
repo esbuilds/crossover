@@ -16,6 +16,12 @@ const DECIMAL = /(?<![\w.])\d+\.\d+/g;
 const CONTRAST = /\b(?:against|versus|vs\.?|compared with|while|whereas|for the others|for the rest|the others|the rest|(?:[2-9]|\d{2,}|two|three|four|five|six|seven|eight|nine) others?)\b|;/i;
 export const CHECK_RULE = "v3"; // v2 until real Oct 18 (mutation gate); v1 until real Oct 15: a number after the first brand, up to the next name, was its own
 export const unbracket = (t: string) => t.replace(BRACKET, "$1");
+// what checkDecision matches to a cited step: every bracketed name and every number (the front door's stamp counts these)
+export const claimCount = (d: Decision) =>
+  [...d.calls.map((c) => c.reason), ...d.cautions, ...d.summary].reduce((n, t) => {
+    const text = typeof t === "string" ? t : t.text;
+    return n + (text.match(BRACKET)?.length ?? 0) + (text.replace(BRACKET, " ").match(/(?<![\w.])\d+(?:\.\d+)?/g)?.length ?? 0);
+  }, 0);
 
 // Render only: a Qloo name that reads as a word gets the brand name from Qloo's own description. The checker never sees
 // these. ponytail: keyed by name, so a second entity with the same bare name would borrow it; key by id if one appears.

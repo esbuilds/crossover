@@ -3,10 +3,10 @@
 // split, the fame-to-taste dumbbell) above the fold, and the decision once the checker passes it (Pick 1, Oct 14).
 // initial: a cached ask the server replayed (no POST, no Qloo call); pending: a share link whose ask isn't cached yet.
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { btnPrimary, btnQuiet, field, JudgePath } from "../ui";
 import CollisionMap from "../vs/collision-map";
-import { displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
+import { CHECK_RULE, claimCount, displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { checkEdit, nudge } from "@/lib/ask/fool.ts";
 import { smallerLine, type Smaller } from "@/lib/ask/smaller-rules.ts";
 import { askLinks } from "@/lib/ask/links.ts";
@@ -31,6 +31,10 @@ const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight
 const COST = "About 6 steps, about 28 Qloo calls and 40 seconds on a name nobody has asked about yet; a name already asked replays at once.";
 // the same limits line Pick three's evidence shows (lib/vs.ts DOESNT_ESTABLISH, condensed)
 const LIMITS = "What this doesn't establish: purchases, visits, commercial eligibility, or whether the deal makes money.";
+// Watch it think (moonshots round 4 pick 2): the last replayed step to land. A claim's step link is stamped once its step
+// is in; Infinity (every page but the home page) means no replay and no stamps. Runs store no timings, so it's sped up.
+const Landed = createContext(Infinity);
+const STEP_MS = 1200;
 
 async function streamEvents(res: Response, onEvent: (e: AskEvent) => void) {
   const reader = res.body!.pipeThrough(new TextDecoderStream()).getReader();
@@ -52,7 +56,8 @@ const verdictOf = (events: AskEvent[]): Verdict | null => {
 
 // proof: the replay line (lib/ask/steps.ts replayLine), passed from the server so the replay files stay off the client
 // initial.asked: the body the cached ask was run with, so its share and sheet links find it (typed names are keyed by the name)
-export default function AskView({ initial, pending, proof }: { initial?: { label: string; events: AskEvent[]; asked?: Body }; pending?: { label: string; body: Body }; proof?: string }) {
+// play: the home page replays initial's steps under its answer (Watch it think) and puts the ask box below
+export default function AskView({ initial, pending, proof, play = false }: { initial?: { label: string; events: AskEvent[]; asked?: Body }; pending?: { label: string; body: Body }; proof?: string; play?: boolean }) {
   const [q, setQ] = useState(initial?.label ?? pending?.label ?? "");
   const [events, setEvents] = useState<AskEvent[]>(initial?.events ?? []);
   const [status, setStatus] = useState<"idle" | "running" | "done" | "error">(initial ? "done" : "idle");
@@ -65,10 +70,18 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
   const bell = dumbbellStep(steps);
   const hero: "map" | "dumbbell" | null = map ? "map" : bell ? "dumbbell" : null;
   const card = verdict?.ok && verdict.decision ? callCard(steps, verdict.decision) : null;
+  const [landed, setLanded] = useState(play && initial ? 0 : Infinity);
+  useEffect(() => {
+    if (landed >= steps.length) return;
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches; // no replay: every step lands at once
+    const t = setTimeout(() => setLanded((l) => (still ? steps.length : l + 1)), still ? 0 : STEP_MS);
+    return () => clearTimeout(t);
+  }, [landed, steps.length]);
+  const playing = landed < steps.length;
 
   const ranHere = useRef(false); // the front page keeps "/" until the visitor asks something
   async function run(body: Body) {
-    setEvents([]); setError(""); setStatus("running"); setAsked(body); ranHere.current = true;
+    setEvents([]); setError(""); setStatus("running"); setAsked(body); setLanded(Infinity); ranHere.current = true;
     // a dropped connection must not leave the button disabled (deferred minor, fixed Oct 13)
     try {
       const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -97,8 +110,28 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
   const ambiguous = resolved?.state === "ambiguous" ? resolved.options : undefined;
   const chips: { label: string; body: Body }[] = [...PREPARED_ASKS, ...(pending && !("query" in pending.body) ? [{ label: pending.label, body: pending.body }] : [])];
 
-  return (
+  const askBox = (
     <>
+      <JudgePath />
+      <p className="mt-1 text-sm"><Link href={tourHref(1)} className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Take the 60-second tour</Link> · <Link href="/replay" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Spot the real partner</Link></p>
+      <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
+      <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
+      <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
+      <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-row gap-3">
+        <input value={q} onChange={(ev) => setQ(ev.target.value)} aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
+        <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
+      </form>
+      <p className="mt-2 flex flex-wrap items-center gap-x-4 text-base">
+        <span className="text-ink-2">Try:</span>
+        {chips.map((p) => (
+          <button key={p.label} type="button" disabled={status === "running"} onClick={() => (setQ(p.label), run(p.body))} className={btnQuiet}>{p.label}</button>
+        ))}
+      </p>
+    </>
+  );
+
+  return (
+    <Landed.Provider value={landed}>
       <section className="pt-6">
         <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
         <p className="mt-2 max-w-[68ch] text-lg text-ink-2">
@@ -106,21 +139,24 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
           <span className="sm:hidden">Every number comes from Qloo; every name and number in the answer is checked.</span>
           <span className="max-sm:hidden">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</span>
         </p>
-        <JudgePath />
-        <p className="mt-1 text-sm"><Link href={tourHref(1)} className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Take the 60-second tour</Link> · <Link href="/replay" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Spot the real partner</Link></p>
-        <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
-        <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
-        <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
-        <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-row gap-3">
-          <input value={q} onChange={(ev) => setQ(ev.target.value)} aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
-          <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
-        </form>
-        <p className="mt-2 flex flex-wrap items-center gap-x-4 text-base">
-          <span className="text-ink-2">Try:</span>
-          {chips.map((p) => (
-            <button key={p.label} type="button" disabled={status === "running"} onClick={() => (setQ(p.label), run(p.body))} className={btnQuiet}>{p.label}</button>
-          ))}
-        </p>
+        {play && initial && landed !== Infinity && (
+          <div className="mt-3">
+            {/* the trace rail: in the first screen at 390 and 1280, where the step list isn't */}
+            <ol className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-sm" aria-label="The agent's steps">
+              {steps.map((s) => (
+                <li key={s.n} className={s.n <= landed ? "text-ink" : "text-ink-3 opacity-40"}>
+                  <a href={`#step-${s.n}`} className="underline decoration-rule underline-offset-4">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</a>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-1 font-mono text-sm text-ink-3" role="status">
+              {playing ? `Replaying the ${initial.label} run, sped up: step ${landed + 1} of ${steps.length}. Each claim is stamped when the step it cites lands.` : `The ${initial.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
+              <button type="button" onClick={() => setLanded(playing ? steps.length : 0)} className={btnQuiet}>{playing ? "Skip" : "Replay it"}</button>{" "}
+              <a href="#ask" className={btnQuiet}>Ask your own</a>
+            </p>
+          </div>
+        )}
+        {!play && askBox}
       </section>
 
       {/* phones: the call card, the picture, the decision, the steps (Fable tie ruling, Oct 14). From 1024: the card and
@@ -149,8 +185,9 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
           {verdict?.ok && verdict.decision && <Call decision={verdict.decision} steps={steps} shared={notes?.shared ?? null} both={both} />}
           {verdict?.ok && verdict.decision && (
             <>
+              {!playing && <p className="mt-4 font-mono text-sm text-ink">Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>}
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
-              <p className="mt-4 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
+              <p className="mt-2 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
               {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof} <Link href="/replay" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">Try the 23 yourself</Link></p>}
               {/* the re-judge's memorable moment lived only on /audit (Fable tie ruling, Oct 14) */}
               <p className="mt-2 max-w-[60ch] text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">See it on the audit</Link></p>
@@ -181,7 +218,7 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
         <section id="steps" className="order-4 scroll-mt-4 lg:col-start-1 lg:row-start-3">
           {steps.length > 0 && <h2 className="font-display text-xl">Steps</h2>}
           <ol className="mt-3 space-y-4">
-            {steps.map((s) => (
+            {steps.filter((s) => s.n <= landed).map((s) => (
               <li key={s.n} id={`step-${s.n}`} className="scroll-mt-4 border-t border-rule pt-3">
                 <p className="font-mono text-sm text-ink-3">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</p>
                 <p className="mt-1 text-base text-ink-2">{s.why}</p>
@@ -194,7 +231,9 @@ export default function AskView({ initial, pending, proof }: { initial?: { label
           </ol>
         </section>
       </div>
-    </>
+
+      {play && <section id="ask" className="mt-10 scroll-mt-4 border-t border-rule pt-6"><h2 className="font-display text-xl">Ask your own</h2>{askBox}</section>}
+    </Landed.Provider>
   );
 }
 
@@ -334,8 +373,10 @@ function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }
   );
 }
 
+// on the home page's replay, "checked" lands with the step; the decision already passed the checker as a whole
 function Steps({ ns }: { ns: number[] }) {
-  return <span className="font-mono text-sm text-ink-3">{ns.map((n) => <a key={n} href={`#step-${n}`} className="ml-1 underline decoration-rule-strong underline-offset-4">step {n}</a>)}</span>;
+  const landed = useContext(Landed);
+  return <span className="font-mono text-sm text-ink-3">{ns.map((n) => <a key={n} href={`#step-${n}`} className="ml-1 underline decoration-rule-strong underline-offset-4">step {n}{landed !== Infinity && n <= landed && <span className="text-success motion-safe:animate-pulse [animation-iteration-count:1]"> checked</span>}</a>)}</span>;
 }
 
 function CopyAsk({ href }: { href: string }) {
