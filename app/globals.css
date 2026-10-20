@@ -208,6 +208,26 @@ li.is-on .rail-step {
   }
 }
 
+/* the dumbbell draws each row from fame to taste (MO F8). Tailwind's translate is its own property, so scaleX composes
+   with it. A step still hidden by the replay holds the rows still, so they draw when the step lands. */
+@media (prefers-reduced-motion: no-preference) {
+  .bell-row .bell-line {
+    animation: bell-draw 400ms cubic-bezier(0.2, 0, 0, 1) calc(var(--i) * 40ms) backwards;
+  }
+  .bell-row .bell-taste {
+    animation: fade-in 200ms ease-out calc(var(--i) * 40ms + 300ms) backwards;
+  }
+  .invisible .bell-row .bell-line,
+  .invisible .bell-row .bell-taste {
+    animation: none;
+  }
+}
+@keyframes bell-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
 /* the call sheet prints on one page at Letter as well as A4 (persona round 2, Live Nation: page two held only the footer) */
 @page {
   margin: 0.4in;

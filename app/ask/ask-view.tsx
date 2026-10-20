@@ -454,21 +454,37 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
     <div className={compact ? "mt-3" : ""}>
       {!compact && review && <p className="text-sm text-ink-3">Step {review.n}: fame against taste, {seed?.name}&apos;s fans</p>}
       {c?.fameFlat && <p className="mt-1 font-display text-lg text-ink">Fame can&apos;t tell these {WORDS[c.cards.length] ?? c.cards.length} apart. Taste can.</p>}
-      <p className="mt-1 text-sm text-ink-3">
-        <span className="mr-1 inline-block size-2.5 rounded-full border border-ink-2 align-middle" aria-hidden /> fame (Qloo popularity){" "}
-        <span className="ml-3 mr-1 inline-block size-2.5 rounded-full bg-accent align-middle" aria-hidden /> taste (affinity with {seed?.name ?? "the seed"}&apos;s fans) · axis 0.5 to 1
+      <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-3">
+        <span><span className="mr-1 inline-block size-3 rounded-full border border-ink-2 align-middle" aria-hidden /> fame (Qloo popularity)</span>
+        <span><span className="mr-1 inline-block size-3 rounded-full bg-accent align-middle" aria-hidden /> taste (affinity with {seed?.name ?? "the seed"}&apos;s fans)</span>
       </p>
-      <ul className="mt-2 space-y-1.5">
-        {rows.map((r) => (
-          <li key={r.name} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-2 text-sm">
+      {/* one column grid shared by the axis and the rows (subgrid), so the axis track is exactly the rows' track */}
+      <ul className="mt-2 grid grid-cols-[minmax(0,9rem)_1fr_auto] gap-x-2 gap-y-1.5">
+        {/* the axis, drawn once (TR F7, CT F10): ticks at 0.5, 0.75 and 1 */}
+        <li aria-hidden className="col-span-3 grid grid-cols-subgrid items-end text-xs text-ink-3">
+          <span />
+          <span className="relative h-5">
+            {([["0.5", "0%", ""], ["0.75", "50%", "-translate-x-1/2"], ["1", "100%", "-translate-x-full"]] as const).map(([t, left, shift]) => (
+              <span key={t}>
+                <span className={`absolute bottom-1.5 ${shift}`} style={{ left }}>{t}</span>
+                <span className="absolute bottom-0 h-1 w-px -translate-x-1/2 bg-rule-ui" style={{ left }} />
+              </span>
+            ))}
+          </span>
+          <span />
+        </li>
+        {rows.map((r, i) => (
+          <li key={r.name} className="bell-row col-span-3 grid grid-cols-subgrid items-center text-sm" style={{ "--i": i } as React.CSSProperties}>
             <span className="truncate text-ink" title={displayName(r.name)}>{displayName(r.name)}</span>
             <span className="relative h-3">
-              <span className="absolute inset-x-0 top-1/2 h-px bg-rule" aria-hidden />
+              <span className="absolute inset-x-0 top-1/2 h-px bg-rule-ui" aria-hidden />
+              <span className="absolute inset-y-0 left-1/2 w-px bg-rule" aria-hidden />
               {r.taste !== null && r.fame !== null && (
-                <span className="absolute top-1/2 h-0.5 -translate-y-1/2 bg-ink-3" style={{ left: x(Math.min(r.fame, r.taste)), width: `calc(${x(Math.max(r.fame, r.taste))} - ${x(Math.min(r.fame, r.taste))})` }} aria-hidden />
+                // drawn from fame to taste (MO F8); the fame dot never moves, so a missing measurement never animates
+                <span className="bell-line absolute top-1/2 h-0.5 -translate-y-1/2 bg-ink-3" style={{ left: x(Math.min(r.fame, r.taste)), width: `calc(${x(Math.max(r.fame, r.taste))} - ${x(Math.min(r.fame, r.taste))})`, transformOrigin: r.fame <= r.taste ? "left" : "right" }} aria-hidden />
               )}
               {r.fame !== null && <span className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink-2 bg-surface" style={{ left: x(r.fame) }} title={`fame ${r.fame.toFixed(2)}`} />}
-              {r.taste !== null && <span className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent" style={{ left: x(r.taste) }} title={`taste ${r.taste.toFixed(2)}`} />}
+              {r.taste !== null && <span className="bell-taste absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent" style={{ left: x(r.taste) }} title={`taste ${r.taste.toFixed(2)}`} />}
             </span>
             <span className="text-right text-ink-2 tabular-nums">{r.taste === null ? "no measurement" : r.taste.toFixed(2)}{r.fame === null && r.taste !== null ? <span className="text-ink-3"> · fame: no measurement</span> : null}</span>
           </li>
