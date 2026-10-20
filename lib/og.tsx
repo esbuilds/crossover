@@ -9,12 +9,13 @@ const INK_2 = "#514c49";
 const RULE = "#e0dddc";
 
 let fonts: Promise<{ name: string; data: ArrayBuffer; weight: 400 | 600; style: "normal" }[]> | null = null;
+// the mono is for the front door card's trace rail (TR F12); the site's own mono is the system's, which a card can't load
 function loadFonts() {
   fonts ??= (async () => {
-    const css = await (await fetch("https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600")).text();
-    const faces = [...css.matchAll(/font-weight:\s*(\d+);[\s\S]*?src:\s*url\(([^)]+)\)/g)];
+    const css = await (await fetch("https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600&family=JetBrains+Mono:wght@400")).text();
+    const faces = [...css.matchAll(/font-family:\s*'([^']+)';[\s\S]*?font-weight:\s*(\d+);[\s\S]*?src:\s*url\(([^)]+)\)/g)];
     return Promise.all(
-      faces.map(async ([, w, url]) => ({ name: "Newsreader", data: await (await fetch(url)).arrayBuffer(), weight: Number(w) as 400 | 600, style: "normal" as const })),
+      faces.map(async ([, name, w, url]) => ({ name, data: await (await fetch(url)).arrayBuffer(), weight: Number(w) as 400 | 600, style: "normal" as const })),
     );
   })().catch(() => {
     fonts = null; // try again next time
@@ -23,7 +24,7 @@ function loadFonts() {
   return fonts;
 }
 
-export async function ogCard({ title, line }: { title: string; line?: string }) {
+export async function ogCard({ title, line, rail }: { title: string; line?: string; rail?: string[] }) {
   const size = title.length > 34 ? 72 : 88;
   return new ImageResponse(
     (
@@ -33,6 +34,11 @@ export async function ogCard({ title, line }: { title: string; line?: string }) 
           <div style={{ display: "flex", fontSize: size, fontWeight: 600, lineHeight: 1.05, maxWidth: 1000 }}>{title}</div>
           {line && <div style={{ display: "flex", marginTop: 28, fontSize: 36, fontWeight: 400, color: INK_2 }}>{line}</div>}
         </div>
+        {rail && (
+          <div style={{ display: "flex", flexWrap: "wrap", columnGap: 28, rowGap: 6, marginBottom: 24, fontFamily: "JetBrains Mono", fontSize: 24, color: INK_2 }}>
+            {rail.map((r, i) => <div key={r} style={{ display: "flex" }}>{`${i + 1} ${r}`}</div>)}
+          </div>
+        )}
         <div style={{ display: "flex", fontSize: 28, fontWeight: 400, color: INK_2 }}>Built on Qloo&apos;s taste graph</div>
       </div>
     ),
