@@ -47,7 +47,7 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {c.eight.map((x) => {
               const isReal = x.name === c.partner, isPick = x.name === picked;
-              const tone = !picked ? "border-rule-strong hover:border-ink" : isReal ? "border-accent bg-accent/10" : isPick ? "border-ink-2" : "border-rule opacity-70";
+              const tone = !picked ? "border-rule-ui hover:border-ink" : isReal ? "border-accent bg-accent/10" : isPick ? "border-ink-2" : "border-rule opacity-70";
               return (
                 <li key={x.name}>
                   <button type="button" disabled={!!picked} onClick={() => { setState({ ...state, picks: { ...state.picks, [c.key]: x.name } }); bringIntoView("verdict"); }} className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-md border px-3 text-left text-base text-ink ${tone}`}>

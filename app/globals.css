@@ -2,13 +2,15 @@
 
 /* Design tokens (Oct 20 design pass). Light theme only. Everything visual comes from here; components use the
    Tailwind utilities these generate (text-ink, bg-surface-2, border-rule, font-display, text-2xl...).
-   Contrast on white: ink 17.7, ink-2 8.5, ink-3 5.5, accent 5.2, accent-strong 7.3, success 5.7. */
+   Contrast on white: ink 17.7, ink-2 8.5, ink-3 6.9, accent 5.2, accent-strong 7.3, success 5.7.
+   rule-ui 3.1 is for control borders (inputs, secondary buttons); rule and rule-strong only divide. */
 @theme {
   --color-ink: oklch(0.21 0.006 45);
   --color-ink-2: oklch(0.42 0.008 45);
-  --color-ink-3: oklch(0.52 0.008 45);
+  --color-ink-3: oklch(0.47 0.008 45);
   --color-rule: oklch(0.9 0.004 45);
   --color-rule-strong: oklch(0.8 0.006 45);
+  --color-rule-ui: oklch(0.66 0.006 45);
   --color-surface: oklch(1 0 0);
   --color-surface-2: oklch(0.975 0.002 45);
   --color-land: oklch(0.93 0.003 45);

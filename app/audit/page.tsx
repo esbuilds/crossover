@@ -354,7 +354,7 @@ function BriefCard({ b }: { b: Brief }) {
             <p className="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-base">
               {g.map((x) => (
                 <span key={x.name} className={excluded.has(x.name) ? "text-ink-3 line-through" : b.picks.includes(x.name) ? "font-semibold text-ink" : "text-ink"}>
-                  {x.name} <span className="text-sm tabular-nums text-ink-3">{x.affinity?.toFixed(2)}</span> {x.role && <span className="text-xs text-ink-3">{x.role === "ambiguous" ? "ambiguous name" : x.role}</span>}
+                  {x.name} <span className="text-sm tabular-nums text-ink-3">{x.affinity?.toFixed(2)}</span> {x.role && <span className="text-xs text-ink-2">{x.role === "ambiguous" ? "ambiguous name" : x.role}</span>}
                 </span>
               ))}
             </p>
