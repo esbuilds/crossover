@@ -158,6 +158,23 @@ summary::-webkit-details-marker {
   }
 }
 
+/* the trace rail (CT F1, MO F3): pending steps in ink-3, landed in ink with a 1px rule drawn under the label */
+.rail-step {
+  color: var(--color-ink-3);
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 calc(100% + 1px) / 0% 1px;
+}
+li.is-on .rail-step {
+  color: var(--color-ink);
+  background-size: 100% 1px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rail-step {
+    transition:
+      color 240ms cubic-bezier(0.2, 0, 0, 1),
+      background-size 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 /* the call sheet prints on one page at Letter as well as A4 (persona round 2, Live Nation: page two held only the footer) */
 @page {
   margin: 0.4in;

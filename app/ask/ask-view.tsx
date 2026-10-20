@@ -35,6 +35,7 @@ const LIMITS = "What this doesn't establish: purchases, visits, commercial eligi
 // is in; Infinity (every page but the home page) means no replay and no stamps. Runs store no timings, so it's sped up.
 const Landed = createContext(Infinity);
 const STEP_MS = 1200;
+const FIRST_MS = 500; // the first step lands sooner, so the rail isn't all pending for a full beat (MO F3)
 
 async function streamEvents(res: Response, onEvent: (e: AskEvent) => void) {
   const reader = res.body!.pipeThrough(new TextDecoderStream()).getReader();
@@ -74,10 +75,17 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   useEffect(() => {
     if (landed >= steps.length) return;
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches; // no replay: every step lands at once
-    const t = setTimeout(() => setLanded((l) => (still ? steps.length : l + 1)), still ? 0 : STEP_MS);
+    const t = setTimeout(() => setLanded((l) => (still ? steps.length : l + 1)), still ? 0 : landed === 0 ? FIRST_MS : STEP_MS);
     return () => clearTimeout(t);
   }, [landed, steps.length]);
   const playing = landed < steps.length;
+  const replayLine = (p: boolean) => (
+    <>
+      {p ? `Replaying the ${initial?.label} run, sped up: step ${Math.min(landed + 1, steps.length)} of ${steps.length}. Each claim is stamped when the step it cites lands.` : `The ${initial?.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
+      <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={btnQuiet}>{p ? "Skip" : "Replay it"}</button>{" "}
+      <a href="#ask" className={btnQuiet}>Ask your own</a>
+    </>
+  );
 
   const ranHere = useRef(false); // the front page keeps "/" until the visitor asks something
   async function run(body: Body) {
@@ -144,16 +152,16 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             {/* the trace rail: in the first screen at 390 and 1280, where the step list isn't */}
             <ol className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-sm" aria-label="The agent's steps">
               {steps.map((s) => (
-                <li key={s.n} className={s.n <= landed ? "text-ink" : "text-ink-3 opacity-40"}>
-                  <a href={`#step-${s.n}`} onClick={() => setLanded((l) => Math.max(l, s.n))} className="underline decoration-rule underline-offset-4">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</a>
+                <li key={s.n} className={s.n <= landed ? "is-on" : ""}>
+                  <a href={`#step-${s.n}`} onClick={() => setLanded((l) => Math.max(l, s.n))} className="rail-step">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</a>
                 </li>
               ))}
             </ol>
-            <p className="mt-1 font-mono text-sm text-ink-3" role="status">
-              {playing ? `Replaying the ${initial.label} run, sped up: step ${landed + 1} of ${steps.length}. Each claim is stamped when the step it cites lands.` : `The ${initial.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
-              <button type="button" onClick={() => setLanded(playing ? steps.length : 0)} className={btnQuiet}>{playing ? "Skip" : "Replay it"}</button>{" "}
-              <a href="#ask" className={btnQuiet}>Ask your own</a>
-            </p>
+            {/* both versions of the line share one grid cell, so the call card below doesn't move when the replay ends */}
+            <div className="mt-1 grid text-sm text-ink-3 *:col-start-1 *:row-start-1">
+              <p role="status">{replayLine(playing)}</p>
+              <p className="invisible" aria-hidden>{replayLine(!playing)}</p>
+            </div>
           </div>
         )}
         {!play && askBox}
