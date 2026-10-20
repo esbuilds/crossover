@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import TourBar from "./tour-bar";
 import { linkInline } from "./ui";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Newsreader } from "next/font/google";
 import "./globals.css";
 
@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   openGraph: { siteName: "Crossover", type: "website", description: DESCRIPTION, images: [{ url: "/og", width: 1200, height: 630 }] },
   twitter: { card: "summary_large_image", images: ["/og"] },
 };
+
+// icon.svg and apple-icon.png beside this file are the tab and home-screen icon (TR F1)
+export const viewport: Viewport = { themeColor: "#ffffff" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
