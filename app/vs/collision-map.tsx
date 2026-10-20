@@ -22,8 +22,8 @@ function Cells({ cells }: { cells: CollideCell[] }) {
   }, [cells, projection]);
   // both underneath, so the leaning cells read on top
   return (
-    <g>
-      {(["both", "a", "b"] as const).map((t) => paths[t].length > 0 && <path key={t} d={paths[t].join("")} fill={TONE[t]} fillOpacity={OPACITY[t]} />)}
+    <g className="cells-in">
+      {(["both", "a", "b"] as const).map((t) => paths[t].length > 0 && <path key={t} data-tone={t} d={paths[t].join("")} fill={TONE[t]} fillOpacity={OPACITY[t]} />)}
     </g>
   );
 }
@@ -59,7 +59,9 @@ export default function CollisionMap({ cells, metrosA, metrosB, a, b }: { cells:
       <ComposableMap projection="geoAlbersUsa" width={W} height={H} className="h-full w-full" aria-label={`US map of where ${a}'s and ${b}'s audiences over-index, cell by cell`}>
         <StatesLayer />
         <Cells cells={cells} />
-        <Labels metros={metros} hovered={null} font={font} count={metros.length} color={color} />
+        <g className="labels-in">
+          <Labels metros={metros} hovered={null} font={font} count={metros.length} color={color} />
+        </g>
       </ComposableMap>
     </div>
   );

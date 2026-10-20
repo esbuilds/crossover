@@ -240,6 +240,22 @@ li.is-on .rail-step {
   }
 }
 
+/* the collision map makes its argument in 500 ms (MO F9): shared cells, then each side, then the names. Opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  .cells-in path {
+    animation: fade-in 300ms ease-out backwards;
+  }
+  .cells-in path[data-tone="a"] {
+    animation-delay: 120ms;
+  }
+  .cells-in path[data-tone="b"] {
+    animation-delay: 240ms;
+  }
+  .labels-in {
+    animation: fade-in 240ms ease-out 360ms backwards;
+  }
+}
+
 /* a live step (MO F7): the text holds still and one caret blinks after it, as a terminal shows a running process.
    Reduced motion: the caret stays, steady. */
 .working::after {
