@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { ComposableMap, useMapContext } from "react-simple-maps";
 import { H, INK, Labels, StatesLayer, useLabelFont, W } from "../map";
 import type { City } from "@/lib/cities.ts";
-import { TONE, type CollideCell, type Tone } from "@/lib/collide.ts";
+import { LEAN_SPLIT, TONE, type CollideCell, type Tone } from "@/lib/collide.ts";
 
 const OPACITY: Record<Tone, number> = { a: 0.75, b: 0.75, both: 0.6 };
 const R = 2.6;
@@ -25,6 +25,27 @@ function Cells({ cells }: { cells: CollideCell[] }) {
     <g>
       {(["both", "a", "b"] as const).map((t) => paths[t].length > 0 && <path key={t} d={paths[t].join("")} fill={TONE[t]} fillOpacity={OPACITY[t]} />)}
     </g>
+  );
+}
+
+// The map's furniture (TR F6, CT F4): a source line, then the key, so a side never rests on hue alone.
+// sourceClass lets the home page hide the source line on phones, where the first screen is tight.
+export function MapKey({ a, b, sourceClass = "" }: { a: string; b: string; sourceClass?: string }) {
+  const swatch = (tone: Tone, label: string) => (
+    <span className="inline-flex items-center gap-2">
+      <span className="inline-block size-3 rounded-full" style={{ background: TONE[tone] }} aria-hidden />
+      {label}
+    </span>
+  );
+  return (
+    <>
+      <p className={`mt-1 text-xs text-ink-3 ${sourceClass}`}>Source: Qloo heatmaps, United States · cells where either audience is in its top half · Crossover&apos;s {LEAN_SPLIT} lean rule</p>
+      <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-2">
+        {swatch("a", `Leans ${a}`)}
+        {swatch("b", `Leans ${b}`)}
+        {swatch("both", "Both")}
+      </p>
+    </>
   );
 }
 

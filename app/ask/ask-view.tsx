@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { btnPrimary, btnText, chip, field, linkInline, panel, panelStrong } from "../ui";
-import CollisionMap from "../vs/collision-map";
+import CollisionMap, { MapKey } from "../vs/collision-map";
 import { CHECK_RULE, claimCount, displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { checkEdit, nudge } from "@/lib/ask/fool.ts";
 import { smallerLine, type Smaller } from "@/lib/ask/smaller-rules.ts";
@@ -435,6 +435,7 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
       <p className="mt-1 text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
       {cities && <p className="mt-1 text-base text-ink max-sm:hidden">{cities}</p>}
       <div className="mt-2 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
+      <MapKey a={m.seed.name} b={m.rival.name} sourceClass="max-sm:hidden" />
       <p className="mt-1"><Link href={m.href} prefetch={false} className={btnText}>Open the full split</Link></p>
     </div>
   );

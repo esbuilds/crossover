@@ -5,8 +5,8 @@ import { btnText, chip, Chip } from "@/app/ui";
 import type { RivalRow, VsPayload, Xray } from "@/lib/rivals.ts";
 import { DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
 import { PAIR_CASE, VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
-import { LEAN_SPLIT, TONE } from "@/lib/collide.ts";
-import CollisionMap from "./collision-map";
+import { LEAN_SPLIT } from "@/lib/collide.ts";
+import CollisionMap, { MapKey } from "./collision-map";
 import OpenOnHash from "./open-on-hash";
 
 const SHOWN = 10; // rows per column before "Show all", from 640 px up
@@ -173,20 +173,11 @@ function MapSection({ d }: { d: VsPayload }) {
   const A = d.rivals.a.name, B = d.rivals.b.name;
   if (!d.map) return <p className="mt-8 border-t border-rule pt-4 text-base text-ink-2">No geographic story for a person: a person&apos;s heatmap is flat across markets, so the map is left off.</p>;
   const m = d.map;
-  const swatch = (tone: keyof typeof TONE, label: string) => (
-    <span className="inline-flex items-center gap-2">
-      <span className="inline-block size-3 rounded-full" style={{ background: TONE[tone] }} aria-hidden />
-      {label}
-    </span>
-  );
   return (
     <section className="mt-8">
+      <h3 className="text-sm text-ink-3">Where the audiences split</h3>
       <CollisionMap cells={m.cells} metrosA={m.metrosA} metrosB={m.metrosB} a={A} b={B} />
-      <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-2">
-        {swatch("a", `Leans ${A}`)}
-        {swatch("b", `Leans ${B}`)}
-        {swatch("both", "Both")}
-      </p>
+      <MapKey a={A} b={B} />
       <p className="mt-2 max-w-[68ch] text-sm text-ink-2">
         <Cite checks="8 and 9">Where each audience over-indexes in Qloo&apos;s heatmaps, cell by cell.</Cite> A cell leans one way when it sits {LEAN_SPLIT === 0.25 ? "a quarter" : LEAN_SPLIT} of the ranking higher in that heatmap. Cells only one heatmap covers are left off.
       </p>

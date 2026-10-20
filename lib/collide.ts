@@ -9,9 +9,10 @@ const HOT = 0.5; // drawn only where at least one side is in its top half
 const MAX_CELLS = 1500; // as the single map: the hottest cells only
 
 export type Tone = "a" | "b" | "both";
-// SVG and inline styles take no CSS vars: A is --color-accent (as app/map.tsx ACCENT and the bars), B --color-ink-2,
-// both --color-rule-strong. Here, not in the client map, so the server page's legend gets the values too.
-export const TONE: Record<Tone, string> = { a: "#bd4510", b: "#58514d", both: "#c8c4c1" };
+// SVG and inline styles take no CSS vars: A is --color-accent (as app/map.tsx ACCENT and the bars), B a dark ink
+// (darker than ink-2 since real Oct 20, CT F4: the two sides sat at one luminance, 1.21:1; now 1.65:1, and B's cells
+// 4.9:1 on land), both --color-rule-strong. Here, not in the client map, so the server page's legend gets the values too.
+export const TONE: Record<Tone, string> = { a: "#bd4510", b: "#3b3634", both: "#c8c4c1" };
 export type CollideCell = [lat: number, lon: number, tone: Tone];
 export type Collision = { cells: CollideCell[]; matched: number; counts: Record<Tone, number> };
 
