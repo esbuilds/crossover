@@ -212,7 +212,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {/* below the "every number above comes from a step" line: these numbers are code's, not the agent's steps */}
           {verdict?.ok && small && <SmallerBlock s={small} />}
           {status === "running" && !verdict && !ambiguous && (
-            <p className="font-mono text-sm text-ink-2 motion-safe:animate-pulse">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
+            <p className="working font-mono text-sm text-ink-2">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
           )}
           {ambiguous && (
             <div>
@@ -234,7 +234,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
               <li key={s.n} id={`step-${s.n}`} aria-hidden={s.n > landed || undefined} className={`scroll-mt-4 border-t border-rule pt-3 ${s.n > landed ? "invisible" : landed !== Infinity ? "motion-safe:animate-[step-in_360ms_cubic-bezier(0.22,1,0.36,1)_backwards]" : ""}`}>
                 <p className="font-mono text-sm text-ink-3">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</p>
                 <p className="mt-1 text-base text-ink-2">{s.why}</p>
-                <p className="mt-1 text-base text-ink">{s.summary || (status === "running" ? <span className="font-mono text-sm motion-safe:animate-pulse">Reading Qloo...</span> : <span className="text-ink-2">Qloo didn&apos;t answer this step; the steps above are what was measured.</span>)}</p>
+                <p className="mt-1 text-base text-ink">{s.summary || (status === "running" ? <span className="working font-mono text-sm">Reading Qloo...</span> : <span className="text-ink-2">Qloo didn&apos;t answer this step; the steps above are what was measured.</span>)}</p>
                 {forkLine(s) && <p className="mt-1 text-sm text-ink-3">{forkLine(s)}</p>}
                 {s.tool === "candidates" && notes?.cut && <p className="mt-1 text-sm text-ink-3 motion-safe:animate-[fade-in_200ms_ease-out]">{notes.cut}</p>}
                 <Picture step={s} steps={steps} hero={hero} />

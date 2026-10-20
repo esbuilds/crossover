@@ -240,6 +240,28 @@ li.is-on .rail-step {
   }
 }
 
+/* a live step (MO F7): the text holds still and one caret blinks after it, as a terminal shows a running process.
+   Reduced motion: the caret stays, steady. */
+.working::after {
+  content: "";
+  display: inline-block;
+  width: 0.55ch;
+  height: 1em;
+  margin-left: 0.25ch;
+  vertical-align: -0.15em;
+  background: currentColor;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .working::after {
+    animation: caret 1s steps(2, jump-none) infinite;
+  }
+}
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
 /* the call sheet prints on one page at Letter as well as A4 (persona round 2, Live Nation: page two held only the footer) */
 @page {
   margin: 0.4in;
