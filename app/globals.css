@@ -161,7 +161,7 @@ summary::-webkit-details-marker {
 /* the trace rail (CT F1, MO F3): pending steps in ink-3, landed in ink with a 1px rule drawn under the label */
 .rail-step {
   color: var(--color-ink-3);
-  background: linear-gradient(currentColor, currentColor) no-repeat 0 calc(100% + 1px) / 0% 1px;
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0% 1px;
 }
 li.is-on .rail-step {
   color: var(--color-ink);
