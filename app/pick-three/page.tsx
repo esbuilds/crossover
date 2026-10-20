@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { PerRequest } from "@/app/dynamic";
-import { JudgePath, SiteHeader } from "@/app/ui";
+import { SiteHeader } from "@/app/ui";
 import { parseShare, shareCard, shareQuery } from "@/lib/review-share.ts";
 import ReviewView from "../review/review-view";
 
@@ -23,7 +23,6 @@ export default function PickThree({ searchParams }: PageProps<"/pick-three">) {
       <PerRequest />
       <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
         <SiteHeader href="/" label="Ask" />
-        <JudgePath />
         <Suspense fallback={<ReviewView embedded />}>
           <Gate searchParams={searchParams} />
         </Suspense>

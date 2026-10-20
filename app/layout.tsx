@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import TourBar from "./tour-bar";
-import { linkInline } from "./ui";
+import { JudgePath, linkInline } from "./ui";
+import { tourHref } from "@/lib/tour.ts";
 import type { Metadata, Viewport } from "next";
 import { Newsreader } from "next/font/google";
 import "./globals.css";
@@ -26,7 +27,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${newsreader.variable} h-full antialiased`}>
       <body className="min-h-full">
         {children}
-        <p className="px-4 py-6 text-center text-sm text-ink-3 print:hidden">Data: Qloo · <Link href="/pick-three" className={linkInline}>Pick three</Link></p>
+        {/* one colophon on every page (DC F6, TR F10): it carries the three stops (Pick A) and the tour */}
+        <footer className="mx-auto max-w-[1120px] px-4 pb-8 text-sm text-ink-3 sm:px-8 print:hidden">
+          <div className="border-t border-rule pt-6">
+            <p><span className="font-display text-base text-ink">Crossover</span> · Data: Qloo, built on its taste graph</p>
+            <JudgePath />
+            <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+              <Link href={tourHref(1)} className={linkInline}>Take the 60-second tour</Link>
+              <Link href="/replay" className={linkInline}>Spot the real partner</Link>
+              <Link href="/pick-three" className={linkInline}>Pick three</Link>
+              <Link href="/audit#api-notes" className={linkInline}>Notes on the API</Link>
+            </p>
+          </div>
+        </footer>
         {/* the judge tour bar reads ?tour=n; Suspense because it reads the search params */}
         <Suspense>
           <TourBar />

@@ -7,7 +7,7 @@ import type { Found, RivalPick } from "@/lib/rival.ts";
 import { VS_CASES, VS_MORE, vsHref, type VsCase } from "@/lib/rivals-cases.ts";
 import { CATEGORIES } from "@/lib/constellation-cases.ts";
 import Link from "next/link";
-import { btnPrimary, btnText, chip, field, JudgePath, TYPE_LABEL, WhichOne } from "../ui";
+import { btnPrimary, btnText, chip, field, TYPE_LABEL, WhichOne } from "../ui";
 import { Skeleton } from "../brief-panel";
 import { VsResult } from "./vs-view";
 import { COMPETITOR_LABEL, finderOrder } from "@/lib/vs.ts";
@@ -188,7 +188,6 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
         <span className="sm:hidden">Two names in. See where their audiences split.</span>
         <span className="max-sm:hidden">Put two names in. See where their audiences split on the map, and which brands sit closer to each.</span>
       </p>
-      <JudgePath />
       <form onSubmit={compare} className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-start">
         <SideInput label="First name" value={qa} onChange={setQa} ask={asks[0]} onPick={(c) => choose(0, c)} />
         <span className="hidden min-h-11 items-center text-ink-3 sm:inline-flex">vs</span>

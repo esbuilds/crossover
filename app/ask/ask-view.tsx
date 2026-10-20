@@ -4,7 +4,7 @@
 // initial: a cached ask the server replayed (no POST, no Qloo call); pending: a share link whose ask isn't cached yet.
 import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { btnPrimary, btnText, chip, field, JudgePath, linkInline } from "../ui";
+import { btnPrimary, btnText, chip, field, linkInline } from "../ui";
 import CollisionMap from "../vs/collision-map";
 import { CHECK_RULE, claimCount, displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { checkEdit, nudge } from "@/lib/ask/fool.ts";
@@ -14,7 +14,6 @@ import { callCard, cardsStep, categoryRival, decisionEvent, forkLine, tieLine, d
 import { mapLine } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
-import { tourHref } from "@/lib/tour.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
 import { firstCallHeading, type BothWays } from "@/lib/ask/both-rules.ts";
@@ -123,8 +122,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
 
   const askBox = (
     <>
-      <JudgePath />
-      <p className="mt-1 text-sm"><Link href={tourHref(1)} className={linkInline}>Take the 60-second tour</Link> · <Link href="/replay" className={linkInline}>Spot the real partner</Link></p>
+      {/* the three stops and the tour live in the footer on every page (DC F6) */}
       <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
       <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
       <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
