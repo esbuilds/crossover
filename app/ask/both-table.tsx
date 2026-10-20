@@ -8,7 +8,8 @@ const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", 
 const show = (r: Rank) => (r === null ? "no measurement" : r === "out" ? "not in their top 50" : th(r));
 
 export function BothTable({ b, compact = false }: { b: BothWays; compact?: boolean }) {
-  const cell = compact ? "py-0 pr-4" : "py-1 pr-6";
+  // DC F14: rows top-aligned and the ranks kept on one line, so a phone wraps the long name instead of every "not in their top 50"
+  const cell = `align-top ${compact ? "py-0 pr-4" : "py-1 pr-6"}`;
   // persona round 2 (Olipop lead): a withheld table said nothing; now one line says why
   if (!b.shown)
     return (
@@ -32,9 +33,9 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
         <tbody>
           {b.rows.map((r) => (
             <tr key={r.name} className={r.call ? "text-ink" : "text-ink-2"}>
-              <td className={`${cell} whitespace-nowrap`}>{r.call ? <span className="font-semibold">{r.name} *</span> : r.name}</td>
-              <td className={cell}>{show(r.fwd)}</td>
-              <td className={cell}>{show(r.rev)}</td>
+              <td className={`${cell} sm:whitespace-nowrap`}>{r.call ? <span className="font-semibold">{r.name} *</span> : r.name}</td>
+              <td className={`${cell} whitespace-nowrap`}>{show(r.fwd)}</td>
+              <td className={`${cell} whitespace-nowrap`}>{show(r.rev)}</td>
             </tr>
           ))}
         </tbody>
