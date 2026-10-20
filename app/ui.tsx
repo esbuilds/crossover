@@ -1,5 +1,6 @@
 import type { Card } from "@/lib/slate.ts";
 import Link from "next/link";
+import NavLinks from "./nav-links";
 // Shared pieces of the design system (tokens live in globals.css). One primary button per screen.
 export const btnPrimary =
   "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-accent px-5 text-base font-medium text-white hover:bg-accent-strong disabled:opacity-50";
@@ -90,12 +91,11 @@ export function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void 
 }
 
 
-// Wordmark left, one quiet link right. Same on every page.
+// Wordmark left, the nav right. Same on every page.
 // One nav on every page (Pick 1, Oct 14): ask, two names in, Pick three, the audit. The old per-page link (href, label)
 // is ignored, so the routes cut from the nav (/map, /find, /pair, /triage, /s, /review, /end-card) keep their own code.
 // Fable's ruling (Oct 15): the challenge takes Pick three's place; Pick three stays one click from every answer and the footer.
-// "Real deals", not "Spot the real partner": the long label wrapped the nav at 390 and 360 and moved the card (523 to 567)
-const NAV: [string, string][] = [["/", "Ask"], ["/vs", "Two names in"], ["/replay", "Real deals"], ["/audit", "The audit"]];
+// The links live in NavLinks, a client component, because the current-page mark reads the path.
 export function SiteHeader(props: { href?: string; label?: string }) {
   void props;
   return (
@@ -103,13 +103,7 @@ export function SiteHeader(props: { href?: string; label?: string }) {
       <Link href="/" className="inline-flex min-h-11 items-center font-display text-xl">
         Crossover
       </Link>
-      <nav className="flex flex-wrap gap-x-4 text-sm">
-        {NAV.map(([href, label]) => (
-          <Link key={href} href={href} className={btnQuiet}>
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <NavLinks />
     </header>
   );
 }
