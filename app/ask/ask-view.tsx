@@ -486,7 +486,9 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
               {r.fame !== null && <span className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink-2 bg-surface" style={{ left: x(r.fame) }} title={`fame ${r.fame.toFixed(2)}`} />}
               {r.taste !== null && <span className="bell-taste absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent" style={{ left: x(r.taste) }} title={`taste ${r.taste.toFixed(2)}`} />}
             </span>
-            <span className="text-right text-ink-2 tabular-nums">{r.taste === null ? "no measurement" : r.taste.toFixed(2)}{r.fame === null && r.taste !== null ? <span className="text-ink-3"> · fame: no measurement</span> : null}</span>
+            <span className="text-right text-ink-2 tabular-nums">{r.taste === null ? "no measurement" : r.taste.toFixed(2)}</span>
+            {/* its own line under the track, so one long note doesn't narrow every row's track in the shared column */}
+            {r.fame === null && r.taste !== null && <span className="col-span-2 col-start-2 -mt-1 text-right text-xs text-ink-3">fame: no measurement</span>}
           </li>
         ))}
       </ul>
