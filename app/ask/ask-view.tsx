@@ -351,11 +351,11 @@ function SmallerBlock({ s }: { s: Smaller }) {
       <h3 className="font-display text-lg">Smaller names, nearly the same fit</h3>
       <p className="mt-1 max-w-[60ch] text-base text-ink-2">{smallerLine(s)}</p>
       {s.rows.length > 0 && (
-        <table className="mt-2 w-full max-w-md text-sm">
+        <table className="mt-2 w-full max-w-md text-sm tabular-nums">
           <thead><tr className="text-left text-ink-3"><th className="font-normal">Brand</th><th className="text-right font-normal">Fit</th><th className="text-right font-normal">Popularity</th></tr></thead>
-          <tbody className="font-mono">
-            <tr className="border-t border-rule text-ink-3"><td className="py-1 font-sans">{s.leader.name} (leader)</td><td className="text-right">{s.leader.affinity.toFixed(2)}</td><td className="text-right">{s.leader.popularity.toFixed(2)}</td></tr>
-            {s.rows.map((r) => <tr key={r.name} className="border-t border-rule text-ink"><td className="py-1 font-sans">{r.name}</td><td className="text-right">{r.affinity.toFixed(2)}</td><td className="text-right">{r.popularity.toFixed(2)}</td></tr>)}
+          <tbody>
+            <tr className="border-t border-rule text-ink-3"><td className="py-1">{s.leader.name} (leader)</td><td className="text-right">{s.leader.affinity.toFixed(2)}</td><td className="text-right">{s.leader.popularity.toFixed(2)}</td></tr>
+            {s.rows.map((r) => <tr key={r.name} className="border-t border-rule text-ink"><td className="py-1">{r.name}</td><td className="text-right">{r.affinity.toFixed(2)}</td><td className="text-right">{r.popularity.toFixed(2)}</td></tr>)}
           </tbody>
         </table>
       )}
