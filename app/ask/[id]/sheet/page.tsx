@@ -75,7 +75,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
 
       <section className="mt-3 grid gap-4 sm:grid-cols-[1fr_auto] print:grid-cols-[1fr_auto]">
         <div>
-          <h2 className="font-display text-base">{firstCallHeading(both, s.calls[0].name)}</h2>
+          <h2 className="text-base font-semibold">{firstCallHeading(both, s.calls[0].name)}</h2>
           <p className="text-ink-2">{s.calls[0].reason}{fn(s.calls[0].steps)}</p>
           {both && <BothTable b={both} compact />}
           {s.tiedNote && <p className="mt-1.5 text-[0.9em] text-ink-3">{s.tiedNote}</p>}
@@ -107,7 +107,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
 
       {s.notes.length > 0 && (
         <section className="mt-3">
-          <h2 className="font-display text-base">Notes from the agent, each checked against its steps</h2>
+          <h2 className="text-base font-semibold">Notes from the agent, each checked against its steps</h2>
           <ul className="mt-1 list-disc space-y-0.5 pl-4 text-ink-2">
             {s.notes.map((n) => <li key={n.text}>{n.text}{fn(n.steps)}</li>)}
           </ul>
@@ -116,13 +116,13 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
 
       <section className="mt-3 grid gap-4 sm:grid-cols-2 print:grid-cols-2">
         <div>
-          <h2 className="font-display text-base">Steps (each measured in Qloo)</h2>
+          <h2 className="text-base font-semibold">Steps (each measured in Qloo)</h2>
           <ol className="mt-1 space-y-0.5 text-ink-2">
             {s.footnotes.map((f) => <li key={f.n}><span className="font-mono text-ink-3">{f.n}</span> {f.label}: {f.summary}</li>)}
           </ol>
         </div>
         <div>
-          <h2 className="font-display text-base">What this doesn&apos;t establish</h2>
+          <h2 className="text-base font-semibold">What this doesn&apos;t establish</h2>
           <ul className="mt-1 list-disc space-y-0.5 pl-4 text-ink-2">
             {s.limits.map((l) => <li key={l}>{l}</li>)}
           </ul>

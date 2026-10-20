@@ -265,7 +265,7 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
     <>
       {first && (
         <>
-          <h2 className="font-display text-lg">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
+          <h2 className="text-lg font-semibold">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
           <p className="claim mt-1 text-base text-ink">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
           <FoolIt decision={decision} steps={steps} />
           {both && <div className="motion-safe:animate-[fade-in_200ms_ease-out]"><BothTable b={both} /></div>}
@@ -348,7 +348,7 @@ function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes
 function SmallerBlock({ s }: { s: Smaller }) {
   return (
     <section className="mt-6 border-t border-rule pt-4 motion-safe:animate-[fade-in_200ms_ease-out]">
-      <h3 className="font-display text-lg">Smaller names, nearly the same fit</h3>
+      <h3 className="text-lg font-semibold">Smaller names, nearly the same fit</h3>
       <p className="mt-1 max-w-[60ch] text-base text-ink-2">{smallerLine(s)}</p>
       {s.rows.length > 0 && (
         <table className="mt-2 w-full max-w-md text-sm tabular-nums">
@@ -458,7 +458,7 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
   return (
     <div className={compact ? "mt-3" : ""}>
       {!compact && review && <p className="text-sm text-ink-3">Step {review.n}: fame against taste, {seed?.name}&apos;s fans</p>}
-      {c?.fameFlat && <p className="mt-1 font-display text-lg text-ink">Fame can&apos;t tell these {WORDS[c.cards.length] ?? c.cards.length} apart. Taste can.</p>}
+      {c?.fameFlat && <p className="mt-1 text-lg font-semibold text-ink">Fame can&apos;t tell these {WORDS[c.cards.length] ?? c.cards.length} apart. Taste can.</p>}
       <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-3">
         <span><span className="mr-1 inline-block size-3 rounded-full border border-ink-2 align-middle" aria-hidden /> fame (Qloo popularity)</span>
         <span><span className="mr-1 inline-block size-3 rounded-full bg-accent align-middle" aria-hidden /> taste (affinity with {seed?.name ?? "the seed"}&apos;s fans)</span>

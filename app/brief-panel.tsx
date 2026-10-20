@@ -195,7 +195,7 @@ export default function BriefPanel({
           </button>
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="font-display text-base text-ink-2 md:text-lg">{playbookFor(seed.type).briefTitle}</p>
+              <p className="text-base font-semibold text-ink-2 md:text-lg">{playbookFor(seed.type).briefTitle}</p>
               <h2 id="brief-title" className="font-display text-xl md:text-2xl">
                 {seed.name} &times; {pick.name}
               </h2>

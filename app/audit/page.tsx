@@ -347,7 +347,7 @@ function BriefCard({ b }: { b: Brief }) {
   const excluded = new Map(b.excluded.map((x) => [x.name, x.reason]));
   return (
     <li className={`${panel} p-4`}>
-      <h3 className="font-display text-lg">{b.seed}</h3>
+      <h3 className="text-lg font-semibold">{b.seed}</h3>
       <p className="mt-1 text-base text-ink">
         {b.noClearThree ? "No clear three." : b.picks.length ? `Picks: ${b.picks.join(", ")}.` : "No picks."}
         {b.tiedAtCutoff.length > 0 && ` Then a tie: ${b.tiedAtCutoff.join(", ")}.`}
