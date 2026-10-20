@@ -81,9 +81,12 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   const playing = landed < steps.length;
   const replayLine = (p: boolean) => (
     <>
-      {p ? `Replaying the ${initial?.label} run, sped up: step ${Math.min(landed + 1, steps.length)} of ${steps.length}. Each claim is stamped when the step it cites lands.` : `The ${initial?.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
-      <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={btnQuiet}>{p ? "Skip" : "Replay it"}</button>{" "}
-      <a href="#ask" className={btnQuiet}>Ask your own</a>
+      {/* phones skip the stamp sentence (the stamps are below their first screen), so both versions wrap to the same height */}
+      {p ? <>Replaying the {initial?.label} run, sped up: step {Math.min(landed + 1, steps.length)} of {steps.length}.<span className="max-sm:hidden"> Each claim is stamped when the step it cites lands.</span></> : `The ${initial?.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
+      <span className="whitespace-nowrap">
+        <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={btnQuiet}>{p ? "Skip" : "Replay it"}</button>{" "}
+        <a href="#ask" className={btnQuiet}>Ask your own</a>
+      </span>
     </>
   );
 
