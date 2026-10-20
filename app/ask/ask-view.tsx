@@ -253,7 +253,7 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
       {first && (
         <>
           <h2 className="font-display text-2xl">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
-          <p className="mt-1 text-base text-ink-2">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
+          <p className="claim mt-1 text-base text-ink-2">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
           <FoolIt decision={decision} steps={steps} />
           {both && <BothTable b={both} />}
           {tied && (
@@ -268,13 +268,13 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
           {rest.map((c, i) => (
             <li key={c.name + i} className="border-t border-rule pt-3">
               <p className="text-lg text-ink">{tied ? "" : `${i + 2}. `}{nameForDisplay(c.name)}</p>
-              <p className="mt-1 text-base text-ink-2">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
+              <p className="claim mt-1 text-base text-ink-2">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
             </li>
           ))}
         </ul>
       )}
       {twinsStepRec && (
-        <p className="mt-3 max-w-[60ch] text-base text-ink-2">
+        <p className="claim mt-3 max-w-[60ch] text-base text-ink-2">
           {twins
             ? `Overlap check: ${displayName(twins.a)} and ${displayName(twins.b)} sit closest to each other (${twins.value.toFixed(2)}; the next pair ${twins.next.toFixed(2)}), so calling both may reach one audience twice.`
             : "Overlap check: it ran, and no two contenders stand out as reaching the same audience."}{" "}
@@ -283,7 +283,7 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
       )}
       {[...decision.cautions, ...decision.summary].map((c, i, all) => (
         <div key={c.text}>
-          <p className="mt-3 max-w-[60ch] text-base text-ink-2">{forDisplay(c.text)} <Steps ns={c.steps} /></p>
+          <p className="claim mt-3 max-w-[60ch] text-base text-ink-2">{forDisplay(c.text)} <Steps ns={c.steps} /></p>
           {byCategory && i === all.findIndex((x) => x.text.includes(`[[${byCategory.rival}]]`)) && <p className="mt-1 max-w-[60ch] text-sm text-ink-3">{byCategory.line}</p>}
         </div>
       ))}
@@ -376,7 +376,10 @@ function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }
 // on the home page's replay, "checked" lands with the step; the decision already passed the checker as a whole
 function Steps({ ns }: { ns: number[] }) {
   const landed = useContext(Landed);
-  return <span className="font-mono text-sm text-ink-3">{ns.map((n) => <a key={n} href={`#step-${n}`} className="ml-1 underline decoration-rule-strong underline-offset-4">step {n}{landed !== Infinity && n <= landed && <span className="text-success motion-safe:animate-pulse [animation-iteration-count:1]"> checked</span>}</a>)}</span>;
+  // the stamp's room is held from the start (visibility), so a landing never reflows the sentence (MO F2)
+  return <span className="font-mono text-sm text-ink-3">{ns.map((n) => <a key={n} href={`#step-${n}`} className="ml-1 whitespace-nowrap underline decoration-rule-strong underline-offset-4">step {n}{landed !== Infinity && (
+    <span className={`stamp${n <= landed ? " is-on" : ""}`} aria-hidden={n > landed}> <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.6 2.6L10 3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" pathLength="1" /></svg>checked</span>
+  )}</a>)}</span>;
 }
 
 function CopyAsk({ href }: { href: string }) {

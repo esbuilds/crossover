@@ -100,6 +100,56 @@ summary::-webkit-details-marker {
   }
 }
 
+/* Watch it think stamps (MO F2): the tick draws once, the word fades in, and a claim settles from a tint when the last
+   step it cites lands. Reduced motion: every stamp is on at first paint and no keyframe runs. */
+.stamp {
+  color: var(--color-success);
+  visibility: hidden;
+  white-space: nowrap;
+}
+.stamp svg {
+  display: inline;
+  width: 10px;
+  height: 10px;
+  vertical-align: -1px;
+  margin-right: 1px;
+}
+.stamp.is-on {
+  visibility: visible;
+}
+.claim {
+  padding-inline: 0.2em;
+  margin-inline: -0.2em;
+  border-radius: 2px;
+  box-decoration-break: clone;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .stamp.is-on {
+    animation: fade-in 200ms cubic-bezier(0.2, 0, 0, 1) 120ms backwards;
+  }
+  .stamp.is-on svg path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: tick-draw 260ms cubic-bezier(0.2, 0, 0, 1) 40ms forwards;
+  }
+  .claim:has(.stamp):not(:has(.stamp:not(.is-on))) {
+    animation: claim-settle 1200ms cubic-bezier(0.2, 0, 0, 1);
+  }
+}
+@keyframes tick-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes claim-settle {
+  from {
+    background-color: var(--color-success-tint);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
 /* the call sheet prints on one page at Letter as well as A4 (persona round 2, Live Nation: page two held only the footer) */
 @page {
   margin: 0.4in;
