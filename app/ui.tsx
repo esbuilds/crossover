@@ -16,7 +16,9 @@ export const chip =
   "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-rule px-3 py-1 text-sm text-ink transition-[border-color] duration-150 ease-out motion-reduce:transition-none hover:border-ink aria-[current=true]:border-ink disabled:text-ink-3";
 export const field =
   "min-h-11 w-full min-w-0 rounded-md border border-rule-ui bg-surface px-3 text-base text-ink placeholder:text-ink-3 outline-none transition-[border-color] duration-150 ease-out motion-reduce:transition-none focus:border-ink";
-export const panel = "rounded-lg border border-rule bg-surface";
+// one card treatment (DC F9): panel for containers, panelStrong for the call card only (a firmer border, no tint)
+export const panel = "rounded-md border border-rule bg-surface";
+export const panelStrong = "rounded-md border border-rule-strong";
 
 // The one chip system: status on a pick or a market. Text always says what the color means.
 export type ChipKind = "mutual" | "partial" | "oneway" | "competitor" | "excluded" | "lower" | "approved" | "declined" | "note";

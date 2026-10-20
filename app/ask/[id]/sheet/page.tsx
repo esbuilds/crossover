@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import Link from "next/link";
 import { PerRequest } from "@/app/dynamic";
-import { linkInline } from "@/app/ui";
+import { linkInline, panelStrong } from "@/app/ui";
 import CollisionMap from "@/app/vs/collision-map";
 import PrintButton from "./print-button";
 import { peekAsk } from "@/lib/ask/agent.ts";
@@ -67,7 +67,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
       </header>
       <h1 className="mt-3 font-display text-2xl">{s.question}</h1>
       {/* the same call card as the page (Fable tie ruling, Oct 14): two lines, two labels */}
-      <div className="mt-2 rounded-sm border border-rule-strong px-3 py-2">
+      <div className={`${panelStrong} mt-2 px-3 py-2`}>
         <p className="text-base font-semibold">{s.card.first}</p>
         {s.card.where && <p className="text-ink-2">{s.card.where}</p>}
         {where?.line && <p className="text-ink-2">{where.line}</p>}

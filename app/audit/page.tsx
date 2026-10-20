@@ -8,7 +8,7 @@ import replayAsk from "@/lib/ask/replay-ask.json";
 import judgeNames from "@/audit/judge-names.json";
 import mutation from "@/audit/mutation.json";
 import { forDisplay } from "@/lib/ask/check.ts";
-import { Chip, linkInline, SiteHeader } from "../ui";
+import { Chip, linkInline, panel, SiteHeader } from "../ui";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
 // responses stay out of the repo. Not linked yet.
@@ -346,7 +346,7 @@ function BriefCard({ b }: { b: Brief }) {
   const leader = b.groups[0]?.[0]?.affinity ?? 0;
   const excluded = new Map(b.excluded.map((x) => [x.name, x.reason]));
   return (
-    <li className="rounded-lg border border-rule bg-surface p-4">
+    <li className={`${panel} p-4`}>
       <h3 className="font-display text-lg">{b.seed}</h3>
       <p className="mt-1 text-base text-ink">
         {b.noClearThree ? "No clear three." : b.picks.length ? `Picks: ${b.picks.join(", ")}.` : "No picks."}

@@ -4,7 +4,7 @@
 // initial: a cached ask the server replayed (no POST, no Qloo call); pending: a share link whose ask isn't cached yet.
 import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { btnPrimary, btnText, chip, field, linkInline } from "../ui";
+import { btnPrimary, btnText, chip, field, linkInline, panel, panelStrong } from "../ui";
 import CollisionMap from "../vs/collision-map";
 import { CHECK_RULE, claimCount, displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { checkEdit, nudge } from "@/lib/ask/fool.ts";
@@ -173,7 +173,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       <div className="mt-6 grid gap-x-8 gap-y-6 lg:grid-cols-2 lg:items-start">
         {card && (
           <section className="order-1 lg:col-start-2 lg:row-start-1">
-            <div className="rounded-sm border border-rule-strong px-4 py-3">
+            <div className={`${panelStrong} px-4 py-3`}>
               <p className="font-display text-2xl text-ink">{card.first}</p>
               {card.where && <p className="mt-1 text-base text-ink-2">{card.where}</p>}
               {resolved?.id && resolved.type && <WhereLine id={resolved.id} type={resolved.type} asked={asked} />}
@@ -370,7 +370,7 @@ function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }
   const check = (t: string) => setResult(checkEdit(decision, steps, shown, t));
   if (!open) return <p className="mt-2"><button type="button" onClick={() => setOpen(true)} className={btnText}>Try to fool the checker</button></p>;
   return (
-    <div className="mt-3 rounded-sm border border-rule px-3 py-3">
+    <div className={`${panel} mt-3 px-3 py-3`}>
       <p className="text-sm text-ink-2">Change a number or swap in another brand, then check it. The same code that gates every answer runs here, in your browser.</p>
       <textarea value={text} onChange={(ev) => (setText(ev.target.value), setResult(null))} aria-label="The first call's reason, editable" rows={3} className={`${field} mt-2 w-full`} />
       <p className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
