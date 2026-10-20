@@ -56,8 +56,9 @@ const verdictOf = (events: AskEvent[]): Verdict | null => {
 
 // proof: the replay line (lib/ask/steps.ts replayLine), passed from the server so the replay files stay off the client
 // initial.asked: the body the cached ask was run with, so its share and sheet links find it (typed names are keyed by the name)
+// initial.where: the card's where line, read from the cache on the server, so the card is its full height at first paint
 // play: the home page replays initial's steps under its answer (Watch it think) and puts the ask box below
-export default function AskView({ initial, pending, proof, play = false }: { initial?: { label: string; events: AskEvent[]; asked?: Body }; pending?: { label: string; body: Body }; proof?: string; play?: boolean }) {
+export default function AskView({ initial, pending, proof, play = false }: { initial?: { label: string; events: AskEvent[]; asked?: Body; where?: string }; pending?: { label: string; body: Body }; proof?: string; play?: boolean }) {
   const [q, setQ] = useState(initial?.label ?? pending?.label ?? "");
   const [events, setEvents] = useState<AskEvent[]>(initial?.events ?? []);
   const [status, setStatus] = useState<"idle" | "running" | "done" | "error">(initial ? "done" : "idle");
@@ -176,7 +177,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             <div className={`${panelStrong} px-4 py-3`}>
               <p className="font-display text-2xl text-ink">{card.first}</p>
               {card.where && <p className="mt-1 text-base text-ink-2">{card.where}</p>}
-              {resolved?.id && resolved.type && <WhereLine id={resolved.id} type={resolved.type} asked={asked} />}
+              {resolved?.id && resolved.type && <WhereLine id={resolved.id} type={resolved.type} asked={asked} seed={asked === initial?.asked ? initial?.where : undefined} />}
             </div>
           </section>
         )}
@@ -235,7 +236,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
                 <p className="mt-1 text-base text-ink-2">{s.why}</p>
                 <p className="mt-1 text-base text-ink">{s.summary || (status === "running" ? <span className="font-mono text-sm motion-safe:animate-pulse">Reading Qloo...</span> : <span className="text-ink-2">Qloo didn&apos;t answer this step; the steps above are what was measured.</span>)}</p>
                 {forkLine(s) && <p className="mt-1 text-sm text-ink-3">{forkLine(s)}</p>}
-                {s.tool === "candidates" && notes?.cut && <p className="mt-1 text-sm text-ink-3">{notes.cut}</p>}
+                {s.tool === "candidates" && notes?.cut && <p className="mt-1 text-sm text-ink-3 motion-safe:animate-[fade-in_200ms_ease-out]">{notes.cut}</p>}
                 <Picture step={s} steps={steps} hero={hero} />
               </li>
             ))}
@@ -267,7 +268,7 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
           <h2 className="font-display text-lg">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
           <p className="claim mt-1 text-base text-ink">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
           <FoolIt decision={decision} steps={steps} />
-          {both && <BothTable b={both} />}
+          {both && <div className="motion-safe:animate-[fade-in_200ms_ease-out]"><BothTable b={both} /></div>}
           {tied && (
             <p className="mt-3 text-sm text-ink-3">
               {tieLine(review!.summary, nameForDisplay(first.name), rest.length, size, WORDS)}
@@ -308,18 +309,21 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
 
 // "Where to start" (Eric's features push, Oct 14): venues both audiences favor in the lead market, from /api/ask/where
 // (cache first; computed by code beside the frozen answer). Nothing renders until it arrives, and nothing if it can't.
-function WhereLine({ id, type, asked }: { id: string; type: string; asked: Body | null }) {
+// seed: the line the server already read, so there's no fetch and nothing arrives late; a fetched line fades in (MO F6).
+function WhereLine({ id, type, asked, seed }: { id: string; type: string; asked: Body | null; seed?: string }) {
   const [line, setLine] = useState<string | null>(null);
   const q = new URLSearchParams({ id, t: type });
   if (asked && "query" in asked) q.set("q", asked.query);
   if (asked && "case" in asked) q.set("case", asked.case);
   const key = q.toString();
   useEffect(() => {
+    if (seed) return;
     let live = true;
     fetch(`/api/ask/where?${key}`).then((r) => (r.ok ? r.json() : null)).then((d: { line?: string | null } | null) => live && setLine(d?.line ?? null), () => {});
     return () => { live = false; };
-  }, [key]);
-  return line ? <p className="mt-1 text-base text-ink-2">{line}</p> : null;
+  }, [key, seed]);
+  if (seed) return <p className="mt-1 text-base text-ink-2">{seed}</p>;
+  return line ? <p className="mt-1 text-base text-ink-2 motion-safe:animate-[fade-in_200ms_ease-out]">{line}</p> : null;
 }
 
 // Code beside the frozen answer, from a cached ask (cache first): /api/ask/both, the eight ranked in each direction
@@ -343,7 +347,7 @@ function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes
 // popularity, beside the frozen answer. Code, not the agent; nothing above is reordered.
 function SmallerBlock({ s }: { s: Smaller }) {
   return (
-    <section className="mt-6 border-t border-rule pt-4">
+    <section className="mt-6 border-t border-rule pt-4 motion-safe:animate-[fade-in_200ms_ease-out]">
       <h3 className="font-display text-lg">Smaller names, nearly the same fit</h3>
       <p className="mt-1 max-w-[60ch] text-base text-ink-2">{smallerLine(s)}</p>
       {s.rows.length > 0 && (

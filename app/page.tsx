@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { SiteHeader } from "@/app/ui";
 import { peekAsk } from "@/lib/ask/agent.ts";
+import { whereToStart } from "@/lib/ask/where.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
 import { PROOF } from "@/lib/ask/proof.ts";
 import AskView from "./ask/ask-view";
@@ -26,5 +27,8 @@ async function Replay() {
   await connection(); // request time: the cache read must not run in the prerender
   const first = PREPARED_ASKS[0];
   const events = await peekAsk(first.body).catch(() => null);
-  return <AskView proof={PROOF} play initial={events ? { label: first.label, events, asked: first.body } : undefined} />;
+  // the card's where line in the first HTML, so the card doesn't grow after paint (MO F6). ip null: a cache read only,
+  // never a Qloo call; a cold cache leaves it to the client's fetch.
+  const where = events ? await whereToStart(events, null).catch(() => null) : null;
+  return <AskView proof={PROOF} play initial={events ? { label: first.label, events, asked: first.body, where: where?.line ?? undefined } : undefined} />;
 }
