@@ -197,9 +197,9 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {verdict?.ok && verdict.decision && (
             <>
               {/* held (invisible) while the replay plays, so its arrival doesn't shift the steps */}
-              <p className={`mt-4 font-mono text-sm text-ink ${playing ? "invisible" : ""}`} aria-hidden={playing || undefined}>Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>
+              <p className={`mt-4 text-sm text-ink ${playing ? "invisible" : ""}`} aria-hidden={playing || undefined}>Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
-              <p className="mt-2 font-mono text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
+              <p className="mt-2 text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
               {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof} <Link href="/replay" className={linkInline}>Try the 23 yourself</Link></p>}
               {/* the re-judge's memorable moment lived only on /audit (Fable tie ruling, Oct 14) */}
               <p className="mt-2 max-w-[60ch] text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className={linkInline}>See it on the audit</Link></p>
@@ -431,7 +431,7 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
   return (
     <div>
       {/* the counts and the city sentence above the map, so all three sit in the first viewport at 1280 (Pick 1 done) */}
-      <p className="font-mono text-sm text-ink-3 max-sm:hidden">Step {n}: the split, {m.seed.name} against {m.rival.name}</p>
+      <p className="text-sm text-ink-3 max-sm:hidden">Step {n}: the split, {m.seed.name} against {m.rival.name}</p>
       <p className="mt-1 text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
       {cities && <p className="mt-1 text-base text-ink max-sm:hidden">{cities}</p>}
       <div className="mt-2 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
@@ -452,7 +452,7 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
   const x = (v: number) => `${Math.max(0, Math.min(1, (v - 0.5) / 0.5)) * 100}%`;
   return (
     <div className={compact ? "mt-3" : ""}>
-      {!compact && review && <p className="font-mono text-sm text-ink-3">Step {review.n}: fame against taste, {seed?.name}&apos;s fans</p>}
+      {!compact && review && <p className="text-sm text-ink-3">Step {review.n}: fame against taste, {seed?.name}&apos;s fans</p>}
       {c?.fameFlat && <p className="mt-1 font-display text-lg text-ink">Fame can&apos;t tell these {WORDS[c.cards.length] ?? c.cards.length} apart. Taste can.</p>}
       <p className="mt-1 text-sm text-ink-3">
         <span className="mr-1 inline-block size-2.5 rounded-full border border-ink-2 align-middle" aria-hidden /> fame (Qloo popularity){" "}

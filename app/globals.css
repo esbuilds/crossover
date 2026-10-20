@@ -65,6 +65,8 @@ body {
   background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  /* one figure policy (TR F5): every number lines up in a column; mono is for citations, hashes and step labels */
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 /* feel (TR F2, TR F9): a warm selection, smooth jumps to a cited step, and the step it lands on lights once */

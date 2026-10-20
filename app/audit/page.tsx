@@ -60,15 +60,20 @@ export default function AuditPage() {
 
       {/* Fable's re-judge ruling (Oct 15): one funnel strip from numbers already on this page. Asks and routes are
           scripts/routes.ts' count over the cache (Oct 15); blocked and the replays are read from their files. */}
-      <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 border-y border-rule py-3 text-sm sm:grid-cols-5">
+      {/* a scoreboard (DC F12, TR F5): the leading figure in the display face, its qualifier on the line under it */}
+      <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:gap-y-0.5 border-y border-rule py-3 text-sm sm:grid-cols-5">
         {[
-          ["Cached asks (Oct 15)", "39"],
-          ["Reached a decision", "36 (3 stopped at the name)"],
-          ["Distinct routes", "5"],
-          ["Blocked by the checker", `${blocked.length}, ${blocked.filter((b) => b.underV2 !== "passes").length} under the current rule`],
-          ["Replays, real partner in the top three", `${replay.summary!.hits} of ${replay.summary!.scored} (missed its bar), ${replayV2.summary!.hits} of ${replayV2.summary!.scored}`],
-        ].map(([k, v]) => (
-          <div key={k}><dt className="text-ink-3">{k}</dt><dd className="font-mono text-ink">{v}</dd></div>
+          ["Cached asks (Oct 15)", "39", ""],
+          ["Reached a decision", "36", "(3 stopped at the name)"],
+          ["Distinct routes", "5", ""],
+          ["Blocked by the checker", `${blocked.length}`, `${blocked.filter((b) => b.underV2 !== "passes").length} under the current rule`],
+          ["Replays, real partner in the top three", `${replay.summary!.hits} of ${replay.summary!.scored}`, `(missed its bar), ${replayV2.summary!.hits} of ${replayV2.summary!.scored}`],
+        ].map(([k, lead, rest], i) => (
+          <div key={k} className={`sm:row-span-3 sm:grid sm:grid-rows-subgrid ${i === 4 ? "max-sm:col-span-2" : ""}`}>
+            <dt className="text-ink-3 sm:self-end">{k}</dt>
+            <dd className="font-display text-2xl text-ink">{lead}</dd>
+            {rest && <dd className="text-sm text-ink-3">{rest}</dd>}
+          </div>
         ))}
       </dl>
 
@@ -173,7 +178,7 @@ export default function AuditPage() {
         <ul className="mt-3 space-y-2 text-sm text-ink-2">
           {mutation.kinds.map((k) => (
             <li key={k.kind} className="border-t border-rule pt-2">
-              <p className="text-ink"><span className="font-mono">{k.rejected} of {k.applied}</span> rejected: {k.kind}{k.gated ? "" : " (a known limit, not counted above)"}.</p>
+              <p className="text-ink"><span>{k.rejected} of {k.applied}</span> rejected: {k.kind}{k.gated ? "" : " (a known limit, not counted above)"}.</p>
               {k.misses.length > 0 && k.gated && (
                 <details className="mt-1">
                   <summary className="cursor-pointer">What got through ({k.misses.length})</summary>
