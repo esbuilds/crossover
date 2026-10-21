@@ -7,7 +7,7 @@ import { bothWays } from "@/lib/ask/both-ways.ts";
 import { fieldNotesFor } from "@/lib/ask/field-notes.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
 import { PROOF } from "@/lib/ask/proof.ts";
-import AskView from "./ask/ask-view";
+import AskView, { AskHeadline } from "./ask/ask-view";
 import HashRedirect from "./hash-redirect";
 
 // The front door (Pick A, Oct 13): one name in, the agent decides who to call first. The first prepared ask replays
@@ -18,10 +18,22 @@ export default function Home() {
     <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
       <HashRedirect />
       <SiteHeader />
-      <Suspense fallback={<AskView proof={PROOF} />}>
+      <Suspense fallback={<Loading />}>
         <Replay />
       </Suspense>
     </main>
+  );
+}
+
+// While the cache is read: the same headline, then room, so the footer stays below the fold and nothing a judge has
+// read is swapped out when the replay streams in (FIX-F4: the old fallback was the ask form, and the footer shifted
+// 0.15 at 1280 and 0.23 at 390 when the replay replaced it).
+function Loading() {
+  return (
+    <section className="pt-6" aria-busy>
+      <AskHeadline />
+      <div className="min-h-screen" />
+    </section>
   );
 }
 

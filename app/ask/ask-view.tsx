@@ -150,12 +150,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   return (
     <Landed.Provider value={landed}>
       <section className="pt-6">
-        <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
-        <p className="mt-2 max-w-[68ch] text-lg text-ink-2">
-          {/* phones get the short line, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
-          <span className="sm:hidden">Every number comes from Qloo; every name and number in the answer is checked.</span>
-          <span className="max-sm:hidden">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</span>
-        </p>
+        <AskHeadline />
         {play && initial && landed !== Infinity && (
           <div className="mt-3">
             {/* the trace rail: in the first screen at 390 and 1280, where the step list isn't */}
@@ -253,6 +248,20 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
 
       {play && <section id="ask" className="mt-10 scroll-mt-4 border-t border-rule pt-6"><h2 className="font-display text-xl">Ask your own</h2>{askBox}</section>}
     </Landed.Provider>
+  );
+}
+
+// The headline, shared with the home page's loading state (FIX-F4) so the cache read swaps nothing a judge has read
+export function AskHeadline() {
+  return (
+    <>
+      <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
+      <p className="mt-2 max-w-[68ch] text-lg text-ink-2">
+        {/* phones get the short line, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
+        <span className="sm:hidden">Every number comes from Qloo; every name and number in the answer is checked.</span>
+        <span className="max-sm:hidden">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</span>
+      </p>
+    </>
   );
 }
 
