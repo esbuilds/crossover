@@ -11,7 +11,7 @@ import Front from "./front";
 
 // Two names in (the front door until Pick A, Oct 13): the rivals map, first prepared pair from the cache only (the
 // server never spends here; a cold first pair loads in the browser).
-export const metadata: Metadata = { title: "Two names in | Crossover" };
+export const metadata: Metadata = { title: "Two names in" };
 
 export default function Vs() {
   return (

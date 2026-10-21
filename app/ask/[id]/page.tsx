@@ -31,7 +31,7 @@ async function load(params: Promise<{ id: string }>, searchParams: Promise<Recor
 export async function generateMetadata({ params, searchParams }: PageProps<"/ask/[id]">): Promise<Metadata> {
   await connection();
   const r = await load(params, searchParams);
-  if (!r?.seed) return { title: "Who should they call first? | Crossover" };
+  if (!r?.seed) return { title: "Who should they call first?" };
   const title = `Who should ${r.seed} call first?`;
   const image = `/ask/${r.id}/og?t=${encodeURIComponent(r.type)}`;
   return { title, openGraph: { title, images: [{ url: image, width: 1200, height: 630 }] }, twitter: { card: "summary_large_image", images: [image] } };
