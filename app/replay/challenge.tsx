@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { btnPrimary, btnText, linkInline } from "../ui";
 import type { ChallengeCase } from "@/lib/replay-challenge.ts";
 import { rotation } from "@/lib/replay-rotation.ts";
+import { replayLine } from "@/lib/replay-control.ts";
 
 type Tally = { hits: number; scored: number; need: number };
 type Saved = { seed: number; at: number; picks: Record<string, string> };
@@ -24,7 +25,7 @@ const bringIntoView = (id: string, always = false) => requestAnimationFrame(() =
 });
 const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
 
-export default function Challenge({ cases, protocol }: { cases: ChallengeCase[]; protocol: { v1: Tally; v2: Tally } }) {
+export default function Challenge({ cases, protocol }: { cases: ChallengeCase[]; protocol: { v1: Tally; v2: Tally; scrambledV2: number } }) {
   const [state, setState] = useState<Saved | null>(null);
   useEffect(() => setState(load() ?? { seed: Math.floor(Math.random() * 2 ** 31) + 1, at: 0, picks: {} }), []);
   useEffect(() => { if (state) save(state); }, [state]);
@@ -73,7 +74,7 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
       <div className="mt-block border-t border-rule pt-6 text-base text-ink-2">
         {answered.length > 0 && <p className="text-ink">You: {mine} of {answered.length} picked the real partner. Chance, picking one of eight, is one in eight.</p>}
         {/* challenge persona (Oct 15): six numbers in one sentence; lead with the one that passed */}
-        <p className="mt-1">Qloo&apos;s data put the real partner in its top three {protocol.v2.hits} times in {protocol.v2.scored}, where chance gives about five. An earlier test, {protocol.v1.hits} of {protocol.v1.scored}, missed its bar. Both were frozen in git before they ran.</p>
+        <p className="mt-1">{replayLine(protocol.v2, protocol.scrambledV2)} An earlier test, {protocol.v1.hits} of {protocol.v1.scored}, missed its bar. Both were frozen in git before they ran.</p>
         <p className="mt-1 text-sm text-ink-3">A hit for Qloo&apos;s data is the real partner in its top three of eight, not first. Your score and its score count different things and aren&apos;t added together.</p>
         <p className="mt-2 flex flex-wrap gap-x-4">
           <Link href="/audit#replays" className={btnText}>The tests on the audit</Link>

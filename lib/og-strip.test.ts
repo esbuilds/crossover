@@ -21,5 +21,5 @@ test("every row's one filled slot is the rank in the JSON, case by case, 14 then
 });
 
 test("the title is the /replay sentence verbatim", () => {
-  assert.equal(stripTitle(), "Qloo's data put the real partner in its top three 11 times in 14, where chance gives about five.");
+  assert.equal(stripTitle(), "Qloo's data put the real partner in its top three 11 times in 14. With the wrong seed brand swapped in, it still did 10 times, so these lists favor the real partner whoever is asking.");
 });

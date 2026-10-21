@@ -17,3 +17,9 @@ export function controlSentences(c: Control, v2From = 9) {
     s.pass ? "" : `As the protocol said before the run, that means the eights favor the real partner whoever is asking: most of the replay's hits come from how the lists were built, not from the seed's fans.${s.noMeasurement ? ` ${s.noMeasurement} had no measurement and counted against the test.` : ""}`,
   ].filter(Boolean);
 }
+
+// The second test's cases are the last 14 rows (the draw runs v1's nine, then v2's). The /replay sentence and the strip's
+// title (Eric's PROOF-1 wording ruling, real Oct 22): the v2 count, then the same cases under the scrambled seeds.
+export const scrambledV2Hits = (c: Control, v2From = 9) => c.cases.slice(v2From).filter((r) => r.hit).length;
+export const replayLine = (v2: { hits: number; scored: number }, scrambled: number) =>
+  `Qloo's data put the real partner in its top three ${v2.hits} times in ${v2.scored}. With the wrong seed brand swapped in, it still did ${scrambled} times, so these lists favor the real partner whoever is asking.`;

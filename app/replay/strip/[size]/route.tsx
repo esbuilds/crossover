@@ -42,7 +42,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ size: stri
       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#ffffff", fontFamily: "Newsreader", color: INK }}>
         <div style={{ display: "flex", flexDirection: "column", width: px(1200), height: px(800), padding: `${px(40)}px ${px(56)}px` }}>
           <div style={{ display: "flex", fontSize: px(28), fontWeight: 600, paddingBottom: px(12), borderBottom: `2px solid ${RULE}` }}>Crossover</div>
-          <div style={{ display: "flex", marginTop: px(24), fontSize: px(38), fontWeight: 600, lineHeight: 1.15, maxWidth: px(1040) }}>{stripTitle()}</div>
+          <div style={{ display: "flex", marginTop: px(24), fontSize: px(33), fontWeight: 600, lineHeight: 1.15, maxWidth: px(1040) }}>{stripTitle()}</div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: px(36) }}>
             <Block b={v2} />
             <Block b={v1} />

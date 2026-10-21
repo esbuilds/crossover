@@ -404,7 +404,8 @@ function Replay() {
       </p>
       <ReplayRun data={replayV2} freeze={REPLAY_V2_FREEZE} title="Second test (v2): new cases only, after the first missed" protocol="audit/replay-v2-protocol.md"
         dropped="Ten dropped under the written decoy check: nine had the partner's own parent or a sister brand among the decoys, and Pandora matched the jewelry brand, not the music service."
-        note="Sensitivity: two kept cases (Krispy Kreme x Crocs, Pringles x Crocs) have luxury-house decoys the rules don't cover; both were hits. Without them it is 9 of 12, against a bar of 8 for twelve." />
+        note="Sensitivity: two kept cases (Krispy Kreme x Crocs, Pringles x Crocs) have luxury-house decoys the rules don't cover; both were hits. Without them it is 9 of 12, against a bar of 8 for twelve."
+        control />
       <ReplayControls />
       <ReplayRun data={replay} freeze={REPLAY_FREEZE} title="First test (v1)" protocol="audit/replay-protocol.md"
         dropped="Four had no Qloo category tag for the partner; four had a tag that isn't the partner's category. Red Bull x GoPro and Liquid Death x e.l.f. were left out because their scores were already seen." />
@@ -423,7 +424,7 @@ function chanceAtLeast(n: number, k: number, p = 3 / 8) {
   return s;
 }
 
-function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: ReplayFile; freeze: string; title: string; protocol: string; dropped: string; note?: string }) {
+function ReplayRun({ data, freeze, title, protocol, dropped, note, control }: { data: ReplayFile; freeze: string; title: string; protocol: string; dropped: string; note?: string; control?: boolean }) {
   const sum = data.summary!;
   const scored = data.cases.filter((c) => c.result?.state === "scored");
   const out = data.cases.filter((c) => c.dropped);
@@ -431,7 +432,7 @@ function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: Rep
     <div className="mt-8">
       <h3 className="text-base font-semibold text-ink">{title}</h3>
       <p className="mt-1 max-w-copy text-lg text-ink">
-        {sum.pass ? "It passes" : "It fails its bar"}: {sum.hits} of {sum.scored} real partners in the top three (needed {sum.need}; chance gives about {((sum.scored * 3) / 8).toFixed(1)}, and {sum.hits} or more by chance is about 1 in {Math.round(1 / chanceAtLeast(sum.scored, sum.hits))}). No real partner ranked below {Math.max(...scored.map((c) => c.result!.rank!))}th, and the mean rank is {sum.meanRank} against {sum.chanceMeanRank} by chance, reported but not part of the bar.
+        {sum.pass ? "It passes" : "It fails its bar"}: {sum.hits} of {sum.scored} real partners in the top three (needed {sum.need}; chance gives about {((sum.scored * 3) / 8).toFixed(1)}, and {sum.hits} or more by chance is about 1 in {Math.round(1 / chanceAtLeast(sum.scored, sum.hits))}). No real partner ranked below {Math.max(...scored.map((c) => c.result!.rank!))}th, and the mean rank is {sum.meanRank} against {sum.chanceMeanRank} by chance, reported but not part of the bar.{control && <> <a href="#replay-controls" className={linkInline}>Read it with the replay controls below</a>.</>}
       </p>
       <p className="mt-1 text-sm text-ink-3">Frozen at commit <code className="font-mono">{freeze}</code> ({protocol}).</p>
       <ul className="mt-3 grid max-w-[900px] gap-x-8 md:grid-cols-2">

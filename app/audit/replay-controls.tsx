@@ -7,7 +7,7 @@ import { CONTROL_FREEZE, controlSentences } from "@/lib/replay-control.ts";
 // (audit/replay-control-protocol.md) and the fair popularity number (scripts/popularity-fair.ts). Published as run.
 export function ReplayControls() {
   return (
-    <div className="mt-6">
+    <div id="replay-controls" className="mt-6 scroll-mt-4">
       <h3 className="text-base font-semibold text-ink">Replay controls</h3>
       <p className="mt-1 max-w-copy text-base text-ink">{controlSentences(control).join(" ")}</p>
       <p className="mt-1 text-sm text-ink-3">Frozen at commit <code className="font-mono">{CONTROL_FREEZE}</code> (audit/replay-control-protocol.md, audit/replay-control.json).</p>
