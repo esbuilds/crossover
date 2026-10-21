@@ -41,7 +41,7 @@ One name in: an agent measures in Qloo step by step and says who that brand, art
 | `GET /v2/insights` | the seed's card and top-50 params, tags kept untrimmed | Genre, product category and competitor tags for the rival finder | `lib/qloo.ts` (`fullTags`), `lib/rival.ts` |
 | `GET /v2/insights` | `filter.type=urn:entity:brand`, `signal.interests.entities` (each brand of a category but the last), `filter.results.entities` (the others), `take` | The category maps: every pair's mutual affinity, laid out by classical MDS in code | `lib/constellation.ts` |
 
-`lib/qloo.ts` is the only file that talks to Qloo. It paces calls to four a second, retries once on 429 and 5xx, trims responses and counts every call against the daily cap.
+`lib/qloo.ts` is the only file that talks to Qloo. It paces calls to four a second, retries once on 429 and 5xx, trims responses and counts every call against the daily cap. What the API returned when we probed it, and what we shipped because of it, is in `docs/qloo-field-guide.md`.
 
 
 ## One ask, request to result
@@ -82,7 +82,7 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 - **Match validation** (`lib/resolve.ts`). Qloo's search returns confident wrong matches for names it doesn't know (Fruition Chocolate Works comes back as Bath & Body Works). A match is confident only on an exact name or alias above a popularity floor of 0.3 (the review desk adds a cross-type check; see above). Several exact hits keep Qloo's relevance order, and an artist beats a person with the same name. Token overlap becomes a picker, and Claude Haiku is asked only in the narrow band in between. The user always sees the card and can say "Not it". The resolver is tested against recorded search results for 22 names, 14 of them small brands Qloo doesn't know.
 - **Stand-ins.** For a brand Qloo doesn't know, the user describes it and names brands their customers love. Haiku suggests more, and each is checked in Qloo. The slate is built from weighted stand-ins (10, 7, 5), and a banner says so on every screen.
 - **Never rank by popularity.** Order is Qloo's affinity order, kept by code. The model reviews picks but cannot reorder them. Popularity is a floor for matching and, on the front door, a labelled reference column, never a correction.
-- **Qloo's terms.** No Qloo responses in the repo beyond the few scores the pages themselves show: `lib/ask/fixtures/` holds the three prepared asks' step outputs, affinity and popularity included, so the tests run at 0 calls; the audit files keep derived numbers. No third-party logos or images in the app.
+- **Qloo's terms.** The repo holds no full Qloo responses, only scores: `lib/ask/fixtures/` keeps the three prepared asks' step outputs, affinity and popularity included, so the tests run at 0 calls, and `audit/` keeps the scores each test and probe compared. No third-party logos or images in the app.
 - **Say what didn't work.** Refine phrases that map to nothing are listed as "Couldn't apply". Kinds of partner without a Qloo tag ("no cookware") are applied by the ranker and labeled "Applied by the agent". A fit ranked in only one side's top 50 shows as such instead of being hidden.
 
 ## Tests
