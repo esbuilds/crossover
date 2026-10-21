@@ -1,22 +1,12 @@
 # Crossover
 
-One name in: an agent decides who a brand, artist or show should call first. Claude chooses what to measure next through Crossover's own tools (find the rival, split the two audiences, eight candidates by rule, score them, check whether two reach the same audience), writing why before each step, and three of those steps draw their picture (the split's map, the eight cards, the overlap pair). The answer is shown only if every name and number in it appears in a step it cites (`lib/ask/check.ts`). Affinity and popularity come from Qloo; Crossover computes the comparisons, the percentiles and the layout.
+![The Allbirds answer: where Allbirds' and Outdoor Voices' audiences split on a US map, "First call: Bombas", and a slopegraph in which Bombas is the one line that climbs](docs/answer.png)
 
-## The ask, in five minutes
-
-- **The tie, and what separates it.** A prepared ask's eight tie within 0.05 by taste, because they are the top of the seed's own list; the page says so. Under "Call first", code beside the frozen answer draws the other direction: each candidate's fans' rank of the seed (`lib/ask/both-ways.ts`). Bombas fans rank Allbirds 1st; the other seven rank it 9th to 31st or not in their top 50. Shown only when the agent's three separate on it (Allbirds and Mt. Joy do, the Converse replay doesn't), never reordered.
-- **The checker** (`lib/ask/check.ts`, rule v3 since Oct 18). Every name and number must appear in a cited step; a score or rank right after a brand, in the same clause, must be that brand's own. Answers are re-checked under the current rule when shown (`decisionEvent` in `lib/ask/steps.ts`), so the cached runs and their hashes (`docs/freeze.md`) never change. `scripts/check-v2-gates.ts` re-runs the rule over every cached ask at 0 calls.
-- **We attacked the checker.** `scripts/mutation-gate.ts` copies every cached answer, changes one fact per copy (9 kinds) and re-checks it: rule v2 rejected 207 of 228, the misses showed two holes, rule v3 rejects 217 of 228 with every miss published on /audit#fool-it. Any answer has a "Try to fool the checker" box running the same code in the browser (`lib/ask/fool.ts`).
-- **Smaller names, nearly the same fit** (`lib/ask/smaller.ts`). Under the answer, Qloo's brand list for the seed's fans read again with `filter.popularity.max=0.5`: the brands that stay within 0.05 of the leader (the answer's own tie rule). Allbirds: The Recreationalist at popularity 0.50 scores 0.90 against Outdoor Voices' 0.94 at 0.96. Gate run first (`audit/popularity-probe.json`): the same entity carries the same affinity in both reads, so the comparison holds; popularity 0 is Qloo's "no measurement" and is left out.
-- **Use it from your agent (MCP).** `https://crossover-henna.vercel.app/api/mcp` (Streamable HTTP, `app/api/mcp/route.ts`): `crossover_ask` returns a cached checked answer with every cited step, `crossover_check` runs the checker on any decision and steps. Read-only over the cache, so it never spends Qloo calls. The URL opened in a browser describes the server and how to connect; `node scripts/mcp-gate.ts <url>` is the round-trip test.
-- **Agent or pipeline.** The order of tools is set in the prompt; the branches follow what Qloo returned. `scripts/routes.ts` counts them from the cache (Oct 15: 39 asks, 5 routes, 3 stopped at the name). Each step on the page says where it forked.
-- **Six names a judge might type** (`scripts/judge-names.ts`, results in `audit/judge-names.json` and on /audit): run on the live site before judging; the gate failed and is published.
-- **Probes that failed stay on /audit**: where a candidate leads, the collision diff candidate against seed, an audience segment, an age bracket.
-- **Field notes** (`lib/ask/field-notes.ts`): the same `fields()` the candidates cut uses names the field it cut ("Own field left out: Baseball"), or says it had nothing to cut with (Chipotle).
-
-The nav is four stops: the ask (/), two names in (/vs, where audiences split, cell by cell on a US map), real deals (/replay, 23 real collaborations hidden among decoys), and a public audit (/audit) of how well the rules held up, including two frozen replays of real collaborations. Pick three (/pick-three) is in every page's footer and one click from any answer. Whole-aisle maps (/map/<category>) and the partner slate (/find) sit in /vs's footer; /pair, /triage, /s, /review and /end-card still resolve but are off the nav.
+One name in: an agent measures in Qloo step by step and says who that brand, artist or show should call first. Every name and number in its answer is checked against the step it came from before the page shows it.
 
 **Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
+
+**What's measured.** We attacked the checker with 228 altered answers; it rejects 217, and the 11 that got through are listed on /audit#fool-it. In the answer above, Bombas fans rank Allbirds first among brands and the other seven candidates' fans rank it 9th to 31st or not in their top 50. Replayed blind on real collaborations, the agent put 11 of 14 real partners in its top three; a control committed before it ran (all 23 cases from both replays, each re-scored under the wrong seed) put them there just as often, 17 of 23 against 17 of 23, so the replay shows the candidate lists favor the real partner, not that the seed's fans pick it. Both results are on /audit.
 
 ## Every Qloo call
 
@@ -53,17 +43,51 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 
 `lib/qloo.ts` is the only file that talks to Qloo. It paces calls to four a second, retries once on 429 and 5xx, trims responses and counts every call against the daily cap.
 
+
+## One ask, request to result
+
+`POST /api/ask` with `{"query":"Allbirds"}` streams server-sent events. Claude Opus 5.5 picks each tool and writes why first; the tools are code in `lib/ask/tools.ts`, and every Qloo call goes through `lib/qloo.ts`. For Allbirds: `/search` resolves the name; `/v2/insights` with `signal.interests.entities` reads its fans' top 50 brands and the rival finder picks Outdoor Voices; two top-50 lists, scoring the union under both seeds and two national heatmaps make the split; eight candidates come from the split by rule; one `/v2/insights` call with `filter.results.entities` scores all eight for Allbirds' fans (they tie within 0.05); each contender scores the others for the overlap check. The model then names three calls, and `lib/ask/check.ts` matches all 31 names and numbers in its answer to the steps they cite; an answer that fails isn't shown. Beside the frozen answer, code reads each candidate's fans' top 50 (`lib/ask/both-ways.ts`, up to 8 calls) for the both-ways line. A new name costs about 28 Qloo calls and 40 seconds; every response and the whole run are cached in Redis, so a repeat costs none.
+
+Check the live site against this repo without a browser:
+
+```
+# the MCP server (Streamable HTTP): initialize
+curl -s -X POST https://crossover-henna.vercel.app/api/mcp -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
+
+# the deployed commit, today's Qloo calls and the month's remaining quota as Qloo reports it
+curl -s https://crossover-henna.vercel.app/api/usage
+
+# a cached ask, replayed: every step, the checked decision, and {"type":"done","cached":true} (0 Qloo calls)
+curl -sN -X POST https://crossover-henna.vercel.app/api/ask -H 'content-type: application/json' -d '{"id":"78A44C09-E691-42DA-A553-5CDE6EE9B18A","type":"urn:entity:brand"}'
+```
+
+## The ask, in five minutes
+
+- **The tie, and what separates it.** A prepared ask's eight tie within 0.05 by taste, because they are the top of the seed's own list; the page says so. Under "Call first", code beside the frozen answer draws the other direction: each candidate's fans' rank of the seed (`lib/ask/both-ways.ts`). Bombas fans rank Allbirds 1st; the other seven rank it 9th to 31st or not in their top 50. Shown only when the agent's three separate on it (Allbirds and Mt. Joy do, the Converse replay doesn't), never reordered.
+- **The checker** (`lib/ask/check.ts`, rule v3 since Oct 18). Every name and number must appear in a cited step; a score or rank right after a brand, in the same clause, must be that brand's own. Answers are re-checked under the current rule when shown (`decisionEvent` in `lib/ask/steps.ts`), so the cached runs and their hashes (`docs/freeze.md`) never change. `scripts/check-v2-gates.ts` re-runs the rule over every cached ask at 0 calls.
+- **We attacked the checker.** `scripts/mutation-gate.ts` copies every cached answer, changes one fact per copy (9 kinds) and re-checks it: rule v2 rejected 207 of 228, the misses showed two holes, rule v3 rejects 217 of 228 with every miss published on /audit#fool-it. Any answer has a "Try to fool the checker" box running the same code in the browser (`lib/ask/fool.ts`).
+- **Smaller names, nearly the same fit** (`lib/ask/smaller.ts`). Under the answer, Qloo's brand list for the seed's fans read again with `filter.popularity.max=0.5`: the brands that stay within 0.05 of the leader (the answer's own tie rule). Allbirds: The Recreationalist at popularity 0.50 scores 0.90 against Outdoor Voices' 0.94 at 0.96. Gate run first (`audit/popularity-probe.json`): the same entity carries the same affinity in both reads, so the comparison holds; popularity 0 is Qloo's "no measurement" and is left out.
+- **Use it from your agent (MCP).** `https://crossover-henna.vercel.app/api/mcp` (Streamable HTTP, `app/api/mcp/route.ts`): `crossover_ask` returns a cached checked answer with every cited step, `crossover_check` runs the checker on any decision and steps. Read-only over the cache, so it never spends Qloo calls. The URL opened in a browser describes the server and how to connect; `node scripts/mcp-gate.ts <url>` is the round-trip test.
+- **Agent or pipeline.** The order of tools is set in the prompt; the branches follow what Qloo returned. `scripts/routes.ts` counts them from the cache (Oct 15: 39 asks, 5 routes, 3 stopped at the name). Each step on the page says where it forked.
+- **Six names a judge might type** (`scripts/judge-names.ts`, results in `audit/judge-names.json` and on /audit): run on the live site before judging; the gate failed and is published.
+- **Probes that failed stay on /audit**: where a candidate leads, the collision diff candidate against seed, an audience segment, an age bracket.
+- **Field notes** (`lib/ask/field-notes.ts`): the same `fields()` the candidates cut uses names the field it cut ("Own field left out: Baseball"), or says it had nothing to cut with (Chipotle).
+
+The nav is four stops: the ask (/), two names in (/vs, where audiences split, cell by cell on a US map), real deals (/replay, 23 real collaborations hidden among decoys), and a public audit (/audit) of how well the rules held up, including two frozen replays of real collaborations. Pick three (/pick-three) is in every page's footer and one click from any answer. Whole-aisle maps (/map/<category>) sit in /vs's footer; /find, /pair, /triage, /s, /review and /end-card still resolve but nothing in the nav or a footer links them.
+
+
 ## The honesty layer
 
 - **Match validation** (`lib/resolve.ts`). Qloo's search returns confident wrong matches for names it doesn't know (Fruition Chocolate Works comes back as Bath & Body Works). A match is confident only on an exact name or alias above a popularity floor of 0.3 (the review desk adds a cross-type check; see above). Several exact hits keep Qloo's relevance order, and an artist beats a person with the same name. Token overlap becomes a picker, and Claude Haiku is asked only in the narrow band in between. The user always sees the card and can say "Not it". The resolver is tested against recorded search results for 22 names, 14 of them small brands Qloo doesn't know.
 - **Stand-ins.** For a brand Qloo doesn't know, the user describes it and names brands their customers love. Haiku suggests more, and each is checked in Qloo. The slate is built from weighted stand-ins (10, 7, 5), and a banner says so on every screen.
 - **Never rank by popularity.** Order is Qloo's affinity order, kept by code. The model reviews picks but cannot reorder them. Popularity is a floor for matching and, on the front door, a labelled reference column, never a correction.
-- **Qloo's terms.** No raw Qloo responses in the repo (the audit publishes derived numbers), and no third-party logos or images in the app.
+- **Qloo's terms.** No Qloo responses in the repo beyond the few scores the pages themselves show: `lib/ask/fixtures/` holds the three prepared asks' step outputs, affinity and popularity included, so the tests run at 0 calls; the audit files keep derived numbers. No third-party logos or images in the app.
 - **Say what didn't work.** Refine phrases that map to nothing are listed as "Couldn't apply". Kinds of partner without a Qloo tag ("no cookware") are applied by the ranker and labeled "Applied by the agent". A fit ranked in only one side's top 50 shows as such instead of being hidden.
 
 ## Tests
 
-`npm test` runs 219 offline tests in a few seconds, with no API calls. `npm run lint` and `npx tsc --noEmit` are clean. Full list below the fold.
+`npm test` runs 224 offline tests in a few seconds, with no API calls. `npx tsc --noEmit` is clean. Full list below the fold.
 
 ## Run it
 
@@ -77,7 +101,7 @@ npm run dev                  # http://localhost:3000
 
 | Variable | Purpose |
 |---|---|
-| `QLOO_API_KEY` | Hackathon key; works only against `https://hackathon.api.qloo.com` (5 requests a second, 10,000 a month) |
+| `QLOO_API_KEY` | Hackathon key; works only against `https://hackathon.api.qloo.com` (5 requests a second; the month's remaining quota comes back in a response header, and `/api/usage` shows it) |
 | `ANTHROPIC_API_KEY` | Claude Opus 5.5 (ranking, briefs, outreach, refine, verdicts) and Haiku 5.5 (match judge, stand-ins, age sentence) |
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis: the shared cache and the counters |
 | `QLOO_DAILY_CAP` | Qloo calls allowed per UTC day across all instances (300 by default) |
@@ -88,7 +112,7 @@ npm run dev                  # http://localhost:3000
 
 **Warming.** `node --env-file=.env.local scripts/warm.ts <url> scripts/warm-list.json [--no-cohort]` runs resolve, the full slate, badges and the top brand's brief for each name, one at a time. It stops before the daily cap, logs Qloo calls per name, skips names that don't resolve confidently (or uses a hand-picked id recorded with a note), and records progress so it can resume.
 
-**Why a daily cap.** The hackathon key has 10,000 calls a month, and one cold ask costs about 28 (9 to 22 for the steps, up to 8 for the both-ways table). The cap is counted in Redis across every serverless instance, so a burst of new names or a crawler can't spend the month. Each visitor also gets 20 new briefs a day; anything already generated is free. When either limit or the Anthropic balance runs out, the app says so plainly and points to the example brands.
+**Why a daily cap.** The hackathon key has a monthly quota, and one cold ask costs about 28 (9 to 22 for the steps, up to 8 for the both-ways table). The cap is counted in Redis across every serverless instance, so a burst of new names or a crawler can't spend the month. Each visitor also gets 20 new briefs a day; anything already generated is free. When either limit or the Anthropic balance runs out, the app says so plainly and points to the example brands.
 
 ---
 
@@ -97,10 +121,10 @@ npm run dev                  # http://localhost:3000
 
 ## The 30-second path
 
-1. Open https://crossover-henna.vercel.app. Allbirds is asked: the split map against Outdoor Voices, "Call first: Bombas", the both-ways table under it, and the steps with their why lines.
-2. Click **An artist's tour sponsor: Mt. Joy**: no same-field rival, so the agent takes the fans' top 50 and the picture becomes fame against taste.
+1. Open https://crossover-henna.vercel.app. Allbirds is asked: the split map against Outdoor Voices, "First call: Bombas" with the both-ways line and slopegraph, the both-ways table under the decision, and the steps with their why lines.
+2. Click **An artist: Mt. Joy**: no same-field rival, so the agent takes the fans' top 50 and the picture becomes fame against taste.
 3. Open **Call sheet** under any answer for the one-page version.
-4. Open **/audit** for the replays of real collaborations (11 of 14, about 1 in 469 by chance), the checker's blocked list, the six judge names and the probes that failed.
+4. Open **/audit** for the replays of real collaborations (11 of 14 in the top three, and the scrambled-seed control that matched it), the checker's blocked list, the six judge names and the probes that failed.
 5. **Two names in** (/vs) splits any two names on a US map; **Pick three** asks you to choose before it reveals.
 
 ## Rivals (/vs and the front door)
@@ -153,7 +177,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 
 ## Test list
 
-`npm test` runs 219 offline tests:
+`npm test` runs 224 offline tests:
 
 - match validation against recorded search results
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
@@ -169,7 +193,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 - share-link and category-map path checks (malformed links get a real 404)
 - a guard that no client component imports the server-only Qloo client
 
-`npm run lint` and `npx tsc --noEmit` are clean.
+`npx tsc --noEmit` is clean.
 
 </details>
 
