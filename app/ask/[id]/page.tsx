@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { connection } from "next/server";
+import { notFound } from "next/navigation";
 import { PerRequest } from "@/app/dynamic";
 import { SiteHeader } from "@/app/ui";
 import { peekAsk, type AskEvent } from "@/lib/ask/agent.ts";
@@ -50,7 +51,7 @@ export default function SharedAsk({ params, searchParams }: PageProps<"/ask/[id]
 
 async function Shared({ params, searchParams }: Pick<PageProps<"/ask/[id]">, "params" | "searchParams">) {
   const r = await load(params, searchParams);
-  if (!r) return <AskView />;
+  if (!r) notFound(); // an id that isn't a Qloo id is a broken link, as on /s (FIX-F6), not a blank ask page
   const asked = "query" in r.body && r.body.query ? { query: r.body.query } : r.body.caseKey ? { case: r.body.caseKey } : { id: r.id, type: r.type };
   if (!r.events || !r.seed) return <AskView proof={PROOF} pending={{ label: "This ask", body: asked }} />;
   // the where line, both-ways table and field notes from the cache on the server (MO F6, FIX-F3): nothing lands late

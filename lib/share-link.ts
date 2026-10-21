@@ -16,5 +16,9 @@ export function validShareLink(pathname: string, q: URLSearchParams): boolean | 
   if (m) return CATEGORIES.some((c) => c.slug === m[1]);
   const t = /^\/triage\/([^/]+)\/?$/.exec(pathname);
   if (t) return UUID.test(t[1]) && TYPES.includes(q.get("t") ?? "") && parseNames(q.get("n")) !== null;
+  // an ask and its sheet (FIX-F6): the id must be a Qloo id (a cached ask has to resolve to it, lib/ask/body.ts), and
+  // a type, when given, one the resolver knows; ?q= and ?case= links carry their own body
+  const a = /^\/ask\/([^/]+)(?:\/sheet)?\/?$/.exec(pathname);
+  if (a) return UUID.test(a[1]) && (q.has("q") || q.has("case") || !q.has("t") || TYPES.includes(q.get("t") ?? ""));
   return null;
 }
