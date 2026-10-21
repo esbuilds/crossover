@@ -8,13 +8,13 @@ One name in: an agent decides who a brand, artist or show should call first. Cla
 - **The checker** (`lib/ask/check.ts`, rule v3 since Oct 18). Every name and number must appear in a cited step; a score or rank right after a brand, in the same clause, must be that brand's own. Answers are re-checked under the current rule when shown (`decisionEvent` in `lib/ask/steps.ts`), so the cached runs and their hashes (`docs/freeze.md`) never change. `scripts/check-v2-gates.ts` re-runs the rule over every cached ask at 0 calls.
 - **We attacked the checker.** `scripts/mutation-gate.ts` copies every cached answer, changes one fact per copy (9 kinds) and re-checks it: rule v2 rejected 207 of 228, the misses showed two holes, rule v3 rejects 217 of 228 with every miss published on /audit#fool-it. Any answer has a "Try to fool the checker" box running the same code in the browser (`lib/ask/fool.ts`).
 - **Smaller names, nearly the same fit** (`lib/ask/smaller.ts`). Under the answer, Qloo's brand list for the seed's fans read again with `filter.popularity.max=0.5`: the brands that stay within 0.05 of the leader (the answer's own tie rule). Allbirds: The Recreationalist at popularity 0.50 scores 0.90 against Outdoor Voices' 0.94 at 0.96. Gate run first (`audit/popularity-probe.json`): the same entity carries the same affinity in both reads, so the comparison holds; popularity 0 is Qloo's "no measurement" and is left out.
-- **Use it from your agent (MCP).** `https://crossover-henna.vercel.app/api/mcp` (Streamable HTTP, `app/api/mcp/route.ts`): `crossover_ask` returns a cached checked answer with every cited step, `crossover_check` runs the checker on any decision and steps. Read-only over the cache, so it never spends Qloo calls. `node scripts/mcp-gate.ts <url>` is the round-trip test.
+- **Use it from your agent (MCP).** `https://crossover-henna.vercel.app/api/mcp` (Streamable HTTP, `app/api/mcp/route.ts`): `crossover_ask` returns a cached checked answer with every cited step, `crossover_check` runs the checker on any decision and steps. Read-only over the cache, so it never spends Qloo calls. The URL opened in a browser describes the server and how to connect; `node scripts/mcp-gate.ts <url>` is the round-trip test.
 - **Agent or pipeline.** The order of tools is set in the prompt; the branches follow what Qloo returned. `scripts/routes.ts` counts them from the cache (Oct 15: 39 asks, 5 routes, 3 stopped at the name). Each step on the page says where it forked.
 - **Six names a judge might type** (`scripts/judge-names.ts`, results in `audit/judge-names.json` and on /audit): run on the live site before judging; the gate failed and is published.
 - **Probes that failed stay on /audit**: where a candidate leads, the collision diff candidate against seed, an audience segment, an age bracket.
 - **Field notes** (`lib/ask/field-notes.ts`): the same `fields()` the candidates cut uses names the field it cut ("Own field left out: Baseball"), or says it had nothing to cut with (Chipotle).
 
-The nav is four stops: the ask (/), two names in (/vs, where audiences split, cell by cell on a US map), Pick three (/pick-three), and a public audit (/audit) of how well the rules held up, including two frozen replays of real collaborations. Whole-aisle maps (/map/<category>) and the partner slate (/find) sit in /vs's footer; /pair, /triage, /s, /review and /end-card still resolve but are off the nav.
+The nav is four stops: the ask (/), two names in (/vs, where audiences split, cell by cell on a US map), real deals (/replay, 23 real collaborations hidden among decoys), and a public audit (/audit) of how well the rules held up, including two frozen replays of real collaborations. Pick three (/pick-three) is in every page's footer and one click from any answer. Whole-aisle maps (/map/<category>) and the partner slate (/find) sit in /vs's footer; /pair, /triage, /s, /review and /end-card still resolve but are off the nav.
 
 **Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
 
@@ -63,7 +63,7 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 
 ## Tests
 
-`npm test` runs 207 offline tests in a few seconds, with no API calls. `npm run lint` and `npx tsc --noEmit` are clean. Full list below the fold.
+`npm test` runs 219 offline tests in a few seconds, with no API calls. `npm run lint` and `npx tsc --noEmit` are clean. Full list below the fold.
 
 ## Run it
 
@@ -153,7 +153,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 
 ## Test list
 
-`npm test` runs 127 offline tests:
+`npm test` runs 219 offline tests:
 
 - match validation against recorded search results
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
