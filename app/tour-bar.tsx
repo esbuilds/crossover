@@ -15,7 +15,7 @@ export default function TourBar() {
     {/* room at the end of the page so the fixed bar never hides the last lines */}
     <div className="h-56 sm:h-24" aria-hidden />
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-rule-strong bg-surface/95 backdrop-blur print:hidden">
-      <div className="mx-auto flex max-w-[1120px] flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-8">
+      <div className="mx-auto flex max-w-shell flex-col gap-2 px-gutter py-3 sm:flex-row sm:items-center sm:gap-4">
         <p className="shrink-0 font-mono text-sm text-ink-3">{n} of {TOUR.length}</p>
         <p className="min-w-0 flex-1 text-sm text-ink sm:text-base">{TOUR[n - 1].line}</p>
         <p className="flex shrink-0 items-center gap-4">
