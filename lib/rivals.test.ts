@@ -49,6 +49,13 @@ test("under three shared, the layout is two lists", () => {
   assert.equal(r.layout, "two");
 });
 
+test("a seed's own sub-brand is set aside with the same field", () => {
+  const ntc = e("Nike Training Club", ["urn:tag:genre:brand:app:fitness"]), nikesh = e("Nikesh", ["urn:tag:genre:brand:app:fitness"]);
+  const o = compareLists(e("Nike", [MLB]), yankees, [ntc, nikesh], [], [{ entity_id: ntc.entity_id, affinity: 0.94 }, { entity_id: nikesh.entity_id, affinity: 0.9 }], [{ entity_id: ntc.entity_id, affinity: 0.93 }, { entity_id: nikesh.entity_id, affinity: 0.88 }]);
+  assert.deepEqual(ids(o.sameField), ["Nike Training Club"]);
+  assert.deepEqual(ids(o.shared), ["Nikesh"]);
+});
+
 // Copy rule: the payload carries Qloo data only (entity names, ids, types, category tag names) and fixed enums. No
 // generated text, so no audience label.
 test("no free text in the payload", () => {

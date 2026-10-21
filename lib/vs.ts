@@ -74,7 +74,7 @@ export const COMPETITOR_LABEL = "Tagged by Qloo as competitor brands:";
 export const emptyColumn = (name: string) => `No partner leans ${name} past the same-field cut.`;
 
 export function rankContext(row: RivalRow, a: string, b: string): string {
-  const at = (rank: number | null, who: string) => (rank ? `#${rank} in ${poss(who)} list` : `not in ${poss(who)} top 50`);
+  const at = (rank: number | null, who: string) => (rank ? `#${rank} in ${poss(who)} list` : `not in ${poss(who)} top\u00a050`);
   return row.rankA && !row.rankB ? `${at(row.rankA, a)}, ${at(null, b)}` : row.rankB && !row.rankA ? `${at(row.rankB, b)}, ${at(null, a)}` : `${at(row.rankA, a)}, ${at(row.rankB, b)}`;
 }
 

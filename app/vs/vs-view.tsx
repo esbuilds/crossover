@@ -88,7 +88,7 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
           {d.share.length > 0 && (
             <p className="mt-3 text-sm">
               <Chip kind="note" title="From Qloo check 7 (Qloo compare)">
-                Share by category: {d.share.join(", ")}
+                Share by category: {[...new Map(d.share.map((t) => [t.toLowerCase(), t])).values()].join(", ")}
               </Chip>
             </p>
           )}

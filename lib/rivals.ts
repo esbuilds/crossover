@@ -58,6 +58,8 @@ export function compareLists(a: Entity, b: Entity, listA: Entity[], listB: Entit
   // missing rule (review-v1) within each scoring call, then across the two seeds for each candidate
   const [ca, cb] = [applyMissingRule(union.map((id) => va.get(id)), "one call"), applyMissingRule(union.map((id) => vb.get(id)), "one call")];
   const seedFields = new Set([...fields(a), ...fields(b)]);
+  // a seed's own sub-brand (Nike Training Club for Nike) is set aside with the same field, never a column
+  const own = (n: string) => [a.name, b.name].some((s) => n.toLowerCase().startsWith(s.toLowerCase()) && !/[\p{L}\p{N}]/u.test(n[s.length] ?? ""));
 
   const seed = (e: Entity): Seed => ({ entity_id: e.entity_id, name: e.name, type: e.types.find((t) => t !== "urn:entity") ?? "", kind: kindOf(e) });
   const out: Rivals = { version: RIVALS_VERSION, a: seed(a), b: seed(b), leansA: [], leansB: [], shared: [], sameField: [], noData: [], layout: "three" };
@@ -69,7 +71,7 @@ export function compareLists(a: Entity, b: Entity, listA: Entity[], listB: Entit
     const e = byId.get(id)!;
     const row: RivalRow = { id, name: e.name, kind: kindOf(e), a: A, b: B, lean, rankA: rankA.get(id) ?? null, rankB: rankB.get(id) ?? null };
     if (lean === "no data") out.noData.push(row);
-    else if ([...fields(e)].some((f) => seedFields.has(f))) out.sameField.push(row);
+    else if (own(e.name) || [...fields(e)].some((f) => seedFields.has(f))) out.sameField.push(row);
     else ({ a: out.leansA, b: out.leansB, shared: out.shared })[lean].push(row);
   });
   const gap = (r: RivalRow) => Math.abs(r.a! - r.b!);

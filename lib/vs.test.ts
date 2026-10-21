@@ -38,8 +38,8 @@ test("the verdict's counts are the payload's counts", () => {
 });
 
 test("rank context names both lists", () => {
-  assert.equal(rankContext(row("x", "a", 3, null), "Liquid Death", "Celsius"), "#3 in Liquid Death's list, not in Celsius' top 50");
-  assert.equal(rankContext(row("x", "b", null, 7), "Liquid Death", "Celsius"), "#7 in Celsius' list, not in Liquid Death's top 50");
+  assert.equal(rankContext(row("x", "a", 3, null), "Liquid Death", "Celsius"), "#3 in Liquid Death's list, not in Celsius' top\u00a050");
+  assert.equal(rankContext(row("x", "b", null, 7), "Liquid Death", "Celsius"), "#7 in Celsius' list, not in Liquid Death's top\u00a050");
   assert.equal(rankContext(row("x", "shared", 9, 20), "Liquid Death", "Celsius"), "#9 in Liquid Death's list, #20 in Celsius' list");
 });
 
