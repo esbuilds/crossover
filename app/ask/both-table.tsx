@@ -50,12 +50,13 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
 export function BothSlope({ b }: { b: BothWays }) {
   const s = slope(b);
   if (!s) return null;
-  const { w, l, r, top, h } = SLOPE;
+  const { top, h } = SLOPE;
+  const { w, l, r } = s;
   const head = (x: number, anchor: "start" | "end", a: string, c: string) => (
-    <text x={x} y={12} textAnchor={anchor} className="fill-ink-3"><tspan x={x}>{a}</tspan><tspan x={x} dy={15}>{c}</tspan></text>
+    <text x={x} y={12} textAnchor={anchor} className="fill-ink-3"><tspan x={x}>{a}</tspan><tspan x={x} dy={16}>{c}</tspan></text>
   );
   return (
-    <svg viewBox={`0 0 ${w} ${s.height}`} className="mt-4 w-full max-w-md text-[12px]" aria-hidden="true">
+    <svg viewBox={`0 0 ${w} ${s.height}`} className="mt-4 w-full max-w-md text-[13px]" aria-hidden="true">
       {head(l, "end", `${b.seed} fans`, "rank it")}
       {head(r, "start", "Its fans rank", b.seed)}
       <line x1={l} x2={l} y1={top - 6} y2={top + h} className="stroke-rule-ui" />

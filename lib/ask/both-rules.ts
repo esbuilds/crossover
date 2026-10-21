@@ -61,8 +61,10 @@ export function bothLine(b: BothWays | null, first: string): string | null {
 
 // The both-ways slopegraph (SPECTACLE-2, real Oct 22): the table's two rank columns as one picture, on one log scale
 // (1st at the top, 50th at the bottom, "not in their top 50" under it as an open end). Labels are spaced apart and a
-// short leader runs to the true point. Rows missing a rank aren't drawn; the table still lists them.
-export const SLOPE = { w: 400, l: 196, r: 264, top: 44, h: 200, gap: 16 };
+// short leader runs to the true point. Rows missing a rank aren't drawn; the table still lists them. The width fits the
+// longest label (CH: a 13px system-font character, estimated), so a phone draws the text as large as it can.
+export const SLOPE = { top: 46, h: 200, gap: 17, span: 70, pad: 18 };
+const CH = 7.4;
 export type SlopeRow = { name: string; left: string; right: string; y1: number; y2: number; ly1: number; ly2: number; out: boolean; climbs: boolean; call: boolean };
 const y = (r: number) => SLOPE.top + (Math.log(r) / Math.log(50)) * SLOPE.h;
 const OUT_Y = SLOPE.top + SLOPE.h + 20;
@@ -73,7 +75,7 @@ function spread(ys: number[], use: boolean[]) {
   for (const i of ys.map((_, i) => i).filter((i) => use[i]).sort((a, b) => ys[a] - ys[b])) prev = out[i] = Math.max(ys[i], prev + SLOPE.gap);
   return out;
 }
-export function slope(b: BothWays): { rows: SlopeRow[]; height: number } | null {
+export function slope(b: BothWays): { rows: SlopeRow[]; height: number; l: number; r: number; w: number } | null {
   const drawn = b.rows.filter((r) => typeof r.fwd === "number" && r.rev !== null);
   if (!b.shown || drawn.length < 2) return null;
   const y1 = drawn.map((r) => y(r.fwd as number));
@@ -84,6 +86,9 @@ export function slope(b: BothWays): { rows: SlopeRow[]; height: number } | null 
   const ly1 = spread(y1, drawn.map(() => true));
   const ly2 = spread(y2, right.map(Boolean));
   const rows = drawn.map((r, i) => ({ name: r.name, left: cell(r.fwd), right: right[i], y1: y1[i], y2: y2[i], ly1: ly1[i], ly2: ly2[i], out: r.rev === "out", climbs: typeof r.rev === "number" && r.rev < (r.fwd as number), call: r.call }));
-  return { rows, height: Math.ceil(Math.max(OUT_Y, ...ly1, ...ly2)) + 12 };
+  const l = Math.ceil(Math.max(`${b.seed} fans`.length, ...rows.map((x) => `${x.name} ${x.left}`.length)) * CH) + SLOPE.pad;
+  const r = l + SLOPE.span;
+  const w = r + SLOPE.pad + Math.ceil(Math.max("Its fans rank".length, b.seed.length, ...rows.map((x) => x.right.length)) * CH);
+  return { rows, height: Math.ceil(Math.max(OUT_Y, ...ly1, ...ly2)) + 12, l, r, w };
 }
 
