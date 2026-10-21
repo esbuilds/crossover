@@ -38,13 +38,13 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
   const mine = answered.filter(([k, v]) => cases.find((x) => x.key === k)?.partner === v).length;
 
   return (
-    <section className="mt-6">
+    <section className="mt-block">
       <p id="case-top" className="scroll-mt-4 font-mono text-sm text-ink-3">{done ? `All ${order.length} done` : `Case ${state.at + 1} of ${order.length}`}</p>
 
       {c && (
         <>
           <h2 className="mt-2 font-display text-xl">Which of these did {c.seed} actually partner with?</h2>
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {c.eight.map((x, i) => {
               const isReal = x.name === c.partner, isPick = x.name === picked;
               const tone = !picked ? "border-rule-ui hover:border-ink" : isReal ? "border-accent bg-accent/10" : isPick ? "border-ink-2" : "border-rule opacity-70";
@@ -60,7 +60,7 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
           </ul>
 
           {picked && (
-            <div id="verdict" className="mt-4 max-w-[60ch] scroll-mt-4 text-base text-ink-2 motion-safe:animate-[step-in_240ms_cubic-bezier(0.22,1,0.36,1)]">
+            <div id="verdict" className="mt-6 max-w-copy scroll-mt-4 text-base text-ink-2 motion-safe:animate-[step-in_240ms_cubic-bezier(0.22,1,0.36,1)]">
               <p className="text-lg text-ink">{picked === c.partner ? "You found it." : `It was ${c.partner}.`} {c.seed} x {c.partner}: {c.what} ({c.year}). <a href={c.source} target="_blank" rel="noreferrer" className={linkInline}>Source</a></p>
               <p className="mt-2">Under {whose(c.seed)} fans, {c.partner} scored {c.eight.find((x) => x.name === c.partner)!.score.toFixed(2)} against a top score of {c.top.toFixed(2)}, {th(c.rank)} of 8. {c.hit ? "In the top three of eight: a hit." : "Outside the top three: a miss for the test, shown as it came out."}</p>
               {c.sameEight > 1 && <p className="mt-2 text-sm text-ink-3">These eight appear in {c.sameEight} of the {cases.length} cases; decoys come from the partner&apos;s Qloo category and fame band, so deals in the same aisle share them.</p>}
@@ -70,7 +70,7 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
         </>
       )}
 
-      <div className="mt-8 border-t border-rule pt-4 text-base text-ink-2">
+      <div className="mt-block border-t border-rule pt-6 text-base text-ink-2">
         {answered.length > 0 && <p className="text-ink">You: {mine} of {answered.length} picked the real partner. Chance, picking one of eight, is one in eight.</p>}
         {/* challenge persona (Oct 15): six numbers in one sentence; lead with the one that passed */}
         <p className="mt-1">Qloo&apos;s data put the real partner in its top three {protocol.v2.hits} times in {protocol.v2.scored}, where chance gives about five. An earlier test, {protocol.v1.hits} of {protocol.v1.scored}, missed its bar. Both were frozen in git before they ran.</p>
