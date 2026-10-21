@@ -67,10 +67,12 @@ export function twinsStep(steps: StepRecord[]): TwinsStep | null {
   return o?.found && o.a && o.b ? { a: o.a.name, b: o.b.name, value: o.value!, next: o.next! } : null;
 }
 
-// Under the decision (Fable round 5 ruling 1): the two frozen replay tests, each its own number; pooled stays on /audit.
-type Tally = { hits: number; scored: number };
-export const replayLine = (v1: Tally, v2: Tally) =>
-  `Against real deals it never saw, the protocol put the real partner in the top three ${v1.hits} of ${v1.scored} times (v1) and ${v2.hits} of ${v2.scored} times (v2). Each is a frozen test; details on /audit.`;
+// Under the decision and on the sheet (REPLAY-LINE, real Oct 22): both replays pooled beside the scrambled-seed control
+// committed before it ran (audit/replay-control.json). The control matched the real seeds, so the line says what the
+// replay measures: how the candidate lists were built.
+export type Control = { cases: number; realHits: number; scrambledHits: number };
+export const replayLine = (c: Control) =>
+  `Against ${c.cases} real deals it never saw, the real partner made the top three ${c.realHits} times, and ${c.scrambledHits} times again with the wrong seed brand swapped in. So the replay measures how the candidate lists were built. Details on /audit.`;
 
 // Step 5's dumbbell (Pick 1, Oct 14): fame (Qloo popularity) at one end, taste (affinity) at the other, one row per
 // candidate, the widest taste-over-fame gap first. A popularity of 0 is Qloo's missing value (lib/qloo.ts trims a missing

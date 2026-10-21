@@ -1,7 +1,8 @@
 // The 60-second judge tour (Eric's features push, real Oct 14): three stops, each a page that already exists.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { TOUR, tourHref } from "./tour.ts";
+import { CONTROL, TOUR, tourHref } from "./tour.ts";
+import control from "../audit/replay-control.json" with { type: "json" };
 
 test("four stops, in order: the ask, the blind replay, the counterexample, the challenge", () => {
   assert.equal(TOUR.length, 4);
@@ -13,6 +14,10 @@ test("four stops, in order: the ask, the blind replay, the counterexample, the c
 });
 
 test("each stop's line carries only numbers already published on the site", () => {
-  const allowed = ["11", "14", "45", "6", "9", "23"]; // 23: the scored replay cases, on /replay and /audit
+  const allowed = ["45", "23", "17"]; // 23 replay cases and 17 hits, real and scrambled, on /audit (the control's summary)
   for (const s of TOUR) for (const n of s.line.match(/\d+/g) ?? []) assert.ok(allowed.includes(n), `${n} in "${s.line}"`);
+});
+
+test("the tour's replay numbers are the published control's (REPLAY-LINE, real Oct 22)", () => {
+  assert.deepEqual(CONTROL, { cases: control.summary.cases, realHits: control.summary.realHits, scrambledHits: control.summary.scrambledHits });
 });

@@ -6,7 +6,7 @@ One name in: an agent measures in Qloo step by step and says who that brand, art
 
 **Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
 
-**What's measured.** We attacked the checker with 228 altered answers; it rejects 217, and the 11 that got through are listed on /audit#fool-it. In the answer above, Bombas fans rank Allbirds first among brands and the other seven candidates' fans rank it 9th to 31st or not in their top 50. Replayed blind on real collaborations, the agent put 11 of 14 real partners in its top three; a control committed before it ran (all 23 cases from both replays, each re-scored under the wrong seed) put them there just as often, 17 of 23 against 17 of 23, so the replay shows the candidate lists favor the real partner, not that the seed's fans pick it. Both results are on /audit.
+**What's measured.** We attacked the checker with 228 altered answers; it rejects 217, and the 11 that got through are listed on /audit#fool-it. In the answer above, Bombas fans rank Allbirds first among brands and the other seven candidates' fans rank it 9th to 31st or not in their top 50. We replayed 23 real collaborations it never saw, and the real partner made the top three 17 times; a control committed to git before it ran, every deal scored again under a wrong seed brand, put it there 17 times too. So the replay measures how the candidate lists were built. Both results are on /audit.
 
 ## Every Qloo call
 
@@ -124,7 +124,7 @@ npm run dev                  # http://localhost:3000
 1. Open https://crossover-henna.vercel.app. Allbirds is asked: the split map against Outdoor Voices, "First call: Bombas" with the both-ways line and slopegraph, the both-ways table under the decision, and the steps with their why lines.
 2. Click **An artist: Mt. Joy**: no same-field rival, so the agent takes the fans' top 50 and the picture becomes fame against taste.
 3. Open **Call sheet** under any answer for the one-page version.
-4. Open **/audit** for the replays of real collaborations (11 of 14 in the top three, and the scrambled-seed control that matched it), the checker's blocked list, the six judge names and the probes that failed.
+4. Open **/audit** for the replays of real collaborations (23 real collaborations, and the scrambled-seed control that matched them), the checker's blocked list, the six judge names and the probes that failed.
 5. **Two names in** (/vs) splits any two names on a US map; **Pick three** asks you to choose before it reveals.
 
 ## Rivals (/vs and the front door)
