@@ -1,7 +1,10 @@
 import { btnPrimary, SiteHeader } from "./ui";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 // Malformed or untyped share links land here without touching Qloo.
+// The tab used to carry the site's full default title, as if the page were the front door (WILD-F7, real Oct 21).
+export const metadata: Metadata = { title: "Not found" };
 export default function NotFound() {
   return (
     <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
