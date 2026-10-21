@@ -55,8 +55,8 @@ async function Body({ params }: Pick<PageProps<"/map/[category]">, "params">) {
             </Link>
           ))}
         </p>
-        <h1 className="mt-4 font-display text-2xl sm:text-3xl">{c.title}: who sits near whom</h1>
-        <p className="mt-2 max-w-[68ch] text-base text-ink-2">
+        <h1 className="mt-6 font-display text-2xl sm:text-3xl">{c.title}: who sits near whom</h1>
+        <p className="mt-3 max-w-copy text-base text-ink-2">
           Nearness is mutual affinity between the two audiences in Qloo. The layout is a projection and the distances are approximate; the numbers are in the table. Lines join each brand to its nearest audience and every pair at 0.95 or more; thicker is closer. Bigger dots are better known (Qloo popularity).
         </p>
       </section>
@@ -65,7 +65,7 @@ async function Body({ params }: Pick<PageProps<"/map/[category]">, "params">) {
 
       <ConstellationView c={c} />
 
-      <section className="mt-10">
+      <section className="mt-section">
         <h2 className="font-display text-xl">Nearest three</h2>
         <table className="mt-3 w-full max-w-[760px] text-left text-base">
           <thead className="text-sm text-ink-3">
@@ -87,7 +87,7 @@ async function Body({ params }: Pick<PageProps<"/map/[category]">, "params">) {
         {c.absent.length > 0 && <p className="mt-2 text-base text-ink-2">Not in Qloo as a brand: {c.absent.join(", ")}.</p>}
       </section>
 
-      <details className="mt-8 max-w-[68ch] text-sm text-ink-2">
+      <details className="mt-block max-w-copy text-sm text-ink-2">
         <summary className="cursor-pointer text-base">How this was made</summary>
         <p className="mt-2">
           Each brand but the last was scored against all the others in one Qloo call ({c.calls} calls, cached). Same-type affinity in Qloo is symmetric, so where a pair has two readings (one from each call) its number is their mean. Distance is 1 minus affinity, projected to two dimensions by classical multidimensional scaling in code; no model is involved. Projection stress {c.stress.toFixed(2)} (0 would be exact).
@@ -101,9 +101,9 @@ async function Body({ params }: Pick<PageProps<"/map/[category]">, "params">) {
 function LeadersSection({ l }: { l: Leaders }) {
   const names = l.brands.map((b) => b.name);
   return (
-    <section className="mt-8 border-t border-rule pt-6">
+    <section className="mt-section border-t border-rule pt-block">
       <h2 className="font-display text-xl sm:text-2xl">Who leads each city: {names.slice(0, -1).join(", ")} and {names.at(-1)}</h2>
-      <p className="mt-2 max-w-[68ch] text-base text-ink-2">
+      <p className="mt-3 max-w-copy text-base text-ink-2">
         Ranked within the {l.common.toLocaleString("en-US")} cells where all three have a reading; blank elsewhere. Leads means over-indexes most relative to its own national pattern, not the most fans.
       </p>
       <div className="mt-4 grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:items-start">
@@ -139,7 +139,7 @@ function LeadersSection({ l }: { l: Leaders }) {
           </tbody>
         </table>
       </div>
-      <details className="mt-3 max-w-[68ch] text-sm text-ink-2">
+      <details className="mt-3 max-w-lead text-sm text-ink-2">
         <summary className="cursor-pointer text-base">How the leaders map was made</summary>
         <p className="mt-2">
           Each brand&apos;s national Qloo heatmap, re-ranked by percentile within the cells all three carry, as the pair map does. A cell goes to the brand with the highest percentile there and stays blank when none reaches its own top half. {Math.round(l.region * 100)} of every 100 coloured cells share their leader with most of their neighbours, so these are regions, not scattered points. Three brands, not the whole aisle: with all nine, the brands with the biggest maps decide most cells (see /audit).{l.why ? ` ${l.why}` : ""}

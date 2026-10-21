@@ -54,7 +54,8 @@
        block    24 / 38 / 41   between blocks inside a section, and the two home columns (mt-block, gap-block)
        gutter   16 / 34 / 40   the page's side padding (px-gutter)
      Inside a block, use the plain scale only: 1 (4px) inline, 2 (8) siblings in a group, 3 (12) a label to its content,
-     4 (16) paragraph to paragraph, 6 (24) a sub-block, 8 (32) a sub-heading. 5, 7, 10, 12, 14, 16 and 24 are retired. */
+     4 (16) paragraph to paragraph, 6 (24) a sub-block, 8 (32) a sub-heading, and gap-x-12 (48) is the gutter between
+     the columns of a two or three column grid. 5, 7, 10, 14, 16 and 24 are retired (the print sheet keeps its own). */
   --spacing-page: clamp(1.5rem, 0.25rem + 4vw, 4.5rem);
   --spacing-section: clamp(3rem, 1.5rem + 4vw, 5.5rem);
   --spacing-block: clamp(1.5rem, 0.75rem + 2vw, 2.75rem);
