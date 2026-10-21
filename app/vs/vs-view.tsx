@@ -59,9 +59,11 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
   const markets = mapLine(A, B, d.map);
   return (
     <>
-      {/* under 640 px the map comes before the verdict (CSS order, one copy of each); from 640 up, the verdict first */}
-      <div className="flex flex-col">
-        <header className="order-1 mt-8">
+      {/* under 640 px the map comes before the verdict (CSS order, one copy of each); from 640 up, the verdict first.
+          From 1024 the map sits beside the verdict (WOW F3), so the picture is in the first screen at 1280 instead of
+          a page-wide map 700 px down. */}
+      <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-8">
+        <header className="order-1 mt-8 lg:col-span-2">
           {/* the page's h1 is the question above the form (DC F8); the pair is the result's headline */}
           <h2 className="font-display text-2xl">
             {A} <span className="font-italic-display text-ink-3">vs</span> {B}
@@ -73,7 +75,7 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
           )}
           {method && <div className="mt-3">{method.node}</div>}
         </header>
-        <div className="order-3 sm:order-2">
+        <div className="order-3 sm:order-2 lg:col-start-1 lg:row-start-2">
           <p className="mt-4 max-w-[68ch] text-lg text-ink">
             <Cite checks="4 and 5">{line}</Cite>
           </p>
@@ -91,7 +93,7 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
             </p>
           )}
         </div>
-        <div className="order-2 sm:order-3">
+        <div className="order-2 sm:order-3 lg:col-start-2 lg:row-start-2">
           <MapSection d={d} />
         </div>
       </div>
@@ -174,7 +176,7 @@ function MapSection({ d }: { d: VsPayload }) {
   if (!d.map) return <p className="mt-8 border-t border-rule pt-4 text-base text-ink-2">No geographic story for a person: a person&apos;s heatmap is flat across markets, so the map is left off.</p>;
   const m = d.map;
   return (
-    <section className="mt-8">
+    <section className="mt-8 lg:mt-4">
       <h3 className="text-sm text-ink-3">Where the audiences split</h3>
       <CollisionMap cells={m.cells} metrosA={m.metrosA} metrosB={m.metrosB} a={A} b={B} />
       <MapKey a={A} b={B} />
