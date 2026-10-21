@@ -87,7 +87,7 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 
 ## Tests
 
-`npm test` runs 224 offline tests in a few seconds, with no API calls. `npx tsc --noEmit` is clean. Full list below the fold.
+`npm test` runs 244 offline tests in a few seconds, with no API calls. `npx tsc --noEmit` is clean. Full list below the fold.
 
 ## Run it
 
@@ -177,7 +177,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 
 ## Test list
 
-`npm test` runs 224 offline tests:
+`npm test` runs 244 offline tests:
 
 - match validation against recorded search results
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
