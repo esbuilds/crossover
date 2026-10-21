@@ -87,12 +87,14 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       {p ? <>Replaying the {initial?.label} run, sped up: step {Math.min(landed + 1, steps.length)} of {steps.length}.<span className="max-sm:hidden"> Each claim is stamped when the step it cites lands.</span></> : `The ${initial?.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
       <span className="inline-flex gap-x-4 whitespace-nowrap">
         <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={btnText}>{p ? "Skip" : "Replay it"}</button>{" "}
-        <a href="#ask" className={btnText}>Ask your own</a>
+        {/* the jump lands in the field, keyboard ready; preventScroll keeps the smooth scroll to #ask (FIX-F8) */}
+        <a href="#ask" onClick={() => requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }))} className={btnText}>Ask your own</a>
       </span>
     </>
   );
 
   const ranHere = useRef(false); // the front page keeps "/" until the visitor asks something
+  const inputRef = useRef<HTMLInputElement>(null);
   async function run(body: Body) {
     setEvents([]); setError(""); setStatus("running"); setAsked(body); setLanded(Infinity); ranHere.current = true;
     // a dropped connection must not leave the button disabled (deferred minor, fixed Oct 13)
@@ -141,7 +143,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       )}
       <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-row gap-3">
         {/* maxLength is the API's own cap (lib/ask/body.ts), so a long paste can't come back as a 400 */}
-        <input value={q} onChange={(ev) => setQ(ev.target.value)} maxLength={100} autoComplete="off" enterKeyHint="go" aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
+        <input ref={inputRef} value={q} onChange={(ev) => setQ(ev.target.value)} maxLength={100} autoComplete="off" enterKeyHint="go" aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
         <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
       </form>
       <p className="mt-2 flex flex-wrap items-center gap-2 text-base">
@@ -400,7 +402,8 @@ function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }
   return (
     <div className={`${panel} mt-3 px-3 py-3`}>
       <p className="text-sm text-ink-2">Change a number or swap in another brand, then check it. The same code that gates every answer runs here, in your browser.</p>
-      <textarea value={text} onChange={(ev) => (setText(ev.target.value), setResult(null))} aria-label="The first call's reason, editable" rows={3} className={`${field} mt-2 w-full`} />
+      {/* autoFocus: the button that opened this is gone, so focus moves into the field instead of dropping to the page (FIX-F8) */}
+      <textarea value={text} onChange={(ev) => (setText(ev.target.value), setResult(null))} aria-label="The first call's reason, editable" rows={3} autoFocus className={`${field} mt-2 w-full`} />
       <p className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
         <button type="button" onClick={() => check(text)} className={btnPrimary}>Check it</button>
         <button type="button" onClick={() => { const t = nudge(text); setText(t); check(t); }} className={btnText}>Nudge a score</button>
