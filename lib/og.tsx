@@ -10,7 +10,7 @@ const RULE = "#e0dddc";
 
 let fonts: Promise<{ name: string; data: ArrayBuffer; weight: 400 | 600; style: "normal" }[]> | null = null;
 // the mono is for the front door card's trace rail (TR F12); the site's own mono is the system's, which a card can't load
-function loadFonts() {
+export function loadFonts() {
   fonts ??= (async () => {
     const css = await (await fetch("https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600&family=JetBrains+Mono:wght@400")).text();
     const faces = [...css.matchAll(/font-family:\s*'([^']+)';[\s\S]*?font-weight:\s*(\d+);[\s\S]*?src:\s*url\(([^)]+)\)/g)];

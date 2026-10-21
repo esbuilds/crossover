@@ -9,6 +9,9 @@ import judgeNames from "@/audit/judge-names.json";
 import mutation from "@/audit/mutation.json";
 import { forDisplay } from "@/lib/ask/check.ts";
 import { Chip, linkInline, panel, SiteHeader, shell } from "../ui";
+import { ReplayControls } from "./replay-controls";
+import { AgentForks } from "./agent-forks";
+import { StripImage } from "../replay/strip-image";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
 // responses stay out of the repo. Not linked yet.
@@ -148,6 +151,8 @@ export default function AuditPage() {
         </p>
       </section>
 
+      <AgentForks />
+
       <section id="checker" className="mt-section max-w-copy scroll-mt-4">
         <h2 className="font-display text-xl">What the ask agent may say</h2>
         <p className="mt-3 text-base text-ink-2">
@@ -174,7 +179,7 @@ export default function AuditPage() {
       <section id="fool-it" className="mt-section max-w-copy scroll-mt-4">
         <h2 className="font-display text-xl">Can the checker be fooled?</h2>
         <p className="mt-3 text-base text-ink-2">
-          Every answer the site shows ({mutation.answers} cached on {mutation.date}) was copied and one fact was changed per copy: a score moved by 0.03, a rank or count moved by one, a brand swapped, a citation pointed at the wrong step. The checker re-checked each copy. 0 Qloo calls, 0 model calls. Under rule {mutation.before.rule} it rejected {mutation.before.rejected} of {mutation.before.of}; the misses showed two holes, both closed in rule {mutation.rule}, which rejects {mutation.gated.rejected} of {mutation.gated.of}. Any answer on the site has a &ldquo;Try to fool the checker&rdquo; box that runs the same code on your edit.
+          Every answer the site shows ({mutation.answers} cached on {mutation.date}) was copied and one fact was changed per copy: a score moved by 0.03, a rank or count moved by one, a brand swapped, a citation pointed at the wrong step. The checker re-checked each copy. 0 Qloo calls, 0 model calls. Under rule {mutation.before.rule} it rejected {mutation.before.rejected} of {mutation.before.of}; the misses showed two holes, both closed in rule v3, which rejected {mutation.v3.rejected} of {mutation.v3.of} on {mutation.v3.date}. On {mutation.gap.found} a third hole was found: a rank at the end of a sentence (&ldquo;rank 9.&rdquo;) wasn&apos;t bound to the brand it was said of, and this test&apos;s own rank tamper skipped the same numbers. With the tamper corrected, rule v3 rejects {mutation.v3.withNewTamper.rejected} of {mutation.v3.withNewTamper.of}, under the gate&apos;s 95 in 100; rule {mutation.rule} (commit <code className="font-mono">{mutation.gap.fix}</code>) rejects {mutation.gated.rejected} of {mutation.gated.of}. Any answer on the site has a &ldquo;Try to fool the checker&rdquo; box that runs the same code on your edit.
         </p>
         <ul className="mt-3 max-w-copy space-y-2 text-sm text-ink-2">
           {mutation.kinds.map((k) => (
@@ -265,7 +270,7 @@ export default function AuditPage() {
             <span className="font-semibold">Agent or pipeline: the routes, counted.</span> Across 39 cached asks, counted Oct 15, the agent took 5 distinct routes; 3 stopped at the name, before a call (scripts/routes.ts reads them from the cache, 0 calls). The order of tools is set in its instructions, and the branches follow what Qloo returned: whether it knew the name, whether a rival came back, and whether the split left enough names. 18 went through the split, 13 had no rival and used the fans&apos; top 50, 4 widened from a thin split, and 1 is the replay case. Each step on an ask now says where it forked.
           </li>
           <li id="both-ways" className="scroll-mt-4">
-            <span className="font-semibold">The other direction does separate them.</span> Run real Oct 15 (18 calls, scripts/reverse-probe.ts), gate set first: the agent&apos;s three must sit 5 or more places apart on the seed&apos;s rank among each one&apos;s own fans&apos; top 50, and that order must differ from the taste order. Two of three asks pass, and the page now shows the table under &ldquo;Call first&rdquo;; it never reorders the agent&apos;s calls.
+            <span className="font-semibold">On two of the three prepared asks, the other direction separates the agent&apos;s three.</span> Run real Oct 15 (18 calls, scripts/reverse-probe.ts), gate set first: the agent&apos;s three must sit 5 or more places apart on the seed&apos;s rank among each one&apos;s own fans&apos; top 50, and that order must differ from the taste order. Two of three asks pass, and the page now shows the table under &ldquo;Call first&rdquo;; it never reorders the agent&apos;s calls. <a href="#reverse-replay" className={linkInline}>Across 23 real deals it mostly can&apos;t be measured; see the reverse replay</a>.
             <div className="mt-2 overflow-x-auto"><table className="text-sm">
               <thead><tr className="text-left text-ink-3"><th className="pr-6 font-normal">Ask</th><th className="pr-6 font-normal">The agent&apos;s three rank the seed</th><th className="pr-6 font-normal">The rest</th><th className="font-normal">Gate</th></tr></thead>
               <tbody>
@@ -396,12 +401,15 @@ function Replay() {
   return (
     <section id="replays" className="mt-section scroll-mt-4">
       <h2 className="font-display text-xl">Would it have found real partners?</h2>
+      <StripImage className="mt-4" />
       <p className="mt-3 max-w-copy text-base text-ink-2">
         Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans score all eight. A hit is the real partner in the top three; chance is three in eight. Each test&apos;s protocol and bar were frozen in git before it ran.
       </p>
       <ReplayRun data={replayV2} freeze={REPLAY_V2_FREEZE} title="Second test (v2): new cases only, after the first missed" protocol="audit/replay-v2-protocol.md"
         dropped="Ten dropped under the written decoy check: nine had the partner's own parent or a sister brand among the decoys, and Pandora matched the jewelry brand, not the music service."
-        note="Sensitivity: two kept cases (Krispy Kreme x Crocs, Pringles x Crocs) have luxury-house decoys the rules don't cover; both were hits. Without them it is 9 of 12, against a bar of 8 for twelve." />
+        note="Sensitivity: two kept cases (Krispy Kreme x Crocs, Pringles x Crocs) have luxury-house decoys the rules don't cover; both were hits. Without them it is 9 of 12, against a bar of 8 for twelve."
+        control />
+      <ReplayControls />
       <ReplayRun data={replay} freeze={REPLAY_FREEZE} title="First test (v1)" protocol="audit/replay-protocol.md"
         dropped="Four had no Qloo category tag for the partner; four had a tag that isn't the partner's category. Red Bull x GoPro and Liquid Death x e.l.f. were left out because their scores were already seen." />
       <p className="mt-6 max-w-copy text-sm text-ink-2">
@@ -419,7 +427,7 @@ function chanceAtLeast(n: number, k: number, p = 3 / 8) {
   return s;
 }
 
-function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: ReplayFile; freeze: string; title: string; protocol: string; dropped: string; note?: string }) {
+function ReplayRun({ data, freeze, title, protocol, dropped, note, control }: { data: ReplayFile; freeze: string; title: string; protocol: string; dropped: string; note?: string; control?: boolean }) {
   const sum = data.summary!;
   const scored = data.cases.filter((c) => c.result?.state === "scored");
   const out = data.cases.filter((c) => c.dropped);
@@ -427,7 +435,7 @@ function ReplayRun({ data, freeze, title, protocol, dropped, note }: { data: Rep
     <div className="mt-8">
       <h3 className="text-base font-semibold text-ink">{title}</h3>
       <p className="mt-1 max-w-copy text-lg text-ink">
-        {sum.pass ? "It passes" : "It fails its bar"}: {sum.hits} of {sum.scored} real partners in the top three (needed {sum.need}; chance gives about {((sum.scored * 3) / 8).toFixed(1)}, and {sum.hits} or more by chance is about 1 in {Math.round(1 / chanceAtLeast(sum.scored, sum.hits))}). No real partner ranked below {Math.max(...scored.map((c) => c.result!.rank!))}th, and the mean rank is {sum.meanRank} against {sum.chanceMeanRank} by chance, reported but not part of the bar.
+        {sum.pass ? "It passes" : "It fails its bar"}: {sum.hits} of {sum.scored} real partners in the top three (needed {sum.need}; chance gives about {((sum.scored * 3) / 8).toFixed(1)}, and {sum.hits} or more by chance is about 1 in {Math.round(1 / chanceAtLeast(sum.scored, sum.hits))}). No real partner ranked below {Math.max(...scored.map((c) => c.result!.rank!))}th, and the mean rank is {sum.meanRank} against {sum.chanceMeanRank} by chance, reported but not part of the bar.{control && <> <a href="#replay-controls" className={linkInline}>Read it with the replay controls below</a>.</>}
       </p>
       <p className="mt-1 text-sm text-ink-3">Frozen at commit <code className="font-mono">{freeze}</code> ({protocol}).</p>
       <ul className="mt-3 grid max-w-[900px] gap-x-8 md:grid-cols-2">

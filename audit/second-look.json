@@ -1,0 +1,298 @@
+{
+  "protocol": "audit/second-look-protocol.md",
+  "gateC": {
+    "ranAt": "2026-10-21",
+    "summary": {
+      "seeds": 16,
+      "checked": 16,
+      "need": 14,
+      "kept": 3,
+      "changed": 11,
+      "declined": 2,
+      "blocked": 0,
+      "measured": 11,
+      "checkFed": 7,
+      "citedLess": 7,
+      "pass": true
+    },
+    "seeds": [
+      {
+        "seed": "Allbirds",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Bombas",
+          "Warby Parker",
+          "ClassPass"
+        ],
+        "calls": [
+          "ClassPass",
+          "Bombas",
+          "Warby Parker"
+        ],
+        "measured": false,
+        "checkFed": true,
+        "citedLess": true
+      },
+      {
+        "seed": "Calm",
+        "type": "look",
+        "outcome": "kept",
+        "frozen": [
+          "Peak",
+          "MasterClass",
+          "Joytunes"
+        ],
+        "calls": [
+          "Peak",
+          "MasterClass",
+          "Joytunes"
+        ],
+        "measured": true,
+        "checkFed": false,
+        "citedLess": false
+      },
+      {
+        "seed": "Cedric the Entertainer",
+        "type": "look",
+        "outcome": "declined",
+        "frozen": [
+          "Cadillac",
+          "Ford Motor Company",
+          "Lamborghini"
+        ],
+        "calls": [],
+        "measured": true,
+        "checkFed": false,
+        "citedLess": false
+      },
+      {
+        "seed": "Chipotle",
+        "type": "look",
+        "outcome": "kept",
+        "frozen": [
+          "F'real Milkshakes",
+          "MOD Pizza",
+          "Thomas' Breakfast"
+        ],
+        "calls": [
+          "F'real Milkshakes",
+          "MOD Pizza",
+          "Thomas' Breakfast"
+        ],
+        "measured": true,
+        "checkFed": false,
+        "citedLess": false
+      },
+      {
+        "seed": "Dove",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Tampax Tampons",
+          "Pinterest",
+          "Crest"
+        ],
+        "calls": [
+          "Tampax Tampons",
+          "Gillette",
+          "Pinterest"
+        ],
+        "measured": true,
+        "checkFed": false,
+        "citedLess": false
+      },
+      {
+        "seed": "Dr. Squatch Soap Co.",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Thread Beast",
+          "Riot Society",
+          "Voodoo Ranger"
+        ],
+        "calls": [
+          "Riot Society",
+          "Voodoo Ranger",
+          "Thread Beast"
+        ],
+        "measured": true,
+        "checkFed": true,
+        "citedLess": true
+      },
+      {
+        "seed": "Los Angeles Dodgers",
+        "type": "look",
+        "outcome": "kept",
+        "frozen": [
+          "Las Vegas Raiders",
+          "San Francisco 49ers",
+          "Los Angeles Chargers"
+        ],
+        "calls": [
+          "Las Vegas Raiders",
+          "San Francisco 49ers",
+          "Los Angeles Chargers"
+        ],
+        "measured": false,
+        "checkFed": true,
+        "citedLess": true
+      },
+      {
+        "seed": "Mt. Joy",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Outdoor Voices",
+          "Allbirds",
+          "Alternative"
+        ],
+        "calls": [
+          "Allbirds",
+          "Outdoor Voices",
+          "LaCroix Sparkling Water"
+        ],
+        "measured": false,
+        "checkFed": true,
+        "citedLess": true
+      },
+      {
+        "seed": "Noah Kahan",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Pura Vida Bracelets",
+          "Altar'd State",
+          "Love Your Melon"
+        ],
+        "calls": [
+          "Pura Vida Bracelets",
+          "Aerie",
+          "Lulus"
+        ],
+        "measured": true,
+        "checkFed": false,
+        "citedLess": false
+      },
+      {
+        "seed": "Oatly",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Apple Fitness+",
+          "Pimsleur Language Programs",
+          "Society6"
+        ],
+        "calls": [
+          "Apple Fitness+",
+          "Pimsleur Language Programs",
+          "Fjällräven"
+        ],
+        "measured": true,
+        "checkFed": false,
+        "citedLess": false
+      },
+      {
+        "seed": "Olipop",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Myro",
+          "quip"
+        ],
+        "calls": [
+          "Myro"
+        ],
+        "measured": true,
+        "checkFed": true,
+        "citedLess": true
+      },
+      {
+        "seed": "Patagonia",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Backcountry",
+          "Backpacker Magazine",
+          "Osprey"
+        ],
+        "calls": [
+          "Backpacker Magazine",
+          "Osprey",
+          "Backcountry"
+        ],
+        "measured": false,
+        "checkFed": true,
+        "citedLess": true
+      },
+      {
+        "seed": "Sweetgreen",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Dig Inn",
+          "Milk Bar",
+          "Resy"
+        ],
+        "calls": [
+          "Warby Parker",
+          "Dig Inn",
+          "Milk Bar"
+        ],
+        "measured": false,
+        "checkFed": true,
+        "citedLess": true
+      },
+      {
+        "seed": "Taylor Swift",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Forever 21",
+          "Victoria's Secret",
+          "Keds"
+        ],
+        "calls": [
+          "Forever 21",
+          "Keds",
+          "Victoria's Secret"
+        ],
+        "measured": true,
+        "checkFed": false,
+        "citedLess": false
+      },
+      {
+        "seed": "Tyler Childers",
+        "type": "look",
+        "outcome": "changed",
+        "frozen": [
+          "Shinesty",
+          "Chubbies",
+          "Blenders Eyewear"
+        ],
+        "calls": [
+          "Birddogs Shorts",
+          "Chubbies",
+          "Shinesty"
+        ],
+        "measured": true,
+        "checkFed": false,
+        "citedLess": false
+      },
+      {
+        "seed": "YETI",
+        "type": "look",
+        "outcome": "declined",
+        "frozen": [
+          "Cabela's",
+          "Bass Pro Shops",
+          "Huk Performance Fishing"
+        ],
+        "calls": [],
+        "measured": true,
+        "checkFed": false,
+        "citedLess": false
+      }
+    ]
+  }
+}

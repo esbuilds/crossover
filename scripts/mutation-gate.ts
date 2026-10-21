@@ -68,7 +68,7 @@ const KINDS: Kind[] = [
     return m ? { text: it.text.replace(m[0], (Number(m[0]) + 0.03).toFixed(m[0].split(".")[1].length)) } : null;
   }) },
   { kind: "count or rank changed by 1", expectCatch: true, make: (r) => onFirst(r.d, (it) => {
-    const m = it.text.replace(/\[\[[^\]]+\]\]/g, (s) => " ".repeat(s.length)).match(/(?<![\w.])\d+(?![\d.])/);
+    const m = it.text.replace(/\[\[[^\]]+\]\]/g, (s) => " ".repeat(s.length)).match(/(?<![\w.])\d+(?!\d|\.\d)/); // v3.1 (real Oct 22): a rank ending a sentence is tampered with too; until then this shared the checker's blind spot
     return m ? { text: it.text.slice(0, m.index!) + String(Number(m[0]) + 1) + it.text.slice(m.index! + m[0].length) } : null;
   }) },
   { kind: "bracketed brand swapped for an invented one", expectCatch: true, make: (r) => onFirst(r.d, (it) => {
@@ -137,6 +137,8 @@ console.log(`Tampers the rule claims to catch: ${expectedCaught} of ${expectedTo
 console.log(`GATE ${expectedTotal && expectedCaught / expectedTotal >= 0.95 ? "PASS" : "FAIL"}`);
 console.log("* the documented ceiling in check.ts: published as a known miss, not counted in the gate");
 if (process.argv.includes("--write")) {
-  writeFileSync("audit/mutation.json", JSON.stringify({ date: new Date().toISOString().slice(0, 10), rule: CHECK_RULE, answers: runs.length, gated: { rejected: expectedCaught, of: expectedTotal }, before: { rule: "v2", rejected: 207, of: 228 }, kinds: report }, null, 2) + "\n");
+  writeFileSync("audit/mutation.json", JSON.stringify({ date: new Date().toISOString().slice(0, 10), rule: CHECK_RULE, answers: runs.length, gated: { rejected: expectedCaught, of: expectedTotal }, before: { rule: "v2", rejected: 207, of: 228 },
+    // rule v3 as published Oct 18, and the same v3 against the corrected rank tamper (measured UTC Oct 21, before df63965)
+    v3: { date: "2026-10-18", rejected: 217, of: 228, withNewTamper: { rejected: 217, of: 230 } }, gap: { found: "2026-10-21", fix: "df63965" }, kinds: report }, null, 2) + "\n");
   console.log("wrote audit/mutation.json");
 }

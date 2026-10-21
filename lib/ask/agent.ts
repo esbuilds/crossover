@@ -8,6 +8,7 @@ import { MODEL } from "../agent/rank.ts";
 import { streamCache, type Streamed } from "../agent/stream-cache.ts";
 import { makeTools, qlooDeps } from "./tools.ts";
 import { caseCandidates } from "./replay-case.ts";
+import type { Candidate } from "./candidates.ts";
 import { checkDecision, type Check, type Decision, type StepRecord } from "./check.ts";
 
 // caseKey: the one prepared replay case (lib/ask/prepared.ts REPLAY_ASK); a visitor can't supply one
@@ -61,11 +62,11 @@ const why = { why: { type: "string", description: "One plain sentence: what this
 const obj = (props: Record<string, JSONSchema7>, required: string[]): JSONSchema7 => ({ type: "object", properties: props, required, additionalProperties: false });
 const cited: JSONSchema7 = { type: "object", properties: { text: { type: "string" }, steps: { type: "array", items: { type: "integer" } } }, required: ["text", "steps"], additionalProperties: false };
 
-async function generate(input: AskInput, say: (t: string) => void, write: (d: string) => void, ip: string): Promise<Streamed> {
+async function generate(input: AskInput, say: (t: string) => void, write: (d: string) => void, ip: string, eight?: Candidate[]): Promise<Streamed> {
   const trace: string[] = [];
   const emit = (e: AskEvent) => { const s = JSON.stringify(e); trace.push(s); say(s); };
   const steps: StepRecord[] = [];
-  const cased = input.caseKey ? caseCandidates(input.caseKey) : null;
+  const cased = eight ?? (input.caseKey ? caseCandidates(input.caseKey) : null);
   if (input.caseKey && !cased) throw new Error("unknown case");
   const t = makeTools(qlooDeps(ip), (s) => { steps.push(s); emit({ type: "result", n: s.n, summary: s.summary, output: s.output }); }, cased ? { caseCandidates: cased } : {});
   let decision: Decision | null = null;
@@ -117,6 +118,15 @@ const keyOf = (i: AskInput) => `${i.id ? i.id.toUpperCase() : (i.query ?? "").tr
 export const ASK_TOOLS = "t2";
 // a case ask gains a suffix only on its own key; every normal ask's version string is unchanged
 const run = streamCache<AskInput, Streamed>("ask", (i) => (i.caseKey ? `${ASK_VERSION}+case1+${ASK_TOOLS}` : `${ASK_VERSION}+${ASK_TOOLS}`), keyOf, generate);
+
+// Scripts only (second look, Gate B, real Oct 22): a replay case's ask with the case prompt, under its own cache family
+// ("ask-script"), so it never writes or reads a live key. The live run above is unchanged.
+type ScriptCase = AskInput & { caseKey: string; eight: Candidate[] };
+const scriptRun = streamCache<ScriptCase, Streamed>("ask-script", `${ASK_VERSION}+case1+${ASK_TOOLS}`, keyOf, (i, say, write, ip) => generate(i, say, write, ip, i.eight));
+export async function askCaseForScript(input: ScriptCase, peekOnly = false): Promise<AskEvent[] | null> {
+  const r = peekOnly ? await scriptRun.peek(input) : await scriptRun(input, "warm", () => {}, () => {});
+  return r ? r.trace.map((s) => JSON.parse(s)) : null;
+}
 
 // cache only, never a call or a generation: the events of a cached ask, or null
 export async function peekAsk(input: AskInput): Promise<AskEvent[] | null> {
