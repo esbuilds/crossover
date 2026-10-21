@@ -181,6 +181,22 @@ summary::-webkit-details-marker {
     animation: claim-settle 1200ms cubic-bezier(0.2, 0, 0, 1);
   }
 }
+/* the card's stamp (WOW F1): the same tick, 400 ms after the last step lands so step 6's own stamps finish first, and
+   the card settles from the success tint the way a claim does. Reduced motion: on at first paint, no keyframe. */
+.card-stamp {
+  white-space: normal;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card-stamp.is-on {
+    animation-delay: 520ms;
+  }
+  .card-stamp.is-on svg path {
+    animation-delay: 440ms;
+  }
+  .card-stamped {
+    animation: claim-settle 1200ms cubic-bezier(0.2, 0, 0, 1) 400ms;
+  }
+}
 @keyframes tick-draw {
   to {
     stroke-dashoffset: 0;

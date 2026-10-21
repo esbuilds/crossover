@@ -79,6 +79,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
     return () => clearTimeout(t);
   }, [landed, steps.length]);
   const playing = landed < steps.length;
+  const claims = verdict?.ok && verdict.decision ? claimCount(verdict.decision) : 0;
   const replayLine = (p: boolean) => (
     <>
       {/* phones skip the stamp sentence (the stamps are below their first screen), so both versions wrap to the same height */}
@@ -174,10 +175,18 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       <div className="mt-6 grid gap-x-8 gap-y-6 lg:grid-cols-2 lg:items-start">
         {card && (
           <section className="order-1 lg:col-start-2 lg:row-start-1">
-            <div className={`${panelStrong} px-4 py-3`}>
+            <div className={`${panelStrong} px-4 py-3${landed !== Infinity && !playing ? " card-stamped" : ""}`}>
               <p className="font-display text-2xl text-ink">{card.first}</p>
               {card.where && <p className="mt-1 text-base text-ink-2">{card.where}</p>}
               {resolved?.id && resolved.type && <WhereLine id={resolved.id} type={resolved.type} asked={asked} seed={asked === initial?.asked ? initial?.where : undefined} />}
+              {/* the replay's last beat (WOW F1): the checker's count lands on the answer itself once the last step is in.
+                  Room held from the start (visibility), so the card and the picture under it never move. Home only, as the
+                  step stamps are; the full checker line stays under the decision. */}
+              {landed !== Infinity && (
+                <p className="mt-2 font-mono text-sm" aria-hidden={playing || undefined}>
+                  <span className={`stamp card-stamp${playing ? "" : " is-on"}`}><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.6 2.6L10 3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" pathLength="1" /></svg>{claims} names and numbers checked<span className="max-sm:hidden">, each matched to the step it cites</span></span>
+                </p>
+              )}
             </div>
           </section>
         )}
