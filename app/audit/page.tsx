@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import control from "@/audit/replay-control.json";
 import Link from "next/link";
 import results from "@/audit/results.json";
 import replay from "@/audit/replay.json";
@@ -65,14 +67,14 @@ export default function AuditPage() {
           scripts/routes.ts' count over the cache (Oct 15); blocked and the replays are read from their files. */}
       {/* a scoreboard (DC F12, TR F5): the leading figure in the display face, its qualifier on the line under it */}
       <dl className="mt-block grid grid-cols-2 gap-x-8 gap-y-4 sm:gap-y-0.5 border-y border-rule py-4 text-sm sm:grid-cols-5 sm:py-6">
-        {[
+        {([
           ["Cached asks (Oct 15)", "39", ""],
           ["Reached a decision", "36", "(3 stopped at the name)"],
           ["Distinct routes", "5", ""],
           ["Blocked by the checker", `${blocked.length}`, `${blocked.filter((b) => b.underV2 !== "passes").length} under the current rule`],
-          // the current protocol leads, as on /replay; the first test's miss stays, as the qualifier (AUDIT-F12, real Oct 21)
-          ["Replays, real partner in the top three", `${replayV2.summary!.hits} of ${replayV2.summary!.scored}`, `(the first test, ${replay.summary!.hits} of ${replay.summary!.scored}, missed its bar)`],
-        ].map(([k, lead, rest], i) => (
+          // pooled with its control, as on /replay (AUDIT-STAT, real Oct 22): both counts from audit/replay-control.json
+          ["Replays, real partner in the top three", `${control.summary.realHits} of ${control.summary.cases}`, <a key="c" href="#replay-controls" className={linkInline}>and {control.summary.scrambledHits} of {control.summary.cases} with the seed scrambled</a>],
+        ] as [string, string, ReactNode][]).map(([k, lead, rest], i) => (
           <div key={k} className={`sm:row-span-3 sm:grid sm:grid-rows-subgrid ${i === 4 ? "max-sm:col-span-2" : ""}`}>
             <dt className="text-ink-3 sm:self-end">{k}</dt>
             <dd className="font-display text-2xl text-ink">{lead}</dd>
