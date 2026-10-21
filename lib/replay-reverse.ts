@@ -19,6 +19,10 @@ export function reverseSentences(r: Reverse) {
   const partner = r.cases.filter((c) => c.cells[0].seed !== null).length;
   return [
     `Reverse replay: each case's eight ranked the other way, by where each one's own fans put the seed, with ties and "not in their top 50" counted against the real partner. ${s.pass ? "It passes" : "It fails its bar"}: the real partner came in the top three ${s.realHits} times in ${s.cases} (needed ${s.need}), against ${s.scrambledHits} under the scrambled seeds; for the second test alone, ${s.v2.realHits} of ${s.v2.cases} against ${s.v2.scrambledHits}.`,
-    `Mostly this direction can't see these lists: the seed was in only ${seen} of the ${s.cells} fans' top 50s. ${partner} of those ${seen} were the real partner's, a count made after the run, not a test.`,
+    `Of the ${seen} lists that held the seed, ${partner} were the real partner's, a count made after the run, not a test.`,
   ];
 }
+
+// the line under the paragraph (Eric's round 2 ruling): why it failed, from the same run
+export const reverseLimit = (r: Reverse) =>
+  `With take=50, the reverse direction can't be measured for most pairs: the seed was missing from ${r.summary.seedOutCells} of the ${r.summary.cells} fans' top 50 lists in this run.`;
