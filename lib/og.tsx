@@ -25,7 +25,9 @@ function loadFonts() {
 }
 
 export async function ogCard({ title, line, rail }: { title: string; line?: string; rail?: string[] }) {
-  const size = title.length > 34 ? 72 : 88;
+  // a Pick three seed may be 100 characters (review-share MAX_LEN): past 70 the title steps down once more so the
+  // lines and the picks line stay off the header rule and the footer (WILD-F8, real Oct 21)
+  const size = title.length > 70 ? 56 : title.length > 34 ? 72 : 88;
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#ffffff", padding: "64px 80px", fontFamily: "Newsreader", color: INK }}>
