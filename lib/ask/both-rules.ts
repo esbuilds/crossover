@@ -38,3 +38,52 @@ export function sentence(seed: string, noun: string, first: Row | undefined): st
   return first && typeof first.rev === "number" && first.rev <= 3 ? `${first.name} fans rank ${seed} ${ORD[first.rev - 1]} among ${noun}.` : null;
 }
 
+// A rank as the table prints it. The card line and the slopegraph print ranks only through this, so every rank they
+// show is one of the table's cells.
+export const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
+export const cell = (r: Rank) => (r === null ? "no measurement" : r === "out" ? "not in their top 50" : th(r));
+
+const COUNT = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+// The card's both-ways line (COLDJUDGE-8, HARSH-3, real Oct 22): the first call's fans' rank of the seed, then the other
+// rows' range, from the table's rows only. Allbirds: "Bombas fans rank Allbirds first; the other seven rank it 9th to
+// 31st or not in their top 50." null when the table isn't shown or any rank wasn't measured.
+export function bothLine(b: BothWays | null, first: string): string | null {
+  const row = b?.shown ? b.rows.find((r) => r.name === first) : undefined;
+  if (!b || !row || b.rows.some((r) => r.rev === null)) return null;
+  const others = b.rows.filter((r) => r !== row);
+  const ranks = others.flatMap((r) => (typeof r.rev === "number" ? [r.rev] : [])).sort((x, y) => x - y);
+  const n = COUNT[others.length] ?? String(others.length);
+  const head = typeof row.rev === "number" ? `${row.name} fans rank ${b.seed} ${row.rev <= 3 ? ORD[row.rev - 1] : th(row.rev)}` : `${row.name} fans don't have ${b.seed} in their top 50`;
+  if (!ranks.length) return `${head}; none of the other ${n} have it in their top 50.`;
+  const span = ranks[0] === ranks.at(-1) ? th(ranks[0]) : `${th(ranks[0])} to ${th(ranks.at(-1)!)}`;
+  return `${head}; the other ${n} rank it ${span}${ranks.length < others.length ? " or not in their top 50" : ""}.`;
+}
+
+// The both-ways slopegraph (SPECTACLE-2, real Oct 22): the table's two rank columns as one picture, on one log scale
+// (1st at the top, 50th at the bottom, "not in their top 50" under it as an open end). Labels are spaced apart and a
+// short leader runs to the true point. Rows missing a rank aren't drawn; the table still lists them.
+export const SLOPE = { w: 400, l: 196, r: 264, top: 44, h: 200, gap: 16 };
+export type SlopeRow = { name: string; left: string; right: string; y1: number; y2: number; ly1: number; ly2: number; out: boolean; climbs: boolean; call: boolean };
+const y = (r: number) => SLOPE.top + (Math.log(r) / Math.log(50)) * SLOPE.h;
+const OUT_Y = SLOPE.top + SLOPE.h + 20;
+// each used label at its point, or one gap below the label above it
+function spread(ys: number[], use: boolean[]) {
+  const out = [...ys];
+  let prev = -Infinity;
+  for (const i of ys.map((_, i) => i).filter((i) => use[i]).sort((a, b) => ys[a] - ys[b])) prev = out[i] = Math.max(ys[i], prev + SLOPE.gap);
+  return out;
+}
+export function slope(b: BothWays): { rows: SlopeRow[]; height: number } | null {
+  const drawn = b.rows.filter((r) => typeof r.fwd === "number" && r.rev !== null);
+  if (!b.shown || drawn.length < 2) return null;
+  const y1 = drawn.map((r) => y(r.fwd as number));
+  const y2 = drawn.map((r) => (r.rev === "out" ? OUT_Y : y(r.rev as number)));
+  // the open ends share one point, so only the first of them carries the label
+  const firstOut = drawn.findIndex((r) => r.rev === "out");
+  const right = drawn.map((r, i) => (r.rev === "out" && i !== firstOut ? "" : cell(r.rev)));
+  const ly1 = spread(y1, drawn.map(() => true));
+  const ly2 = spread(y2, right.map(Boolean));
+  const rows = drawn.map((r, i) => ({ name: r.name, left: cell(r.fwd), right: right[i], y1: y1[i], y2: y2[i], ly1: ly1[i], ly2: ly2[i], out: r.rev === "out", climbs: typeof r.rev === "number" && r.rev < (r.fwd as number), call: r.call }));
+  return { rows, height: Math.ceil(Math.max(OUT_Y, ...ly1, ...ly2)) + 12 };
+}
+

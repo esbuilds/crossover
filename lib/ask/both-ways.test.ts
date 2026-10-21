@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { bothWaysFrom, gate, sentence, type Row } from "./both-ways.ts";
 import allbirds from "./fixtures/allbirds.json" with { type: "json" };
 import mtJoy from "./fixtures/mt-joy.json" with { type: "json" };
-import { firstCallHeading, oneWay } from "./both-rules.ts";
+import { bothLine, cell, firstCallHeading, oneWay, slope, type BothWays } from "./both-rules.ts";
 import type { AskEvent } from "./agent.ts";
 
 // Allbirds' rank among each candidate's fans' brands, as scripts/reverse-probe.ts measured it (0 = not in their top 50)
@@ -70,4 +70,43 @@ test("one-way line: the first call's fans don't have the seed in their top 50; n
   const rows = [r("Shinesty", "out", true), r("Chubbies", 18, true), r("Birddogs", 9)];
   assert.equal(oneWay("Tyler Childers", "artists", rows, rows[0]), "Shinesty fans don't have Tyler Childers in their top 50 artists; the pull runs one way. Birddogs fans rank Tyler Childers 9th, the highest of the eight.");
   assert.equal(oneWay("Allbirds", "brands", [r("Bombas", 1, true)], r("Bombas", 1, true)), null);
+});
+
+// The card line and the slopegraph (COLDJUDGE-8, SPECTACLE-2, real Oct 22): every rank either prints is a table cell.
+const mjBoth = async () => {
+  const mjEvents = mtJoy as unknown as AskEvent[];
+  const mjCands = (mjEvents.find((e) => (e as { output?: { candidates?: unknown } }).output?.candidates) as unknown as { output: { candidates: { name: string; id: string }[] } }).output.candidates;
+  return (await bothWaysFrom(mjEvents, async (p) => Array.from({ length: 50 }, (_, i) => ({ entity_id: i + 1 === MJ_REV[mjCands.find((c) => c.id === p["signal.interests.entities"])!.name] ? MJ : `x${i}`, name: "x" })) as never))!;
+};
+
+test("card line: the first call's reverse rank, then the other seven's range, from the rows only", async () => {
+  const ab = (await bothWaysFrom(events, recorded()))!;
+  assert.equal(bothLine(ab, "Bombas"), "Bombas fans rank Allbirds first; the other seven rank it 9th to 31st or not in their top 50.");
+  assert.equal(bothLine(await mjBoth(), "Outdoor Voices"), "Outdoor Voices fans rank Mt. Joy 26th; the other seven rank it 4th to 28th or not in their top 50.");
+  assert.equal(bothLine({ ...ab, shown: false }, "Bombas"), null);
+  assert.equal(bothLine({ ...ab, rows: ab.rows.map((r, i) => (i === 3 ? { ...r, rev: null } : r)) }, "Bombas"), null);
+});
+
+// scripts/slope-check.ts runs the same comparison over every cached ask in Redis
+function slopeMatchesTable(b: BothWays) {
+  const s = slope(b)!;
+  const drawn = b.rows.filter((r) => typeof r.fwd === "number" && r.rev !== null);
+  assert.deepEqual(s.rows.map((r) => r.name), drawn.map((r) => r.name));
+  s.rows.forEach((r, i) => {
+    assert.equal(r.left, cell(drawn[i].fwd));
+    if (r.right) assert.equal(r.right, cell(drawn[i].rev));
+    else assert.equal(drawn[i].rev, "out"); // only a repeated open end goes unlabelled
+    assert.equal(r.climbs, typeof drawn[i].rev === "number" && (drawn[i].rev as number) < (drawn[i].fwd as number));
+  });
+  return s;
+}
+
+test("slopegraph: labels equal the table's cells; Bombas is the one line that climbs; Mt. Joy has none", async () => {
+  const ab = slopeMatchesTable((await bothWaysFrom(events, recorded()))!);
+  assert.deepEqual(ab.rows.filter((r) => r.climbs).map((r) => r.name), ["Bombas"]);
+  assert.deepEqual(ab.rows.filter((r) => r.right).map((r) => r.right), ["1st", "11th", "16th", "31st", "9th", "12th", "30th", "not in their top 50"]);
+  const mj = slopeMatchesTable(await mjBoth());
+  assert.equal(mj.rows.filter((r) => r.climbs).length, 0);
+  assert.equal(mj.rows.filter((r) => r.right === "not in their top 50").length, 1); // five open ends, one label
+  for (const s of [ab, mj]) for (const r of s.rows) assert.ok(r.ly1 >= r.y1 && r.ly2 >= r.y2 && r.ly1 < s.height && r.ly2 < s.height);
 });

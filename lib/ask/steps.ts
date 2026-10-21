@@ -91,14 +91,14 @@ export function dumbbellStep(steps: StepRecord[]): { rows: DumbbellRow[] } | nul
 // The call card (Fable tie ruling, Oct 14): two code-generated lines from existing outputs, two labels, never one claim.
 // The first call is the agent's first pick; the place line is the split's "leads in" markets (the seed's own top
 // markets not shared with the rival, as /vs's city sentence), or null when no step measured markets.
-export function callCard(steps: StepRecord[], decision: Decision): { first: string; where: string | null } | null {
+export function callCard(steps: StepRecord[], decision: Decision): { first: string; name: string; where: string | null } | null {
   const first = decision.calls[0];
   if (!first) return null;
   const m = mapStep(steps);
   const own = m ? m.seedMarkets.filter((x) => !m.rivalMarkets.includes(x)).slice(0, 3) : [];
   const list = own.length > 1 ? `${own.slice(0, -1).join(", ")} and ${own.at(-1)}` : own[0];
   const whose = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
-  return { first: `First call: ${nameForDisplay(first.name)}.`, where: m && list ? `Where ${whose(m.seed.name)} audience leads: ${list}.` : null };
+  return { first: `First call: ${nameForDisplay(first.name)}.`, name: nameForDisplay(first.name), where: m && list ? `Where ${whose(m.seed.name)} audience leads: ${list}.` : null };
 }
 
 // The fork under a step (Fable's destroy brief 2d, real Oct 15): only where the path branches. The order of tools is

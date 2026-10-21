@@ -16,9 +16,9 @@ import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
-import { firstCallHeading, type BothWays } from "@/lib/ask/both-rules.ts";
+import { bothLine, firstCallHeading, type BothWays } from "@/lib/ask/both-rules.ts";
 import type { FieldNotes } from "@/lib/ask/field-notes.ts";
-import { BothTable } from "./both-table";
+import { BothSlope, BothTable } from "./both-table";
 
 type Body = { query: string } | { id: string; type: string } | { case: string };
 const TOOL_LABEL: Record<string, string> = { resolve: "Find the name", findRival: "Find the rival", split: "The split", candidates: "Candidates", review: "Score them", twins: "Overlap check" };
@@ -181,6 +181,9 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           <section className="order-1 lg:col-start-2 lg:row-start-1">
             <div className={`${panelStrong} p-4 sm:p-6${landed !== Infinity && !playing ? " card-stamped" : ""}`}>
               <p className="font-display text-2xl text-ink">{card.first}</p>
+              {/* the fact that separates the first call, and its picture, from the both-ways rows (COLDJUDGE-8, SPECTACLE-2) */}
+              {both && bothLine(both, card.name) && <p className="mt-2 max-w-copy text-lg text-ink">{bothLine(both, card.name)}</p>}
+              {both && <BothSlope b={both} />}
               {card.where && <p className="mt-2 text-base text-ink-2">{card.where}</p>}
               {resolved?.id && resolved.type && <WhereLine id={resolved.id} type={resolved.type} asked={asked} seed={asked === initial?.asked ? initial?.where : undefined} />}
               {/* the replay's last beat (WOW F1): the checker's count lands on the answer itself once the last step is in.

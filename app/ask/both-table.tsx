@@ -2,10 +2,7 @@
 // calls marked, both ranks, one static caption. Shared by the ask page and the sheet; no hooks.
 import Link from "next/link";
 import { linkInline } from "@/app/ui";
-import type { BothWays, Rank } from "@/lib/ask/both-rules.ts";
-
-const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
-const show = (r: Rank) => (r === null ? "no measurement" : r === "out" ? "not in their top 50" : th(r));
+import { cell as show, slope, SLOPE, type BothWays } from "@/lib/ask/both-rules.ts";
 
 export function BothTable({ b, compact = false }: { b: BothWays; compact?: boolean }) {
   // DC F14: rows top-aligned and the ranks kept on one line, so a phone wraps the long name instead of every "not in their top 50"
@@ -44,5 +41,39 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
         * the agent&apos;s calls. The first column is the taste score&apos;s own order, so it restates the tie. The second is that brand&apos;s fans&apos; own top 50 {b.noun}, a different list.
       </p>
     </div>
+  );
+}
+
+// The same rows as a slopegraph (SPECTACLE-2, real Oct 22): left, the seed's fans' rank of each; right, each one's fans'
+// rank of the seed. A line that climbs is drawn in the accent. Every label is a table cell (lib/ask/both-rules.ts
+// slope), and the table on the page carries the same ranks for screen readers.
+export function BothSlope({ b }: { b: BothWays }) {
+  const s = slope(b);
+  if (!s) return null;
+  const { w, l, r, top, h } = SLOPE;
+  const head = (x: number, anchor: "start" | "end", a: string, c: string) => (
+    <text x={x} y={12} textAnchor={anchor} className="fill-ink-3"><tspan x={x}>{a}</tspan><tspan x={x} dy={15}>{c}</tspan></text>
+  );
+  return (
+    <svg viewBox={`0 0 ${w} ${s.height}`} className="mt-4 w-full max-w-md text-[12px]" aria-hidden="true">
+      {head(l, "end", `${b.seed} fans`, "rank it")}
+      {head(r, "start", "Its fans rank", b.seed)}
+      <line x1={l} x2={l} y1={top - 6} y2={top + h} className="stroke-rule-ui" />
+      <line x1={r} x2={r} y1={top - 6} y2={top + h} className="stroke-rule-ui" />
+      {s.rows.map((x) => {
+        const tone = x.climbs ? "stroke-accent" : "stroke-ink-3";
+        return (
+          <g key={x.name}>
+            <line x1={l} y1={x.y1} x2={r} y2={x.y2} strokeWidth={x.climbs ? 2.5 : 1} className={tone} />
+            <circle cx={l} cy={x.y1} r={3} className={x.climbs ? "fill-accent" : "fill-ink-3"} />
+            <circle cx={r} cy={x.y2} r={3} strokeWidth={1.25} className={x.out ? "fill-surface stroke-ink-3" : x.climbs ? "fill-accent" : "fill-ink-3"} />
+            <line x1={l - 12} y1={x.ly1} x2={l - 4} y2={x.y1} className="stroke-rule-ui" />
+            <text x={l - 14} y={x.ly1 + 4} textAnchor="end" className={x.climbs || x.call ? "fill-ink" : "fill-ink-2"}>{x.name} <tspan className={x.climbs ? "fill-accent-strong font-semibold" : "fill-ink-3"}>{x.left}</tspan></text>
+            {x.right && <line x1={r + 4} y1={x.y2} x2={r + 12} y2={x.ly2} className="stroke-rule-ui" />}
+            {x.right && <text x={r + 14} y={x.ly2 + 4} className={x.climbs ? "fill-accent-strong font-semibold" : "fill-ink-2"}>{x.right}</text>}
+          </g>
+        );
+      })}
+    </svg>
   );
 }
