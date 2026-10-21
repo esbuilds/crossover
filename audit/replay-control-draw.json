@@ -1,0 +1,190 @@
+{
+  "rng": "python random.Random(20261022), list.shuffle, redrawn until valid",
+  "draws": 119,
+  "cases": [
+    {
+      "case": "Crocs x KFC",
+      "test": "v1",
+      "tag": "Dining",
+      "seed": "Crocs",
+      "scrambledSeed": "Spotify",
+      "scrambledSeedId": "99CBD9B1-F023-4034-97E7-E95A4A85BDD2"
+    },
+    {
+      "case": "Taco Bell x Doritos",
+      "test": "v1",
+      "tag": "Snacks",
+      "seed": "Taco Bell",
+      "scrambledSeed": "Nike",
+      "scrambledSeedId": "C70CE2B8-0AD1-4150-BF18-5A6347F2E860"
+    },
+    {
+      "case": "Supreme x Oreo",
+      "test": "v1",
+      "tag": "Bakery",
+      "seed": "Supreme",
+      "scrambledSeed": "Doritos",
+      "scrambledSeedId": "EA3901B0-A3A5-43F5-AC2A-45C35C400926"
+    },
+    {
+      "case": "Starbucks x Spotify",
+      "test": "v1",
+      "tag": "Streaming Service App",
+      "seed": "Starbucks",
+      "scrambledSeed": "Sour Patch Kids",
+      "scrambledSeedId": "4BFFF270-14EE-4464-B55B-1C97CDBDEE75"
+    },
+    {
+      "case": "Uber x Spotify",
+      "test": "v1",
+      "tag": "Streaming Service App",
+      "seed": "Uber",
+      "scrambledSeed": "Supreme",
+      "scrambledSeedId": "7161ADA0-8DC8-471E-A4A8-61EE15578400"
+    },
+    {
+      "case": "Heinz x Absolut",
+      "test": "v1",
+      "tag": "Vodka",
+      "seed": "Heinz Ketchup",
+      "scrambledSeed": "The North Face",
+      "scrambledSeedId": "DB03F250-64F3-47AB-8756-BC1C4E13EBFD"
+    },
+    {
+      "case": "Wendy's x Pringles",
+      "test": "v1",
+      "tag": "Snacks",
+      "seed": "Wendy's",
+      "scrambledSeed": "Uber",
+      "scrambledSeedId": "DAA03219-916F-491D-9F1C-E780DFA8A5DB"
+    },
+    {
+      "case": "Levi's x Google",
+      "test": "v1",
+      "tag": "Phones & Tablets",
+      "seed": "Levi Strauss & Co.",
+      "scrambledSeed": "Crocs",
+      "scrambledSeedId": "454B31CB-594B-4EF3-AF9D-EDC56E89E25E"
+    },
+    {
+      "case": "Peloton x Lululemon",
+      "test": "v1",
+      "tag": "Athletic",
+      "seed": "Peloton",
+      "scrambledSeed": "Ben & Jerry's",
+      "scrambledSeedId": "860395D4-48E2-4B47-991F-50109D19D6FC"
+    },
+    {
+      "case": "Doritos x Netflix",
+      "test": "v2",
+      "tag": "Streaming Service App",
+      "seed": "Doritos",
+      "scrambledSeed": "Jack In The Box",
+      "scrambledSeedId": "98440E84-530F-4A97-AC5B-3677C78A9720"
+    },
+    {
+      "case": "Doritos x Twitch",
+      "test": "v2",
+      "tag": "Streaming Service App",
+      "seed": "Doritos",
+      "scrambledSeed": "McDonald's",
+      "scrambledSeedId": "8417D6F9-C8C7-40AD-BE49-0987A4663228"
+    },
+    {
+      "case": "McDonald's x Pacsun",
+      "test": "v2",
+      "tag": "Casual",
+      "seed": "McDonald's",
+      "scrambledSeed": "Taco Bell",
+      "scrambledSeedId": "29271B4D-CAD2-4DD4-A766-7338AEE5533D"
+    },
+    {
+      "case": "Nike x Netflix",
+      "test": "v2",
+      "tag": "Streaming Service App",
+      "seed": "Nike",
+      "scrambledSeed": "Krispy Kreme",
+      "scrambledSeedId": "A16489A3-A51E-4DD6-9966-934C86D80FE9"
+    },
+    {
+      "case": "Ben & Jerry's x Nike",
+      "test": "v2",
+      "tag": "Running",
+      "seed": "Ben & Jerry's",
+      "scrambledSeed": "Dunkin' Donuts",
+      "scrambledSeedId": "5E978F43-4450-4F41-8EE4-A0421E8EC178"
+    },
+    {
+      "case": "Krispy Kreme x Crocs",
+      "test": "v2",
+      "tag": "Lifestyle / Casual",
+      "seed": "Krispy Kreme",
+      "scrambledSeed": "Pepperidge Farm",
+      "scrambledSeedId": "784E958C-129A-4681-B679-052DA5555533"
+    },
+    {
+      "case": "Spotify x Reebok",
+      "test": "v2",
+      "tag": "Running",
+      "seed": "Spotify",
+      "scrambledSeed": "Heinz Ketchup",
+      "scrambledSeedId": "7D2731D0-8883-40A7-B1A4-E2A4A6AA1324"
+    },
+    {
+      "case": "Goldfish x Dunkin'",
+      "test": "v2",
+      "tag": "Coffee & Tea",
+      "seed": "Pepperidge Farm",
+      "scrambledSeed": "Coca-Cola",
+      "scrambledSeedId": "A539C8C9-4733-41A9-911A-11AC2B6D475A"
+    },
+    {
+      "case": "Coca-Cola x Converse",
+      "test": "v2",
+      "tag": "Skateboarding",
+      "seed": "Coca-Cola",
+      "scrambledSeed": "Starbucks",
+      "scrambledSeedId": "B13C02E3-BA3C-4B39-85B4-ACF12FEBC892"
+    },
+    {
+      "case": "Pringles x Crocs",
+      "test": "v2",
+      "tag": "Lifestyle / Casual",
+      "seed": "Pringles",
+      "scrambledSeed": "Levi Strauss & Co.",
+      "scrambledSeedId": "EE2B58FF-37F6-4521-912F-55EBC25D83E2"
+    },
+    {
+      "case": "Jack in the Box x The Hundreds",
+      "test": "v2",
+      "tag": "Skateboarding",
+      "seed": "Jack In The Box",
+      "scrambledSeed": "Wendy's",
+      "scrambledSeedId": "6AC63878-1A9C-4D43-98C7-EAF9582BE1FB"
+    },
+    {
+      "case": "Sour Patch Kids x Under Armour",
+      "test": "v2",
+      "tag": "Running",
+      "seed": "Sour Patch Kids",
+      "scrambledSeed": "Pringles",
+      "scrambledSeedId": "6DC392F8-9D10-45D9-9BDB-6519E5999699"
+    },
+    {
+      "case": "The North Face x Jeep",
+      "test": "v2",
+      "tag": "Car & SUV",
+      "seed": "The North Face",
+      "scrambledSeed": "Doritos",
+      "scrambledSeedId": "EA3901B0-A3A5-43F5-AC2A-45C35C400926"
+    },
+    {
+      "case": "Dunkin' x Urban Outfitters",
+      "test": "v2",
+      "tag": "Fashion",
+      "seed": "Dunkin' Donuts",
+      "scrambledSeed": "Peloton",
+      "scrambledSeedId": "E8AE27B9-1528-4A58-97BD-30AF0BFE8859"
+    }
+  ]
+}
