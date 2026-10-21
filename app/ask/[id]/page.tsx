@@ -52,6 +52,7 @@ export default function SharedAsk({ params, searchParams }: PageProps<"/ask/[id]
 }
 
 async function Shared({ params, searchParams }: Pick<PageProps<"/ask/[id]">, "params" | "searchParams">) {
+  await connection(); // request time: the cache reads below must not run in the prerender (they read the clock)
   const r = await load(params, searchParams);
   if (!r) notFound(); // an id that isn't a Qloo id is a broken link, as on /s (FIX-F6), not a blank ask page
   const asked = "query" in r.body && r.body.query ? { query: r.body.query } : r.body.caseKey ? { case: r.body.caseKey } : { id: r.id, type: r.type };
