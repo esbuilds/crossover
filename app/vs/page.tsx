@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { Skeleton } from "@/app/brief-panel";
 import Link from "next/link";
-import { SiteHeader, btnText, chip, shell } from "@/app/ui";
+import { SiteHeader, chip, shell } from "@/app/ui";
 import { CATEGORIES } from "@/lib/constellation-cases.ts";
 import { peekVs, toPayload } from "@/lib/rivals.ts";
 import { VS_CASES } from "@/lib/rivals-cases.ts";
@@ -27,7 +27,6 @@ export default function Vs() {
           {CATEGORIES.map((c) => (
             <Link key={c.slug} href={`/map/${c.slug}`} className={chip}>{c.title}</Link>
           ))}
-          <Link href="/find" className={btnText}>The full partner list</Link>
         </p>
       </footer>
     </main>

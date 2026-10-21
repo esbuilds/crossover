@@ -112,7 +112,7 @@ function aboutPage(url: string) {
     footer{margin-top:64px;border-top:1px solid var(--rule);padding-top:24px;font-size:.875rem;color:var(--ink-3)}
     footer .serif{color:var(--ink);font-size:1rem}`;
   const tools = TOOLS.map((t) => `<dt><code>${t.name}</code><span>${esc(t.input)}</span></dt><dd>${esc(t.line)}</dd>`).join("");
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crossover over MCP | Crossover</title><meta name="robots" content="noindex"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:wght@600&display=swap"><style>${css}</style></head><body><main>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crossover over MCP</title><meta name="robots" content="noindex"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:wght@600&display=swap"><style>${css}</style></head><body><main>
 <header><a class="serif" href="/">Crossover</a><nav><a href="/">Ask</a><a href="/vs">Two names in</a><a href="/replay">Real deals</a><a href="/audit">The audit</a></nav></header>
 <h1 class="serif">Crossover over MCP</h1>
 <p>Any MCP client can read one of Crossover's checked answers and run the checker on it. Streamable HTTP, no auth, read-only over the published cache: it never spends a Qloo call and never runs the model.</p>
