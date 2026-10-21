@@ -13,7 +13,7 @@ import { askLinks } from "@/lib/ask/links.ts";
 import { callCard, cardsStep, categoryRival, decisionEvent, forkLine, tieLine, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
-import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
+import { PREPARED_ASKS, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
 import { firstCallHeading, type BothWays } from "@/lib/ask/both-rules.ts";
@@ -58,8 +58,10 @@ const verdictOf = (events: AskEvent[]): Verdict | null => {
 // initial.asked: the body the cached ask was run with, so its share and sheet links find it (typed names are keyed by the name)
 // initial.where: the card's where line, read from the cache on the server, so the card is its full height at first paint
 // play: the home page replays initial's steps under its answer (Watch it think) and puts the ask box below
-export default function AskView({ initial, pending, proof, play = false }: { initial?: { label: string; events: AskEvent[]; asked?: Body; where?: string }; pending?: { label: string; body: Body }; proof?: string; play?: boolean }) {
-  const [q, setQ] = useState(initial?.label ?? pending?.label ?? "");
+// initial.both, initial.notes: read from the cache on the server too (FIX-F3), so neither lands after paint and moves
+// the call column while the replay plays; undefined means the server had nothing and the client fetches as before
+export default function AskView({ initial, pending, proof, play = false }: { initial?: { label: string; events: AskEvent[]; asked?: Body; where?: string; both?: BothWays | null; notes?: FieldNotes | null }; pending?: { label: string; body: Body }; proof?: string; play?: boolean }) {
+  const [q, setQ] = useState(initial?.label ?? (pending && pending.label !== UNNAMED_ASK ? pending.label : ""));
   const [events, setEvents] = useState<AskEvent[]>(initial?.events ?? []);
   const [status, setStatus] = useState<"idle" | "running" | "done" | "error">(initial ? "done" : "idle");
   const [replayed, setReplayed] = useState(!!initial); // persona round 2 (Live Nation): a replay looked like a fresh run
@@ -85,23 +87,28 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       {p ? <>Replaying the {initial?.label} run, sped up: step {Math.min(landed + 1, steps.length)} of {steps.length}.<span className="max-sm:hidden"> Each claim is stamped when the step it cites lands.</span></> : `The ${initial?.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
       <span className="inline-flex gap-x-4 whitespace-nowrap">
         <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={btnText}>{p ? "Skip" : "Replay it"}</button>{" "}
-        <a href="#ask" className={btnText}>Ask your own</a>
+        {/* the jump lands in the field, keyboard ready; preventScroll keeps the smooth scroll to #ask (FIX-F8) */}
+        <a href="#ask" onClick={() => requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }))} className={btnText}>Ask your own</a>
       </span>
     </>
   );
 
   const ranHere = useRef(false); // the front page keeps "/" until the visitor asks something
+  const inputRef = useRef<HTMLInputElement>(null);
   async function run(body: Body) {
     setEvents([]); setError(""); setStatus("running"); setAsked(body); setLanded(Infinity); ranHere.current = true;
     // a dropped connection must not leave the button disabled (deferred minor, fixed Oct 13)
     try {
       const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-      if (!res.ok) { setStatus("error"); setError("Type a name to ask about."); return; }
+      // 400 is a bad body; anything else is the host, not the visitor (FIX-F2)
+      if (!res.ok) { setStatus("error"); setError(res.status === 400 ? "Type a name to ask about." : "Crossover's server didn't answer. Names already asked still replay; try this one again in a minute."); return; }
+      let ended = false; // a stream cut off by the host's time limit sends neither done nor error (FIX-F1)
       await streamEvents(res, (e) => {
         if (e.type === "call" || e.type === "result" || e.type === "decision") setEvents((x) => [...x, e]);
-        if (e.type === "done") { setStatus("done"); setReplayed(e.cached); }
-        if (e.type === "error") { setStatus("error"); setError(e.message); }
+        if (e.type === "done") { ended = true; setStatus("done"); setReplayed(e.cached); }
+        if (e.type === "error") { ended = true; setStatus("error"); setError(e.message); }
       });
+      if (!ended) { setStatus("error"); setError("The agent stopped partway. The steps above are what it measured; try again to finish."); }
     } catch {
       setStatus("error");
       setError("The connection dropped. The steps above are what the agent measured; try again to finish.");
@@ -109,14 +116,17 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   }
   const resolved = steps.find((s) => s.tool === "resolve")?.output as { state?: string; name?: string; id?: string; type?: string; options?: { name: string; id: string; type: string }[] } | undefined;
   const answered = resolved?.id && resolved.type && verdict?.ok ? { id: resolved.id, type: resolved.type } : null;
-  const notes = useAskGet<FieldNotes>("field", "notes", answered, asked);
-  const both = useAskGet<BothWays>("both", "both", answered, asked);
+  const seeded = asked === initial?.asked; // the server's reads belong to the ask it replayed, not to a later run
+  const notes = useAskGet<FieldNotes>("field", "notes", answered, asked, seeded ? initial?.notes : undefined);
+  const both = useAskGet<BothWays>("both", "both", answered, asked, seeded ? initial?.both : undefined);
   const small = useAskGet<Smaller>("smaller", "smaller", answered, asked);
   // persona test (agency strategist, Oct 14): the answer's permalink in the address bar once it arrives
   useEffect(() => {
     if (!ranHere.current || status !== "done" || !verdict?.ok || !resolved?.id || !resolved.type) return;
     const href = askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share;
-    if (location.pathname + location.search !== href) history.replaceState(null, "", href);
+    // pushState, not replaceState (FIX-F5): Back returns to the page the visitor came from in Crossover instead of
+    // leaving the site; Next's router adopts the entry, so the view holds
+    if (location.pathname + location.search !== href) history.pushState(null, "", href);
   }, [status, verdict?.ok, resolved?.id, resolved?.type, asked]);
   const ambiguous = resolved?.state === "ambiguous" ? resolved.options : undefined;
   const chips: { label: string; body: Body }[] = [...PREPARED_ASKS, ...(pending && !("query" in pending.body) ? [{ label: pending.label, body: pending.body }] : [])];
@@ -127,8 +137,13 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
       <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
       <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
+      {/* a share link whose ask isn't cached (FIX-F7): say so, and what the chip below will spend */}
+      {pending && status === "idle" && events.length === 0 && (
+        <p className="mt-3 max-w-[68ch] text-base text-ink">This link&apos;s answer isn&apos;t cached here yet. {"query" in pending.body ? "Press Ask to run it" : `Run ${pending.label === UNNAMED_ASK ? "it" : pending.label} from the row below`} (about 40 seconds and 28 Qloo calls), or ask another name.</p>
+      )}
       <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-row gap-3">
-        <input value={q} onChange={(ev) => setQ(ev.target.value)} aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
+        {/* maxLength is the API's own cap (lib/ask/body.ts), so a long paste can't come back as a 400 */}
+        <input ref={inputRef} value={q} onChange={(ev) => setQ(ev.target.value)} maxLength={100} autoComplete="off" enterKeyHint="go" aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
         <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
       </form>
       <p className="mt-2 flex flex-wrap items-center gap-2 text-base">
@@ -143,12 +158,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   return (
     <Landed.Provider value={landed}>
       <section className="pt-6">
-        <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
-        <p className="mt-2 max-w-[68ch] text-lg text-ink-2">
-          {/* phones get the short line, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
-          <span className="sm:hidden">Every number comes from Qloo; every name and number in the answer is checked.</span>
-          <span className="max-sm:hidden">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</span>
-        </p>
+        <AskHeadline />
         {play && initial && landed !== Infinity && (
           <div className="mt-3">
             {/* the trace rail: in the first screen at 390 and 1280, where the step list isn't */}
@@ -212,7 +222,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {/* below the "every number above comes from a step" line: these numbers are code's, not the agent's steps */}
           {verdict?.ok && small && <SmallerBlock s={small} />}
           {status === "running" && !verdict && !ambiguous && (
-            <p className="working font-mono text-sm text-ink-2">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
+            <p className="working font-mono text-sm text-ink-2" role="status">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
           )}
           {ambiguous && (
             <div>
@@ -221,9 +231,10 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             </div>
           )}
           {verdict && !verdict.ok && status !== "running" && (
-            <p className="text-base text-ink-2">{verdict.decision ? "The agent's summary didn't match its own steps, so it isn't shown. The steps are what it measured." : verdict.problems[0]}</p>
+            <p className="text-base text-ink-2" role="status">{verdict.decision ? "The agent's summary didn't match its own steps, so it isn't shown. The steps are what it measured." : verdict.problems[0]}</p>
           )}
-          {error && <p className="text-lg text-ink">{error}</p>}
+          {/* role=alert: a dropped run or a cap is read out, not only seen (FIX-F9) */}
+          {error && <p className="text-lg text-ink" role="alert">{error}</p>}
         </section>
 
         <section id="steps" className="order-4 scroll-mt-4 lg:col-start-1 lg:row-start-3">
@@ -246,6 +257,20 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
 
       {play && <section id="ask" className="mt-10 scroll-mt-4 border-t border-rule pt-6"><h2 className="font-display text-xl">Ask your own</h2>{askBox}</section>}
     </Landed.Provider>
+  );
+}
+
+// The headline, shared with the home page's loading state (FIX-F4) so the cache read swaps nothing a judge has read
+export function AskHeadline() {
+  return (
+    <>
+      <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
+      <p className="mt-2 max-w-[68ch] text-lg text-ink-2">
+        {/* phones get the short line, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
+        <span className="sm:hidden">Every number comes from Qloo; every name and number in the answer is checked.</span>
+        <span className="max-sm:hidden">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</span>
+      </p>
+    </>
   );
 }
 
@@ -328,18 +353,20 @@ function WhereLine({ id, type, asked, seed }: { id: string; type: string; asked:
 
 // Code beside the frozen answer, from a cached ask (cache first): /api/ask/both, the eight ranked in each direction
 // (Fable's columns ruling, Oct 15), and /api/ask/field, the field notes (checker sign-off, Oct 15). null until it arrives.
-function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes" | "smaller", seed: { id: string; type: string } | null, asked: Body | null): T | null {
-  const [v, setV] = useState<T | null>(null);
+// given: the value the server already read (FIX-F3); a null from the server was a cold cache, so the client still asks
+function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes" | "smaller", seed: { id: string; type: string } | null, asked: Body | null, given?: T | null): T | null {
+  const [v, setV] = useState<T | null>(given ?? null);
   const q = seed ? new URLSearchParams({ id: seed.id, t: seed.type }) : null;
   if (q && asked && "query" in asked) q.set("q", asked.query);
   if (q && asked && "case" in asked) q.set("case", asked.case);
   const key = q?.toString() ?? "";
   useEffect(() => {
     if (!key) return setV(null);
+    if (given) return setV(given);
     let live = true;
     fetch(`/api/ask/${path}?${key}`).then((r) => (r.ok ? r.json() : null)).then((d: Record<string, T | null> | null) => live && setV(d?.[field] ?? null), () => {});
     return () => { live = false; };
-  }, [key, path, field]);
+  }, [key, path, field, given]);
   return v;
 }
 
@@ -376,7 +403,8 @@ function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }
   return (
     <div className={`${panel} mt-3 px-3 py-3`}>
       <p className="text-sm text-ink-2">Change a number or swap in another brand, then check it. The same code that gates every answer runs here, in your browser.</p>
-      <textarea value={text} onChange={(ev) => (setText(ev.target.value), setResult(null))} aria-label="The first call's reason, editable" rows={3} className={`${field} mt-2 w-full`} />
+      {/* autoFocus: the button that opened this is gone, so focus moves into the field instead of dropping to the page (FIX-F8) */}
+      <textarea value={text} onChange={(ev) => (setText(ev.target.value), setResult(null))} aria-label="The first call's reason, editable" rows={3} autoFocus className={`${field} mt-2 w-full`} />
       <p className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
         <button type="button" onClick={() => check(text)} className={btnPrimary}>Check it</button>
         <button type="button" onClick={() => { const t = nudge(text); setText(t); check(t); }} className={btnText}>Nudge a score</button>
@@ -403,7 +431,8 @@ function CopyAsk({ href }: { href: string }) {
   const [copied, setCopied] = useState(false);
   const link = () => `${window.location.origin}${href}`;
   return (
-    <button type="button" className={btnText} onClick={() => navigator.clipboard.writeText(link()).then(() => setCopied(true), () => {})}>
+    // aria-live: the label's change to "Link copied" is announced (FIX-F9)
+    <button type="button" className={btnText} aria-live="polite" onClick={() => navigator.clipboard.writeText(link()).then(() => setCopied(true), () => {})}>
       {copied ? "Link copied" : "Copy link"}
     </button>
   );
