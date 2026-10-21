@@ -8,7 +8,7 @@ import { btnPrimary, btnText, chip, field, linkInline, panel, panelStrong } from
 import CollisionMap, { MapKey } from "../vs/collision-map";
 import { CHECK_RULE, claimCount, displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { checkEdit, nudge } from "@/lib/ask/fool.ts";
-import { smallerLine, type Smaller } from "@/lib/ask/smaller-rules.ts";
+import { asideNote, smallerLine, type Smaller } from "@/lib/ask/smaller-rules.ts";
 import { askLinks } from "@/lib/ask/links.ts";
 import { callCard, cardsStep, categoryRival, decisionEvent, forkLine, tieLine, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine } from "@/lib/vs.ts";
@@ -228,7 +228,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             </>
           )}
           {/* below the "every number above comes from a step" line: these numbers are code's, not the agent's steps */}
-          {verdict?.ok && small && <SmallerBlock s={small} />}
+          {verdict?.ok && small && <SmallerBlock s={small} steps={steps} />}
           {status === "running" && !verdict && !ambiguous && (
             <p className="working font-mono text-sm text-ink-2" role="status">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
           )}
@@ -379,16 +379,19 @@ function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes
 
 // Smaller names, nearly the same fit (moonshots round 4 pick 5, real Oct 18): Qloo's list for the seed's fans, capped by
 // popularity, beside the frozen answer. Code, not the agent; nothing above is reordered.
-function SmallerBlock({ s }: { s: Smaller }) {
+function SmallerBlock({ s, steps }: { s: Smaller; steps: StepRecord[] }) {
+  const found = steps.find((x) => x.tool === "findRival");
+  const pick = (found?.output as { rival?: { name: string } } | undefined)?.rival;
+  const aside = asideNote(s, found && pick ? { name: pick.name, step: found.n } : null);
   return (
     <section className="mt-8 border-t border-rule pt-6 motion-safe:animate-[fade-in_200ms_ease-out]">
       <h3 className="text-lg font-semibold">Smaller names, nearly the same fit</h3>
-      <p className="mt-2 max-w-copy text-base text-ink-2">{smallerLine(s)}</p>
+      <p className="mt-2 max-w-copy text-base text-ink-2">{smallerLine(s, found && pick ? { name: pick.name, step: found.n } : null)}</p>
       {s.rows.length > 0 && (
         <table className="mt-4 w-full max-w-md text-sm tabular-nums">
           <thead><tr className="text-left text-ink-3"><th className="font-normal">Brand</th><th className="text-right font-normal">Fit</th><th className="text-right font-normal">Popularity</th></tr></thead>
           <tbody>
-            <tr className="border-t border-rule text-ink-3"><td className="py-1">{s.leader.name} (leader)</td><td className="text-right">{s.leader.affinity.toFixed(2)}</td><td className="text-right">{s.leader.popularity.toFixed(2)}</td></tr>
+            <tr className="border-t border-rule text-ink-3"><td className="py-1">{s.leader.name} (leader{aside ? `, ${aside}` : ""})</td><td className="text-right">{s.leader.affinity.toFixed(2)}</td><td className="text-right">{s.leader.popularity.toFixed(2)}</td></tr>
             {s.rows.map((r) => <tr key={r.name} className="border-t border-rule text-ink"><td className="py-1">{r.name}</td><td className="text-right">{r.affinity.toFixed(2)}</td><td className="text-right">{r.popularity.toFixed(2)}</td></tr>)}
           </tbody>
         </table>
