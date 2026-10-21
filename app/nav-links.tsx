@@ -20,10 +20,11 @@ function Current() {
 function Links({ path }: { path: string | null }) {
   const current = (href: string) => path !== null && (href === "/" ? path === "/" || path.startsWith("/ask/") || path.startsWith("/s/") : path === href || path.startsWith(`${href}/`));
   return (
-    // -mb-3 with pb-3 on the links: each link reaches down to the header's bottom rule, so the current mark lies on it
-    <nav className="-mb-3 flex flex-wrap gap-x-4">
+    // -mb with pb on the links (3 on phones, 4 from 640, the header's own padding): each link reaches down to the
+    // header's bottom rule, so the current mark lies on it
+    <nav className="-mb-3 flex flex-wrap gap-x-4 sm:-mb-4">
       {NAV.map(([href, label]) => (
-        <Link key={href} href={href} aria-current={current(href) ? "page" : undefined} className="inline-flex min-h-11 items-center pb-3 box-content text-sm text-ink-2 transition-colors duration-150 ease-out motion-reduce:transition-none hover:text-ink aria-[current=page]:text-ink aria-[current=page]:shadow-[0_1px_0_var(--color-ink)]">
+        <Link key={href} href={href} aria-current={current(href) ? "page" : undefined} className="inline-flex min-h-11 items-center pb-3 box-content text-sm text-ink-2 sm:pb-4 transition-colors duration-150 ease-out motion-reduce:transition-none hover:text-ink aria-[current=page]:text-ink aria-[current=page]:shadow-[0_1px_0_var(--color-ink)]">
           {label}
         </Link>
       ))}

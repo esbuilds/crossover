@@ -230,10 +230,10 @@ export default function BriefPanel({
           )}
 
           {approved && ready && (
-            <section className="mt-10 border-t border-ink pt-6">
+            <section className="mt-block border-t border-ink pt-block">
               <h3 className="font-display text-xl">Outreach draft</h3>
               {mail.status === "writing" && !mail.text && <Skeleton lines={6} />}
-              {mail.text && <div className="mt-3 max-w-[65ch] text-base whitespace-pre-wrap text-ink">{mail.text}</div>}
+              {mail.text && <div className="mt-3 max-w-copy text-base whitespace-pre-wrap text-ink">{mail.text}</div>}
               {mail.status === "error" && (
                 <p className="mt-3 flex flex-wrap items-center gap-x-4 rounded-md bg-danger-tint px-4 py-2 text-base text-danger">
                   <span className="py-2">{mail.error}</span>
@@ -244,7 +244,7 @@ export default function BriefPanel({
               )}
             </section>
           )}
-          {ready && <p className="mt-10 text-sm text-ink-3">Nothing is sent anywhere. Decisions stay in this browser.</p>}
+          {ready && <p className="mt-block text-sm text-ink-3">Nothing is sent anywhere. Decisions stay in this browser.</p>}
         </div>
 
         <footer className="shrink-0 border-t border-rule bg-surface px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-7">
@@ -372,7 +372,7 @@ function BriefBody({
   venues: Venue[];
 }) {
   return (
-    <div className="max-w-[65ch]">
+    <div className="max-w-copy">
       {sections(text).map((s, i) => (
         <section key={i} className="mt-8">
           {s.heading && <h3 className="font-display text-xl">{s.heading}</h3>}
@@ -575,7 +575,7 @@ function CohortBlock({ body, partner }: { body: object; partner: string }) {
     ask(true); // eslint-disable-line react-hooks/set-state-in-effect -- one cache-only read when the brief is ready
   }, [payload]); // eslint-disable-line react-hooks/exhaustive-deps -- ask closes over payload only
   return (
-    <section className="mt-10 max-w-[65ch] border-t border-rule pt-6">
+    <section className="mt-block max-w-copy border-t border-rule pt-6">
       <h3 className="font-display text-xl">Who does this land with?</h3>
       {cohort ? (
         <CohortChart cohort={cohort} partner={partner} />

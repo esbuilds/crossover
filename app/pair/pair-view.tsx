@@ -8,7 +8,7 @@ import type { Direction } from "@/lib/fit.ts";
 import type { City } from "@/lib/cities.ts";
 import UsMap from "../map";
 import BriefPanel, { Skeleton } from "../brief-panel";
-import { btnPrimary, btnSecondary, btnText, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL } from "../ui";
+import { btnPrimary, btnSecondary, btnText, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL, shell } from "../ui";
 
 type Side = { query: string; state: "idle" | "loading" | "picked" | "ambiguous" | "not_found" | "error"; card?: Card; candidates?: Card[]; message?: string };
 const empty: Side = { query: "", state: "idle" };
@@ -88,13 +88,13 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
   const ready = p && pair.state === "ready";
 
   return (
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+    <main className={shell}>
       <SiteHeader href="/find" label="Find partners" />
 
-      <section className="pt-8">
+      <section className="pt-page">
         <h1 className="font-display text-2xl sm:text-3xl">Check a pairing</h1>
-        <p className="mt-2 max-w-[60ch] text-base text-ink-2">Two names in: does each audience like the other, where do they overlap, and what kind of collab is it?</p>
-        <form onSubmit={submit} className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-end">
+        <p className="mt-2 max-w-copy text-base text-ink-2">Two names in: does each audience like the other, where do they overlap, and what kind of collab is it?</p>
+        <form onSubmit={submit} className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-end">
           <NameInput label="First" side={a} onChange={(q) => setA({ query: q, state: "idle" })} />
           <span aria-hidden className="hidden pb-2 text-center font-display text-2xl text-ink-3 sm:block">
             &times;
@@ -113,7 +113,7 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
 
       {pair.state === "loading" && (
         <div aria-live="polite">
-          <p className="mt-10 font-mono text-sm text-ink-3 motion-safe:animate-pulse">Checking both audiences in Qloo and writing the verdict...</p>
+          <p className="mt-block font-mono text-sm text-ink-3 motion-safe:animate-pulse">Checking both audiences in Qloo and writing the verdict...</p>
           <Skeleton lines={4} />
         </div>
       )}
@@ -128,7 +128,7 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
         ))}
 
       {p && ready && (
-        <div className="mt-10">
+        <div className="mt-block">
           <section className="border-b border-ink pb-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Chip kind={KIND[p.kind].chip}>{KIND[p.kind].label}</Chip>
@@ -136,18 +136,18 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
                 {copied ? "Link copied" : "Copy link to this pairing"}
               </button>
             </div>
-            <p className="mt-3 max-w-[60ch] font-display text-xl text-pretty">{p.verdict}</p>
+            <p className="mt-3 max-w-copy font-display text-xl text-pretty">{p.verdict}</p>
             <button onClick={() => setBrief(true)} className={`${btnPrimary} mt-6`}>
               Write the full brief
             </button>
           </section>
 
-          <section className="grid gap-x-10 border-b border-rule sm:grid-cols-2">
+          <section className="grid gap-x-12 border-b border-rule sm:grid-cols-2">
             <RankBar who={p.b.name} among={p.a.name} d={p.bAmongA} kind={TYPE_LABEL[p.b.type] ?? "entity"} />
             <RankBar who={p.a.name} among={p.b.name} d={p.aAmongB} kind={TYPE_LABEL[p.a.type] ?? "entity"} />
           </section>
 
-          <section className="border-b border-rule py-10">
+          <section className="border-b border-rule py-block">
             <h2 className="font-display text-xl">Where both run hot</h2>
             <p className="mt-1 text-base text-ink-2">Markets in both top tens, over-index against the US average (100 is average).</p>
             <div className="mt-6 grid items-start gap-8 md:grid-cols-[3fr_2fr]">
@@ -183,7 +183,7 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
             </div>
           </section>
 
-          <section className="py-10">
+          <section className="py-block">
             <h2 className="font-display text-xl">Shared taste</h2>
             {p.sharedTags.length ? (
               <div className="mt-3 flex flex-wrap gap-2">

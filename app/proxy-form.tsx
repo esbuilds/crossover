@@ -63,7 +63,7 @@ export default function ProxyForm({
   return (
     <div className={`${panel} p-4 sm:p-6 ${compact ? "mt-2" : ""}`}>
       <h2 className="font-display text-xl">{compact ? "None of these?" : "Qloo doesn't know this one yet"}</h2>
-      <p className="mt-1 max-w-[65ch] text-base text-ink-2">
+      <p className="mt-1 max-w-copy text-base text-ink-2">
         Describe it and name brands your customers also love. Crossover builds the slate from their fans, so the brands you pick steer what comes back.
       </p>
 

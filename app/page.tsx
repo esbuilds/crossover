@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { SiteHeader } from "@/app/ui";
+import { SiteHeader, shell } from "@/app/ui";
 import { peekAsk } from "@/lib/ask/agent.ts";
 import { whereToStart } from "@/lib/ask/where.ts";
 import { bothWays } from "@/lib/ask/both-ways.ts";
@@ -15,7 +15,7 @@ import HashRedirect from "./hash-redirect";
 // click. Old Pick three links (/?c=, /?s=) redirect to /pick-three (next.config.ts); old anchors in HashRedirect.
 export default function Home() {
   return (
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+    <main className={shell}>
       <HashRedirect />
       <SiteHeader />
       <Suspense fallback={<Loading />}>
@@ -30,7 +30,7 @@ export default function Home() {
 // 0.15 at 1280 and 0.23 at 390 when the replay replaced it).
 function Loading() {
   return (
-    <section className="pt-6" aria-busy>
+    <section className="pt-page" aria-busy>
       <AskHeadline />
       <div className="min-h-screen" />
     </section>

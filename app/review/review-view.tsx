@@ -6,7 +6,7 @@ import type { Ref, Review, ReviewGroup, ReviewRow, Twins } from "@/lib/review.ts
 import { CASES, type CaseName, type PreparedCase } from "@/lib/review-cases.ts";
 import { nameOf, shareQuery, type Shared } from "@/lib/review-share.ts";
 import BriefPanel from "../brief-panel";
-import { btnPrimary, btnSecondary, btnText, chip, Chip, field, linkInline, SiteHeader, TYPE_LABEL, WhichOne } from "../ui";
+import { btnPrimary, btnSecondary, btnText, chip, Chip, field, linkInline, SiteHeader, TYPE_LABEL, WhichOne, shell } from "../ui";
 
 // Renders /api/review (review-v3). Groups, picks, gates and evidence labels all come from the route; this page only
 // hides them until the visitor has picked, then lays fame and taste side by side.
@@ -108,9 +108,9 @@ export default function ReviewView({ initial, embedded = false }: { initial?: Sh
 
   const Shell = embedded ? "div" : "main";
   return (
-    <Shell id="pick-three" className={embedded ? "scroll-mt-4" : "mx-auto max-w-[1120px] px-4 pb-24 sm:px-8"}>
+    <Shell id="pick-three" className={embedded ? "scroll-mt-4" : shell}>
       {!embedded && <SiteHeader href="/find" label="Find partners" />}
-      <section className="pt-8">
+      <section className="pt-page">
         <div className="flex flex-wrap items-center gap-2 text-base">
           <span className="text-ink-2">Prepared cases:</span>
           {CASES.map((c) => (
@@ -123,10 +123,10 @@ export default function ReviewView({ initial, embedded = false }: { initial?: Sh
           </a>
         </div>
 
-        {loading && <p className="mt-10 font-mono text-sm text-ink-3 motion-safe:animate-pulse">Reading Qloo...</p>}
+        {loading && <p className="mt-block font-mono text-sm text-ink-3 motion-safe:animate-pulse">Reading Qloo...</p>}
         {!loading && res?.error && <SeedProblem res={res} onChoose={(r) => setReq({ ...req, seed: { name: r.name, id: r.entity_id, type: r.type } })} />}
 
-        {data && !group && <p className="mt-10 text-base text-ink-2">Qloo couldn&apos;t measure any of these names for {data.seed.name}.</p>}
+        {data && !group && <p className="mt-block text-base text-ink-2">Qloo couldn&apos;t measure any of these names for {data.seed.name}.</p>}
 
         {data && group && !revealed && (
           <PickStep data={data} group={group} order={req.names.map(nameOf)} picks={picks} need={need} onToggle={(id) => setPicks((p) => (p.includes(id) ? p.filter((x) => x !== id) : p.length < 3 ? [...p, id] : p))} onReveal={() => setRevealed(true)} />
@@ -159,7 +159,7 @@ export default function ReviewView({ initial, embedded = false }: { initial?: Sh
           </div>
         )}
 
-        <p className="mt-10 border-t border-rule pt-4 text-sm text-ink-3">
+        <p className="mt-block border-t border-rule pt-6 text-sm text-ink-3">
           What this doesn&apos;t establish: purchases, visits, commercial eligibility, or whether the deal makes money.{" "}
           <a href="/audit" className={linkInline}>
             How these rules did on briefs they weren&apos;t tuned on
@@ -186,8 +186,8 @@ export default function ReviewView({ initial, embedded = false }: { initial?: Sh
 }
 
 function SeedProblem({ res, onChoose }: { res: Res; onChoose: (r: Ref) => void }) {
-  if (res.seedOptions?.length) return <WhichOne className="mt-10" options={res.seedOptions} label={(o) => `${o.name} (${TYPE_LABEL[o.type] ?? "Entity"})`} onPick={onChoose} />;
-  return <p className="mt-10 text-base text-ink-2">{res.error}</p>;
+  if (res.seedOptions?.length) return <WhichOne className="mt-block" options={res.seedOptions} label={(o) => `${o.name} (${TYPE_LABEL[o.type] ?? "Entity"})`} onPick={onChoose} />;
+  return <p className="mt-block text-base text-ink-2">{res.error}</p>;
 }
 
 // Step 1: the names in the order given, nothing about scores.
@@ -195,9 +195,9 @@ function PickStep({ data, group, order, picks, need, onToggle, onReveal }: { dat
   const rows = [...group.rows].sort((a, b) => order.indexOf(a.input) - order.indexOf(b.input));
   const label = (id: string) => group.rows.find((r) => r.entity.entity_id === id)?.input;
   return (
-    <div className="mt-8">
+    <div className="mt-block">
       <h1 className="font-display text-2xl sm:text-3xl">Pick the three you&apos;d call first.</h1>
-      <p className="mt-2 max-w-[60ch] text-base text-ink-2">
+      <p className="mt-2 max-w-copy text-base text-ink-2">
         {rows.length} {plural(group.type)} that could partner with {data.seed.name}. Choose before you see what the data says.
       </p>
       <ul className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -245,9 +245,9 @@ function Reveal({ embedded, data, group, picks, share, open, onOpen, gate, gateO
   const pill = (id: string, value?: string) => <Name key={id} row={row(id)} picked={picks.includes(id)} open={open === id} value={value} onOpen={() => onOpen(id)} />;
 
   return (
-    <div className="mt-8">
+    <div className="mt-block">
       <h2 className="font-display text-2xl sm:text-3xl">{fameFlat ? `Fame can't tell these ${WORDS[group.rows.length] ?? group.rows.length} apart. Taste can.` : "Fame and taste, side by side."}</h2>
-      <p className="mt-3 max-w-[70ch] text-base text-ink-2">
+      <p className="mt-3 max-w-lead text-base text-ink-2">
         {noClearThree
           ? `No clear three: ${names(topGroup)} are all within ${data.gap} of each other.`
           : top.length
@@ -258,7 +258,7 @@ function Reveal({ embedded, data, group, picks, share, open, onOpen, gate, gateO
         {mine} of your {picks.length} {mine === 1 ? "is" : "are"} in the top group.
       </p>
       {twin && (
-        <p className="mt-2 max-w-[70ch] text-base text-ink-2">
+        <p className="mt-2 max-w-lead text-base text-ink-2">
           {row(twin.a).input} and {row(twin.b).input} sit closest to each other: their fans lean toward each other at {score(twin.value)}; the next closest pair here is {score(twin.next)}. Calling both may reach one audience twice.
         </p>
       )}
@@ -277,7 +277,7 @@ function Reveal({ embedded, data, group, picks, share, open, onOpen, gate, gateO
         </a>
       </div>
 
-      <div className="mt-8 grid gap-8 md:grid-cols-2">
+      <div className="mt-block grid gap-x-12 gap-y-block md:grid-cols-2">
         <section>
           <h2 className="font-display text-xl">How well known</h2>
           <p className="mt-1 text-sm text-ink-3">Qloo popularity, in bands {data.gap} wide from the best known. No order inside a band.</p>
@@ -401,7 +401,7 @@ function TryOwn({ onRun }: { onRun: (body: Body) => void }) {
         if (seed.trim() && names.length && names.length <= MAX) onRun({ seed: seed.trim(), names, only: "brand" });
         window.scrollTo({ top: 0, behavior: "smooth" });
       }}
-      className="mt-12 grid max-w-[760px] gap-4"
+      className="mt-section grid max-w-[760px] gap-4"
     >
       <h2 className="font-display text-xl">Try your own</h2>
       <label className="grid gap-1.5">

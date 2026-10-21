@@ -134,7 +134,7 @@ export default function ConstellationView({ c }: { c: Constellation }) {
   const [a, b] = [...picked].sort((x, y) => x - y).map((i) => c.dots[i]);
   const aff = picked.length === 2 ? c.affinity[picked[0]][picked[1]] : null;
   return (
-    <section className="mt-6">
+    <section className="mt-block">
       <Plot c={c} W={1000} H={500} picked={picked} toggle={toggle} yours={yours} className="max-sm:hidden" />
       <Plot c={c} W={360} H={540} picked={picked} toggle={toggle} yours={yours} className="sm:hidden" />
       <div className="mt-4 flex min-h-11 flex-wrap items-center gap-x-4 gap-y-2 text-base" aria-live="polite">
@@ -164,7 +164,7 @@ export default function ConstellationView({ c }: { c: Constellation }) {
       <div aria-live="polite">
         {note && <p className="mt-3 text-base text-ink">{note}</p>}
         {yours && (
-          <div className="mt-3 max-w-[68ch] text-base">
+          <div className="mt-3 max-w-lead text-base">
             <p className="text-ink">
               {yours.name} sits nearest {yours.placement.near.map((n) => `${n.name} (${n.affinity.toFixed(2)})`).join(", ")}.
             </p>

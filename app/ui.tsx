@@ -21,6 +21,9 @@ export const field =
 // one card treatment (DC F9): panel for containers, panelStrong for the call card only (a firmer border, no tint)
 export const panel = "rounded-md border border-rule bg-surface";
 export const panelStrong = "rounded-md border border-rule-strong";
+// The page shell (SPACE, real Oct 21): one width, a fluid gutter, and a full section of air before the colophon.
+// Every route's <main> uses it; the title section under the header takes pt-page (globals.css has the scale).
+export const shell = "mx-auto max-w-shell px-gutter pb-section";
 
 // The one chip system: status on a pick or a market. Text always says what the color means.
 export type ChipKind = "mutual" | "partial" | "oneway" | "competitor" | "excluded" | "lower" | "approved" | "declined" | "note";
@@ -109,7 +112,7 @@ export function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void 
 export function SiteHeader(props: { href?: string; label?: string }) {
   void props;
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-4 border-b border-rule py-3">
+    <header className="flex flex-wrap items-center justify-between gap-x-4 border-b border-rule py-3 sm:py-4">
       <Link href="/" className="inline-flex min-h-11 items-center font-display text-xl">
         Crossover
       </Link>

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { PerRequest } from "@/app/dynamic";
-import { SiteHeader } from "@/app/ui";
+import { SiteHeader, shell } from "@/app/ui";
 import { peekAsk, type AskEvent } from "@/lib/ask/agent.ts";
 import { bodyFromParams } from "@/lib/ask/body.ts";
 import { PROOF } from "@/lib/ask/proof.ts";
@@ -41,7 +41,7 @@ export default function SharedAsk({ params, searchParams }: PageProps<"/ask/[id]
   return (
     <>
       <PerRequest />
-      <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+      <main className={shell}>
         <SiteHeader href="/" label="Ask" />
         <Suspense fallback={<AskView />}>
           <Shared params={params} searchParams={searchParams} />

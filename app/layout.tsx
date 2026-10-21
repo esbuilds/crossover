@@ -31,8 +31,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full">
         {children}
         {/* one colophon on every page (DC F6, TR F10): it carries the three stops (Pick A) and the tour */}
-        <footer className="mx-auto max-w-[1120px] px-4 pb-8 text-sm text-ink-3 sm:px-8 print:hidden">
-          <div className="border-t border-rule pt-6">
+        <footer className="mx-auto max-w-shell px-gutter pb-12 text-sm text-ink-3 print:hidden">
+          <div className="border-t border-rule pt-8">
             <p><span className="font-display text-base text-ink">Crossover</span> · Data: Qloo, built on its taste graph</p>
             <JudgePath />
             <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1">

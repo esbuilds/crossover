@@ -9,7 +9,7 @@ import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ConstraintSet } from "@/lib/refine.ts";
 import UsMap from "./map";
-import { btnPrimary, btnSecondary, btnText, chip, Chip, EXAMPLES, ExampleLinks, field, MatchCard, MORE_EXAMPLES, SiteHeader } from "./ui";
+import { btnPrimary, btnSecondary, btnText, chip, Chip, EXAMPLES, ExampleLinks, field, MatchCard, MORE_EXAMPLES, SiteHeader, shell } from "./ui";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 
@@ -249,14 +249,14 @@ export default function Crossover({
   // Home is the empty page: the promise, the input, the examples. Anything in flight collapses it to a search bar.
   const home = !entity && !proxy && !draft && resolved.state === "idle" && slate.state === "idle";
   return (
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+    <main className={shell}>
       <SiteHeader href="/pair" label="Check a pairing" />
 
-      <section className={home ? "pt-14 pb-6 sm:pt-24" : "pt-6"}>
+      <section className={home ? "pt-14 pb-6 sm:pt-24" : "pt-page"}>
         {home && (
           <>
             <h1 className="max-w-[16ch] font-display text-3xl sm:text-4xl">Who should you collab with, and where?</h1>
-            <p className="mt-4 max-w-[58ch] text-lg text-ink-2">
+            <p className="mt-4 max-w-copy text-lg text-ink-2">
               Name a brand, artist, show or person. Crossover finds what their fans already love, shows the fit both ways and the
               markets where both audiences run hot.
             </p>
@@ -299,7 +299,7 @@ export default function Crossover({
                 </a>
               ))}
             </p>
-            <p className="mt-16 border-t border-rule pt-4 text-sm text-ink-3">Built on Qloo&apos;s taste graph</p>
+            <p className="mt-section border-t border-rule pt-6 text-sm text-ink-3">Built on Qloo&apos;s taste graph</p>
           </>
         )}
       </section>
@@ -448,7 +448,7 @@ function TraceLog({ lines, running }: { lines: string[]; running: boolean }) {
 function SlateSkeleton() {
   const bar = "rounded-sm bg-surface-2 motion-safe:animate-pulse";
   return (
-    <div className="mt-10" aria-live="polite">
+    <div className="mt-block" aria-live="polite">
       <p className="sr-only">Building the slate</p>
       <div className={`${bar} h-8 w-72 max-w-full`} />
       <div className={`${bar} mt-3 h-4 w-96 max-w-full`} />
@@ -573,7 +573,7 @@ function Results({
         // the shortlist is what the ranker kept (Qloo's top five before it lands); the rest sit behind "Show all"
         const shortlist = ranking[domain] ? Math.max(1, ranking[domain].kept.filter((k) => !decisions[k.entity_id] || decisions[k.entity_id].status !== "declined").length) : 5; // the lead row counts as the one
         return (
-          <section key={domain} className="border-b border-rule py-8">
+          <section key={domain} className="border-b border-rule py-block">
             <div className="flex items-baseline justify-between gap-4">
               <h3 className="font-display text-xl">{DOMAIN_LABEL[domain]}</h3>
               {running && !ranking[domain] && <span className="font-mono text-sm text-ink-3 motion-safe:animate-pulse">shortlisting</span>}
@@ -607,7 +607,7 @@ function Results({
             )}
             {dropped.length > 0 && (
               <Disclosure label={`Dropped (${dropped.length})`}>
-                <ul className="max-w-[75ch] space-y-2 text-base text-ink-2">
+                <ul className="max-w-lead space-y-2 text-base text-ink-2">
                   {dropped.map((d) => (
                     <li key={d.entity_id}>
                       <span className="font-semibold text-ink">{d.name}</span>{" "}
@@ -632,10 +632,10 @@ function Results({
   const main = data.domains.filter((d) => !MORE.includes(d.domain));
   const more = data.domains.filter((d) => MORE.includes(d.domain));
   return (
-    <div className="mt-10">
+    <div className="mt-block">
       <header className="border-b border-ink pb-6">
         <h2 className="font-display text-2xl sm:text-3xl">Partners for {data.entity.name}</h2>
-        <p className="mt-1 max-w-[65ch] text-base text-ink-2">{playbookFor(data.entity.type).slateSubtitle}</p>
+        <p className="mt-1 max-w-copy text-base text-ink-2">{playbookFor(data.entity.type).slateSubtitle}</p>
         <RefineBar key={refineText} refineText={refineText} constraints={constraints} running={running} onRefine={onRefine} />
         {Object.values(badges).some(Boolean) && (
           <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-2">
@@ -657,7 +657,7 @@ function Results({
         </section>
       )}
 
-      <section className="py-10">
+      <section className="py-block">
         <h3 className="font-display text-xl">Where to launch</h3>
         <p className="mt-1 text-base text-ink-2">Over-index against the US average, where 100 is average.</p>
         <div className="mt-6 grid items-start gap-8 md:grid-cols-[3fr_2fr]">

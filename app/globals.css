@@ -40,10 +40,33 @@
   --text-xl--line-height: 1.75rem;
   --text-2xl: 1.75rem;
   --text-2xl--line-height: 2.1rem;
-  --text-3xl: 2.25rem;
-  --text-3xl--line-height: 2.6rem;
+  /* the page title grows with the viewport (36 at 640, 42 at 1024, 44 from 1180): a 2.75:1 step over body text, so the
+     h1 reads as the one headline at 1280 and 1440 without a second breakpoint (SPACE, real Oct 21) */
+  --text-3xl: clamp(2.25rem, 1.65rem + 1.5vw, 2.75rem);
+  --text-3xl--line-height: 1.12;
   --text-4xl: 3.25rem;
   --text-4xl--line-height: 3.5rem;
+
+  /* Rhythm (SPACE, real Oct 21). Four named steps, fluid, so desktop breathes and the phone's first screen holds.
+     Values at 390 / 1280 / 1440:
+       page     24 / 55 / 62   header rule to the h1 (pt-page)
+       section  48 / 75 / 82   between the page's sections (mt-section); one step bigger than anything inside a section
+       block    24 / 38 / 41   between blocks inside a section, and the two home columns (mt-block, gap-block)
+       gutter   16 / 34 / 40   the page's side padding (px-gutter)
+     Inside a block, use the plain scale only: 1 (4px) inline, 2 (8) siblings in a group, 3 (12) a label to its content,
+     4 (16) paragraph to paragraph, 6 (24) a sub-block, 8 (32) a sub-heading, and gap-x-12 (48) is the gutter between
+     the columns of a two or three column grid. 5, 7, 10, 14, 16 and 24 are retired (the print sheet keeps its own). */
+  --spacing-page: clamp(1.5rem, 0.25rem + 4vw, 4.5rem);
+  --spacing-section: clamp(3rem, 1.5rem + 4vw, 5.5rem);
+  --spacing-block: clamp(1.5rem, 0.75rem + 2vw, 2.75rem);
+  --spacing-gutter: clamp(1rem, 0.5rem + 2vw, 2.5rem);
+
+  /* Measures: copy for body paragraphs (max-w-copy), lead for the larger line under an h1 and for small-type status
+     lines (max-w-lead), shell for the page (max-w-shell). 52, 58, 60, 65, 68, 70, 75 and 80ch collapse into the first
+     two. max-w-prose is Tailwind's fixed 65ch and not a token, so it is not used. */
+  --container-copy: 60ch;
+  --container-lead: 68ch;
+  --container-shell: 1120px;
 
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -103,12 +126,18 @@ h2,
 h3 {
   text-wrap: balance;
 }
+/* prose wraps without an orphaned last word (SPACE) */
+p {
+  text-wrap: pretty;
+}
 
 /* the display face says its weight instead of leaning on the one loaded cut (TR F4). In the base layer, so an
    explicit weight utility on the same element still wins. .font-italic-display is the "vs" on /vs only. */
 @layer base {
   .font-display {
     font-weight: 600;
+    /* a hair tighter (SPACE): at 44px the serif's default fit opens up; at 22px this is a fifth of a pixel */
+    letter-spacing: -0.01em;
   }
   .font-italic-display {
     font-family: var(--font-newsreader-italic), var(--font-display);

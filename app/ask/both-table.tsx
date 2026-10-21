@@ -13,7 +13,7 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
   // persona round 2 (Olipop lead): a withheld table said nothing; now one line says why
   if (!b.shown)
     return (
-      <p className={compact ? "mt-1.5 text-ink-2" : "mt-3 max-w-[60ch] text-sm text-ink-3"}>
+      <p className={compact ? "mt-1.5 text-ink-2" : "mt-3 max-w-copy text-sm text-ink-3"}>
         The other direction (each one&apos;s fans&apos; rank of {b.seed}) was measured and doesn&apos;t separate these {b.rows.length}, so there&apos;s no table.{" "}
         {compact ? "The rule is on /audit." : <Link href="/audit#both-ways" className={linkInline}>How that&apos;s decided</Link>}
       </p>
@@ -40,7 +40,7 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
           ))}
         </tbody>
       </table>
-      <p className={`${compact ? "text-[0.95em]" : "mt-2 max-w-[60ch] text-sm"} text-ink-3`}>
+      <p className={`${compact ? "text-[0.95em]" : "mt-2 max-w-copy text-sm"} text-ink-3`}>
         * the agent&apos;s calls. The first column is the taste score&apos;s own order, so it restates the tie. The second is that brand&apos;s fans&apos; own top 50 {b.noun}, a different list.
       </p>
     </div>

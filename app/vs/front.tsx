@@ -183,9 +183,9 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
     </p>
   );
   return (
-    <section className="pt-8">
+    <section className="pt-page">
       <h1 className="font-display text-2xl sm:text-3xl">Two names in. See where their audiences split.</h1>
-      <form onSubmit={compare} className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-start">
+      <form onSubmit={compare} className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-start">
         <SideInput label="First name" value={qa} onChange={setQa} ask={asks[0]} onPick={(c) => choose(0, c)} />
         <span className="hidden min-h-11 items-center text-ink-3 sm:inline-flex">vs</span>
         <SideInput label="Second name" value={qb} onChange={setQb} ask={asks[1]} onPick={(c) => choose(1, c)} placeholder="or leave blank to find the closest same-field brand" />
@@ -193,7 +193,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
           Compare
         </button>
       </form>
-      <div className="mt-1">
+      <div className="mt-3">
         {tryRow("Try:", [...VS_CASES, ...VS_MORE])}
         <p className="mt-2 flex items-center gap-2 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
           <span className="shrink-0 text-ink-2">Whole aisles:</span>
@@ -204,11 +204,11 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
           ))}
         </p>
       </div>
-      {error && <p className="mt-6 text-lg text-ink">{error}</p>}
+      {error && <p className="mt-block text-lg text-ink">{error}</p>}
       {finder && !inside && (
         // the finder's answer stands on its own whenever it isn't shown inside the result: chip-only states, a pick
         // still loading, or a pick whose pair the visitor's limit refused
-        <div className="mt-6">{block}</div>
+        <div className="mt-block">{block}</div>
       )}
       {busy && (!payload || stale) ? (
         <Skeleton lines={8} />
@@ -216,7 +216,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
         <div className={busy ? "opacity-50 transition-opacity" : undefined} aria-busy={busy}>
           {busy && <p className="mt-6 font-mono text-sm text-ink-2 motion-safe:animate-pulse">Comparing in Qloo...</p>}
           <VsResult d={payload} method={method} />
-          <p className="mt-8 text-base">
+          <p className="mt-block text-base">
             <Link href="/pick-three" className={btnText}>Next: the partnerships question, Pick three</Link>
           </p>
         </div>
@@ -245,7 +245,7 @@ function FinderBlock({ finder, active, onPick, onLabel }: { finder: Finder; acti
       </div>
     ),
   };
-  return <div className="max-w-[80ch] border-b border-rule">{finderOrder(r).map((k) => rows[k])}</div>;
+  return <div className="max-w-lead border-b border-rule">{finderOrder(r).map((k) => rows[k])}</div>;
 }
 
 function CompetitorChips({ names, onPick }: { names: string[]; onPick: (n: string) => void }) {

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { Skeleton } from "@/app/brief-panel";
 import Link from "next/link";
-import { SiteHeader, btnText, chip } from "@/app/ui";
+import { SiteHeader, btnText, chip, shell } from "@/app/ui";
 import { CATEGORIES } from "@/lib/constellation-cases.ts";
 import { peekVs, toPayload } from "@/lib/rivals.ts";
 import { VS_CASES } from "@/lib/rivals-cases.ts";
@@ -15,13 +15,13 @@ export const metadata: Metadata = { title: "Two names in | Crossover" };
 
 export default function Vs() {
   return (
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+    <main className={shell}>
       <SiteHeader href="/" label="Ask" />
       <Suspense fallback={<Skeleton lines={8} />}>
         <Hero />
       </Suspense>
       {/* moved from the home footer (Pick 1, Oct 14): one judge path up front, the rest of Crossover behind /vs */}
-      <footer className="mt-16 border-t border-rule pt-6 text-base">
+      <footer className="mt-section border-t border-rule pt-block text-base">
         <p className="flex flex-wrap items-center gap-2">
           <span className="text-ink-2">Whole aisles:</span>
           {CATEGORIES.map((c) => (
