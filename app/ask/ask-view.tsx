@@ -143,7 +143,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       <p className="mt-3 flex flex-wrap items-center gap-2 text-base">
         <span className="text-ink-2">Try:</span>
         {chips.map((p) => (
-          <button key={p.label} type="button" disabled={status === "running"} onClick={() => (setQ(p.label), run(p.body))} className={chip}>{p.label}</button>
+          <button key={p.label} type="button" disabled={status === "running"} onClick={() => (setQ(p.label.split(": ").at(-1)!), run(p.body))} className={chip}>{p.label}</button>
         ))}
       </p>
     </>
@@ -499,6 +499,8 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
     <div className={compact ? "mt-3" : ""}>
       {!compact && review && <h2 className="text-lg font-semibold text-ink">Fame against taste, {seed?.name}&apos;s fans <Steps ns={[review.n]} /></h2>}
       {c?.fameFlat && <p className="mt-1 text-lg font-semibold text-ink">Fame can&apos;t tell these {WORDS[c.cards.length] ?? c.cards.length} apart. Taste can.</p>}
+      {/* an artist's list is brands, not sponsors (COLDJUDGE-4): say what it shows and what it doesn't */}
+      {!compact && seed?.type === "urn:entity:artist" && <p className="mt-1 max-w-copy text-sm text-ink-2">Brands {seed.name}&apos;s fans favor. It doesn&apos;t establish who sponsors tours.</p>}
       <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-3">
         <span><span className="mr-1 inline-block size-3 rounded-full border border-ink-2 align-middle" aria-hidden /> fame (Qloo popularity)</span>
         <span><span className="mr-1 inline-block size-3 rounded-full bg-accent align-middle" aria-hidden /> taste (affinity with {seed?.name ?? "the seed"}&apos;s fans)</span>

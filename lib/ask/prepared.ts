@@ -3,7 +3,8 @@
 // the picture above the fold; Mt. Joy second (no rival, so its picture is the dumbbell).
 export const PREPARED_ASKS: { label: string; body: { id: string; type: string } }[] = [
   { label: "Allbirds", body: { id: "78A44C09-E691-42DA-A553-5CDE6EE9B18A", type: "urn:entity:brand" } },
-  { label: "An artist's tour sponsor: Mt. Joy", body: { id: "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A", type: "urn:entity:artist" } },
+  // "An artist", not "An artist's tour sponsor" (COLDJUDGE-4, real Oct 22): the list is brands its fans favor, not sponsors
+  { label: "An artist: Mt. Joy", body: { id: "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A", type: "urn:entity:artist" } },
 ];
 
 // A share link whose ask isn't cached and whose name the cache doesn't know either (FIX-F7): the chip says this and the
