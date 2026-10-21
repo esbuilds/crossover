@@ -22,6 +22,11 @@ type Finder = { seed: Side; line: string; result: RivalPick };
 const key = (a: Side, b: Side) => `${a.id}|${b.id}`;
 const href = (a: Side, b: Side) => vsHref({ a, b });
 const toSide = (c: Card): Side => ({ id: c.entity_id, name: c.name, type: c.type });
+// names already cached (aisle brands, then the prepared pairs, which win a clash) by their hand-checked ids: the
+// browser suggests them while typing, and a typed match skips the Qloo search
+const KNOWN = new Map<string, Side>(
+  [...CATEGORIES.flatMap((c) => c.brands.map((b) => ({ ...b, type: "urn:entity:brand" }))), ...[...VS_CASES, ...VS_MORE].flatMap((c) => [c.a, c.b])].map((s) => [s.name.toLowerCase(), s]),
+);
 
 export default function Front({ initial }: { initial: { a: Side; b: Side; payload: VsPayload | null; error?: string } }) {
   const named = (s: Side, n?: string) => ({ ...s, name: n ?? s.name });
@@ -83,6 +88,8 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function resolveName(q: string): Promise<Side | Ask> {
+    const known = KNOWN.get(q.trim().toLowerCase());
+    if (known) return known;
     try {
       const res = await fetch(`/api/resolve?q=${encodeURIComponent(q)}`);
       const r = await res.json();
@@ -193,6 +200,9 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
           Compare
         </button>
       </form>
+      <datalist id="vs-known">
+        {[...KNOWN.values()].sort((x, y) => x.name.localeCompare(y.name)).map((s) => <option key={s.id} value={s.name} />)}
+      </datalist>
       <div className="mt-3">
         {tryRow("Try:", [...VS_CASES, ...VS_MORE])}
         <p className="mt-2 flex items-center gap-2 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
@@ -278,7 +288,7 @@ function FoundChips({ options, onPick, active }: { options: Found[]; onPick: (f:
 function SideInput({ label, value, onChange, ask, onPick, placeholder }: { label: string; value: string; onChange: (v: string) => void; ask: Ask; onPick: (c: Card) => void; placeholder?: string }) {
   return (
     <div className="min-w-0">
-      <input aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} maxLength={100} placeholder={placeholder} className={field} />
+      <input aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} maxLength={100} list="vs-known" autoComplete="off" placeholder={placeholder} className={field} />
       {ask && "options" in ask && <WhichOne className="mt-2" options={ask.options} label={(c) => `${c.name} (${TYPE_LABEL[c.type] ?? "entity"})`} onPick={onPick} />}
       {ask && "missing" in ask && <p className="mt-2 text-base text-ink-2">{ask.missing}</p>}
     </div>
