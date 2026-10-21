@@ -57,7 +57,7 @@ const verdictOf = (events: AskEvent[]): Verdict | null => {
 // proof: the replay line (lib/ask/steps.ts replayLine), passed from the server so the replay files stay off the client
 // initial.asked: the body the cached ask was run with, so its share and sheet links find it (typed names are keyed by the name)
 // initial.where: the card's where line, read from the cache on the server, so the card is its full height at first paint
-// play: the home page replays initial's steps under its answer (Watch it think) and puts the ask box below
+// play: the home page replays initial's steps under the ask box (Watch it think)
 // initial.both, initial.notes: read from the cache on the server too (FIX-F3), so neither lands after paint and moves
 // the call column while the replay plays; undefined means the server had nothing and the client fetches as before
 export default function AskView({ initial, pending, proof, play = false }: { initial?: { label: string; events: AskEvent[]; asked?: Body; where?: string; both?: BothWays | null; notes?: FieldNotes | null }; pending?: { label: string; body: Body }; proof?: string; play?: boolean }) {
@@ -86,16 +86,11 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
     <>
       {/* phones skip the stamp sentence (the stamps are below their first screen), so both versions wrap to the same height */}
       {p ? <>Replaying the {initial?.label} run, sped up: step {Math.min(landed + 1, steps.length)} of {steps.length}.<span className="max-sm:hidden"> Each claim is stamped when the step it cites lands.</span></> : `The ${initial?.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
-      <span className="inline-flex gap-x-4 whitespace-nowrap">
-        <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={btnText}>{p ? "Skip" : "Replay it"}</button>{" "}
-        {/* the jump lands in the field, keyboard ready; preventScroll keeps the smooth scroll to #ask (FIX-F8) */}
-        <a href="#ask" onClick={() => requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }))} className={btnText}>Ask your own</a>
-      </span>
+      <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={`${btnText} whitespace-nowrap`}>{p ? "Skip" : "Replay it"}</button>
     </>
   );
 
   const ranHere = useRef(false); // the front page keeps "/" until the visitor asks something
-  const inputRef = useRef<HTMLInputElement>(null);
   async function run(body: Body) {
     setEvents([]); setError(""); setStatus("running"); setAsked(body); setLanded(Infinity); ranHere.current = true;
     // a dropped connection must not leave the button disabled (deferred minor, fixed Oct 13)
@@ -132,19 +127,17 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   const ambiguous = resolved?.state === "ambiguous" ? resolved.options : undefined;
   const chips: { label: string; body: Body }[] = [...PREPARED_ASKS, ...(pending && !("query" in pending.body) ? [{ label: pending.label, body: pending.body }] : [])];
 
+  // The first screen is the headline, one sentence, the box and the chips (COLDJUDGE-2, -5, real Oct 22); the cost and
+  // limits lines sit under the answer, and the three stops and the tour in the footer (DC F6)
   const askBox = (
     <>
-      {/* the three stops and the tour live in the footer on every page (DC F6) */}
-      <p className="mt-4 max-w-lead text-sm text-ink-3 max-sm:hidden">{COST}</p>
-      <p className="mt-1 max-w-lead text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
-      <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
       {/* a share link whose ask isn't cached (FIX-F7): say so, and what the chip below will spend */}
       {pending && status === "idle" && events.length === 0 && (
         <p className="mt-4 max-w-lead text-base text-ink sm:mt-6">This link&apos;s answer isn&apos;t cached here yet. {"query" in pending.body ? "Press Ask to run it" : `Run ${pending.label === UNNAMED_ASK ? "it" : pending.label} from the row below`} (about 40 seconds and 28 Qloo calls), or ask another name.</p>
       )}
-      <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-4 flex flex-row gap-3 sm:mt-6">
+      <form id="ask" onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-4 flex scroll-mt-4 flex-row gap-3 sm:mt-6">
         {/* maxLength is the API's own cap (lib/ask/body.ts), so a long paste can't come back as a 400 */}
-        <input ref={inputRef} value={q} onChange={(ev) => setQ(ev.target.value)} maxLength={100} autoComplete="off" enterKeyHint="go" aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
+        <input value={q} onChange={(ev) => setQ(ev.target.value)} maxLength={100} autoComplete="off" enterKeyHint="go" aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
         <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
       </form>
       <p className="mt-3 flex flex-wrap items-center gap-2 text-base">
@@ -161,6 +154,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       <section className="pt-page">
         {/* share pages name the seed, as the sheet and the tab already do (AUDIT-F5); the home replay keeps the question */}
         <AskHeadline seed={play ? undefined : resolved?.name} />
+        {askBox}
         {play && initial && landed !== Infinity && (
           <div className="mt-4 sm:mt-6">
             {/* the trace rail: in the first screen at 390 and 1280, where the step list isn't */}
@@ -178,7 +172,6 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             </div>
           </div>
         )}
-        {!play && askBox}
       </section>
 
       {/* phones: the call card, the picture, the decision, the steps (Fable tie ruling, Oct 14). From 1024: the card and
@@ -222,6 +215,8 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
               {proof && <p className="mt-2 max-w-copy text-sm text-ink-2">{proof} <Link href="/replay" className={linkInline}>Try the 23 yourself</Link></p>}
               {/* the re-judge's memorable moment lived only on /audit (Fable tie ruling, Oct 14) */}
               <p className="mt-2 max-w-copy text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className={linkInline}>See it on the audit</Link></p>
+              <p className="mt-2 max-w-copy text-sm text-ink-3">{LIMITS}</p>
+              <p className="mt-1 max-w-copy text-sm text-ink-3">{COST}</p>
               <p className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
                 {resolved?.id && resolved.type && <CopyAsk href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share} />}
                 {resolved?.id && resolved.type && <Link href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).sheet} className={btnText}>Call sheet: print or save as PDF</Link>}
@@ -265,7 +260,6 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
         </section>
       </div>
 
-      {play && <section id="ask" className="mt-section scroll-mt-4 border-t border-rule pt-block"><h2 className="font-display text-xl">Ask your own</h2>{askBox}</section>}
     </Landed.Provider>
   );
 }
