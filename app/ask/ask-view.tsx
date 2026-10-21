@@ -97,11 +97,13 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
     try {
       const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) { setStatus("error"); setError("Type a name to ask about."); return; }
+      let ended = false; // a stream cut off by the host's time limit sends neither done nor error (FIX-F1)
       await streamEvents(res, (e) => {
         if (e.type === "call" || e.type === "result" || e.type === "decision") setEvents((x) => [...x, e]);
-        if (e.type === "done") { setStatus("done"); setReplayed(e.cached); }
-        if (e.type === "error") { setStatus("error"); setError(e.message); }
+        if (e.type === "done") { ended = true; setStatus("done"); setReplayed(e.cached); }
+        if (e.type === "error") { ended = true; setStatus("error"); setError(e.message); }
       });
+      if (!ended) { setStatus("error"); setError("The agent stopped partway. The steps above are what it measured; try again to finish."); }
     } catch {
       setStatus("error");
       setError("The connection dropped. The steps above are what the agent measured; try again to finish.");
