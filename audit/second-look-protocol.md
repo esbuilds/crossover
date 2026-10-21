@@ -40,3 +40,7 @@ An /audit row with audit/forks.json's counts and the second look's, shipped only
 ## Budget
 
 Gate B: about 13 case asks at roughly 20 Qloo calls each, plus up to 16 `otherWay` calls per case, under 480; 27 Opus runs. Gate C: up to 16 calls per seed where the reverse lists aren't cached, under 260; 16 Opus runs. `/api/usage` logged before and after each run; the 600-a-day cap and the 3,000-call judging reserve hold.
+
+## Note before Gate C (real Oct 22, UTC Oct 21; Eric's ruling)
+
+Gate B was not run. The replay control failed (audit/replay-control-protocol.md: scrambled seeds 17 of 23, real 17), so keeping the real partner wouldn't show taste; the reverse replay (audit/replay-reverse-protocol.md) measured the other direction directly instead, and failed too (5 of 23, bar 13). Gate C runs as written above, bar 14 of 16, on the next UTC day, at most 260 Qloo calls. The checker the second look uses is now rule v3.1 (df63965: a rank ending a sentence is bound too). AGENT-6's /audit row ships on Gate C's numbers, pass or fail.
