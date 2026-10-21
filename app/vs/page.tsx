@@ -21,7 +21,7 @@ export default function Vs() {
         <Hero />
       </Suspense>
       {/* moved from the home footer (Pick 1, Oct 14): one judge path up front, the rest of Crossover behind /vs */}
-      <footer className="mt-16 border-t border-rule pt-6 text-base">
+      <footer className="mt-section border-t border-rule pt-block text-base">
         <p className="flex flex-wrap items-center gap-2">
           <span className="text-ink-2">Whole aisles:</span>
           {CATEGORIES.map((c) => (
