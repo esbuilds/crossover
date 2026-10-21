@@ -13,7 +13,7 @@ import { askLinks } from "@/lib/ask/links.ts";
 import { callCard, cardsStep, categoryRival, decisionEvent, forkLine, tieLine, dumbbellStep, mapStep, stepsFrom, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
-import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
+import { PREPARED_ASKS, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
 import { firstCallHeading, type BothWays } from "@/lib/ask/both-rules.ts";
@@ -61,7 +61,7 @@ const verdictOf = (events: AskEvent[]): Verdict | null => {
 // initial.both, initial.notes: read from the cache on the server too (FIX-F3), so neither lands after paint and moves
 // the call column while the replay plays; undefined means the server had nothing and the client fetches as before
 export default function AskView({ initial, pending, proof, play = false }: { initial?: { label: string; events: AskEvent[]; asked?: Body; where?: string; both?: BothWays | null; notes?: FieldNotes | null }; pending?: { label: string; body: Body }; proof?: string; play?: boolean }) {
-  const [q, setQ] = useState(initial?.label ?? pending?.label ?? "");
+  const [q, setQ] = useState(initial?.label ?? (pending && pending.label !== UNNAMED_ASK ? pending.label : ""));
   const [events, setEvents] = useState<AskEvent[]>(initial?.events ?? []);
   const [status, setStatus] = useState<"idle" | "running" | "done" | "error">(initial ? "done" : "idle");
   const [replayed, setReplayed] = useState(!!initial); // persona round 2 (Live Nation): a replay looked like a fresh run
@@ -135,6 +135,10 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
       <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
       <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
+      {/* a share link whose ask isn't cached (FIX-F7): say so, and what the chip below will spend */}
+      {pending && status === "idle" && events.length === 0 && (
+        <p className="mt-3 max-w-[68ch] text-base text-ink">This link&apos;s answer isn&apos;t cached here yet. {"query" in pending.body ? "Press Ask to run it" : `Run ${pending.label === UNNAMED_ASK ? "it" : pending.label} from the row below`} (about 40 seconds and 28 Qloo calls), or ask another name.</p>
+      )}
       <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-row gap-3">
         {/* maxLength is the API's own cap (lib/ask/body.ts), so a long paste can't come back as a 400 */}
         <input value={q} onChange={(ev) => setQ(ev.target.value)} maxLength={100} autoComplete="off" enterKeyHint="go" aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
