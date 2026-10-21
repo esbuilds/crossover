@@ -1,0 +1,120 @@
+{
+  "countedAt": "2026-10-21",
+  "counts": {
+    "asks": 39,
+    "withRefusal": 0,
+    "widened": 4,
+    "decided": 36,
+    "noClearThree": 34,
+    "calledThroughTie": 34,
+    "stoppedAtName": 3,
+    "blocked": 3,
+    "distinctSeeds": 20,
+    "currentVersionSeeds": 16
+  },
+  "seeds": [
+    {
+      "name": "Allbirds",
+      "body": {
+        "id": "78A44C09-E691-42DA-A553-5CDE6EE9B18A",
+        "type": "urn:entity:brand"
+      }
+    },
+    {
+      "name": "Calm",
+      "body": {
+        "id": "47DD40B2-E2BC-421A-9466-C229D9DFDA09",
+        "type": "urn:entity:brand"
+      }
+    },
+    {
+      "name": "Cedric the Entertainer",
+      "body": {
+        "query": "Cedric the Entertainer"
+      }
+    },
+    {
+      "name": "Chipotle",
+      "body": {
+        "query": "Chipotle"
+      }
+    },
+    {
+      "name": "Dove",
+      "body": {
+        "query": "Dove"
+      }
+    },
+    {
+      "name": "Dr. Squatch Soap Co.",
+      "body": {
+        "id": "F688F736-4F16-480A-84C4-08BBCC550375",
+        "type": "urn:entity:brand"
+      }
+    },
+    {
+      "name": "Los Angeles Dodgers",
+      "body": {
+        "query": "Los Angeles Dodgers"
+      }
+    },
+    {
+      "name": "Mt. Joy",
+      "body": {
+        "id": "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A",
+        "type": "urn:entity:artist"
+      }
+    },
+    {
+      "name": "Noah Kahan",
+      "body": {
+        "query": "Noah Kahan"
+      }
+    },
+    {
+      "name": "Oatly",
+      "body": {
+        "query": "Oatly"
+      }
+    },
+    {
+      "name": "Olipop",
+      "body": {
+        "query": "Olipop"
+      }
+    },
+    {
+      "name": "Patagonia",
+      "body": {
+        "id": "DB4CE34E-3A63-4947-946F-9D52502C5762",
+        "type": "urn:entity:brand"
+      }
+    },
+    {
+      "name": "Sweetgreen",
+      "body": {
+        "query": "Sweetgreen"
+      }
+    },
+    {
+      "name": "Taylor Swift",
+      "body": {
+        "query": "Taylor Swift"
+      }
+    },
+    {
+      "name": "Tyler Childers",
+      "body": {
+        "query": "Tyler Childers"
+      }
+    },
+    {
+      "name": "YETI",
+      "body": {
+        "id": "AA9DBB9A-DEE1-4D84-BC26-0FEBB34BB41B",
+        "type": "urn:entity:brand"
+      }
+    }
+  ],
+  "looks": null
+}
