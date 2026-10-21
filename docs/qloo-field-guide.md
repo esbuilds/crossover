@@ -48,7 +48,7 @@ from those runs, kept outside this repo because they hold full score matrices; e
 **Same-type affinity in both directions.**
 - Asked: Olipop scored against six brands, then each brand scored against Olipop.
 - Came back: the reverse values equalled the forward ones.
-- Shipped: the other direction is read as a rank among each brand's own fans' top 50, never as a second score (`lib/ask/both-ways.ts`). That rank is the both-ways line on every answer card.
+- Shipped: the other direction is read as a rank among each brand's own fans' top 50, never as a second score (`lib/ask/both-ways.ts`). That rank is the both-ways line on an answer card, shown only where it separates the agent's three (lib/ask/both-rules.ts).
 - File: `probe/VERIFY-3.md`, `scripts/reverse-probe.ts`.
 
 **A popularity cap on the same list.**
