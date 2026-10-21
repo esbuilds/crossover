@@ -61,10 +61,10 @@
   --spacing-gutter: clamp(1rem, 0.5rem + 2vw, 2.5rem);
 
   /* Measures: prose for body paragraphs (max-w-prose), lead for the larger line under an h1 (max-w-lead), page for the
-     shell (max-w-page). 52, 58, 60, 65, 68, 70, 75 and 80ch collapse into these two. */
+     shell (max-w-shell). 52, 58, 60, 65, 68, 70, 75 and 80ch collapse into these two. */
   --container-prose: 60ch;
   --container-lead: 68ch;
-  --container-page: 1120px;
+  --container-shell: 1120px;
 
   --radius-sm: 4px;
   --radius-md: 8px;

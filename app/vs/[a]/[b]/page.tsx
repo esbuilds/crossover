@@ -5,7 +5,7 @@ import { connection } from "next/server";
 import type { Metadata } from "next";
 import { PerRequest } from "@/app/dynamic";
 import { Skeleton } from "@/app/brief-panel";
-import { SiteHeader } from "@/app/ui";
+import { SiteHeader, shell } from "@/app/ui";
 import { QuotaError } from "@/lib/qloo.ts";
 import { isEntityType, peekCard } from "@/lib/slate.ts";
 import { generationKey } from "@/lib/agent/stream-cache.ts";
@@ -33,7 +33,7 @@ export default function VsPage({ params, searchParams }: PageProps<"/vs/[a]/[b]"
   return (
     <>
       <PerRequest />
-      <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+      <main className={shell}>
         <SiteHeader href="/find" label="Find more partners" />
         <Suspense fallback={<Skeleton lines={8} />}>
           <Body params={params} searchParams={searchParams} />

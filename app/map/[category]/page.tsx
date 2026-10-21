@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PerRequest } from "@/app/dynamic";
 import { Skeleton } from "@/app/brief-panel";
-import { SiteHeader } from "@/app/ui";
+import { SiteHeader, shell } from "@/app/ui";
 import { CATEGORIES, getConstellation } from "@/lib/constellation.ts";
 import ConstellationView from "../constellation-view";
 import LeadersMap from "../leaders-map";
@@ -29,7 +29,7 @@ export default function MapPage({ params }: PageProps<"/map/[category]">) {
   return (
     <>
       <PerRequest />
-      <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+      <main className={shell}>
         <SiteHeader href="/" label="Rivals" />
         <Suspense fallback={<Skeleton lines={8} />}>
           <Body params={params} />
@@ -43,11 +43,11 @@ async function Body({ params }: Pick<PageProps<"/map/[category]">, "params">) {
   const { category } = await params;
   const c = await getConstellation(category).catch((err) => (console.error("[map]", err), "failed" as const));
   if (c === null) notFound();
-  if (c === "cold" || c === "failed") return <p className="pt-8 text-lg text-ink">Qloo didn&apos;t answer. The rivals pairs still work.</p>;
+  if (c === "cold" || c === "failed") return <p className="pt-page text-lg text-ink">Qloo didn&apos;t answer. The rivals pairs still work.</p>;
   const leaders = await getLeaders(category).catch((err) => (console.error("[leaders]", err), null));
   return (
     <>
-      <section className="pt-8">
+      <section className="pt-page">
         <p className="flex flex-wrap gap-x-4 text-base text-ink-2">
           {CATEGORIES.map((x) => (
             <Link key={x.slug} href={`/map/${x.slug}`} aria-current={x.slug === c.slug ? "page" : undefined} className="min-h-11 content-center underline-offset-4 hover:underline aria-[current=page]:font-semibold aria-[current=page]:text-ink">

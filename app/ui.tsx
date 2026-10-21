@@ -21,7 +21,7 @@ export const panel = "rounded-md border border-rule bg-surface";
 export const panelStrong = "rounded-md border border-rule-strong";
 // The page shell (SPACE, real Oct 21): one width, a fluid gutter, and a full section of air before the colophon.
 // Every route's <main> uses it; the title section under the header takes pt-page (globals.css has the scale).
-export const shell = "mx-auto max-w-page px-gutter pb-section";
+export const shell = "mx-auto max-w-shell px-gutter pb-section";
 
 // The one chip system: status on a pick or a market. Text always says what the color means.
 export type ChipKind = "mutual" | "partial" | "oneway" | "competitor" | "excluded" | "lower" | "approved" | "declined" | "note";

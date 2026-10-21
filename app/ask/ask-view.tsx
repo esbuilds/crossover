@@ -142,7 +142,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
 
   return (
     <Landed.Provider value={landed}>
-      <section className="pt-6">
+      <section className="pt-page">
         <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
         <p className="mt-2 max-w-[68ch] text-lg text-ink-2">
           {/* phones get the short line, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}

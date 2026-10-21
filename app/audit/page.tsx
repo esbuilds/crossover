@@ -8,7 +8,7 @@ import replayAsk from "@/lib/ask/replay-ask.json";
 import judgeNames from "@/audit/judge-names.json";
 import mutation from "@/audit/mutation.json";
 import { forDisplay } from "@/lib/ask/check.ts";
-import { Chip, linkInline, panel, SiteHeader } from "../ui";
+import { Chip, linkInline, panel, SiteHeader, shell } from "../ui";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
 // responses stay out of the repo. Not linked yet.
@@ -51,9 +51,9 @@ export default function AuditPage() {
   const smallPicked = picksWithRole(held, "small");
 
   return (
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+    <main className={shell}>
       <SiteHeader href="/" label="Pick three" />
-      <section className="pt-8">
+      <section className="pt-page">
         <h1 className="font-display text-2xl sm:text-3xl">Audit</h1>
         <p className="mt-2 max-w-[52ch] text-base text-ink-2">Every test here was frozen in git before it ran, and every result is published as it came out, misses included. The replays of real collaborations come first; the earlier held-out briefs, the agent&apos;s blocked answers and the known limits follow.</p>
       </section>

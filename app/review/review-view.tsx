@@ -6,7 +6,7 @@ import type { Ref, Review, ReviewGroup, ReviewRow, Twins } from "@/lib/review.ts
 import { CASES, type CaseName, type PreparedCase } from "@/lib/review-cases.ts";
 import { nameOf, shareQuery, type Shared } from "@/lib/review-share.ts";
 import BriefPanel from "../brief-panel";
-import { btnPrimary, btnSecondary, btnText, chip, Chip, field, linkInline, SiteHeader, TYPE_LABEL, WhichOne } from "../ui";
+import { btnPrimary, btnSecondary, btnText, chip, Chip, field, linkInline, SiteHeader, TYPE_LABEL, WhichOne, shell } from "../ui";
 
 // Renders /api/review (review-v3). Groups, picks, gates and evidence labels all come from the route; this page only
 // hides them until the visitor has picked, then lays fame and taste side by side.
@@ -107,9 +107,9 @@ export default function ReviewView({ initial, embedded = false }: { initial?: Sh
 
   const Shell = embedded ? "div" : "main";
   return (
-    <Shell id="pick-three" className={embedded ? "mt-16 scroll-mt-4 border-t border-rule-strong" : "mx-auto max-w-[1120px] px-4 pb-24 sm:px-8"}>
+    <Shell id="pick-three" className={embedded ? "mt-16 scroll-mt-4 border-t border-rule-strong" : shell}>
       {!embedded && <SiteHeader href="/find" label="Find partners" />}
-      <section className="pt-8">
+      <section className="pt-page">
         <div className="flex flex-wrap items-center gap-2 text-base">
           <span className="text-ink-2">Prepared cases:</span>
           {CASES.map((c) => (

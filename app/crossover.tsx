@@ -9,7 +9,7 @@ import { formatProxies, weightsFor } from "@/lib/proxy-params.ts";
 import { playbookFor } from "@/lib/playbook.ts";
 import type { ConstraintSet } from "@/lib/refine.ts";
 import UsMap from "./map";
-import { btnPrimary, btnSecondary, btnText, chip, Chip, EXAMPLES, ExampleLinks, field, MatchCard, MORE_EXAMPLES, SiteHeader } from "./ui";
+import { btnPrimary, btnSecondary, btnText, chip, Chip, EXAMPLES, ExampleLinks, field, MatchCard, MORE_EXAMPLES, SiteHeader, shell } from "./ui";
 import BriefPanel, { type Decision } from "./brief-panel";
 import ProxyForm, { BasedOn, type ProxyDraft } from "./proxy-form";
 
@@ -249,10 +249,10 @@ export default function Crossover({
   // Home is the empty page: the promise, the input, the examples. Anything in flight collapses it to a search bar.
   const home = !entity && !proxy && !draft && resolved.state === "idle" && slate.state === "idle";
   return (
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+    <main className={shell}>
       <SiteHeader href="/pair" label="Check a pairing" />
 
-      <section className={home ? "pt-14 pb-6 sm:pt-24" : "pt-6"}>
+      <section className={home ? "pt-14 pb-6 sm:pt-24" : "pt-page"}>
         {home && (
           <>
             <h1 className="max-w-[16ch] font-display text-3xl sm:text-4xl">Who should you collab with, and where?</h1>

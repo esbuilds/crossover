@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { SiteHeader } from "@/app/ui";
+import { SiteHeader, shell } from "@/app/ui";
 import { peekAsk } from "@/lib/ask/agent.ts";
 import { whereToStart } from "@/lib/ask/where.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
@@ -13,7 +13,7 @@ import HashRedirect from "./hash-redirect";
 // click. Old Pick three links (/?c=, /?s=) redirect to /pick-three (next.config.ts); old anchors in HashRedirect.
 export default function Home() {
   return (
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+    <main className={shell}>
       <HashRedirect />
       <SiteHeader />
       <Suspense fallback={<AskView proof={PROOF} />}>

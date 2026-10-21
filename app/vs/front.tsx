@@ -183,7 +183,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
     </p>
   );
   return (
-    <section className="pt-8">
+    <section className="pt-page">
       <h1 className="font-display text-2xl sm:text-3xl">Two names in. See where their audiences split.</h1>
       <form onSubmit={compare} className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-start">
         <SideInput label="First name" value={qa} onChange={setQa} ask={asks[0]} onPick={(c) => choose(0, c)} />

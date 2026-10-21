@@ -8,7 +8,7 @@ import type { Direction } from "@/lib/fit.ts";
 import type { City } from "@/lib/cities.ts";
 import UsMap from "../map";
 import BriefPanel, { Skeleton } from "../brief-panel";
-import { btnPrimary, btnSecondary, btnText, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL } from "../ui";
+import { btnPrimary, btnSecondary, btnText, Chip, type ChipKind, ExampleLinks, field, MatchCard, SiteHeader, TYPE_LABEL, shell } from "../ui";
 
 type Side = { query: string; state: "idle" | "loading" | "picked" | "ambiguous" | "not_found" | "error"; card?: Card; candidates?: Card[]; message?: string };
 const empty: Side = { query: "", state: "idle" };
@@ -88,10 +88,10 @@ export default function PairView({ initial }: { initial?: { a: string; b: string
   const ready = p && pair.state === "ready";
 
   return (
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+    <main className={shell}>
       <SiteHeader href="/find" label="Find partners" />
 
-      <section className="pt-8">
+      <section className="pt-page">
         <h1 className="font-display text-2xl sm:text-3xl">Check a pairing</h1>
         <p className="mt-2 max-w-[60ch] text-base text-ink-2">Two names in: does each audience like the other, where do they overlap, and what kind of collab is it?</p>
         <form onSubmit={submit} className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-end">

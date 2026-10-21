@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "@/app/ui";
+import { SiteHeader, shell } from "@/app/ui";
 import { CHALLENGE, PROTOCOL } from "@/lib/replay-challenge.ts";
 import Challenge from "./challenge";
 
@@ -11,10 +11,10 @@ export default function ReplayPage() {
   const p = { v1: { hits: PROTOCOL.v1.hits, scored: PROTOCOL.v1.scored, need: PROTOCOL.v1.need }, v2: { hits: PROTOCOL.v2.hits, scored: PROTOCOL.v2.scored, need: PROTOCOL.v2.need } };
   return (
     // the header keeps every other route's 1120 so the wordmark doesn't jump on a nav click; the game keeps 760 (DC F9)
-    <main className="mx-auto max-w-[1120px] px-4 pb-24 sm:px-8">
+    <main className={shell}>
       <SiteHeader href="/" label="Ask" />
       <div className="max-w-[760px]">
-        <section className="pt-8">
+        <section className="pt-page">
           <h1 className="font-display text-2xl sm:text-3xl">Spot the real partner</h1>
           <p className="mt-2 max-w-[60ch] text-base text-ink-2">
             {CHALLENGE.length} real brand collaborations, each with a public source. The real partner hides among seven decoys from its own Qloo category and fame band, listed alphabetically with no mark. Pick one, then see where the seed&apos;s fans put it in Qloo&apos;s taste data.
