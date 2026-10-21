@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteHeader, shell } from "@/app/ui";
 import { CHALLENGE, PROTOCOL } from "@/lib/replay-challenge.ts";
 import Challenge from "./challenge";
+import { StripImage } from "./strip-image";
 
 // The replay challenge (Fable's re-judge ruling, real Oct 15): the 23 frozen replay cases, guess then reveal. The
 // homepage stays the ask; this is its own route. Built from the audit files at build time: 0 Qloo and 0 model calls.
@@ -20,6 +21,7 @@ export default function ReplayPage() {
             {CHALLENGE.length} real brand collaborations, each with a public source. The real partner hides among seven decoys from its own Qloo category and fame band, listed alphabetically with no mark. Pick one, then see where the seed&apos;s fans put it in Qloo&apos;s taste data.
           </p>
         </section>
+        <StripImage className="mt-block" />
         <Challenge cases={CHALLENGE} protocol={p} />
       </div>
     </main>

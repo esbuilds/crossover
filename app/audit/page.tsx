@@ -10,6 +10,7 @@ import mutation from "@/audit/mutation.json";
 import { forDisplay } from "@/lib/ask/check.ts";
 import { Chip, linkInline, panel, SiteHeader, shell } from "../ui";
 import { ReplayControls } from "./replay-controls";
+import { StripImage } from "../replay/strip-image";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
 // responses stay out of the repo. Not linked yet.
@@ -397,6 +398,7 @@ function Replay() {
   return (
     <section id="replays" className="mt-section scroll-mt-4">
       <h2 className="font-display text-xl">Would it have found real partners?</h2>
+      <StripImage className="mt-4" />
       <p className="mt-3 max-w-copy text-base text-ink-2">
         Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans score all eight. A hit is the real partner in the top three; chance is three in eight. Each test&apos;s protocol and bar were frozen in git before it ran.
       </p>
