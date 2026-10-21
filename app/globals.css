@@ -60,9 +60,10 @@
   --spacing-block: clamp(1.5rem, 0.75rem + 2vw, 2.75rem);
   --spacing-gutter: clamp(1rem, 0.5rem + 2vw, 2.5rem);
 
-  /* Measures: prose for body paragraphs (max-w-prose), lead for the larger line under an h1 (max-w-lead), page for the
-     shell (max-w-shell). 52, 58, 60, 65, 68, 70, 75 and 80ch collapse into these two. */
-  --container-prose: 60ch;
+  /* Measures: copy for body paragraphs (max-w-copy), lead for the larger line under an h1 and for small-type status
+     lines (max-w-lead), shell for the page (max-w-shell). 52, 58, 60, 65, 68, 70, 75 and 80ch collapse into the first
+     two. max-w-prose is Tailwind's fixed 65ch and not a token, so it is not used. */
+  --container-copy: 60ch;
   --container-lead: 68ch;
   --container-shell: 1120px;
 

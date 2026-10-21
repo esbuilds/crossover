@@ -124,14 +124,14 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   const askBox = (
     <>
       {/* the three stops and the tour live in the footer on every page (DC F6) */}
-      <p className="mt-3 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{COST}</p>
-      <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
+      <p className="mt-4 max-w-lead text-sm text-ink-3 max-sm:hidden">{COST}</p>
+      <p className="mt-1 max-w-lead text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
       <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
-      <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-row gap-3">
+      <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-4 flex flex-row gap-3 sm:mt-6">
         <input value={q} onChange={(ev) => setQ(ev.target.value)} aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
         <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
       </form>
-      <p className="mt-2 flex flex-wrap items-center gap-2 text-base">
+      <p className="mt-3 flex flex-wrap items-center gap-2 text-base">
         <span className="text-ink-2">Try:</span>
         {chips.map((p) => (
           <button key={p.label} type="button" disabled={status === "running"} onClick={() => (setQ(p.label), run(p.body))} className={chip}>{p.label}</button>
@@ -144,13 +144,13 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
     <Landed.Provider value={landed}>
       <section className="pt-page">
         <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
-        <p className="mt-2 max-w-[68ch] text-lg text-ink-2">
+        <p className="mt-3 max-w-lead text-lg text-ink-2 sm:mt-4">
           {/* phones get the short line, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
           <span className="sm:hidden">Every number comes from Qloo; every name and number in the answer is checked.</span>
           <span className="max-sm:hidden">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</span>
         </p>
         {play && initial && landed !== Infinity && (
-          <div className="mt-3">
+          <div className="mt-4 sm:mt-6">
             {/* the trace rail: in the first screen at 390 and 1280, where the step list isn't */}
             <ol className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-sm" aria-label="The agent's steps">
               {steps.map((s) => (
@@ -160,7 +160,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
               ))}
             </ol>
             {/* both versions of the line share one grid cell, so the call card below doesn't move when the replay ends */}
-            <div className="mt-1 grid text-sm text-ink-3 *:col-start-1 *:row-start-1">
+            <div className="mt-2 grid max-w-lead text-sm text-ink-3 *:col-start-1 *:row-start-1">
               <p role="status">{replayLine(playing)}</p>
               <p className="invisible" aria-hidden>{replayLine(!playing)}</p>
             </div>
@@ -171,12 +171,12 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
 
       {/* phones: the call card, the picture, the decision, the steps (Fable tie ruling, Oct 14). From 1024: the card and
           the decision down the right, the picture and then the steps down the left. */}
-      <div className="mt-6 grid gap-x-8 gap-y-6 lg:grid-cols-2 lg:items-start">
+      <div className="mt-block grid gap-x-12 gap-y-block lg:grid-cols-2 lg:items-start">
         {card && (
           <section className="order-1 lg:col-start-2 lg:row-start-1">
-            <div className={`${panelStrong} px-4 py-3`}>
+            <div className={`${panelStrong} p-4 sm:p-6`}>
               <p className="font-display text-2xl text-ink">{card.first}</p>
-              {card.where && <p className="mt-1 text-base text-ink-2">{card.where}</p>}
+              {card.where && <p className="mt-2 text-base text-ink-2">{card.where}</p>}
               {resolved?.id && resolved.type && <WhereLine id={resolved.id} type={resolved.type} asked={asked} seed={asked === initial?.asked ? initial?.where : undefined} />}
             </div>
           </section>
@@ -196,13 +196,13 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {verdict?.ok && verdict.decision && (
             <>
               {/* held (invisible) while the replay plays, so its arrival doesn't shift the steps */}
-              <p className={`mt-4 text-sm text-ink ${playing ? "invisible" : ""}`} aria-hidden={playing || undefined}>Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>
+              <p className={`mt-6 text-sm text-ink ${playing ? "invisible" : ""}`} aria-hidden={playing || undefined}>Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
               <p className="mt-2 text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
-              {proof && <p className="mt-2 max-w-[60ch] text-sm text-ink-2">{proof} <Link href="/replay" className={linkInline}>Try the 23 yourself</Link></p>}
+              {proof && <p className="mt-2 max-w-copy text-sm text-ink-2">{proof} <Link href="/replay" className={linkInline}>Try the 23 yourself</Link></p>}
               {/* the re-judge's memorable moment lived only on /audit (Fable tie ruling, Oct 14) */}
-              <p className="mt-2 max-w-[60ch] text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className={linkInline}>See it on the audit</Link></p>
-              <p className="mt-4 flex flex-wrap gap-x-4">
+              <p className="mt-2 max-w-copy text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className={linkInline}>See it on the audit</Link></p>
+              <p className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
                 {resolved?.id && resolved.type && <CopyAsk href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share} />}
                 {resolved?.id && resolved.type && <Link href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).sheet} className={btnText}>Call sheet: print or save as PDF</Link>}
                 <Link href="/audit" className={btnText}>Next: is any of this right? The audit</Link>
@@ -228,10 +228,10 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
 
         <section id="steps" className="order-4 scroll-mt-4 lg:col-start-1 lg:row-start-3">
           {steps.length > 0 && <h2 className="font-display text-xl">Steps</h2>}
-          <ol className="mt-3 space-y-4">
+          <ol className="mt-4 space-y-6">
             {/* every step holds its room from the start, so the grid doesn't re-row as the replay lands them (MO F4) */}
             {steps.map((s) => (
-              <li key={s.n} id={`step-${s.n}`} aria-hidden={s.n > landed || undefined} className={`scroll-mt-4 border-t border-rule pt-3 ${s.n > landed ? "invisible" : landed !== Infinity ? "motion-safe:animate-[step-in_360ms_cubic-bezier(0.22,1,0.36,1)_backwards]" : ""}`}>
+              <li key={s.n} id={`step-${s.n}`} aria-hidden={s.n > landed || undefined} className={`scroll-mt-4 border-t border-rule pt-4 ${s.n > landed ? "invisible" : landed !== Infinity ? "motion-safe:animate-[step-in_360ms_cubic-bezier(0.22,1,0.36,1)_backwards]" : ""}`}>
                 <p className="font-mono text-sm text-ink-3">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</p>
                 <p className="mt-1 text-base text-ink-2">{s.why}</p>
                 <p className="mt-1 text-base text-ink">{s.summary || (status === "running" ? <span className="working font-mono text-sm">Reading Qloo...</span> : <span className="text-ink-2">Qloo didn&apos;t answer this step; the steps above are what was measured.</span>)}</p>
@@ -244,7 +244,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
         </section>
       </div>
 
-      {play && <section id="ask" className="mt-10 scroll-mt-4 border-t border-rule pt-6"><h2 className="font-display text-xl">Ask your own</h2>{askBox}</section>}
+      {play && <section id="ask" className="mt-section scroll-mt-4 border-t border-rule pt-block"><h2 className="font-display text-xl">Ask your own</h2>{askBox}</section>}
     </Landed.Provider>
   );
 }
@@ -277,9 +277,9 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
         </>
       )}
       {rest.length > 0 && (
-        <ul className="mt-3 space-y-3">
+        <ul className="mt-6 space-y-4">
           {rest.map((c, i) => (
-            <li key={c.name + i} className="border-t border-rule pt-3">
+            <li key={c.name + i} className="border-t border-rule pt-4">
               <p className="text-lg text-ink">{tied ? "" : `${i + 2}. `}{nameForDisplay(c.name)}</p>
               <p className="claim mt-1 text-base text-ink">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
             </li>
@@ -287,22 +287,22 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
         </ul>
       )}
       {twinsStepRec && (
-        <p className="claim mt-3 max-w-[60ch] text-base text-ink-2">
+        <p className="claim mt-6 max-w-copy text-base text-ink-2">
           {twins
             ? `Overlap check: ${displayName(twins.a)} and ${displayName(twins.b)} sit closest to each other (${twins.value.toFixed(2)}; the next pair ${twins.next.toFixed(2)}), so calling both may reach one audience twice.`
             : "Overlap check: it ran, and no two contenders stand out as reaching the same audience."}{" "}
           <Steps ns={[twinsStepRec.n]} />
         </p>
       )}
-      {decision.cautions.length + decision.summary.length > 0 && <p className="mt-4 text-sm text-ink-3">The agent&apos;s notes</p>}
+      {decision.cautions.length + decision.summary.length > 0 && <p className="mt-6 text-sm text-ink-3">The agent&apos;s notes</p>}
       {[...decision.cautions, ...decision.summary].map((c, i, all) => (
         <div key={c.text}>
-          <p className={`claim ${i ? "mt-2" : "mt-1"} max-w-[60ch] text-base text-ink-2`}>{forDisplay(c.text)} <Steps ns={c.steps} /></p>
-          {byCategory && i === all.findIndex((x) => x.text.includes(`[[${byCategory.rival}]]`)) && <p className="mt-1 max-w-[60ch] text-sm text-ink-3">{byCategory.line}</p>}
+          <p className={`claim ${i ? "mt-3" : "mt-2"} max-w-copy text-base text-ink-2`}>{forDisplay(c.text)} <Steps ns={c.steps} /></p>
+          {byCategory && i === all.findIndex((x) => x.text.includes(`[[${byCategory.rival}]]`)) && <p className="mt-1 max-w-copy text-sm text-ink-3">{byCategory.line}</p>}
         </div>
       ))}
-      {byCategory && ![...decision.cautions, ...decision.summary].some((x) => x.text.includes(`[[${byCategory.rival}]]`)) && <p className="mt-3 max-w-[60ch] text-sm text-ink-3">{byCategory.line}</p>}
-      {shared && <p className="mt-3 max-w-[60ch] text-base text-ink-2">{shared}</p>}
+      {byCategory && ![...decision.cautions, ...decision.summary].some((x) => x.text.includes(`[[${byCategory.rival}]]`)) && <p className="mt-3 max-w-copy text-sm text-ink-3">{byCategory.line}</p>}
+      {shared && <p className="mt-4 max-w-copy text-base text-ink-2">{shared}</p>}
     </>
   );
 }
@@ -347,11 +347,11 @@ function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes
 // popularity, beside the frozen answer. Code, not the agent; nothing above is reordered.
 function SmallerBlock({ s }: { s: Smaller }) {
   return (
-    <section className="mt-6 border-t border-rule pt-4 motion-safe:animate-[fade-in_200ms_ease-out]">
+    <section className="mt-8 border-t border-rule pt-6 motion-safe:animate-[fade-in_200ms_ease-out]">
       <h3 className="text-lg font-semibold">Smaller names, nearly the same fit</h3>
-      <p className="mt-1 max-w-[60ch] text-base text-ink-2">{smallerLine(s)}</p>
+      <p className="mt-2 max-w-copy text-base text-ink-2">{smallerLine(s)}</p>
       {s.rows.length > 0 && (
-        <table className="mt-2 w-full max-w-md text-sm tabular-nums">
+        <table className="mt-4 w-full max-w-md text-sm tabular-nums">
           <thead><tr className="text-left text-ink-3"><th className="font-normal">Brand</th><th className="text-right font-normal">Fit</th><th className="text-right font-normal">Popularity</th></tr></thead>
           <tbody>
             <tr className="border-t border-rule text-ink-3"><td className="py-1">{s.leader.name} (leader)</td><td className="text-right">{s.leader.affinity.toFixed(2)}</td><td className="text-right">{s.leader.popularity.toFixed(2)}</td></tr>
@@ -359,7 +359,7 @@ function SmallerBlock({ s }: { s: Smaller }) {
           </tbody>
         </table>
       )}
-      <p className="mt-2 text-sm text-ink-3">Fit and popularity are Qloo&apos;s; the cap and the 0.05 rule are Crossover&apos;s. Brands Qloo has no popularity for are left out. Not a price: popularity stands in for how well known a brand is.</p>
+      <p className="mt-3 max-w-copy text-sm text-ink-3">Fit and popularity are Qloo&apos;s; the cap and the 0.05 rule are Crossover&apos;s. Brands Qloo has no popularity for are left out. Not a price: popularity stands in for how well known a brand is.</p>
     </section>
   );
 }
@@ -374,8 +374,8 @@ function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }
   const check = (t: string) => setResult(checkEdit(decision, steps, shown, t));
   if (!open) return <p className="mt-2"><button type="button" onClick={() => setOpen(true)} className={btnText}>Try to fool the checker</button></p>;
   return (
-    <div className={`${panel} mt-3 px-3 py-3`}>
-      <p className="text-sm text-ink-2">Change a number or swap in another brand, then check it. The same code that gates every answer runs here, in your browser.</p>
+    <div className={`${panel} mt-4 p-4`}>
+      <p className="max-w-copy text-sm text-ink-2">Change a number or swap in another brand, then check it. The same code that gates every answer runs here, in your browser.</p>
       <textarea value={text} onChange={(ev) => (setText(ev.target.value), setResult(null))} aria-label="The first call's reason, editable" rows={3} className={`${field} mt-2 w-full`} />
       <p className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
         <button type="button" onClick={() => check(text)} className={btnPrimary}>Check it</button>
@@ -436,11 +436,11 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
     <div>
       {/* the counts and the city sentence above the map, so all three sit in the first viewport at 1280 (Pick 1 done) */}
       <p className="text-sm text-ink-3 max-sm:hidden">Step {n}: the split, {m.seed.name} against {m.rival.name}</p>
-      <p className="mt-1 text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
-      {cities && <p className="mt-1 text-base text-ink max-sm:hidden">{cities}</p>}
-      <div className="mt-2 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
+      <p className="mt-1 max-w-copy text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
+      {cities && <p className="mt-1 max-w-copy text-base text-ink max-sm:hidden">{cities}</p>}
+      <div className="mt-3 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
       <MapKey a={m.seed.name} b={m.rival.name} sourceClass="max-sm:hidden" />
-      <p className="mt-1"><Link href={m.href} prefetch={false} className={btnText}>Open the full split</Link></p>
+      <p className="mt-2"><Link href={m.href} prefetch={false} className={btnText}>Open the full split</Link></p>
     </div>
   );
 }
