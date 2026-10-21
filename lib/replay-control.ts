@@ -18,8 +18,7 @@ export function controlSentences(c: Control, v2From = 9) {
   ].filter(Boolean);
 }
 
-// The second test's cases are the last 14 rows (the draw runs v1's nine, then v2's). The /replay sentence and the strip's
-// title (Eric's PROOF-1 wording ruling, real Oct 22): the v2 count, then the same cases under the scrambled seeds.
-export const scrambledV2Hits = (c: Control, v2From = 9) => c.cases.slice(v2From).filter((r) => r.hit).length;
-export const replayLine = (v2: { hits: number; scored: number }, scrambled: number) =>
-  `Qloo's data put the real partner in its top three ${v2.hits} times in ${v2.scored}. With the wrong seed brand swapped in, it still did ${scrambled} times, so these lists favor the real partner whoever is asking.`;
+// The /replay sentence and the strip's title (Eric's rulings, real Oct 22): pooled, the 23 cases under their own seed and
+// under the scrambled seeds, both from audit/replay-control.json
+export const replayLine = (c: Control) =>
+  `Qloo's data put the real partner in its top three ${c.summary.realHits} times in ${c.summary.cases}. With the wrong seed brand swapped in, it still did ${c.summary.scrambledHits} times, so these lists favor the real partner whoever is asking.`;

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { controlSentences, replayLine, scrambledV2Hits } from "./replay-control.ts";
+import { controlSentences, replayLine } from "./replay-control.ts";
 import control from "../audit/replay-control.json" with { type: "json" };
 import draw from "../audit/replay-control-draw.json" with { type: "json" };
 
@@ -22,7 +22,6 @@ test("the /audit paragraph prints the run as it came out", () => {
   ]);
 });
 
-test("the /replay sentence: v2's 11 of 14, then 10 under the scrambled seeds", () => {
-  assert.equal(scrambledV2Hits(control), 10);
-  assert.equal(replayLine({ hits: 11, scored: 14 }, scrambledV2Hits(control)), "Qloo's data put the real partner in its top three 11 times in 14. With the wrong seed brand swapped in, it still did 10 times, so these lists favor the real partner whoever is asking.");
+test("the /replay sentence: pooled, 17 of 23 under the real seeds and 17 under the scrambled ones", () => {
+  assert.equal(replayLine(control), "Qloo's data put the real partner in its top three 17 times in 23. With the wrong seed brand swapped in, it still did 17 times, so these lists favor the real partner whoever is asking.");
 });
