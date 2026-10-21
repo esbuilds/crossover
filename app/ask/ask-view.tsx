@@ -434,6 +434,9 @@ function Picture({ step, steps, hero }: { step: StepRecord; steps: StepRecord[];
 
 function MapPicture({ m, n }: { m: MapStep; n: number }) {
   const [map, setMap] = useState<VsPayload["map"] | null>(null);
+  // the picture lands with its step (WOW F2): the blank states hold the room from first paint and the cells bloom when
+  // the split's step lands on the rail. Infinity (no replay) shows it at once.
+  const landed = useContext(Landed);
   const q = new URLSearchParams({ a: m.seed.id!, ta: m.seed.type!, b: m.rival.id!, tb: m.rival.type! }).toString();
   useEffect(() => {
     // the split already ran this pair, so this is a cache read on the /vs route's own keys
@@ -447,7 +450,7 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
       <p className="text-sm text-ink-3 max-sm:hidden">Step {n}: the split, {m.seed.name} against {m.rival.name}</p>
       <p className="mt-1 text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
       {cities && <p className="mt-1 text-base text-ink max-sm:hidden">{cities}</p>}
-      <div className="mt-2 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} />}</div>
+      <div className="mt-2 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} reveal={landed >= n} />}</div>
       <MapKey a={m.seed.name} b={m.rival.name} sourceClass="max-sm:hidden" />
       <p className="mt-1"><Link href={m.href} prefetch={false} className={btnText}>Open the full split</Link></p>
     </div>

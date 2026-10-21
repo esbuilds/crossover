@@ -10,7 +10,8 @@ const OPACITY: Record<Tone, number> = { a: 0.75, b: 0.75, both: 0.6 };
 const R = 2.6;
 
 // ponytail: one <path> per tone, as the single map does per band
-function Cells({ cells }: { cells: CollideCell[] }) {
+// reveal false holds the cells hidden in their room; flipping it to true starts the 500 ms entrance (WOW F2)
+function Cells({ cells, reveal }: { cells: CollideCell[]; reveal: boolean }) {
   const { projection } = useMapContext();
   const paths = useMemo(() => {
     const d: Record<Tone, string[]> = { a: [], b: [], both: [] };
@@ -22,7 +23,7 @@ function Cells({ cells }: { cells: CollideCell[] }) {
   }, [cells, projection]);
   // both underneath, so the leaning cells read on top
   return (
-    <g className="cells-in">
+    <g className={reveal ? "cells-in" : "invisible"}>
       {(["both", "a", "b"] as const).map((t) => paths[t].length > 0 && <path key={t} data-tone={t} d={paths[t].join("")} fill={TONE[t]} fillOpacity={OPACITY[t]} />)}
     </g>
   );
@@ -49,7 +50,9 @@ export function MapKey({ a, b, sourceClass = "" }: { a: string; b: string; sourc
   );
 }
 
-export default function CollisionMap({ cells, metrosA, metrosB, a, b }: { cells: CollideCell[]; metrosA: City[]; metrosB: City[]; a: string; b: string }) {
+// reveal (default true): the home replay passes false until the split's step lands, so the states draw at first paint
+// and the cells and names arrive with their step (WOW F2). /vs and /ask never pass it.
+export default function CollisionMap({ cells, metrosA, metrosB, a, b, reveal = true }: { cells: CollideCell[]; metrosA: City[]; metrosB: City[]; a: string; b: string; reveal?: boolean }) {
   const { box, font } = useLabelFont();
   const inA = new Set(metrosA.map((m) => m.name)), inB = new Set(metrosB.map((m) => m.name));
   const metros = [...metrosA, ...metrosB.filter((m) => !inA.has(m.name))];
@@ -58,8 +61,8 @@ export default function CollisionMap({ cells, metrosA, metrosB, a, b }: { cells:
     <div ref={box} className="aspect-[8/5] w-full">
       <ComposableMap projection="geoAlbersUsa" width={W} height={H} className="h-full w-full" aria-label={`US map of where ${a}'s and ${b}'s audiences over-index, cell by cell`}>
         <StatesLayer />
-        <Cells cells={cells} />
-        <g className="labels-in">
+        <Cells cells={cells} reveal={reveal} />
+        <g className={reveal ? "labels-in" : "invisible"}>
           <Labels metros={metros} hovered={null} font={font} count={metros.length} color={color} />
         </g>
       </ComposableMap>
