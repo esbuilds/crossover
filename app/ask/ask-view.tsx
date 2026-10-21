@@ -58,7 +58,9 @@ const verdictOf = (events: AskEvent[]): Verdict | null => {
 // initial.asked: the body the cached ask was run with, so its share and sheet links find it (typed names are keyed by the name)
 // initial.where: the card's where line, read from the cache on the server, so the card is its full height at first paint
 // play: the home page replays initial's steps under its answer (Watch it think) and puts the ask box below
-export default function AskView({ initial, pending, proof, play = false }: { initial?: { label: string; events: AskEvent[]; asked?: Body; where?: string }; pending?: { label: string; body: Body }; proof?: string; play?: boolean }) {
+// initial.both, initial.notes: read from the cache on the server too (FIX-F3), so neither lands after paint and moves
+// the call column while the replay plays; undefined means the server had nothing and the client fetches as before
+export default function AskView({ initial, pending, proof, play = false }: { initial?: { label: string; events: AskEvent[]; asked?: Body; where?: string; both?: BothWays | null; notes?: FieldNotes | null }; pending?: { label: string; body: Body }; proof?: string; play?: boolean }) {
   const [q, setQ] = useState(initial?.label ?? pending?.label ?? "");
   const [events, setEvents] = useState<AskEvent[]>(initial?.events ?? []);
   const [status, setStatus] = useState<"idle" | "running" | "done" | "error">(initial ? "done" : "idle");
@@ -112,8 +114,9 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   }
   const resolved = steps.find((s) => s.tool === "resolve")?.output as { state?: string; name?: string; id?: string; type?: string; options?: { name: string; id: string; type: string }[] } | undefined;
   const answered = resolved?.id && resolved.type && verdict?.ok ? { id: resolved.id, type: resolved.type } : null;
-  const notes = useAskGet<FieldNotes>("field", "notes", answered, asked);
-  const both = useAskGet<BothWays>("both", "both", answered, asked);
+  const seeded = asked === initial?.asked; // the server's reads belong to the ask it replayed, not to a later run
+  const notes = useAskGet<FieldNotes>("field", "notes", answered, asked, seeded ? initial?.notes : undefined);
+  const both = useAskGet<BothWays>("both", "both", answered, asked, seeded ? initial?.both : undefined);
   const small = useAskGet<Smaller>("smaller", "smaller", answered, asked);
   // persona test (agency strategist, Oct 14): the answer's permalink in the address bar once it arrives
   useEffect(() => {
@@ -332,18 +335,20 @@ function WhereLine({ id, type, asked, seed }: { id: string; type: string; asked:
 
 // Code beside the frozen answer, from a cached ask (cache first): /api/ask/both, the eight ranked in each direction
 // (Fable's columns ruling, Oct 15), and /api/ask/field, the field notes (checker sign-off, Oct 15). null until it arrives.
-function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes" | "smaller", seed: { id: string; type: string } | null, asked: Body | null): T | null {
-  const [v, setV] = useState<T | null>(null);
+// given: the value the server already read (FIX-F3); a null from the server was a cold cache, so the client still asks
+function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes" | "smaller", seed: { id: string; type: string } | null, asked: Body | null, given?: T | null): T | null {
+  const [v, setV] = useState<T | null>(given ?? null);
   const q = seed ? new URLSearchParams({ id: seed.id, t: seed.type }) : null;
   if (q && asked && "query" in asked) q.set("q", asked.query);
   if (q && asked && "case" in asked) q.set("case", asked.case);
   const key = q?.toString() ?? "";
   useEffect(() => {
     if (!key) return setV(null);
+    if (given) return setV(given);
     let live = true;
     fetch(`/api/ask/${path}?${key}`).then((r) => (r.ok ? r.json() : null)).then((d: Record<string, T | null> | null) => live && setV(d?.[field] ?? null), () => {});
     return () => { live = false; };
-  }, [key, path, field]);
+  }, [key, path, field, given]);
   return v;
 }
 
