@@ -159,7 +159,8 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   return (
     <Landed.Provider value={landed}>
       <section className="pt-page">
-        <AskHeadline />
+        {/* share pages name the seed, as the sheet and the tab already do (AUDIT-F5); the home replay keeps the question */}
+        <AskHeadline seed={play ? undefined : resolved?.name} />
         {play && initial && landed !== Infinity && (
           <div className="mt-4 sm:mt-6">
             {/* the trace rail: in the first screen at 390 and 1280, where the step list isn't */}
@@ -270,10 +271,10 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
 }
 
 // The headline, shared with the home page's loading state (FIX-F4) so the cache read swaps nothing a judge has read
-export function AskHeadline() {
+export function AskHeadline({ seed }: { seed?: string }) {
   return (
     <>
-      <h1 className="font-display text-2xl sm:text-3xl">One name in. Who should they call first?</h1>
+      <h1 className="font-display text-2xl sm:text-3xl">{seed ? `Who should ${displayName(seed)} call first?` : "One name in. Who should they call first?"}</h1>
       <p className="mt-3 max-w-lead text-lg text-ink-2 sm:mt-4">
         {/* phones get the short line, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
         <span className="sm:hidden">Every number comes from Qloo; every name and number in the answer is checked.</span>
