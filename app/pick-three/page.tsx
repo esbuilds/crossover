@@ -11,7 +11,7 @@ import ReviewView from "../review/review-view";
 export async function generateMetadata({ searchParams }: PageProps<"/pick-three">): Promise<Metadata> {
   await connection();
   const s = parseShare(await searchParams);
-  if (!s) return { title: "Pick three | Crossover" };
+  if (!s) return { title: "Pick three" }; // the layout's template adds "| Crossover"
   const { title } = shareCard(s);
   const image = `/og?${shareQuery(s)}`;
   return { title, openGraph: { title, images: [{ url: image, width: 1200, height: 630 }] }, twitter: { card: "summary_large_image", images: [image] } };

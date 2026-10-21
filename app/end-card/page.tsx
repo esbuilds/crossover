@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 // The video's end card (Oct 26). Not linked from anywhere; no sitemap exists, and it asks not to be indexed.
-export const metadata: Metadata = { title: "Crossover", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: { absolute: "Crossover" }, robots: { index: false, follow: false } };
 
 export default function EndCard() {
   return (
