@@ -474,7 +474,8 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
   return (
     <div>
       {/* the counts and the city sentence above the map, so all three sit in the first viewport at 1280 (Pick 1 done) */}
-      <p className="text-sm text-ink-3 max-sm:hidden">Step {n}: the split, {m.seed.name} against {m.rival.name}</p>
+      {/* a plain heading, the step chip after it (COLDJUDGE-6: "Step 3:" first read as debug output) */}
+      <h2 className="text-lg font-semibold text-ink">Where the two audiences split <Steps ns={[n]} /></h2>
       <p className="mt-1 max-w-copy text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
       {cities && <p className="mt-1 max-w-copy text-base text-ink max-sm:hidden">{cities}</p>}
       <div className="mt-3 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} reveal={landed >= n} />}</div>
@@ -496,7 +497,7 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
   const x = (v: number) => `${Math.max(0, Math.min(1, (v - 0.5) / 0.5)) * 100}%`;
   return (
     <div className={compact ? "mt-3" : ""}>
-      {!compact && review && <p className="text-sm text-ink-3">Step {review.n}: fame against taste, {seed?.name}&apos;s fans</p>}
+      {!compact && review && <h2 className="text-lg font-semibold text-ink">Fame against taste, {seed?.name}&apos;s fans <Steps ns={[review.n]} /></h2>}
       {c?.fameFlat && <p className="mt-1 text-lg font-semibold text-ink">Fame can&apos;t tell these {WORDS[c.cards.length] ?? c.cards.length} apart. Taste can.</p>}
       <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-3">
         <span><span className="mr-1 inline-block size-3 rounded-full border border-ink-2 align-middle" aria-hidden /> fame (Qloo popularity)</span>
