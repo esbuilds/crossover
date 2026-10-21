@@ -222,7 +222,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {/* below the "every number above comes from a step" line: these numbers are code's, not the agent's steps */}
           {verdict?.ok && small && <SmallerBlock s={small} />}
           {status === "running" && !verdict && !ambiguous && (
-            <p className="working font-mono text-sm text-ink-2">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
+            <p className="working font-mono text-sm text-ink-2" role="status">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
           )}
           {ambiguous && (
             <div>
@@ -231,9 +231,10 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             </div>
           )}
           {verdict && !verdict.ok && status !== "running" && (
-            <p className="text-base text-ink-2">{verdict.decision ? "The agent's summary didn't match its own steps, so it isn't shown. The steps are what it measured." : verdict.problems[0]}</p>
+            <p className="text-base text-ink-2" role="status">{verdict.decision ? "The agent's summary didn't match its own steps, so it isn't shown. The steps are what it measured." : verdict.problems[0]}</p>
           )}
-          {error && <p className="text-lg text-ink">{error}</p>}
+          {/* role=alert: a dropped run or a cap is read out, not only seen (FIX-F9) */}
+          {error && <p className="text-lg text-ink" role="alert">{error}</p>}
         </section>
 
         <section id="steps" className="order-4 scroll-mt-4 lg:col-start-1 lg:row-start-3">
@@ -430,7 +431,8 @@ function CopyAsk({ href }: { href: string }) {
   const [copied, setCopied] = useState(false);
   const link = () => `${window.location.origin}${href}`;
   return (
-    <button type="button" className={btnText} onClick={() => navigator.clipboard.writeText(link()).then(() => setCopied(true), () => {})}>
+    // aria-live: the label's change to "Link copied" is announced (FIX-F9)
+    <button type="button" className={btnText} aria-live="polite" onClick={() => navigator.clipboard.writeText(link()).then(() => setCopied(true), () => {})}>
       {copied ? "Link copied" : "Copy link"}
     </button>
   );
