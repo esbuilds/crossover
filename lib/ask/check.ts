@@ -14,7 +14,7 @@ const DECIMAL = /(?<![\w.])\d+\.\d+/g;
 // the fixed list from Fable's judge-probe ruling (Oct 15); a semicolon counts too
 // plus a count of others ("seven others", "7 others"; Fable's checker sign-off, Oct 15), bound as "the others" is
 const CONTRAST = /\b(?:against|versus|vs\.?|compared with|while|whereas|for the others|for the rest|the others|the rest|(?:[2-9]|\d{2,}|two|three|four|five|six|seven|eight|nine) others?)\b|;/i;
-export const CHECK_RULE = "v3"; // v2 until real Oct 18 (mutation gate); v1 until real Oct 15: a number after the first brand, up to the next name, was its own
+export const CHECK_RULE = "v3.1"; // v3.1 real Oct 22: a rank that ends a sentence ("9.") is bound too; v3 until then; v2 until real Oct 18 (mutation gate); v1 until real Oct 15: a number after the first brand, up to the next name, was its own
 export const unbracket = (t: string) => t.replace(BRACKET, "$1");
 // what checkDecision matches to a cited step: every bracketed name and every number (the front door's stamp counts these)
 export const claimCount = (d: Decision) =>
@@ -98,8 +98,9 @@ export function checkDecision(d: Decision, steps: StepRecord[]): Check {
       const is = (vs: number[], x: string) => vs.some((v) => v.toFixed(2) === Number(x).toFixed(2));
       const mine = [...(own.get(first[1]) ?? []), ...method];
       for (const m of segment.matchAll(DECIMAL)) if (!is(mine, m[0])) problems.push(`${it.label}: ${m[0]} isn't ${first[1]}'s own number`);
-      // v3: a rank or count in the segment is bound too, exactly (every rank 1 to 50 sits somewhere in a top-50 step)
-      for (const m of segment.matchAll(/(?<![\w.])\d+(?![\d.])/g)) if (!mine.includes(Number(m[0]))) problems.push(`${it.label}: ${m[0]} isn't ${first[1]}'s own number`);
+      // v3: a rank or count in the segment is bound too, exactly (every rank 1 to 50 sits somewhere in a top-50 step);
+      // v3.1: a full stop after it no longer hides it, only a decimal point does
+      for (const m of segment.matchAll(/(?<![\w.])\d+(?!\d|\.\d)/g)) if (!mine.includes(Number(m[0]))) problems.push(`${it.label}: ${m[0]} isn't ${first[1]}'s own number`);
       if (cut >= 0) {
         const next = after.slice(upto).match(/^\[\[([^\]]+)\]\]/)?.[1];
         const theirs = next ? [...(own.get(next) ?? []), ...method] : [...[...own].filter(([n]) => n !== first[1]).flatMap(([, v]) => v), ...method];

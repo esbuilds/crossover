@@ -68,7 +68,7 @@ const KINDS: Kind[] = [
     return m ? { text: it.text.replace(m[0], (Number(m[0]) + 0.03).toFixed(m[0].split(".")[1].length)) } : null;
   }) },
   { kind: "count or rank changed by 1", expectCatch: true, make: (r) => onFirst(r.d, (it) => {
-    const m = it.text.replace(/\[\[[^\]]+\]\]/g, (s) => " ".repeat(s.length)).match(/(?<![\w.])\d+(?![\d.])/);
+    const m = it.text.replace(/\[\[[^\]]+\]\]/g, (s) => " ".repeat(s.length)).match(/(?<![\w.])\d+(?!\d|\.\d)/); // v3.1 (real Oct 22): a rank ending a sentence is tampered with too; until then this shared the checker's blind spot
     return m ? { text: it.text.slice(0, m.index!) + String(Number(m[0]) + 1) + it.text.slice(m.index! + m[0].length) } : null;
   }) },
   { kind: "bracketed brand swapped for an invented one", expectCatch: true, make: (r) => onFirst(r.d, (it) => {

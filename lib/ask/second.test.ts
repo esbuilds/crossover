@@ -54,7 +54,7 @@ test("the loop: measures the other way, the checker's no comes back once as a ch
   const ev = await look([["otherWay", { why: "The top three tied.", names: ["Bombas", "Parachute", "Warby Parker"] }], ["decide", bad], ["decide", good]]);
   assert.deepEqual(ev.map((e) => e.type), ["call", "result", "check", "decision", "look"]);
   assert.equal((ev[0] as { n: number }).n, 4); // new steps continue after the frozen ones
-  assert.deepEqual((ev[2] as { problems: string[] }).problems, ["call 1: 2 isn't in a cited step"]);
+  assert.deepEqual((ev[2] as { problems: string[] }).problems, ["call 1: 2 isn't Bombas's own number", "call 1: 2 isn't in a cited step"]);
   assert.deepEqual((ev[3] as { check: unknown }).check, { ok: true });
   assert.deepEqual(ev[4], { type: "look", outcome: "changed", frozen: ["Bombas", "Warby Parker"], calls: ["Bombas"], measured: true, checkFed: true, citedLess: false });
 });

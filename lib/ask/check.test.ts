@@ -148,3 +148,10 @@ test("claimCount counts the names, decimals and ranks the checker binds", () => 
   // call: Allbirds, 0.95, #2; caution: REI, Patagonia, 0.97, 0.89; summary: Allbirds
   assert.equal(claimCount(ok), 8);
 });
+
+test("v3.1: a rank that ends the sentence is bound to the brand it's said of (builder 2's gap, real Oct 22)", () => {
+  const steps = [{ n: 1, tool: "resolve", why: "", summary: "", output: { state: "confirmed", name: "Allbirds" } }, { n: 2, tool: "otherWay", why: "", summary: "", output: { rows: [{ name: "Bombas", rank: 1 }, { name: "Tuft & Needle", rank: 9 }] } }];
+  const d = (t: string) => checkDecision({ calls: [{ name: "Bombas", reason: t, steps: [2] }], cautions: [], summary: [] }, steps);
+  assert.deepEqual(d("[[Bombas]] fans rank [[Allbirds]] 9."), { ok: false, problems: ["call 1: 9 isn't Bombas's own number"] });
+  assert.deepEqual(d("[[Bombas]] fans rank [[Allbirds]] 1."), { ok: true });
+});
