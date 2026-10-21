@@ -85,8 +85,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   const replayLine = (p: boolean) => (
     <>
       {/* phones skip the stamp sentence (the stamps are below their first screen), so both versions wrap to the same height */}
-      {p ? <>Replaying the {initial?.label} run, sped up: step {Math.min(landed + 1, steps.length)} of {steps.length}.<span className="max-sm:hidden"> Each claim is stamped when the step it cites lands.</span></> : `The ${initial?.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}{" "}
-      <button type="button" onClick={() => setLanded(p ? steps.length : 0)} className={`${btnText} whitespace-nowrap`}>{p ? "Skip" : "Replay it"}</button>
+      {p ? <>Replaying the {initial?.label} run, sped up: step {Math.min(landed + 1, steps.length)} of {steps.length}.<span className="max-sm:hidden"> Each claim is stamped when the step it cites lands.</span></> : `The ${initial?.label} run, replayed from the cache: ${steps.length} steps, 0 Qloo calls.`}
     </>
   );
 
@@ -166,9 +165,16 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
               ))}
             </ol>
             {/* both versions of the line share one grid cell, so the call card below doesn't move when the replay ends */}
-            <div className="mt-2 grid max-w-lead text-sm text-ink-3 *:col-start-1 *:row-start-1">
-              <p role="status">{replayLine(playing)}</p>
-              <p className="invisible" aria-hidden>{replayLine(!playing)}</p>
+            {/* the button leads the line, both labels holding its width, so the end of the replay moves nothing (it used
+                to follow the text and shifted when the text changed, CLS 0.006 to 0.012) */}
+            <div className="mt-2 flex max-w-lead items-start gap-x-4">
+              <button type="button" onClick={() => setLanded(playing ? steps.length : 0)} className={`${btnText} shrink-0 whitespace-nowrap`}>
+                <span className="grid *:col-start-1 *:row-start-1"><span>{playing ? "Skip" : "Replay it"}</span><span className="invisible" aria-hidden>{playing ? "Replay it" : "Skip"}</span></span>
+              </button>
+              <div className="grid min-w-0 pt-3 text-sm text-ink-3 *:col-start-1 *:row-start-1">
+                <p role="status">{replayLine(playing)}</p>
+                <p className="invisible" aria-hidden>{replayLine(!playing)}</p>
+              </div>
             </div>
           </div>
         )}
