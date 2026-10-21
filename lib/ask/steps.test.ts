@@ -3,8 +3,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { callCard, cardsStep, dumbbellStep, mapStep, replayLine, stepsFrom, twinsStep } from "./steps.ts";
+import { callCard, cardsStep, checkerLine, dumbbellStep, mapStep, replayLine, stepsFrom, twinsStep } from "./steps.ts";
 import control from "../../audit/replay-control.json" with { type: "json" };
+import mutation from "../../audit/mutation.json" with { type: "json" };
 import type { AskEvent } from "./agent.ts";
 
 const load = (name: string): AskEvent[] => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), "utf8"));
@@ -50,6 +51,14 @@ test("replayLine: the pooled replay beside the scrambled-seed control, from the 
   assert.equal(
     replayLine(control.summary),
     "Against 23 real deals it never saw, the real partner made the top three 17 times, and 17 times again with the wrong seed brand swapped in. So the replay measures how the candidate lists were built. Details on /audit.",
+  );
+});
+
+// PROOF-LINE (real Oct 22): the line under every answer is the checker's attacked count, read from the gate's file.
+test("checkerLine: the mutation gate's count and the misses, from the published file", () => {
+  assert.equal(
+    checkerLine(mutation.gated),
+    "Every name and number above is matched to a measured step. We attacked that check with 230 altered answers; it caught 219, and the 11 that got through are listed on /audit.",
   );
 });
 

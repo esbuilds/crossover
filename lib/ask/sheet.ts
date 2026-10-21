@@ -1,6 +1,6 @@
 // The call sheet (Pick 2, Oct 14): one printed page a partnerships lead forwards, drawn from a cached ask only. Every
 // sentence on it is one the checker already passed, a code-generated line from the step outputs, or static text; the
-// numbers trace to the steps, the replay line (lib/ask/proof.ts) or the blocked count (lib/ask/blocked.json).
+// numbers trace to the steps, the checker line (lib/ask/proof.ts) or the blocked count (lib/ask/blocked.json).
 import type { AskEvent } from "./agent.ts";
 import { displayName, forDisplay, nameForDisplay, type StepRecord } from "./check.ts";
 import { callCard, cardsStep, decisionEvent, mapStep, stepsFrom, tieLine, twinsStep, type MapStep } from "./steps.ts";

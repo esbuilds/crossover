@@ -1,15 +1,28 @@
 {
-  "date": "2026-10-18",
-  "rule": "v3",
+  "date": "2026-10-21",
+  "rule": "v3.1",
   "answers": 36,
   "gated": {
-    "rejected": 217,
-    "of": 228
+    "rejected": 219,
+    "of": 230
   },
   "before": {
     "rule": "v2",
     "rejected": 207,
     "of": 228
+  },
+  "v3": {
+    "date": "2026-10-18",
+    "rejected": 217,
+    "of": 228,
+    "withNewTamper": {
+      "rejected": 217,
+      "of": 230
+    }
+  },
+  "gap": {
+    "found": "2026-10-21",
+    "fix": "df63965"
   },
   "kinds": [
     {
@@ -55,8 +68,8 @@
     {
       "kind": "count or rank changed by 1",
       "gated": true,
-      "applied": 30,
-      "rejected": 27,
+      "applied": 32,
+      "rejected": 29,
       "misses": [
         {
           "seed": "Playstation",

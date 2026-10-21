@@ -67,12 +67,18 @@ export function twinsStep(steps: StepRecord[]): TwinsStep | null {
   return o?.found && o.a && o.b ? { a: o.a.name, b: o.b.name, value: o.value!, next: o.next! } : null;
 }
 
-// Under the decision and on the sheet (REPLAY-LINE, real Oct 22): both replays pooled beside the scrambled-seed control
-// committed before it ran (audit/replay-control.json). The control matched the real seeds, so the line says what the
-// replay measures: how the candidate lists were built.
+// The replay in one line (REPLAY-LINE, real Oct 22): both replays pooled beside the scrambled-seed control committed
+// before it ran (audit/replay-control.json). Kept for the tour and /audit; since PROOF-LINE nothing under an answer
+// shows it, because it says nothing about that answer.
 export type Control = { cases: number; realHits: number; scrambledHits: number };
 export const replayLine = (c: Control) =>
   `Against ${c.cases} real deals it never saw, the real partner made the top three ${c.realHits} times, and ${c.scrambledHits} times again with the wrong seed brand swapped in. So the replay measures how the candidate lists were built. Details on /audit.`;
+
+// Under every answer and on the sheet (PROOF-LINE, real Oct 22): the checker's attacked count, from audit/mutation.json.
+// It speaks to the answer above it, which the replay line can't.
+export type Attack = { rejected: number; of: number };
+export const checkerLine = (g: Attack) =>
+  `Every name and number above is matched to a measured step. We attacked that check with ${g.of} altered answers; it caught ${g.rejected}, and the ${g.of - g.rejected} that got through are listed on /audit.`;
 
 // Step 5's dumbbell (Pick 1, Oct 14): fame (Qloo popularity) at one end, taste (affinity) at the other, one row per
 // candidate, the widest taste-over-fame gap first. A popularity of 0 is Qloo's missing value (lib/qloo.ts trims a missing
