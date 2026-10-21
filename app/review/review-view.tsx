@@ -273,7 +273,7 @@ function Reveal({ embedded, data, group, picks, share, open, onOpen, gate, gateO
           Pick again
         </button>
         <a href={`/s/${data.seed.entity_id}?t=${encodeURIComponent(data.seed.type)}`} className={btnText}>
-          Find more partners for {data.seed.name}
+          Full partner list for {data.seed.name}
         </a>
       </div>
 

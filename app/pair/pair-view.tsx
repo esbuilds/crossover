@@ -224,7 +224,7 @@ function SideStatus({ side, onChoose }: { side: Side; onChoose: (c: Card) => voi
       <p className="rounded-lg border border-rule px-4 py-3 text-base text-ink-2">
         Qloo doesn&apos;t know &ldquo;{side.query}&rdquo;. Pairing needs two names Qloo knows. For a brand it doesn&apos;t, build a slate from stand-in brands{" "}
         <Link href="/find" className="underline underline-offset-4">
-          on the search page
+          on the full partner list
         </Link>
         .
       </p>

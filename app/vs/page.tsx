@@ -27,7 +27,7 @@ export default function Vs() {
           {CATEGORIES.map((c) => (
             <Link key={c.slug} href={`/map/${c.slug}`} className={chip}>{c.title}</Link>
           ))}
-          <Link href="/find" className={btnText}>Find more partners</Link>
+          <Link href="/find" className={btnText}>The full partner list</Link>
         </p>
       </footer>
     </main>

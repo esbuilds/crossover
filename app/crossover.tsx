@@ -255,7 +255,7 @@ export default function Crossover({
       <section className={home ? "pt-14 pb-6 sm:pt-24" : "pt-page"}>
         {home && (
           <>
-            <h1 className="max-w-[16ch] font-display text-3xl sm:text-4xl">Who should you collab with, and where?</h1>
+            <h1 className="max-w-[16ch] font-display text-3xl sm:text-4xl">The full partner list.</h1>
             <p className="mt-4 max-w-copy text-lg text-ink-2">
               Name a brand, artist, show or person. Crossover finds what their fans already love, shows the fit both ways and the
               markets where both audiences run hot.

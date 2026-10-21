@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const res = await ogCard(
     card
       ? { title: `Partners for ${card.name}`, line: top ? `Top market: ${top.name}, ${top.overIndex} against a US average of 100` : undefined }
-      : { title: "Who should you collab with, and where?" },
+      : { title: "The full partner list" },
   );
   res.headers.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
   return res;
