@@ -37,7 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <JudgePath />
             <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
               <Link href={tourHref(1)} className={linkInline}>Take the 60-second tour</Link>
-              <Link href="/replay" className={linkInline}>Spot the real partner</Link>
+              <Link href="/replay" className={linkInline}>Real deals</Link>
               <Link href="/pick-three" className={linkInline}>Pick three</Link>
               <Link href="/audit#api-notes" className={linkInline}>Notes on the API</Link>
             </p>
