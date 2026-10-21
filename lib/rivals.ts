@@ -84,24 +84,35 @@ export function compareLists(a: Entity, b: Entity, listA: Entity[], listB: Entit
 // Cold: 2 lists + 2 to 4 scoring calls (8 with heatmaps, added on map day). Serial, never fanned out against Qloo.
 // peek: cache only, never a call; null when any piece is cold (the page counts a cold pair against the visitor first).
 // type: brands for the columns; the X-ray runs the same test in other domains (cache only, see runVs)
+// peek: both reads at once, since a cache read spends nothing (AUDIT-F2: about 20 Redis round trips in a row held /vs
+// on its skeleton 0.5 to 1.2 s on prod). Live: in turn, so a miss on the first never spends the second.
+async function two<A, B>(peek: boolean, f: () => Promise<A>, g: () => Promise<B>): Promise<[A, B | null]> {
+  if (peek) return Promise.all([f(), g()]);
+  const x = await f();
+  return [x, x ? await g() : null];
+}
+
 export async function getRivals(a: Entity, b: Entity, peek = false, type = BRAND): Promise<Rivals | null> {
   const get = (p: Record<string, string | number>) => (peek ? insights.peek(p) : insights(p));
-  const listA = await get({ "filter.type": type, "signal.interests.entities": a.entity_id, take: 50 }); // = fansTop50's key
-  const listB = listA && (await get({ "filter.type": type, "signal.interests.entities": b.entity_id, take: 50 }));
+  const [listA, listB] = await two(peek, () => get({ "filter.type": type, "signal.interests.entities": a.entity_id, take: 50 }), () => get({ "filter.type": type, "signal.interests.entities": b.entity_id, take: 50 })); // = fansTop50's key
   if (!listA || !listB) return null;
   const union = [...new Map([...listA, ...listB].map((e) => [e.entity_id, e])).keys()].filter((id) => id !== a.entity_id && id !== b.entity_id);
+  const chunks = Array.from({ length: Math.ceil(union.length / BATCH) }, (_, i) => union.slice(i * BATCH, (i + 1) * BATCH));
+  const batch = (seed: string, chunk: string[]) => get({ "filter.type": type, "signal.interests.entities": seed, "filter.results.entities": chunk.join(","), take: chunk.length });
   const score = async (seed: string) => {
+    if (peek) {
+      const all = await Promise.all(chunks.map((c) => batch(seed, c)));
+      return all.some((h) => !h) ? null : all.flat() as Scored[];
+    }
     const out: Scored[] = [];
-    for (let i = 0; i < union.length; i += BATCH) {
-      const chunk = union.slice(i, i + BATCH);
-      const hits = await get({ "filter.type": type, "signal.interests.entities": seed, "filter.results.entities": chunk.join(","), take: chunk.length });
+    for (const chunk of chunks) {
+      const hits = await batch(seed, chunk);
       if (!hits) return null;
       out.push(...hits);
     }
     return out;
   };
-  const sa = await score(a.entity_id);
-  const sb = sa && (await score(b.entity_id));
+  const [sa, sb] = await two(peek, () => score(a.entity_id), () => score(b.entity_id));
   return sa && sb ? compareLists(a, b, listA, listB, sa, sb) : null;
 }
 
@@ -150,32 +161,32 @@ async function runVs(sa0: Side, sb0: Side, peek: boolean): Promise<VsData | null
     const hits = peek ? await insights.peek(p) : await insights(p);
     return hits === null ? "cold" : (hits[0] ?? null);
   };
-  const a0 = await card(sa);
-  if (a0 === null) return null;
-  const b0 = await card(sb);
-  if (b0 === null) return null;
+  const [a0, b0] = await two(peek, () => card(sa), () => card(sb));
+  if (a0 === null || b0 === null) return null;
   if (a0 === "cold" || b0 === "cold") return "cold";
   // some cards come back with only the bare "urn:entity" (Cedric the Entertainer as a person): keep the asked type, so
   // the person check and the pairing links see it (Oct 14 pass)
   const typed = (e: Entity, t: string) => (e.types.some((x) => x !== "urn:entity") ? e : { ...e, types: [t] });
   const [a, b] = [typed(a0, sa.type), typed(b0, sb.type)];
-  const rivals = await getRivals(a, b, peek);
+  const people = [a, b].some((e) => e.types.includes("urn:entity:person"));
+  const heat = (id: string) => (peek ? heatmap.peek(id, "United States") : heatmap(id, "United States")); // = getCities' key
+  // the X-ray is cache only either way, so its four reads always go at once; on a peek everything else joins them
+  const xrays = Promise.all(XRAY_TYPES.map((t) => getRivals(a, b, true, t)));
+  const pre = peek ? Promise.all([getRivals(a, b, true), compareTags.peek(a.entity_id, b.entity_id), people ? null : two(true, () => heat(a.entity_id), () => heat(b.entity_id))]) : null;
+  pre?.catch(() => {}); // awaited below; this only keeps an early return from leaving it unhandled
+  xrays.catch(() => {});
+  const rivals = pre ? (await pre)[0] : await getRivals(a, b, false);
   if (!rivals) return "cold";
   // the compare chip is garnish: a failed call leaves it off instead of failing the page
-  const share = peek ? await compareTags.peek(a.entity_id, b.entity_id) : await compareTags(a.entity_id, b.entity_id).catch(() => []);
+  const share = pre ? (await pre)[1] : await compareTags(a.entity_id, b.entity_id).catch(() => []);
   let map: VsMap | null = null;
-  if (![a, b].some((e) => e.types.includes("urn:entity:person"))) {
-    const heat = (id: string) => (peek ? heatmap.peek(id, "United States") : heatmap(id, "United States")); // = getCities' key
-    const ha = await heat(a.entity_id);
-    const hb = ha && (await heat(b.entity_id));
+  if (!people) {
+    const [ha, hb] = pre ? (await pre)[2]! : await two(false, () => heat(a.entity_id), () => heat(b.entity_id));
     if (!ha || !hb) return "cold";
     map = { ...collide(ha, hb), metrosA: rankMetros(ha).slice(0, 5), metrosB: rankMetros(hb).slice(0, 5) };
   }
   const xray: Xray[] = [];
-  for (const t of XRAY_TYPES) {
-    const x = await getRivals(a, b, true, t);
-    if (x) xray.push(xrayOf(t, x));
-  }
+  (await xrays).forEach((x, i) => x && xray.push(xrayOf(XRAY_TYPES[i], x)));
   // a pair warmed before the chip existed stays warm: a cold chip never makes the page cold
   return { a, b, rivals, share: (share ?? []).slice(0, 4), map, xray };
 }
