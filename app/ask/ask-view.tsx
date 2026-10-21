@@ -122,7 +122,9 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
   useEffect(() => {
     if (!ranHere.current || status !== "done" || !verdict?.ok || !resolved?.id || !resolved.type) return;
     const href = askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share;
-    if (location.pathname + location.search !== href) history.replaceState(null, "", href);
+    // pushState, not replaceState (FIX-F5): Back returns to the page the visitor came from in Crossover instead of
+    // leaving the site; Next's router adopts the entry, so the view holds
+    if (location.pathname + location.search !== href) history.pushState(null, "", href);
   }, [status, verdict?.ok, resolved?.id, resolved?.type, asked]);
   const ambiguous = resolved?.state === "ambiguous" ? resolved.options : undefined;
   const chips: { label: string; body: Body }[] = [...PREPARED_ASKS, ...(pending && !("query" in pending.body) ? [{ label: pending.label, body: pending.body }] : [])];
