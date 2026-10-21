@@ -10,6 +10,7 @@ import mutation from "@/audit/mutation.json";
 import { forDisplay } from "@/lib/ask/check.ts";
 import { Chip, linkInline, panel, SiteHeader, shell } from "../ui";
 import { ReplayControls } from "./replay-controls";
+import { AgentForks } from "./agent-forks";
 import { StripImage } from "../replay/strip-image";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
@@ -149,6 +150,8 @@ export default function AuditPage() {
           ). On a Liquid Death shortlist run Oct 10, e.l.f. measured 0.62, 0.25 below the strongest name and in the lowest group, while being one of the best-known brands on the list. Taste is one input for deciding who to call first, not a verdict on a deal.
         </p>
       </section>
+
+      <AgentForks />
 
       <section id="checker" className="mt-section max-w-copy scroll-mt-4">
         <h2 className="font-display text-xl">What the ask agent may say</h2>
