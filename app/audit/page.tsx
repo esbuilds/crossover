@@ -9,6 +9,7 @@ import judgeNames from "@/audit/judge-names.json";
 import mutation from "@/audit/mutation.json";
 import { forDisplay } from "@/lib/ask/check.ts";
 import { Chip, linkInline, panel, SiteHeader, shell } from "../ui";
+import { ReplayControls } from "./replay-controls";
 
 // The frozen audit (audit/briefs.json audit-v1, run by scripts/audit-run.ts). Derived numbers only: raw Qloo
 // responses stay out of the repo. Not linked yet.
@@ -402,6 +403,7 @@ function Replay() {
       <ReplayRun data={replayV2} freeze={REPLAY_V2_FREEZE} title="Second test (v2): new cases only, after the first missed" protocol="audit/replay-v2-protocol.md"
         dropped="Ten dropped under the written decoy check: nine had the partner's own parent or a sister brand among the decoys, and Pandora matched the jewelry brand, not the music service."
         note="Sensitivity: two kept cases (Krispy Kreme x Crocs, Pringles x Crocs) have luxury-house decoys the rules don't cover; both were hits. Without them it is 9 of 12, against a bar of 8 for twelve." />
+      <ReplayControls />
       <ReplayRun data={replay} freeze={REPLAY_FREEZE} title="First test (v1)" protocol="audit/replay-protocol.md"
         dropped="Four had no Qloo category tag for the partner; four had a tag that isn't the partner's category. Red Bull x GoPro and Liquid Death x e.l.f. were left out because their scores were already seen." />
       <p className="mt-6 max-w-copy text-sm text-ink-2">
