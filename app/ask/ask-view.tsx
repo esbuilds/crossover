@@ -96,7 +96,8 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
     // a dropped connection must not leave the button disabled (deferred minor, fixed Oct 13)
     try {
       const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-      if (!res.ok) { setStatus("error"); setError("Type a name to ask about."); return; }
+      // 400 is a bad body; anything else is the host, not the visitor (FIX-F2)
+      if (!res.ok) { setStatus("error"); setError(res.status === 400 ? "Type a name to ask about." : "Crossover's server didn't answer. Names already asked still replay; try this one again in a minute."); return; }
       let ended = false; // a stream cut off by the host's time limit sends neither done nor error (FIX-F1)
       await streamEvents(res, (e) => {
         if (e.type === "call" || e.type === "result" || e.type === "decision") setEvents((x) => [...x, e]);
@@ -130,7 +131,8 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       <p className="mt-1 max-w-[80ch] text-sm text-ink-3 max-sm:hidden">{LIMITS}</p>
       <p className="mt-2 text-xs text-ink-3 sm:hidden">About 40 seconds and 28 Qloo calls for a new name. Not purchases, visits, eligibility or deal value.</p>
       <form onSubmit={(ev) => (ev.preventDefault(), q.trim() && run({ query: q.trim() }))} className="mt-3 flex flex-row gap-3">
-        <input value={q} onChange={(ev) => setQ(ev.target.value)} aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
+        {/* maxLength is the API's own cap (lib/ask/body.ts), so a long paste can't come back as a 400 */}
+        <input value={q} onChange={(ev) => setQ(ev.target.value)} maxLength={100} autoComplete="off" enterKeyHint="go" aria-label="A brand, artist, show or person" placeholder="A brand, artist, show or person" className={`${field} min-w-0 flex-1 sm:max-w-md`} />
         <button type="submit" disabled={status === "running"} className={btnPrimary}>Ask</button>
       </form>
       <p className="mt-2 flex flex-wrap items-center gap-2 text-base">
