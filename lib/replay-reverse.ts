@@ -9,3 +9,16 @@ export function partnerRank(at: (number | null)[], partner: number): number {
 }
 
 export const isHit = (at: (number | null)[], partner: number) => partnerRank(at, partner) <= 3;
+
+export const REVERSE_FREEZE = "da8f2d9";
+type Reverse = { summary: { cases: number; need: number; realHits: number; scrambledHits: number; pass: boolean; seedOutCells: number; cells: number; v2: { cases: number; realHits: number; scrambledHits: number } }; cases: { cells: { seed: number | null }[] }[] };
+// the /audit paragraph under Replay controls; every number is read from audit/replay-reverse.json
+export function reverseSentences(r: Reverse) {
+  const s = r.summary;
+  const seen = r.cases.reduce((n, c) => n + c.cells.filter((x) => x.seed !== null).length, 0);
+  const partner = r.cases.filter((c) => c.cells[0].seed !== null).length;
+  return [
+    `Reverse replay: each case's eight ranked the other way, by where each one's own fans put the seed, with ties and "not in their top 50" counted against the real partner. ${s.pass ? "It passes" : "It fails its bar"}: the real partner came in the top three ${s.realHits} times in ${s.cases} (needed ${s.need}), against ${s.scrambledHits} under the scrambled seeds; for the second test alone, ${s.v2.realHits} of ${s.v2.cases} against ${s.v2.scrambledHits}.`,
+    `Mostly this direction can't see these lists: the seed was in only ${seen} of the ${s.cells} fans' top 50s. ${partner} of those ${seen} were the real partner's, a count made after the run, not a test.`,
+  ];
+}
