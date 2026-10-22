@@ -16,7 +16,7 @@ import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
-import { bothLine, firstCallHeading, type BothWays } from "@/lib/ask/both-rules.ts";
+import { bothLine, firstCallHeading, readBoth, slope, type BothWays } from "@/lib/ask/both-rules.ts";
 import type { FieldNotes } from "@/lib/ask/field-notes.ts";
 import { BothSlope, BothTable } from "./both-table";
 
@@ -192,6 +192,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             <div className={`${panelStrong} p-4 sm:p-6${landed !== Infinity && !playing ? " card-stamped" : ""}`}>
               <p className="font-display text-2xl text-ink">{card.first}</p>
               {/* the fact that separates the first call, and its picture, from the both-ways rows (COLDJUDGE-8, SPECTACLE-2) */}
+              {both && slope(both) && <p className="mt-2 max-w-copy text-sm text-ink-3">{readBoth(both.seed)}</p>}
               {both && bothLine(both, card.name) && <p className="mt-2 max-w-copy text-lg text-ink">{bothLine(both, card.name)}</p>}
               {both && <BothSlope b={both} />}
               {card.where && <p className="mt-2 text-base text-ink-2">{card.where}</p>}

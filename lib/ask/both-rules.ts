@@ -1,5 +1,6 @@
 // The both-ways rules, client-safe (no server imports): the gate, the two sentences and the heading. lib/ask/both-ways.ts
 // measures; the ask page and the sheet render from these (Fable's columns and persona round 2 rulings, Oct 15).
+import { poss } from "../vs.ts";
 export const OUT = 51; // "not in their top 50", for the gate's arithmetic only
 export type Rank = number | "out" | null; // null: no measurement (never fetched), never shown as a blank
 export type Row = { name: string; fwd: Rank; rev: Rank; call: boolean };
@@ -26,6 +27,10 @@ export function oneWay(seed: string, noun: string, rows: Row[], first: Row | und
   const ord = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
   return `${first.name} fans don't have ${seed} in their top 50 ${noun}; the pull runs one way.${best ? ` ${best.name} fans rank ${seed} ${ord(best.rev as number)}, the highest of the eight.` : ""}`;
 }
+
+// Names the both-ways read (DEEP-1, real Oct 23), above the slopegraph on every answer page that draws one. Crossover
+// asks from both sides, not the agent: the reverse ranks are code's (lib/ask/both-ways.ts).
+export const readBoth = (seed: string) => `Read both ways: the left is where ${poss(seed)} fans rank each name, the right is where that name's fans rank ${seed}. Each Qloo call ranks from one side; Crossover asks from both.`;
 
 // The heading follows the measurement (Fable's persona round 2 ruling, Eric approved Oct 15): "Call first" only when the
 // first call's fans also rank the seed 1st to 3rd; otherwise it's the agent's call, stated as such. Rendering only.
