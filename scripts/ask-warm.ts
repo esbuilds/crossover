@@ -17,5 +17,13 @@ for (const a of ASKS) {
   const check = /"check":(\{[^}]*\})/.exec(text)?.[1] ?? "none";
   const done = /"type":"done","cached":(true|false)/.exec(text)?.[1] ?? "no done";
   console.log(`${a.label}: check ${check}, cached ${done}, ${(await (await fetch(`${base}/api/usage`)).json()).today - before} Qloo calls`);
+  // the page and its side blocks (SCORE-6, real Oct 23): the page reads them from the cache only, so the client's GETs
+  // are what spend on a cold block; make them here, before a judge does
+  const mid = (await (await fetch(`${base}/api/usage`)).json()).today;
+  const q = new URLSearchParams({ id: a.id, t: a.type });
+  const pages = [`/ask/${a.id}?t=${encodeURIComponent(a.type)}`, ...(a === ASKS[0] ? ["/"] : [])];
+  const codes = [];
+  for (const path of [...pages, ...["both", "field", "smaller", "where"].map((s) => `/api/ask/${s}?${q}`)]) codes.push(`${path.split("?")[0]} ${(await fetch(base + path)).status}`);
+  console.log(`  page and side blocks: ${codes.join(", ")}; ${(await (await fetch(`${base}/api/usage`)).json()).today - mid} Qloo calls`);
 }
 export {}; // a module, for top-level await
