@@ -66,16 +66,18 @@ export default function AuditPage() {
       {/* Fable's re-judge ruling (Oct 15): one funnel strip from numbers already on this page. Asks and routes are
           scripts/routes.ts' count over the cache (Oct 15); blocked and the replays are read from their files. */}
       {/* a scoreboard (DC F12, TR F5): the leading figure in the display face, its qualifier on the line under it */}
-      <dl className="mt-block grid grid-cols-2 gap-x-8 gap-y-4 sm:gap-y-0.5 border-y border-rule py-4 text-sm sm:grid-cols-5 sm:py-6">
+      <dl className="mt-block grid grid-cols-2 gap-x-8 gap-y-4 sm:gap-y-0.5 border-y border-rule py-4 text-sm sm:grid-cols-6 sm:py-6">
         {([
+          // the attacked checker leads (DES-8, real Oct 23): the line under every answer, from audit/mutation.json
+          ["Altered answers caught", <a key="m" href="#fool-it" className={linkInline}>{mutation.gated.rejected} of {mutation.gated.of}</a>, ""],
           ["Cached asks (Oct 15)", "39", ""],
           ["Reached a decision", "36", "(3 stopped at the name)"],
           ["Distinct routes", "5", ""],
           ["Blocked by the checker", `${blocked.length}`, `${blocked.filter((b) => b.underV2 !== "passes").length} under the current rule`],
           // pooled with its control, as on /replay (AUDIT-STAT, real Oct 22): both counts from audit/replay-control.json
           ["Replays, real partner in the top three", `${control.summary.realHits} of ${control.summary.cases}`, <a key="c" href="#replay-controls" className={linkInline}>and {control.summary.scrambledHits} of {control.summary.cases} with the seed scrambled</a>],
-        ] as [string, string, ReactNode][]).map(([k, lead, rest], i) => (
-          <div key={k} className={`sm:row-span-3 sm:grid sm:grid-rows-subgrid ${i === 4 ? "max-sm:col-span-2" : ""}`}>
+        ] as [string, ReactNode, ReactNode][]).map(([k, lead, rest]) => (
+          <div key={k} className="sm:row-span-3 sm:grid sm:grid-rows-subgrid">
             <dt className="text-ink-3 sm:self-end">{k}</dt>
             <dd className="font-display text-2xl text-ink">{lead}</dd>
             {rest && <dd className="text-sm text-ink-3">{rest}</dd>}
