@@ -65,6 +65,11 @@ export function bothLine(b: BothWays | null, first: string): string | null {
 // longest label (CH: a 13px system-font character, estimated), so a phone draws the text as large as it can.
 export const SLOPE = { top: 46, h: 200, gap: 17, span: 70, pad: 18 };
 const CH = 7.4;
+// Phones (DES-6, real Oct 23): the same rows and labels in a tighter frame, so the text renders at 12 px or more in a
+// 390 card instead of scaling down to 9 to 11. 12px characters, a shorter span, and the shared open-end label set on
+// two lines (OUT_LINES), the widest right-hand label on every Mt. Joy-style card.
+const NARROW = { ch: 6.83, span: 40, pad: 10 };
+export const OUT_LINES = ["not in their", "top 50"];
 export type SlopeRow = { name: string; left: string; right: string; y1: number; y2: number; ly1: number; ly2: number; out: boolean; climbs: boolean; call: boolean };
 const y = (r: number) => SLOPE.top + (Math.log(r) / Math.log(50)) * SLOPE.h;
 const OUT_Y = SLOPE.top + SLOPE.h + 20;
@@ -75,7 +80,7 @@ function spread(ys: number[], use: boolean[]) {
   for (const i of ys.map((_, i) => i).filter((i) => use[i]).sort((a, b) => ys[a] - ys[b])) prev = out[i] = Math.max(ys[i], prev + SLOPE.gap);
   return out;
 }
-export function slope(b: BothWays): { rows: SlopeRow[]; height: number; l: number; r: number; w: number } | null {
+export function slope(b: BothWays, narrow = false): { rows: SlopeRow[]; height: number; l: number; r: number; w: number } | null {
   const drawn = b.rows.filter((r) => typeof r.fwd === "number" && r.rev !== null);
   if (!b.shown || drawn.length < 2) return null;
   const y1 = drawn.map((r) => y(r.fwd as number));
@@ -86,9 +91,13 @@ export function slope(b: BothWays): { rows: SlopeRow[]; height: number; l: numbe
   const ly1 = spread(y1, drawn.map(() => true));
   const ly2 = spread(y2, right.map(Boolean));
   const rows = drawn.map((r, i) => ({ name: r.name, left: cell(r.fwd), right: right[i], y1: y1[i], y2: y2[i], ly1: ly1[i], ly2: ly2[i], out: r.rev === "out", climbs: typeof r.rev === "number" && r.rev < (r.fwd as number), call: r.call }));
-  const l = Math.ceil(Math.max(`${b.seed} fans`.length, ...rows.map((x) => `${x.name} ${x.left}`.length)) * CH) + SLOPE.pad;
-  const r = l + SLOPE.span;
-  const w = r + SLOPE.pad + Math.ceil(Math.max("Its fans rank".length, b.seed.length, ...rows.map((x) => x.right.length)) * CH);
-  return { rows, height: Math.ceil(Math.max(OUT_Y, ...ly1, ...ly2)) + 12, l, r, w };
+  const { ch, span, pad } = narrow ? NARROW : { ch: CH, span: SLOPE.span, pad: SLOPE.pad };
+  const outLabel = cell("out");
+  const rightLen = (t: string) => (narrow && t === outLabel ? Math.max(...OUT_LINES.map((x) => x.length)) : t.length);
+  const l = Math.ceil(Math.max(`${b.seed} fans`.length, ...rows.map((x) => `${x.name} ${x.left}`.length)) * ch) + pad;
+  const r = l + span;
+  const w = r + pad + Math.ceil(Math.max("Its fans rank".length, b.seed.length, ...rows.map((x) => rightLen(x.right))) * ch);
+  const outDrop = narrow && rows.some((x) => x.right === outLabel) ? 15 : 0; // the open-end label's second line
+  return { rows, height: Math.ceil(Math.max(OUT_Y + outDrop, ...ly1, ...ly2)) + 12, l, r, w };
 }
 

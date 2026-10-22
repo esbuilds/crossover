@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { bothWaysFrom, gate, sentence, type Row } from "./both-ways.ts";
 import allbirds from "./fixtures/allbirds.json" with { type: "json" };
 import mtJoy from "./fixtures/mt-joy.json" with { type: "json" };
-import { bothLine, cell, firstCallHeading, oneWay, slope, type BothWays } from "./both-rules.ts";
+import { bothLine, cell, firstCallHeading, oneWay, OUT_LINES, slope, type BothWays } from "./both-rules.ts";
 import type { AskEvent } from "./agent.ts";
 
 // Allbirds' rank among each candidate's fans' brands, as scripts/reverse-probe.ts measured it (0 = not in their top 50)
@@ -109,4 +109,15 @@ test("slopegraph: labels equal the table's cells; Bombas is the one line that cl
   assert.equal(mj.rows.filter((r) => r.climbs).length, 0);
   assert.equal(mj.rows.filter((r) => r.right === "not in their top 50").length, 1); // five open ends, one label
   for (const s of [ab, mj]) for (const r of s.rows) assert.ok(r.ly1 >= r.y1 && r.ly2 >= r.y2 && r.ly1 < s.height && r.ly2 < s.height);
+});
+
+// DES-6 (real Oct 23): the phone drawing has the same rows and labels, and is narrow enough that its 12px text renders
+// at 12px or more in a 390 card (340 px wide once it runs into the padding); the open-end label's two lines are the cell
+test("slopegraph, phone: same labels as the wide one, and the text renders at 12 px or more at 390", async () => {
+  assert.equal(OUT_LINES.join(" "), cell("out"));
+  for (const b of [(await bothWaysFrom(events, recorded()))!, await mjBoth()]) {
+    const wide = slope(b)!, narrow = slope(b, true)!;
+    assert.deepEqual(narrow.rows.map((r) => [r.name, r.left, r.right]), wide.rows.map((r) => [r.name, r.left, r.right]));
+    assert.ok((12 * 340) / narrow.w >= 12, `${b.seed}: ${narrow.w} units wide renders ${((12 * 340) / narrow.w).toFixed(1)} px`);
+  }
 });

@@ -2,7 +2,7 @@
 // calls marked, both ranks, one static caption. Shared by the ask page and the sheet; no hooks.
 import Link from "next/link";
 import { linkInline } from "@/app/ui";
-import { cell as show, slope, SLOPE, type BothWays } from "@/lib/ask/both-rules.ts";
+import { cell as show, OUT_LINES, slope, SLOPE, type BothWays } from "@/lib/ask/both-rules.ts";
 
 export function BothTable({ b, compact = false }: { b: BothWays; compact?: boolean }) {
   // DC F14: rows top-aligned and the ranks kept on one line, so a phone wraps the long name instead of every "not in their top 50"
@@ -48,15 +48,26 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
 // rank of the seed. A line that climbs is drawn in the accent. Every label is a table cell (lib/ask/both-rules.ts
 // slope), and the table on the page carries the same ranks for screen readers.
 export function BothSlope({ b }: { b: BothWays }) {
-  const s = slope(b);
-  if (!s) return null;
+  // two drawings of the same rows: the wide one from 640, the narrow one on phones (DES-6), each sized so its text
+  // renders at 12 to 14 px. The narrow one runs into the card's padding and never draws larger than 14 px.
+  const wide = slope(b), narrow = slope(b, true);
+  if (!wide || !narrow) return null;
+  return (
+    <>
+      <SlopeSvg b={b} s={wide} className="mt-4 w-full max-w-md text-[13px] max-sm:hidden" />
+      <SlopeSvg b={b} s={narrow} narrow className="-mx-2 mt-4 w-[calc(100%+1rem)] text-[12px] sm:hidden" style={{ maxWidth: Math.round((narrow.w * 14) / 12) }} />
+    </>
+  );
+}
+
+function SlopeSvg({ b, s, narrow = false, className, style }: { b: BothWays; s: NonNullable<ReturnType<typeof slope>>; narrow?: boolean; className: string; style?: React.CSSProperties }) {
   const { top, h } = SLOPE;
   const { w, l, r } = s;
   const head = (x: number, anchor: "start" | "end", a: string, c: string) => (
     <text x={x} y={12} textAnchor={anchor} className="fill-ink-3"><tspan x={x}>{a}</tspan><tspan x={x} dy={16}>{c}</tspan></text>
   );
   return (
-    <svg viewBox={`0 0 ${w} ${s.height}`} className="mt-4 w-full max-w-md text-[13px]" aria-hidden="true">
+    <svg viewBox={`0 0 ${w} ${s.height}`} className={className} style={style} aria-hidden="true">
       {head(l, "end", `${b.seed} fans`, "rank it")}
       {head(r, "start", "Its fans rank", b.seed)}
       <line x1={l} x2={l} y1={top - 6} y2={top + h} className="stroke-rule-ui" />
@@ -71,7 +82,7 @@ export function BothSlope({ b }: { b: BothWays }) {
             <line x1={l - 12} y1={x.ly1} x2={l - 4} y2={x.y1} className="stroke-rule-ui" />
             <text x={l - 14} y={x.ly1 + 4} textAnchor="end" className={x.climbs || x.call ? "fill-ink" : "fill-ink-2"}>{x.name} <tspan className={x.climbs ? "fill-accent-strong font-semibold" : "fill-ink-3"}>{x.left}</tspan></text>
             {x.right && <line x1={r + 4} y1={x.y2} x2={r + 12} y2={x.ly2} className="stroke-rule-ui" />}
-            {x.right && <text x={r + 14} y={x.ly2 + 4} className={x.climbs ? "fill-accent-strong font-semibold" : "fill-ink-2"}>{x.right}</text>}
+            {x.right && <text x={r + 14} y={x.ly2 + 4} className={x.climbs ? "fill-accent-strong font-semibold" : "fill-ink-2"}>{narrow && x.right === show("out") ? OUT_LINES.map((t, i) => <tspan key={t} x={r + 14} dy={i ? 15 : 0}>{t}</tspan>) : x.right}</text>}
           </g>
         );
       })}

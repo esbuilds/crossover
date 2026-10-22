@@ -535,7 +535,8 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
         <span><span className="mr-1 inline-block size-3 rounded-full bg-accent align-middle" aria-hidden /> taste (affinity with {seed?.name ?? "the seed"}&apos;s fans)</span>
       </p>
       {/* one column grid shared by the axis and the rows (subgrid), so the axis track is exactly the rows' track */}
-      <ul className="mt-2 grid grid-cols-[minmax(0,9rem)_1fr_auto] gap-x-2 gap-y-1.5">
+      {/* long names wrap to a second line instead of truncating ("LaCroix Sparkling W...", DES-6) */}
+      <ul className="mt-2 grid grid-cols-[minmax(0,9rem)_1fr_auto] gap-x-2 gap-y-1.5 sm:grid-cols-[minmax(0,11rem)_1fr_auto]">
         {/* the axis, drawn once (TR F7, CT F10): ticks at 0.5, 0.75 and 1 */}
         <li aria-hidden className="col-span-3 grid grid-cols-subgrid items-end text-xs text-ink-3">
           <span />
@@ -551,7 +552,7 @@ function Dumbbell({ rows, steps, compact = false }: { rows: DumbbellRow[]; steps
         </li>
         {rows.map((r, i) => (
           <li key={r.name} className="bell-row col-span-3 grid grid-cols-subgrid items-center text-sm" style={{ "--i": i } as React.CSSProperties}>
-            <span className="truncate text-ink" title={displayName(r.name)}>{displayName(r.name)}</span>
+            <span className="text-ink leading-tight">{displayName(r.name)}</span>
             <span className="relative h-3">
               <span className="absolute inset-x-0 top-1/2 h-px bg-rule-ui" aria-hidden />
               <span className="absolute inset-y-0 left-1/2 w-px bg-rule" aria-hidden />
