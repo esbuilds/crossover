@@ -311,32 +311,36 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
   const twins = twinsStep(steps);
   const [first, ...rest] = decision.calls;
   const byCategory = categoryRival(steps);
+  const others = rest.length > 0 && (
+    <ul className="mt-6 space-y-4">
+      {rest.map((c, i) => (
+        <li key={c.name + i} className="border-t border-rule pt-4">
+          <p className="text-lg text-ink">{tied ? "" : `${i + 2}. `}{nameForDisplay(c.name)}</p>
+          <p className="claim mt-1 text-base text-ink">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
+        </li>
+      ))}
+    </ul>
+  );
+  // render order only (SCORE-1, real Oct 23): the both-ways table directly under the card, then, in a tie, the tie and
+  // the other picks before the first call's reason, so the column doesn't restate the tie after the card resolved it
   return (
     <>
+      {first && both && <div className="motion-safe:animate-[fade-in_200ms_ease-out] [&>*]:mt-0"><BothTable b={both} /></div>}
+      {first && tied && (
+        <p className={`${both ? "mt-6" : ""} text-sm text-ink-3`}>
+          {tieLine(review!.summary, nameForDisplay(first.name), rest.length, size, WORDS)}
+        </p>
+      )}
+      {tied && others}
       {first && (
-        <>
+        <div className={both || tied ? "mt-6 border-t border-rule pt-4" : ""}>
           {/* a label for the reason under it, not a second headline: the card above already leads with the call (DES-4) */}
           <h2 className="text-base font-semibold text-ink-2">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
           <p className="claim mt-1 text-base text-ink">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
           <FoolIt decision={decision} steps={steps} />
-          {both && <div className="motion-safe:animate-[fade-in_200ms_ease-out]"><BothTable b={both} /></div>}
-          {tied && (
-            <p className="mt-3 text-sm text-ink-3">
-              {tieLine(review!.summary, nameForDisplay(first.name), rest.length, size, WORDS)}
-            </p>
-          )}
-        </>
+        </div>
       )}
-      {rest.length > 0 && (
-        <ul className="mt-6 space-y-4">
-          {rest.map((c, i) => (
-            <li key={c.name + i} className="border-t border-rule pt-4">
-              <p className="text-lg text-ink">{tied ? "" : `${i + 2}. `}{nameForDisplay(c.name)}</p>
-              <p className="claim mt-1 text-base text-ink">{forDisplay(c.reason)} <Steps ns={c.steps} /></p>
-            </li>
-          ))}
-        </ul>
-      )}
+      {!tied && others}
       {twinsStepRec && (
         <p className="claim mt-6 max-w-copy text-base text-ink-2">
           {twins
