@@ -180,11 +180,14 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
         )}
       </section>
 
-      {/* phones: the call card, the picture, the decision, the steps (Fable tie ruling, Oct 14). From 1024: the card and
-          the decision down the right, the picture and then the steps down the left. */}
+      {/* phones: the call card, the picture, the decision, the steps (Fable tie ruling, Oct 14). From 1024 (DES-2, real
+          Oct 23): the card and then the decision down the left, so the answer is read first, and the picture and then the
+          steps down the right. Each side is one stack (the wrappers are display: contents below lg, so the four keep their
+          phone order), so a short picture no longer leaves a hole beside the decision. */}
       <div className="mt-block grid gap-x-12 gap-y-block lg:grid-cols-2 lg:items-start">
+        <div className="contents lg:block">
         {card && (
-          <section className="order-1 lg:col-start-2 lg:row-start-1">
+          <section className="order-1">
             <div className={`${panelStrong} p-4 sm:p-6${landed !== Infinity && !playing ? " card-stamped" : ""}`}>
               <p className="font-display text-2xl text-ink">{card.first}</p>
               {/* the fact that separates the first call, and its picture, from the both-ways rows (COLDJUDGE-8, SPECTACLE-2) */}
@@ -204,16 +207,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           </section>
         )}
 
-        {(hero || status === "running") && (
-          <section id="hero" className="order-2 scroll-mt-4 lg:col-start-1 lg:row-span-2 lg:row-start-1">
-            {hero === "map" ? <MapPicture m={map!} n={steps.find((s) => s.tool === "split")!.n} /> : hero === "dumbbell" ? <Dumbbell rows={bell!.rows} steps={steps} /> : (
-              // persona test, Oct 14: the slot is held while the steps run, so nothing jumps columns when the picture lands
-              <p className="min-h-48 text-sm text-ink-3">The picture appears here when the split or the scores arrive.</p>
-            )}
-          </section>
-        )}
-
-        <section className="order-3 lg:col-start-2 lg:row-span-2 lg:row-start-2">
+        <section className="order-3 lg:mt-block">
           {verdict?.ok && verdict.decision && <Call decision={verdict.decision} steps={steps} shared={notes?.shared ?? null} both={both} />}
           {verdict?.ok && verdict.decision && (
             <>
@@ -251,7 +245,19 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {error && <p className="text-lg text-ink" role="alert">{error}</p>}
         </section>
 
-        <section id="steps" className="order-4 scroll-mt-4 lg:col-start-1 lg:row-start-3">
+        </div>
+
+        <div className="contents lg:block">
+        {(hero || status === "running") && (
+          <section id="hero" className="order-2 scroll-mt-4">
+            {hero === "map" ? <MapPicture m={map!} n={steps.find((s) => s.tool === "split")!.n} /> : hero === "dumbbell" ? <Dumbbell rows={bell!.rows} steps={steps} /> : (
+              // persona test, Oct 14: the slot is held while the steps run, so nothing jumps columns when the picture lands
+              <p className="min-h-48 text-sm text-ink-3">The picture appears here when the split or the scores arrive.</p>
+            )}
+          </section>
+        )}
+
+        <section id="steps" className="order-4 scroll-mt-4 lg:mt-block">
           {steps.length > 0 && <h2 className="font-display text-xl">Steps</h2>}
           <ol className="mt-4 space-y-6">
             {/* every step holds its room from the start, so the grid doesn't re-row as the replay lands them (MO F4) */}
@@ -267,6 +273,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             ))}
           </ol>
         </section>
+        </div>
       </div>
 
     </Landed.Provider>
