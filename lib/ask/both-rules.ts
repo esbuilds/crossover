@@ -75,14 +75,18 @@ export function bothLine(b: BothWays | null, first: string): string | null {
 // longest label (CH: a 13px system-font character, estimated), so a phone draws the text as large as it can.
 export const SLOPE = { top: 46, h: 200, gap: 17, span: 70, pad: 18 };
 const CH = 7.4;
+// Asked both ways (W1, real Oct 24): the wide drawing gets twice the span and room above the axes for the two direction
+// arrows and an italic sub-line under each header (11.5px, so CH scaled). The phone drawing and the sheet are unchanged.
+// sub: the italic line measured 5.3 per character (real Oct 24, Chromium), 0.75 of CH leaves a margin
+const WIDE = { top: 60, span: 140, sub: 0.75 };
 // Phones (DES-6, real Oct 23): the same rows and labels in a tighter frame, so the text renders at 12 px or more in a
 // 390 card instead of scaling down to 9 to 11. 12px characters, a shorter span, and the shared open-end label set on
 // two lines (OUT_LINES), the widest right-hand label on every Mt. Joy-style card.
 const NARROW = { ch: 6.83, span: 40, pad: 10 };
 export const OUT_LINES = ["not in their", "top 50"];
 export type SlopeRow = { name: string; left: string; right: string; y1: number; y2: number; ly1: number; ly2: number; out: boolean; climbs: boolean; call: boolean };
-const y = (r: number) => SLOPE.top + (Math.log(r) / Math.log(50)) * SLOPE.h;
-const OUT_Y = SLOPE.top + SLOPE.h + 20;
+const y = (r: number, top: number) => top + (Math.log(r) / Math.log(50)) * SLOPE.h;
+const outY = (top: number) => top + SLOPE.h + 20;
 // each used label at its point, or one gap below the label above it
 function spread(ys: number[], use: boolean[]) {
   const out = [...ys];
@@ -90,24 +94,43 @@ function spread(ys: number[], use: boolean[]) {
   for (const i of ys.map((_, i) => i).filter((i) => use[i]).sort((a, b) => ys[a] - ys[b])) prev = out[i] = Math.max(ys[i], prev + SLOPE.gap);
   return out;
 }
-export function slope(b: BothWays, narrow = false): { rows: SlopeRow[]; height: number; l: number; r: number; w: number } | null {
+// left: leftSub's line, wide only. The phone drawing ignores both sub-lines.
+export function slope(b: BothWays, narrow = false, left: string | null = null): { rows: SlopeRow[]; height: number; l: number; r: number; w: number; top: number; subs: { left: string | null; right: string | null } } | null {
   const drawn = b.rows.filter((r) => typeof r.fwd === "number" && r.rev !== null);
   if (!b.shown || drawn.length < 2) return null;
-  const y1 = drawn.map((r) => y(r.fwd as number));
-  const y2 = drawn.map((r) => (r.rev === "out" ? OUT_Y : y(r.rev as number)));
+  const top = narrow ? SLOPE.top : WIDE.top, OUT_Y = outY(top);
+  const subs = narrow ? { left: null, right: null } : { left, right: rightSub(b) };
+  const y1 = drawn.map((r) => y(r.fwd as number, top));
+  const y2 = drawn.map((r) => (r.rev === "out" ? OUT_Y : y(r.rev as number, top)));
   // the open ends share one point, so only the first of them carries the label
   const firstOut = drawn.findIndex((r) => r.rev === "out");
   const right = drawn.map((r, i) => (r.rev === "out" && i !== firstOut ? "" : cell(r.rev)));
   const ly1 = spread(y1, drawn.map(() => true));
   const ly2 = spread(y2, right.map(Boolean));
   const rows = drawn.map((r, i) => ({ name: r.name, left: cell(r.fwd), right: right[i], y1: y1[i], y2: y2[i], ly1: ly1[i], ly2: ly2[i], out: r.rev === "out", climbs: typeof r.rev === "number" && r.rev < (r.fwd as number), call: r.call }));
-  const { ch, span, pad } = narrow ? NARROW : { ch: CH, span: SLOPE.span, pad: SLOPE.pad };
+  const { ch, span, pad } = narrow ? NARROW : { ch: CH, span: WIDE.span, pad: SLOPE.pad };
+  const subLen = (t: string | null) => (t ? t.length * WIDE.sub : 0);
   const outLabel = cell("out");
   const rightLen = (t: string) => (narrow && t === outLabel ? Math.max(...OUT_LINES.map((x) => x.length)) : t.length);
-  const l = Math.ceil(Math.max(`${b.seed} fans`.length, ...rows.map((x) => `${x.name} ${x.left}`.length)) * ch) + pad;
+  const l = Math.ceil(Math.max(`${b.seed} fans`.length, subLen(subs.left), ...rows.map((x) => `${x.name} ${x.left}`.length)) * ch) + pad;
   const r = l + span;
-  const w = r + pad + Math.ceil(Math.max("Its fans rank".length, b.seed.length, ...rows.map((x) => rightLen(x.right))) * ch);
+  const w = r + pad + Math.ceil(Math.max("Its fans rank".length, b.seed.length, subLen(subs.right), ...rows.map((x) => rightLen(x.right))) * ch);
   const outDrop = narrow && rows.some((x) => x.right === outLabel) ? 15 : 0; // the open-end label's second line
-  return { rows, height: Math.ceil(Math.max(OUT_Y + outDrop, ...ly1, ...ly2)) + 12, l, r, w };
+  return { rows, height: Math.ceil(Math.max(OUT_Y + outDrop, ...ly1, ...ly2)) + 12, l, r, w, top, subs };
+}
+
+// The sub-lines under the wide drawing's headers (W1). Left: the review's one group, only when it holds every row, from
+// step 5's own affinities; else null. Right: the best rank to the worst cell, both table cells.
+export function leftSub(b: BothWays, groups: { name: string; affinity: number }[][] | undefined): string | null {
+  if (groups?.length !== 1 || groups[0].length !== b.rows.length) return null;
+  const a = groups[0].map((g) => g.affinity);
+  return `all ${COUNT[a.length] ?? a.length} score ${Math.min(...a).toFixed(2)} to ${Math.max(...a).toFixed(2)}`;
+}
+export function rightSub(b: BothWays): string | null {
+  const ranks = b.rows.map((r) => r.rev).filter((r) => r !== null);
+  const nums = ranks.filter((r) => typeof r === "number");
+  if (!nums.length) return null;
+  const worst: Rank = ranks.includes("out") ? "out" : Math.max(...nums);
+  return `${cell(Math.min(...nums))} to ${cell(worst)}`;
 }
 

@@ -48,10 +48,11 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
 // rank of the seed. A line that climbs is drawn in the accent. Every label is a table cell (lib/ask/both-rules.ts
 // slope), and the table on the page carries the same ranks for screen readers.
 // column: the call sheet's 2.6in side column (DES-7) takes the narrow drawing at every width and in print
-export function BothSlope({ b, column = false }: { b: BothWays; column?: boolean }) {
+// left: leftSub's line for the wide drawing (W1); the phone and sheet drawings don't take it
+export function BothSlope({ b, column = false, left = null }: { b: BothWays; column?: boolean; left?: string | null }) {
   // two drawings of the same rows: the wide one from 640, the narrow one on phones (DES-6), each sized so its text
   // renders at 12 to 14 px. The narrow one runs into the card's padding and never draws larger than 14 px.
-  const wide = slope(b), narrow = slope(b, true);
+  const wide = slope(b, false, left), narrow = slope(b, true);
   if (!wide || !narrow) return null;
   if (column) return <SlopeSvg b={b} s={narrow} narrow className="mt-2 w-full text-[12px]" />;
   return (
@@ -63,8 +64,9 @@ export function BothSlope({ b, column = false }: { b: BothWays; column?: boolean
 }
 
 function SlopeSvg({ b, s, narrow = false, className, style }: { b: BothWays; s: NonNullable<ReturnType<typeof slope>>; narrow?: boolean; className: string; style?: React.CSSProperties }) {
-  const { top, h } = SLOPE;
-  const { w, l, r } = s;
+  const { h } = SLOPE;
+  const { w, l, r, top, subs } = s;
+  const mid = (l + r) / 2;
   const head = (x: number, anchor: "start" | "end", a: string, c: string) => (
     <text x={x} y={12} textAnchor={anchor} className="fill-ink-3"><tspan x={x}>{a}</tspan><tspan x={x} dy={16}>{c}</tspan></text>
   );
@@ -72,6 +74,20 @@ function SlopeSvg({ b, s, narrow = false, className, style }: { b: BothWays; s: 
     <svg viewBox={`0 0 ${w} ${s.height}`} className={className} style={style} aria-hidden="true">
       {head(l, "end", `${b.seed} fans`, "rank it")}
       {head(r, "start", "Its fans rank", b.seed)}
+      {/* asked both ways (W1, real Oct 24): which direction each column was asked in, and each column's spread. Wide only */}
+      {!narrow && (
+        <>
+          <defs>
+            <marker id="slope-head" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 z" className="fill-ink-3" /></marker>
+          </defs>
+          <text x={mid} y={11} textAnchor="middle" className="fill-ink-3 text-[11px]">one Qloo call</text>
+          <line x1={l + 26} y1={17} x2={r - 26} y2={17} markerEnd="url(#slope-head)" className="stroke-ink-3" />
+          <text x={mid} y={33} textAnchor="middle" className="fill-ink-3 text-[11px]">asked back</text>
+          <line x1={r - 26} y1={39} x2={l + 26} y2={39} markerEnd="url(#slope-head)" className="stroke-ink-3" />
+          {subs.left && <text x={l} y={45} textAnchor="end" className="fill-ink-3 text-[11.5px] italic">{subs.left}</text>}
+          {subs.right && <text x={r} y={45} className="fill-ink-3 text-[11.5px] italic">{subs.right}</text>}
+        </>
+      )}
       <line x1={l} x2={l} y1={top - 6} y2={top + h} className="stroke-rule-ui" />
       <line x1={r} x2={r} y1={top - 6} y2={top + h} className="stroke-rule-ui" />
       {s.rows.map((x) => {
@@ -84,7 +100,7 @@ function SlopeSvg({ b, s, narrow = false, className, style }: { b: BothWays; s: 
             <line x1={l - 12} y1={x.ly1} x2={l - 4} y2={x.y1} className="stroke-rule-ui" />
             <text x={l - 14} y={x.ly1 + 4} textAnchor="end" className={x.climbs || x.call ? "fill-ink" : "fill-ink-2"}>{x.name} <tspan className={x.climbs ? "fill-accent-strong font-semibold" : "fill-ink-3"}>{x.left}</tspan></text>
             {x.right && <line x1={r + 4} y1={x.y2} x2={r + 12} y2={x.ly2} className="stroke-rule-ui" />}
-            {x.right && <text x={r + 14} y={x.ly2 + 4} className={x.climbs ? "fill-accent-strong font-semibold" : "fill-ink-2"}>{narrow && x.right === show("out") ? OUT_LINES.map((t, i) => <tspan key={t} x={r + 14} dy={i ? 15 : 0}>{t}</tspan>) : x.right}</text>}
+            {x.right && <text x={r + 14} y={x.ly2 + 4} className={x.climbs ? `fill-accent-strong font-semibold${narrow ? "" : " text-[16px]"}` : "fill-ink-2"}>{narrow && x.right === show("out") ? OUT_LINES.map((t, i) => <tspan key={t} x={r + 14} dy={i ? 15 : 0}>{t}</tspan>) : x.right}</text>}
           </g>
         );
       })}

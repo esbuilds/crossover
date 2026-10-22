@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { bothWaysFrom, gate, sentence, type Row } from "./both-ways.ts";
 import allbirds from "./fixtures/allbirds.json" with { type: "json" };
 import mtJoy from "./fixtures/mt-joy.json" with { type: "json" };
-import { bothLine, cell, firstCallHeading, oneWay, OUT_LINES, slope, type BothWays } from "./both-rules.ts";
+import { bothLine, cell, firstCallHeading, leftSub, oneWay, OUT_LINES, rightSub, slope, type BothWays } from "./both-rules.ts";
 import type { AskEvent } from "./agent.ts";
 
 // Allbirds' rank among each candidate's fans' brands, as scripts/reverse-probe.ts measured it (0 = not in their top 50)
@@ -120,4 +120,19 @@ test("slopegraph, phone: same labels as the wide one, and the text renders at 12
     assert.deepEqual(narrow.rows.map((r) => [r.name, r.left, r.right]), wide.rows.map((r) => [r.name, r.left, r.right]));
     assert.ok((12 * 340) / narrow.w >= 12, `${b.seed}: ${narrow.w} units wide renders ${((12 * 340) / narrow.w).toFixed(1)} px`);
   }
+});
+
+// W1 (real Oct 24): the wide drawing's sub-lines come from step 5's one group and the table's cells; no line when the
+// review split into groups, and the phone drawing never carries them
+test("slopegraph, wide: the sub-lines are the review group's range and the table's best to worst cell", async () => {
+  const groups = (ev: AskEvent[]) => (ev.find((e) => (e as { output?: { groups?: unknown } }).output?.groups) as unknown as { output: { groups: { name: string; affinity: number }[][] } }).output.groups;
+  const ab = (await bothWaysFrom(events, recorded()))!, mj = await mjBoth();
+  assert.equal(leftSub(ab, groups(events)), "all eight score 0.92 to 0.94");
+  assert.equal(rightSub(ab), "1st to not in their top 50");
+  assert.equal(leftSub(mj, groups(mtJoy as unknown as AskEvent[])), "all eight score 0.94 to 0.97");
+  assert.equal(rightSub(mj), "4th to not in their top 50");
+  const g = groups(events);
+  assert.equal(leftSub(ab, [g[0].slice(0, 3), g[0].slice(3)]), null);
+  assert.equal(leftSub(ab, undefined), null);
+  assert.deepEqual(slope(ab, true, "x")!.subs, { left: null, right: null });
 });

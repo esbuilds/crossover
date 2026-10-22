@@ -16,7 +16,7 @@ import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
-import { bothLine, firstCallHeading, LEGEND, readBoth, slope, WHO, type BothWays } from "@/lib/ask/both-rules.ts";
+import { bothLine, firstCallHeading, LEGEND, leftSub, readBoth, slope, WHO, type BothWays } from "@/lib/ask/both-rules.ts";
 import type { FieldNotes } from "@/lib/ask/field-notes.ts";
 import { BothSlope, BothTable } from "./both-table";
 
@@ -194,7 +194,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
               {/* the fact that separates the first call, and its picture, from the both-ways rows (COLDJUDGE-8, SPECTACLE-2) */}
               {both && slope(both) && <p className="mt-2 max-w-copy text-sm text-ink-3">{readBoth(both.seed)}</p>}
               {both && bothLine(both, card.name) && <p className="mt-2 max-w-copy text-lg text-ink">{bothLine(both, card.name)}</p>}
-              {both && <BothSlope b={both} />}
+              {both && <BothSlope b={both} left={leftSub(both, (steps.find((x) => x.tool === "review")?.output as { groups?: { name: string; affinity: number }[][] } | undefined)?.groups)} />}
               {card.where && <p className="mt-2 text-base text-ink-2">{card.where}</p>}
               {resolved?.id && resolved.type && <WhereLine id={resolved.id} type={resolved.type} asked={asked} seed={asked === initial?.asked ? initial?.where : undefined} />}
               {/* the replay's last beat (WOW F1): the checker's count lands on the answer itself once the last step is in.
