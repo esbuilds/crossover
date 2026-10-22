@@ -14,7 +14,7 @@ import { sheetModel } from "@/lib/ask/sheet.ts";
 import { whereToStart } from "@/lib/ask/where.ts";
 import { bothWays, firstCallHeading } from "@/lib/ask/both-ways.ts";
 import { fieldNotesFor } from "@/lib/ask/field-notes.ts";
-import { BothTable } from "../../both-table";
+import { BothSlope, BothTable } from "../../both-table";
 import { mapLine } from "@/lib/vs.ts";
 import { peekVs } from "@/lib/rivals.ts";
 import { TONE } from "@/lib/collide.ts";
@@ -75,7 +75,8 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
 
       <section className="mt-3 grid gap-4 sm:grid-cols-[1fr_auto] print:grid-cols-[1fr_auto]">
         <div>
-          <h2 className="text-base font-semibold">{firstCallHeading(both, s.calls[0].name)}</h2>
+          {/* a label for the reason, not a second headline under the box's "First call" (DES-7) */}
+          <h2 className="font-semibold text-ink-2">{firstCallHeading(both, s.calls[0].name)}</h2>
           <p className="text-ink-2">{s.calls[0].reason}{fn(s.calls[0].steps)}</p>
           {both && <BothTable b={both} compact />}
           {s.tiedNote && <p className="mt-1.5 text-[0.9em] text-ink-3">{s.tiedNote}</p>}
@@ -89,9 +90,11 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
           <p className="mt-2 text-ink-2">{s.doubles}{s.doublesStep ? fn([s.doublesStep]) : null}</p>
           {notes?.shared && <p className="mt-1.5 text-ink-2">{notes.shared}</p>}
         </div>
+        {(s.map || both) && (
+          <div className="w-full sm:w-[2.6in] print:w-[2.2in]">
         {s.map && (
-          <figure className="w-full sm:w-[2.6in] print:w-[2.2in]">
-            {cells && <CollisionMap cells={cells.cells} metrosA={cells.metrosA} metrosB={cells.metrosB} a={s.map.seed.name} b={s.map.rival.name} />}
+          <figure>
+            {cells && <CollisionMap cells={cells.cells} metrosA={cells.metrosA} metrosB={cells.metrosB} a={s.map.seed.name} b={s.map.rival.name} labelPx={12} />}
             {/* persona test, Oct 14: the map needs its own legend on a forwarded page */}
             <p className="mt-1 flex flex-wrap gap-x-3 text-[11px] text-ink-2">
               {(["a", "b", "both"] as const).map((k) => (
@@ -102,6 +105,11 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
               {s.map.closerToSeed} brands sit closer to {s.map.seed.name}, {s.map.closerToRival} closer to {s.map.rival.name}, {s.map.withinGapOfBoth} within 0.05 of both. {cities}
             </figcaption>
           </figure>
+        )}
+            {/* the card's picture of the table beside it (DES-7): the same rows and cells, drawn. Screen only: the
+                printed page was already 9.97in of Letter's 10 at 0.5in margins, and the table prints the same cells */}
+            {both && <div className="print:hidden"><BothSlope b={both} column /></div>}
+          </div>
         )}
       </section>
 

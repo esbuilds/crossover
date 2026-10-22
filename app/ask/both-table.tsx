@@ -47,11 +47,13 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
 // The same rows as a slopegraph (SPECTACLE-2, real Oct 22): left, the seed's fans' rank of each; right, each one's fans'
 // rank of the seed. A line that climbs is drawn in the accent. Every label is a table cell (lib/ask/both-rules.ts
 // slope), and the table on the page carries the same ranks for screen readers.
-export function BothSlope({ b }: { b: BothWays }) {
+// column: the call sheet's 2.6in side column (DES-7) takes the narrow drawing at every width and in print
+export function BothSlope({ b, column = false }: { b: BothWays; column?: boolean }) {
   // two drawings of the same rows: the wide one from 640, the narrow one on phones (DES-6), each sized so its text
   // renders at 12 to 14 px. The narrow one runs into the card's padding and never draws larger than 14 px.
   const wide = slope(b), narrow = slope(b, true);
   if (!wide || !narrow) return null;
+  if (column) return <SlopeSvg b={b} s={narrow} narrow className="mt-2 w-full text-[12px]" />;
   return (
     <>
       <SlopeSvg b={b} s={wide} className="mt-4 w-full max-w-md text-[13px] max-sm:hidden" />

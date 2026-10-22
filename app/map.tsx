@@ -66,40 +66,53 @@ const overlaps = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y <
 
 // Top five (or count) plus whatever the list is hovering. Greedy placement: right, left, above, below,
 // first spot that doesn't collide with an earlier label wins. color: per-metro fill (the collision map's sides).
+// DES-7 (real Oct 23): a label also keeps off every other city's dot, and the width estimate is the bold serif's
+// (0.58 em; 0.5 let "San Francisco" run into Denver on the call sheet's small map).
+const LABEL_EM = 0.58;
 export function Labels({ metros, hovered, font, count = 5, color }: { metros: City[]; hovered: string | null; font: number; count?: number; color?: (m: City) => string }) {
   const { projection } = useMapContext();
   const placed = useMemo(() => {
     const shown = metros.slice(0, count);
     const extra = hovered && !shown.some((m) => m.name === hovered) ? metros.find((m) => m.name === hovered) : undefined;
+    const list = [...shown, ...(extra ? [extra] : [])];
+    const dots: (Box & { name: string })[] = list.flatMap((m) => {
+      const p = projection([m.lon, m.lat]);
+      return p ? [{ name: m.name, x: p[0] - font / 3, y: p[1] - font / 3, w: (font * 2) / 3, h: (font * 2) / 3 }] : [];
+    });
     const boxes: Box[] = [];
-    return [...shown, ...(extra ? [extra] : [])].flatMap((m) => {
+    return list.flatMap((m) => {
       const p = projection([m.lon, m.lat]);
       if (!p) return [];
       const [x, y] = p;
-      const w = m.name.length * font * 0.5 + 4;
+      const w = m.name.length * font * LABEL_EM + 4;
       const h = font + 2;
       const spots: (Box & { anchor: "start" | "end" | "middle" })[] = [
         { x: x + 11, y: y - h / 2, w, h, anchor: "start" },
         { x: x - 11 - w, y: y - h / 2, w, h, anchor: "end" },
-        { x: x - w / 2, y: y - 12 - h, w, h, anchor: "middle" },
-        { x: x - w / 2, y: y + 12, w, h, anchor: "middle" },
+        // above and below slide inside the edge instead of dropping out (DES-7: San Francisco on a small map)
+        { x: Math.min(Math.max(x - w / 2, 0), W - w), y: y - 12 - h, w, h, anchor: "middle" },
+        { x: Math.min(Math.max(x - w / 2, 0), W - w), y: y + 12, w, h, anchor: "middle" },
       ];
       const inside = spots.filter((s) => s.x >= 0 && s.x + s.w <= W && s.y >= 0 && s.y + s.h <= H); // never clip at the edge
-      const spot = inside.find((s) => !boxes.some((b) => overlaps(s, b))) ?? inside[0] ?? spots[0];
+      const clear = (s: Box) => !boxes.some((b) => overlaps(s, b)) && !dots.some((d) => d.name !== m.name && overlaps(s, d));
+      // no spot clear of the labels already placed: the dot stays, its name doesn't print over another (DES-7). The
+      // hovered city always gets its name.
+      const spot = inside.find(clear) ?? inside.find((s) => !boxes.some((b) => overlaps(s, b))) ?? (m.name === hovered ? inside[0] ?? spots[0] : undefined);
+      if (!spot) return [{ m, x, y, tx: 0, ty: 0, anchor: "start" as const, named: false }];
       boxes.push(spot);
       const tx = spot.anchor === "start" ? spot.x : spot.anchor === "end" ? spot.x + spot.w : spot.x + spot.w / 2;
-      return [{ m, x, y, tx, ty: spot.y + h - 4, anchor: spot.anchor }];
+      return [{ m, x, y, tx, ty: spot.y + h - 4, anchor: spot.anchor, named: true }];
     });
   }, [metros, hovered, projection, font, count]);
 
   return (
     <g>
-      {placed.map(({ m, x, y, tx, ty, anchor }) => {
+      {placed.map(({ m, x, y, tx, ty, anchor, named }) => {
         const hot = m.name === hovered;
         return (
           <g key={m.name}>
             <circle cx={x} cy={y} r={(hot ? 4.5 : 3.5) * (font / LABEL_PX)} fill={color?.(m) ?? INK} stroke="#fff" strokeWidth={font / 10} />
-            <text
+            {named && <text
               x={tx}
               y={ty}
               textAnchor={anchor}
@@ -113,7 +126,7 @@ export function Labels({ metros, hovered, font, count = 5, color }: { metros: Ci
               style={{ pointerEvents: "none" }}
             >
               {m.name}
-            </text>
+            </text>}
           </g>
         );
       })}
@@ -122,16 +135,17 @@ export function Labels({ metros, hovered, font, count = 5, color }: { metros: Ci
 }
 
 // labels stay LABEL_PX on screen: convert to map units from the rendered width
-export function useLabelFont() {
+// px: the call sheet's small map asks for 12 (DES-7): nine 14px names don't fit a 2.6in map without colliding
+export function useLabelFont(px = LABEL_PX) {
   const box = useRef<HTMLDivElement>(null);
   const [font, setFont] = useState(21);
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => e.contentRect.width && setFont(Math.round((LABEL_PX * W) / e.contentRect.width)));
+    const ro = new ResizeObserver(([e]) => e.contentRect.width && setFont(Math.round((px * W) / e.contentRect.width)));
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [px]);
   return { box, font };
 }
 

@@ -52,8 +52,8 @@ export function MapKey({ a, b, sourceClass = "" }: { a: string; b: string; sourc
 
 // reveal (default true): the home replay passes false until the split's step lands, so the states draw at first paint
 // and the cells and names arrive with their step (WOW F2). /vs and /ask never pass it.
-export default function CollisionMap({ cells, metrosA, metrosB, a, b, reveal = true }: { cells: CollideCell[]; metrosA: City[]; metrosB: City[]; a: string; b: string; reveal?: boolean }) {
-  const { box, font } = useLabelFont();
+export default function CollisionMap({ cells, metrosA, metrosB, a, b, reveal = true, labelPx }: { cells: CollideCell[]; metrosA: City[]; metrosB: City[]; a: string; b: string; reveal?: boolean; labelPx?: number }) {
+  const { box, font } = useLabelFont(labelPx);
   const inA = new Set(metrosA.map((m) => m.name)), inB = new Set(metrosB.map((m) => m.name));
   const metros = [...metrosA, ...metrosB.filter((m) => !inA.has(m.name))];
   const color = (m: City) => (inA.has(m.name) && inB.has(m.name) ? INK : inA.has(m.name) ? TONE.a : TONE.b);
