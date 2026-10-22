@@ -4,7 +4,7 @@ Drafted real Oct 22, 2026 (UTC Oct 21). Committed in git before any Qloo call fo
 
 ## Why
 
-The replays scored one direction: the seed's fans scoring the eight. The scrambled-seed control (audit/replay-control-protocol.md, 7f32e44) failed: under a wrong seed the real partner still landed in the top three 17 times in 23, as under its own. That direction doesn't separate the seed. This test scores the other direction, the one the front door now quotes ("Bombas fans rank Allbirds first"): where each candidate's own fans rank the seed.
+The replays scored one direction: the seed's fans scoring the eight. The scrambled-seed control (audit/replay-control-protocol.md, 65d1f56) failed: under a wrong seed the real partner still landed in the top three 17 times in 23, as under its own. That direction doesn't separate the seed. This test scores the other direction, the one the front door now quotes ("Bombas fans rank Allbirds first"): where each candidate's own fans rank the seed.
 
 ## Cases
 
