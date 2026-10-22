@@ -16,7 +16,7 @@ import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
-import { bothLine, firstCallHeading, readBoth, slope, type BothWays } from "@/lib/ask/both-rules.ts";
+import { bothLine, firstCallHeading, LEGEND, readBoth, slope, WHO, type BothWays } from "@/lib/ask/both-rules.ts";
 import type { FieldNotes } from "@/lib/ask/field-notes.ts";
 import { BothSlope, BothTable } from "./both-table";
 
@@ -224,11 +224,12 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
               {/* the re-judge's memorable moment lived only on /audit (Fable tie ruling, Oct 14) */}
               <p className="mt-2 max-w-copy text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className={linkInline}>See it on the audit</Link></p>
               <p className="mt-2 max-w-copy text-sm text-ink-3">{LIMITS}</p>
+              <p className="mt-1 max-w-copy text-sm text-ink-3">{WHO}{both?.shown ? ` ${LEGEND}` : ""}</p>
               <p className="mt-1 max-w-copy text-sm text-ink-3">{COST}</p>
               </div>
               <p className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
                 {resolved?.id && resolved.type && <CopyAsk href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share} />}
-                {resolved?.id && resolved.type && <Link href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).sheet} className={btnText}>Call sheet: print or save as PDF</Link>}
+                {resolved?.id && resolved.type && <Link href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).sheet} className={btnText}>Call sheet: the one page you send your boss (print or PDF)</Link>}
                 <Link href="/audit" className={btnText}>Next: is any of this right? The audit</Link>
               </p>
             </>

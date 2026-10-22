@@ -12,7 +12,7 @@ import { PROOF } from "@/lib/ask/proof.ts";
 import blocked from "@/lib/ask/blocked.json";
 import { sheetModel } from "@/lib/ask/sheet.ts";
 import { whereToStart } from "@/lib/ask/where.ts";
-import { bothWays, firstCallHeading } from "@/lib/ask/both-ways.ts";
+import { bothWays, firstCallHeading, LEGEND, WHO } from "@/lib/ask/both-ways.ts";
 import { fieldNotesFor } from "@/lib/ask/field-notes.ts";
 import { BothSlope, BothTable } from "../../both-table";
 import { mapLine } from "@/lib/vs.ts";
@@ -141,6 +141,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
         <p>{s.proof}</p>
         {body?.caseKey && <p className="mt-1">Replay case, a demonstration, not a test: the agent was given the case&apos;s eight in alphabetical order, without knowing which was the real partner.</p>}
         <p className="mt-1">{s.blocked}</p>
+        <p className="mt-1">{WHO}{both?.shown ? ` ${LEGEND}` : ""}</p>
         <p className="mt-1 text-ink-3">{s.credit} crossover-henna.vercel.app/ask/{id.toUpperCase()} · printed {new Date().toISOString().slice(0, 10)}</p>
       </footer>
     </article>

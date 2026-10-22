@@ -32,6 +32,11 @@ export function oneWay(seed: string, noun: string, rows: Row[], first: Row | und
 // asks from both sides, not the agent: the reverse ranks are code's (lib/ask/both-ways.ts).
 export const readBoth = (seed: string) => `Read both ways: the left is where ${poss(seed)} fans rank each name, the right is where that name's fans rank ${seed}. Each Qloo call ranks from one side; Crossover asks from both.`;
 
+// Who it's for, both sides of one call (DEEP-3, DEEP-7, real Oct 23), under the answer and at the foot of the call
+// sheet; the legend only where the both-ways table renders.
+export const WHO = "Who this is for: the partnerships lead who has to pick up the phone, and the sponsorship seller on the other end of it.";
+export const LEGEND = "The left column is the shortlist; the right column is the pitch line.";
+
 // The heading follows the measurement (Fable's persona round 2 ruling, Eric approved Oct 15): "Call first" only when the
 // first call's fans also rank the seed 1st to 3rd; otherwise it's the agent's call, stated as such. Rendering only.
 export function firstCallHeading(b: BothWays | null, first: string): string {
