@@ -211,8 +211,11 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {verdict?.ok && verdict.decision && <Call decision={verdict.decision} steps={steps} shared={notes?.shared ?? null} both={both} />}
           {verdict?.ok && verdict.decision && (
             <>
+              {/* the checker, the cost, the counterexample and the limits: one quiet ruled block, as at the foot of the call
+                  sheet (DES-4). Every line stays visible. */}
+              <div className="mt-6 border-t border-rule pt-4">
               {/* held (invisible) while the replay plays, so its arrival doesn't shift the steps */}
-              <p className={`mt-6 text-sm text-ink ${playing ? "invisible" : ""}`} aria-hidden={playing || undefined}>Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>
+              <p className={`text-sm text-ink ${playing ? "invisible" : ""}`} aria-hidden={playing || undefined}>Checker rule {CHECK_RULE}: {claimCount(verdict.decision)} names and numbers in the agent&apos;s answer, each matched to the step it cites.</p>
               {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
               <p className="mt-2 text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
               {proof && <p className="mt-2 max-w-copy text-sm text-ink-2">{proof} <Link href="/audit#fool-it" className={linkInline}>What got through</Link></p>}
@@ -220,6 +223,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
               <p className="mt-2 max-w-copy text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className={linkInline}>See it on the audit</Link></p>
               <p className="mt-2 max-w-copy text-sm text-ink-3">{LIMITS}</p>
               <p className="mt-1 max-w-copy text-sm text-ink-3">{COST}</p>
+              </div>
               <p className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
                 {resolved?.id && resolved.type && <CopyAsk href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share} />}
                 {resolved?.id && resolved.type && <Link href={askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).sheet} className={btnText}>Call sheet: print or save as PDF</Link>}
@@ -310,7 +314,8 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
     <>
       {first && (
         <>
-          <h2 className="text-lg font-semibold">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
+          {/* a label for the reason under it, not a second headline: the card above already leads with the call (DES-4) */}
+          <h2 className="text-base font-semibold text-ink-2">{firstCallHeading(both, nameForDisplay(first.name))}</h2>
           <p className="claim mt-1 text-base text-ink">{forDisplay(first.reason)} <Steps ns={first.steps} /></p>
           <FoolIt decision={decision} steps={steps} />
           {both && <div className="motion-safe:animate-[fade-in_200ms_ease-out]"><BothTable b={both} /></div>}
@@ -339,13 +344,20 @@ function Call({ decision, steps, shared, both }: { decision: Decision; steps: St
           <Steps ns={[twinsStepRec.n]} />
         </p>
       )}
-      {decision.cautions.length + decision.summary.length > 0 && <p className="mt-6 text-sm text-ink-3">The agent&apos;s notes</p>}
-      {[...decision.cautions, ...decision.summary].map((c, i, all) => (
-        <div key={c.text}>
-          <p className={`claim ${i ? "mt-3" : "mt-2"} max-w-copy text-base text-ink-2`}>{forDisplay(c.text)} <Steps ns={c.steps} /></p>
-          {byCategory && i === all.findIndex((x) => x.text.includes(`[[${byCategory.rival}]]`)) && <p className="mt-1 max-w-copy text-sm text-ink-3">{byCategory.line}</p>}
+      {/* the agent's notes, one compact list a step quieter than the calls (DES-4): every note stays, with its steps */}
+      {decision.cautions.length + decision.summary.length > 0 && (
+        <div className="mt-6 border-t border-rule pt-4">
+          <p className="text-sm text-ink-3">The agent&apos;s notes</p>
+          <ul className="mt-2 max-w-copy list-disc space-y-2 pl-4 text-sm text-ink-2 marker:text-rule-ui">
+            {[...decision.cautions, ...decision.summary].map((c, i, all) => (
+              <li key={c.text}>
+                <p className="claim">{forDisplay(c.text)} <Steps ns={c.steps} /></p>
+                {byCategory && i === all.findIndex((x) => x.text.includes(`[[${byCategory.rival}]]`)) && <p className="mt-1 text-ink-3">{byCategory.line}</p>}
+              </li>
+            ))}
+          </ul>
         </div>
-      ))}
+      )}
       {byCategory && ![...decision.cautions, ...decision.summary].some((x) => x.text.includes(`[[${byCategory.rival}]]`)) && <p className="mt-3 max-w-copy text-sm text-ink-3">{byCategory.line}</p>}
       {shared && <p className="mt-4 max-w-copy text-base text-ink-2">{shared}</p>}
     </>
