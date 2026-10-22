@@ -48,6 +48,21 @@ One name in: an agent measures in Qloo step by step and says who that brand, art
 
 `POST /api/ask` with `{"query":"Allbirds"}` streams server-sent events. Claude Opus 5.5 picks each tool and writes why first; the tools are code in `lib/ask/tools.ts`, and every Qloo call goes through `lib/qloo.ts`. For Allbirds: `/search` resolves the name; `/v2/insights` with `signal.interests.entities` reads its fans' top 50 brands and the rival finder picks Outdoor Voices; two top-50 lists, scoring the union under both seeds and two national heatmaps make the split; eight candidates come from the split by rule; one `/v2/insights` call with `filter.results.entities` scores all eight for Allbirds' fans (they tie within 0.05); each contender scores the others for the overlap check. The model then names three calls, and `lib/ask/check.ts` matches all 31 names and numbers in its answer to the steps they cite; an answer that fails isn't shown. Beside the frozen answer, code reads each candidate's fans' top 50 (`lib/ask/both-ways.ts`, up to 8 calls) for the both-ways line. "Its fans rank Allbirds Nth" is one `GET /v2/insights` per candidate, with `filter.type=urn:entity:brand` (the seed's type), `signal.interests.entities` set to that candidate's Qloo id and `take=50`: N is Allbirds' position in the list that comes back, and when Allbirds isn't in those 50 the cell reads "not in their top 50". A new name costs about 28 Qloo calls and 40 seconds; every response and the whole run are cached in Redis, so a repeat costs none.
 
+```mermaid
+flowchart LR
+  A["resolve"] --> B["findRival"]
+  B -- "rival found" --> C["split: two top-50 lists,<br/>two heatmaps"]
+  B -- "none" --> D
+  C --> D["candidates: eight by rule<br/>(six for Calm)"]
+  D --> E["review: one call<br/>scores all eight"]
+  E --> F["twins: the overlap check"]
+  F --> G["decide: up to three calls,<br/>every name in [[brackets]],<br/>every sentence cites its steps"]
+  G --> H{"lib/ask/check.ts<br/>rule v3.1"}
+  H -- "every name and number traces" --> I["the answer, cached and replayed"]
+  H -- "else" --> J["blocked, listed on /audit"]
+  I -.-> K["both ways, beside the answer<br/>lib/ask/both-ways.ts, up to 8 calls"]
+```
+
 Check the live site against this repo without a browser:
 
 ```
@@ -62,11 +77,25 @@ curl -s https://crossover-henna.vercel.app/api/usage
 curl -sN -X POST https://crossover-henna.vercel.app/api/ask -H 'content-type: application/json' -d '{"id":"78A44C09-E691-42DA-A553-5CDE6EE9B18A","type":"urn:entity:brand"}'
 ```
 
+## Verify it with no keys
+
+`npm run verify` (`scripts/verify.ts`) needs no API key, no Redis and no network (Node 22.18 or later for type stripping; measured on 23.11). It reads the three recorded asks in `lib/ask/fixtures/` and prints:
+
+- the sha1 of each recorded ask beside the frozen hash in `docs/freeze.md`: Allbirds (1db30036) and Mt. Joy (79a549bd) are the cached answers production replays, byte for byte; the Coca-Cola x Converse replay ask has no fixture, so it is checked from the cache only (`scripts/ask-hashes.ts`);
+- the checker's verdict on each recorded decision under rule v3.1, with the count of names and numbers it matched to a cited step (Allbirds 31, Mt. Joy 33, Liquid Death 27);
+- the nine tampers of the checker attack (`lib/ask/tamper.ts`), run over the three recorded answers: 20 of 21 gated copies rejected; the one miss, on Mt. Joy, is a score nudged by 0.03, the kind behind 8 of the 11 published misses; the "unbracketed invented brand" kind is the documented ceiling and is counted apart (0 of 3);
+- the replay controls recounted from `audit/replay-control.json` and `audit/replay-reverse.json`: the real partner in the top three 17 of 23 times, 17 of 23 with the seed scrambled, and 5 against 3 when ranked the other way.
+
+It exits 1 if any of these differs. The full attack over every cached answer reads the Redis cache: `node --env-file=.env.local scripts/mutation-gate.ts` (0 Qloo calls); its published run, 219 of 230 under rule v3.1, is `audit/mutation.json`.
+
+## How the checker works
+
+The agent writes every brand, artist or show in double brackets and ends every sentence with the step numbers it rests on. The checker walks the outputs of the cited steps and collects every value under a `name` key and every numeric leaf. Each bracketed name, each plain-text name any step returned, and each number in the sentence must be in a cited step; decimals compare at two places, integers exactly. A score or rank right after a brand, in the same clause, must be that brand's own numbers, and a contrast word ("against", "while", "the others") ends the clause. Answers are re-checked under the current rule every time they're shown, so the cached runs and their hashes never change; `scripts/check-v2-gates.ts` re-runs the rule over every cached ask at 0 calls. The ceiling is documented: a plain-text name no step ever returned can't be caught, which is why the prompt brackets every name and the "Try to fool the checker" box re-brackets any capitalised name a visitor types. The gap we published: until rule v3.1 a rank that ended a sentence ("ranks 9.") wasn't bound to its brand; the tamper that found it stayed in the gate, and v3.1 rejects 219 of 230, with every miss on /audit#fool-it.
+
 ## The ask, in five minutes
 
 - **The tie, and what separates it.** Each prepared ask's candidates (eight for Allbirds and Mt. Joy, six for Calm) tie within 0.05 by taste, because they come from the top 50 of the seed's own list; the page says so. At the top of the decision column, above "Call first", code beside the frozen answer draws the other direction: each candidate's fans' rank of the seed (`lib/ask/both-ways.ts`). Bombas fans rank Allbirds 1st; the other seven rank it 9th to 31st or not in their top 50. Shown only when the agent's three separate on it (Allbirds and Mt. Joy do, the Converse replay doesn't), never reordered.
 - **The seller's side** (`lib/ask/pitch.ts`, `/ask/<id>/pitch`). The same both-ways rows read down the right column: the name whose fans rank the seed highest is the pitch, and the pitch line is a template over the two ranks and the review score. The line is checked by `lib/ask/check.ts` with the both-ways rows appended as one cited step, so a wrong number is rejected the same way (`lib/ask/pitch.test.ts`). Mt. Joy: Allbirds fans rank it 4th; Outdoor Voices fans rank it 26th. It is what a seller can say, not a forecast: ranked this way the replay found the real partner 5 times in 23.
-- **The checker** (`lib/ask/check.ts`, rule v3.1). Every name and number must appear in a cited step; a score or rank right after a brand, in the same clause, must be that brand's own. Answers are re-checked under the current rule when shown (`decisionEvent` in `lib/ask/steps.ts`), so the cached runs and their hashes (`docs/freeze.md`) never change. `scripts/check-v2-gates.ts` re-runs the rule over every cached ask at 0 calls.
 - **We attacked the checker.** `scripts/mutation-gate.ts` copies every cached answer, changes one fact per copy (9 kinds) and re-checks it: rule v2 rejected 207 of 228, the misses showed two holes, rule v3 rejected 217 of 228; a later gap (a rank that ends a sentence wasn't bound to its brand) was found, fixed in rule v3.1 and added to the gate's rank tamper, and v3.1 rejects 219 of 230, with the gap and every miss published on /audit#fool-it. Any answer has a "Try to fool the checker" box running the same code in the browser (`lib/ask/fool.ts`).
 - **Smaller names, nearly the same fit** (`lib/ask/smaller.ts`). Under the answer, Qloo's brand list for the seed's fans read again with `filter.popularity.max=0.5`: the brands that stay within 0.05 of the leader (the answer's own tie rule). Allbirds: The Recreationalist at popularity 0.50 scores 0.90 against Outdoor Voices' 0.94 at 0.96. Gate run first (`audit/popularity-probe.json`): the same entity carries the same affinity in both reads, so the comparison holds; popularity 0 is Qloo's "no measurement" and is left out.
 - **Use it from your agent (MCP).** `https://crossover-henna.vercel.app/api/mcp` (Streamable HTTP, `app/api/mcp/route.ts`): `crossover_ask` returns a cached checked answer with every cited step, `crossover_check` runs the checker on any decision and steps. Read-only over the cache, so it never spends Qloo calls. The URL opened in a browser describes the server and how to connect; `node scripts/mcp-gate.ts <url>` is the round-trip test.
@@ -88,7 +117,7 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 
 ## Tests
 
-`npm test` runs 250 offline tests in a few seconds, with no API calls. `npx tsc --noEmit` is clean. Full list below the fold.
+`npm test` runs 252 offline tests in a few seconds, with no API calls, and `npm run verify` checks the recorded answers with no keys at all (above). `npx tsc --noEmit` is clean. Full list below the fold.
 
 ## Run it
 
@@ -168,6 +197,8 @@ A fully cold pair is 8 or 9 calls; a warm one is 0.
 
 The front door's agent is `lib/ask/agent.ts` with its tools in `lib/ask/tools.ts`, streamed by `app/api/ask/route.ts` and cached per name and prompt version. The diagram below is the older slate path (/find), which still runs behind /vs.
 
+### The older slate path (/find, still behind /vs)
+
 ![Crossover architecture: the browser streams /api/run over server-sent events; retrieval against Qloo is deterministic code; a ranking agent reviews each domain; a brief agent with four Qloo tools writes the brief; Upstash Redis caches every response.](docs/architecture.svg)
 
 A run is one server-sent event stream. Code resolves the name, fetches six domains and the national heatmap from Qloo in parallel, and sends the slate as soon as it lands (about 6 s cold). The ranking agent then reviews each domain in parallel and streams its verdicts (about 18 s cold). Opening a pick starts a second stream: the brief agent, which calls Qloo through four tools. Every Qloo response and every model output is cached in Redis for 90 days under its arguments plus a prompt version, so a warm run returns in under a second and costs nothing.
@@ -178,7 +209,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 
 ## Test list
 
-`npm test` runs 250 offline tests:
+`npm test` runs 252 offline tests:
 
 - match validation against recorded search results
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
@@ -193,6 +224,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 - the category maps: the affinity matrix, missing and unknown brands, and the layout on a fixed fixture
 - share-link and category-map path checks (malformed links get a real 404)
 - the pitch sheet: the seller's pick, its line through the checker, and four tampers rejected
+- the checker attack's tampers over the three recorded asks (20 of 21 gated copies rejected) and the Allbirds fixture's frozen hash
 - a guard that no client component imports the server-only Qloo client
 
 `npx tsc --noEmit` is clean.

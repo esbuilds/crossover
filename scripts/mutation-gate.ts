@@ -4,7 +4,8 @@
 //   node --env-file=.env.local scripts/mutation-gate.ts [--write]   (--write saves audit/mutation.json for /audit)
 import { writeFileSync } from "node:fs";
 import { CHECK_RULE } from "../lib/ask/check.ts";
-import { checkDecision, type Check, type Decision, type StepRecord } from "../lib/ask/check.ts";
+import { checkDecision, type Decision } from "../lib/ask/check.ts";
+import { INVENTED, namesIn, tamper, type Run } from "../lib/ask/tamper.ts";
 import { stepsFrom } from "../lib/ask/steps.ts";
 import type { AskEvent } from "../lib/ask/agent.ts";
 
@@ -20,7 +21,6 @@ do {
   keys.push(...batch);
 } while (cursor !== "0");
 
-type Run = { seed: string; d: Decision; steps: StepRecord[] };
 const runs: Run[] = [];
 for (const key of keys) {
   const [raw] = (await run([["GET", key]])) as (string | null)[];
@@ -32,106 +32,16 @@ for (const key of keys) {
   runs.push({ seed: (steps.find((s) => s.tool === "resolve")?.output as { name?: string })?.name ?? "?", d: last.decision, steps });
 }
 
-// every name under a "name" key in a set of steps (the checker's own contract)
-const namesIn = (steps: StepRecord[]) => {
-  const out = new Set<string>();
-  const walk = (v: unknown): void => {
-    if (Array.isArray(v)) return v.forEach(walk);
-    if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) {
-      if (k === "name" && typeof x === "string") out.add(x);
-      else walk(x);
-    }
-  };
-  steps.forEach((s) => walk(s.output));
-  return out;
-};
-const INVENTED = "Vantorra"; // not a Qloo entity in any cached step (asserted below)
-
-type Item = { text: string; steps: number[] };
-const items = (d: Decision): Item[] => [...d.calls.map((c) => ({ text: c.reason, steps: c.steps })), ...d.cautions, ...d.summary];
-const clone = (d: Decision): Decision => JSON.parse(JSON.stringify(d));
-// apply f to the first item (in reading order) where it changes something
-const onFirst = (d: Decision, f: (it: Item) => Partial<Item> | null): Decision | null => {
-  const c = clone(d);
-  const all: Item[] = [...c.calls.map((x) => ({ get text() { return x.reason; }, set text(t) { x.reason = t; }, get steps() { return x.steps; }, set steps(s) { x.steps = s; } })), ...c.cautions, ...c.summary];
-  for (const it of all) {
-    const p = f(it);
-    if (p) { Object.assign(it, p); return c; }
-  }
-  return null;
-};
-
-type Kind = { kind: string; expectCatch: boolean; make: (r: Run) => Decision | null };
-const KINDS: Kind[] = [
-  { kind: "score nudged by 0.03", expectCatch: true, make: (r) => onFirst(r.d, (it) => {
-    const m = it.text.match(/(?<![\w.])\d+\.\d+/);
-    return m ? { text: it.text.replace(m[0], (Number(m[0]) + 0.03).toFixed(m[0].split(".")[1].length)) } : null;
-  }) },
-  { kind: "count or rank changed by 1", expectCatch: true, make: (r) => onFirst(r.d, (it) => {
-    const m = it.text.replace(/\[\[[^\]]+\]\]/g, (s) => " ".repeat(s.length)).match(/(?<![\w.])\d+(?!\d|\.\d)/); // v3.1 (real Oct 22): a rank ending a sentence is tampered with too; until then this shared the checker's blind spot
-    return m ? { text: it.text.slice(0, m.index!) + String(Number(m[0]) + 1) + it.text.slice(m.index! + m[0].length) } : null;
-  }) },
-  { kind: "bracketed brand swapped for an invented one", expectCatch: true, make: (r) => onFirst(r.d, (it) => {
-    const m = it.text.match(/\[\[([^\]]+)\]\]/);
-    return m && m[1] !== r.seed ? { text: it.text.replace(m[0], `[[${INVENTED}]]`) } : null;
-  }) },
-  { kind: "bracketed brand swapped for a real one the cited steps don't hold", expectCatch: true, make: (r) => onFirst(r.d, (it) => {
-    const cited = namesIn(r.steps.filter((s) => it.steps.includes(s.n)));
-    const other = [...namesIn(r.steps)].find((n) => !cited.has(n) && n !== r.seed && n.length >= 3);
-    const m = it.text.match(/\[\[([^\]]+)\]\]/);
-    return m && other && m[1] !== r.seed ? { text: it.text.replace(m[0], `[[${other}]]`) } : null;
-  }) },
-  { kind: "unbracketed real brand the cited steps don't hold, added", expectCatch: true, make: (r) => onFirst(r.d, (it) => {
-    const cited = namesIn(r.steps.filter((s) => it.steps.includes(s.n)));
-    const other = [...namesIn(r.steps)].find((n) => !cited.has(n) && n !== r.seed && n.length >= 3);
-    return other ? { text: `${it.text} ${other} fits too.` } : null;
-  }) },
-  // the documented ceiling (check.ts header): a plain-text name no step ever returned can't be matched by name
-  { kind: "unbracketed invented brand, added", expectCatch: false, make: (r) => onFirst(r.d, (it) => ({ text: `${it.text} ${INVENTED} fits too.` })) },
-  { kind: "citation pointed at a step that doesn't exist", expectCatch: true, make: (r) => onFirst(r.d, () => ({ steps: [999] })) },
-  { kind: "citation pointed at the resolve step only", expectCatch: true, make: (r) => {
-    const resolve = r.steps.find((s) => s.tool === "resolve")?.n;
-    return resolve == null ? null : onFirst(r.d, (it) => (/\d|\[\[/.test(it.text.replace(`[[${r.seed}]]`, "")) && !(it.steps.length === 1 && it.steps[0] === resolve) ? { steps: [resolve] } : null));
-  } },
-  { kind: "first call renamed to an uncited brand", expectCatch: true, make: (r) => {
-    if (!r.d.calls.length) return null;
-    const cited = namesIn(r.steps.filter((s) => r.d.calls[0].steps.includes(s.n)));
-    const other = [...namesIn(r.steps)].find((n) => !cited.has(n) && n !== r.seed && n.length >= 3);
-    if (!other) return null;
-    const c = clone(r.d);
-    c.calls[0].name = other;
-    return c;
-  } },
-];
-
 if (runs.some((r) => namesIn(r.steps).has(INVENTED))) throw new Error(`${INVENTED} appears in a cached step; pick another invented name`);
 console.log(`${keys.length} cached asks scanned, ${runs.length} passing answers tampered with\n`);
-let total = 0, caught = 0, expectedTotal = 0, expectedCaught = 0;
-const report: { kind: string; gated: boolean; applied: number; rejected: number; misses: { seed: string; text: string }[] }[] = [];
-for (const k of KINDS) {
-  let applied = 0, rejected = 0;
-  const misses: string[] = [];
-  const missed: { seed: string; text: string }[] = [];
-  for (const r of runs) {
-    const m = k.make(r);
-    if (!m) continue;
-    applied++;
-    const res: Check = checkDecision(m, r.steps);
-    if (!res.ok) rejected++;
-    else {
-      misses.push(r.seed);
-      // the tampered sentence (a citation-only tamper changes no text), published on /audit
-      const before = items(r.d).map((i) => i.text), after = items(m).map((i) => i.text);
-      const at = after.findIndex((t, i) => t !== before[i]);
-      missed.push({ seed: r.seed, text: at >= 0 ? after[at] : "" });
-      if (process.env.VERBOSE && at >= 0) console.log(`      ${r.seed}: ${after[at].slice(0, 220)}`);
-    }
-  }
-  report.push({ kind: k.kind, gated: k.expectCatch, applied, rejected, misses: missed });
-  total += applied; caught += rejected;
-  if (k.expectCatch) { expectedTotal += applied; expectedCaught += rejected; }
-  console.log(`${k.expectCatch ? "  " : "* "}${k.kind}: ${rejected} of ${applied} rejected${misses.length ? ` | passed: ${misses.join(", ")}` : ""}`);
+// the kinds and the loop live in lib/ask/tamper.ts (W3), shared with the no-keys verify
+const t = tamper(runs);
+for (const k of t.kinds) {
+  if (process.env.VERBOSE) for (const m of k.misses) if (m.text) console.log(`      ${m.seed}: ${m.text.slice(0, 220)}`);
+  console.log(`${k.gated ? "  " : "* "}${k.kind}: ${k.rejected} of ${k.applied} rejected${k.misses.length ? ` | passed: ${k.misses.map((m) => m.seed).join(", ")}` : ""}`);
 }
+const report = t.kinds;
+const [caught, total, expectedCaught, expectedTotal] = [t.all.rejected, t.all.of, t.gated.rejected, t.gated.of];
 console.log(`\nAll tampers: ${caught} of ${total} rejected`);
 console.log(`Tampers the rule claims to catch: ${expectedCaught} of ${expectedTotal} rejected (${expectedTotal ? ((expectedCaught / expectedTotal) * 100).toFixed(1) : "-"} percent; gate is 95)`);
 console.log(`GATE ${expectedTotal && expectedCaught / expectedTotal >= 0.95 ? "PASS" : "FAIL"}`);
