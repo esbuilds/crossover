@@ -82,12 +82,12 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 - **Match validation** (`lib/resolve.ts`). Qloo's search returns confident wrong matches for names it doesn't know (Fruition Chocolate Works comes back as Bath & Body Works). A match is confident only on an exact name or alias above a popularity floor of 0.3 (the review desk adds a cross-type check; see above). Several exact hits keep Qloo's relevance order, and an artist beats a person with the same name. Token overlap becomes a picker, and Claude Haiku is asked only in the narrow band in between. The user always sees the card and can say "Not it". The resolver is tested against recorded search results for 22 names, 14 of them small brands Qloo doesn't know.
 - **Stand-ins.** For a brand Qloo doesn't know, the user describes it and names brands their customers love. Haiku suggests more, and each is checked in Qloo. The slate is built from weighted stand-ins (10, 7, 5), and a banner says so on every screen.
 - **Never rank by popularity.** Order is Qloo's affinity order, kept by code. The model reviews picks but cannot reorder them. Popularity is a floor for matching and, on the front door, a labelled reference column, never a correction.
-- **Qloo's terms.** The repo holds no full Qloo responses, only scores: `lib/ask/fixtures/` keeps the three prepared asks' step outputs, affinity and popularity included, so the tests run at 0 calls, and `audit/` keeps the scores each test and probe compared. No third-party logos or images in the app.
+- **Qloo's terms.** The repo holds no full Qloo responses, only scores: `lib/ask/fixtures/` keeps three asks' step outputs (Allbirds, Mt. Joy, Liquid Death), affinity and popularity included, so the tests run at 0 calls, and `audit/` keeps the scores each test and probe compared. No third-party logos or images in the app.
 - **Say what didn't work.** Refine phrases that map to nothing are listed as "Couldn't apply". Kinds of partner without a Qloo tag ("no cookware") are applied by the ranker and labeled "Applied by the agent". A fit ranked in only one side's top 50 shows as such instead of being hidden.
 
 ## Tests
 
-`npm test` runs 244 offline tests in a few seconds, with no API calls. `npx tsc --noEmit` is clean. Full list below the fold.
+`npm test` runs 245 offline tests in a few seconds, with no API calls. `npx tsc --noEmit` is clean. Full list below the fold.
 
 ## Run it
 
@@ -177,7 +177,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 
 ## Test list
 
-`npm test` runs 244 offline tests:
+`npm test` runs 245 offline tests:
 
 - match validation against recorded search results
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links

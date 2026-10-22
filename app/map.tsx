@@ -68,13 +68,17 @@ const overlaps = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y <
 // first spot that doesn't collide with an earlier label wins. color: per-metro fill (the collision map's sides).
 // DES-7 (real Oct 23): a label also keeps off every other city's dot, and the width estimate is the bold serif's
 // (0.58 em; 0.5 let "San Francisco" run into Denver on the call sheet's small map).
+// DES-follow-up (real Oct 23): a city named in the text beside the map (named) is placed first and always prints; only an
+// unnamed city can lose its label, and only after the diagonal and farther spots are tried too.
 const LABEL_EM = 0.58;
-export function Labels({ metros, hovered, font, count = 5, color }: { metros: City[]; hovered: string | null; font: number; count?: number; color?: (m: City) => string }) {
+export function Labels({ metros, hovered, font, count = 5, color, named = "" }: { metros: City[]; hovered: string | null; font: number; count?: number; color?: (m: City) => string; named?: string }) {
   const { projection } = useMapContext();
   const placed = useMemo(() => {
     const shown = metros.slice(0, count);
     const extra = hovered && !shown.some((m) => m.name === hovered) ? metros.find((m) => m.name === hovered) : undefined;
-    const list = [...shown, ...(extra ? [extra] : [])];
+    const must = (m: City) => m.name === hovered || named.includes(m.name);
+    const all = [...shown, ...(extra ? [extra] : [])];
+    const list = [...all.filter(must), ...all.filter((m) => !must(m))];
     const dots: (Box & { name: string })[] = list.flatMap((m) => {
       const p = projection([m.lon, m.lat]);
       return p ? [{ name: m.name, x: p[0] - font / 3, y: p[1] - font / 3, w: (font * 2) / 3, h: (font * 2) / 3 }] : [];
@@ -92,25 +96,31 @@ export function Labels({ metros, hovered, font, count = 5, color }: { metros: Ci
         // above and below slide inside the edge instead of dropping out (DES-7: San Francisco on a small map)
         { x: Math.min(Math.max(x - w / 2, 0), W - w), y: y - 12 - h, w, h, anchor: "middle" },
         { x: Math.min(Math.max(x - w / 2, 0), W - w), y: y + 12, w, h, anchor: "middle" },
+        { x: x + 8, y: y - 10 - h, w, h, anchor: "start" },
+        { x: x - 8 - w, y: y - 10 - h, w, h, anchor: "end" },
+        { x: x + 8, y: y + 10, w, h, anchor: "start" },
+        { x: x - 8 - w, y: y + 10, w, h, anchor: "end" },
+        { x: Math.min(Math.max(x - w / 2, 0), W - w), y: y - 14 - 2 * h, w, h, anchor: "middle" },
+        { x: Math.min(Math.max(x - w / 2, 0), W - w), y: y + 14 + h, w, h, anchor: "middle" },
       ];
       const inside = spots.filter((s) => s.x >= 0 && s.x + s.w <= W && s.y >= 0 && s.y + s.h <= H); // never clip at the edge
       const clear = (s: Box) => !boxes.some((b) => overlaps(s, b)) && !dots.some((d) => d.name !== m.name && overlaps(s, d));
-      // no spot clear of the labels already placed: the dot stays, its name doesn't print over another (DES-7). The
-      // hovered city always gets its name.
-      const spot = inside.find(clear) ?? inside.find((s) => !boxes.some((b) => overlaps(s, b))) ?? (m.name === hovered ? inside[0] ?? spots[0] : undefined);
+      // no spot clear of the labels already placed: an unnamed city's dot stays without its name (DES-7). A named or
+      // hovered city always prints, in its first spot if it must.
+      const spot = inside.find(clear) ?? inside.find((s) => !boxes.some((b) => overlaps(s, b))) ?? (must(m) ? inside[0] ?? spots[0] : undefined);
       if (!spot) return [{ m, x, y, tx: 0, ty: 0, anchor: "start" as const, named: false }];
       boxes.push(spot);
       const tx = spot.anchor === "start" ? spot.x : spot.anchor === "end" ? spot.x + spot.w : spot.x + spot.w / 2;
       return [{ m, x, y, tx, ty: spot.y + h - 4, anchor: spot.anchor, named: true }];
     });
-  }, [metros, hovered, projection, font, count]);
+  }, [metros, hovered, projection, font, count, named]);
 
   return (
     <g>
       {placed.map(({ m, x, y, tx, ty, anchor, named }) => {
         const hot = m.name === hovered;
         return (
-          <g key={m.name}>
+          <g key={m.name} data-city={m.name}>
             <circle cx={x} cy={y} r={(hot ? 4.5 : 3.5) * (font / LABEL_PX)} fill={color?.(m) ?? INK} stroke="#fff" strokeWidth={font / 10} />
             {named && <text
               x={tx}

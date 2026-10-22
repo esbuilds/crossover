@@ -175,17 +175,16 @@ function MapSection({ d }: { d: VsPayload }) {
   const A = d.rivals.a.name, B = d.rivals.b.name;
   if (!d.map) return <p className="mt-block border-t border-rule pt-6 text-base text-ink-2">No geographic story for a person: a person&apos;s heatmap is flat across markets, so the map is left off.</p>;
   const m = d.map;
+  const top = `Top markets. ${A}: ${m.metrosA.map((x) => x.name).join(", ")}. ${B}: ${m.metrosB.map((x) => x.name).join(", ")}.`;
   return (
     <section className="mt-block lg:mt-4">
       <h3 className="text-sm text-ink-3">Where the audiences split</h3>
-      <CollisionMap cells={m.cells} metrosA={m.metrosA} metrosB={m.metrosB} a={A} b={B} />
+      <CollisionMap cells={m.cells} metrosA={m.metrosA} metrosB={m.metrosB} a={A} b={B} named={top} />
       <MapKey a={A} b={B} />
       <p className="mt-2 max-w-lead text-sm text-ink-2">
         <Cite checks="8 and 9">Where each audience over-indexes in Qloo&apos;s heatmaps, cell by cell.</Cite> A cell leans one way when it sits {LEAN_SPLIT === 0.25 ? "a quarter" : LEAN_SPLIT} of the ranking higher in that heatmap. Cells only one heatmap covers are left off.
       </p>
-      <p className="mt-2 text-sm text-ink-2">
-        Top markets. {A}: {m.metrosA.map((x) => x.name).join(", ")}. {B}: {m.metrosB.map((x) => x.name).join(", ")}.
-      </p>
+      <p className="mt-2 text-sm text-ink-2">{top}</p>
     </section>
   );
 }

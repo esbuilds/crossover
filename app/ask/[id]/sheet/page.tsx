@@ -94,7 +94,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
           <div className="w-full sm:w-[2.6in] print:w-[2.2in]">
         {s.map && (
           <figure>
-            {cells && <CollisionMap cells={cells.cells} metrosA={cells.metrosA} metrosB={cells.metrosB} a={s.map.seed.name} b={s.map.rival.name} labelPx={12} />}
+            {cells && <CollisionMap cells={cells.cells} metrosA={cells.metrosA} metrosB={cells.metrosB} a={s.map.seed.name} b={s.map.rival.name} labelPx={12} named={[s.card.where, where?.line, cities, ...s.calls.map((c) => c.reason), ...s.notes.map((x) => x.text)].join(" ")} />}
             {/* persona test, Oct 14: the map needs its own legend on a forwarded page */}
             <p className="mt-1 flex flex-wrap gap-x-3 text-[11px] text-ink-2">
               {(["a", "b", "both"] as const).map((k) => (

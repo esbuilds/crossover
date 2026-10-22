@@ -255,7 +255,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
         <div className="contents lg:block">
         {(hero || status === "running") && (
           <section id="hero" className="order-2 scroll-mt-4">
-            {hero === "map" ? <MapPicture m={map!} n={steps.find((s) => s.tool === "split")!.n} /> : hero === "dumbbell" ? <Dumbbell rows={bell!.rows} steps={steps} /> : (
+            {hero === "map" ? <MapPicture m={map!} n={steps.find((s) => s.tool === "split")!.n} named={[card?.where, ...(verdict?.decision ? [...verdict.decision.calls.map((c) => c.reason), ...verdict.decision.cautions.map((c) => c.text), ...verdict.decision.summary.map((c) => c.text)] : [])].join(" ")} /> : hero === "dumbbell" ? <Dumbbell rows={bell!.rows} steps={steps} /> : (
               // persona test, Oct 14: the slot is held while the steps run, so nothing jumps columns when the picture lands
               <p className="min-h-48 text-sm text-ink-3">The picture appears here when the split or the scores arrive.</p>
             )}
@@ -488,7 +488,8 @@ function Picture({ step, steps, hero }: { step: StepRecord; steps: StepRecord[];
   return null;
 }
 
-function MapPicture({ m, n }: { m: MapStep; n: number }) {
+// named: the answer's own text; every city it or the map's city line names keeps its label on the map
+function MapPicture({ m, n, named }: { m: MapStep; n: number; named: string }) {
   const [map, setMap] = useState<VsPayload["map"] | null>(null);
   // the picture lands with its step (WOW F2): the blank states hold the room from first paint and the cells bloom when
   // the split's step lands on the rail. Infinity (no replay) shows it at once.
@@ -507,7 +508,7 @@ function MapPicture({ m, n }: { m: MapStep; n: number }) {
       <h2 className="text-lg font-semibold text-ink">Where the two audiences split <Steps ns={[n]} /></h2>
       <p className="mt-1 max-w-copy text-base text-ink tabular-nums max-sm:text-sm">{m.closerToSeed} brands sit closer to {m.seed.name}, {m.closerToRival} closer to {m.rival.name}, {m.withinGapOfBoth} within 0.05 of both.</p>
       {cities && <p className="mt-1 max-w-copy text-base text-ink max-sm:hidden">{cities}</p>}
-      <div className="mt-3 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} reveal={landed >= n} />}</div>
+      <div className="mt-3 aspect-[16/10] w-full max-w-sm">{map && <CollisionMap cells={map.cells} metrosA={map.metrosA} metrosB={map.metrosB} a={m.seed.name} b={m.rival.name} reveal={landed >= n} named={`${cities ?? ""} ${named}`} />}</div>
       <MapKey a={m.seed.name} b={m.rival.name} sourceClass="max-sm:hidden" />
       <p className="mt-2"><Link href={m.href} prefetch={false} className={btnText}>Open the full split</Link></p>
     </div>

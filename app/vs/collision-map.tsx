@@ -50,9 +50,10 @@ export function MapKey({ a, b, sourceClass = "" }: { a: string; b: string; sourc
   );
 }
 
+// named: the text shown with the map; every city it names keeps its label (DES-follow-up)
 // reveal (default true): the home replay passes false until the split's step lands, so the states draw at first paint
 // and the cells and names arrive with their step (WOW F2). /vs and /ask never pass it.
-export default function CollisionMap({ cells, metrosA, metrosB, a, b, reveal = true, labelPx }: { cells: CollideCell[]; metrosA: City[]; metrosB: City[]; a: string; b: string; reveal?: boolean; labelPx?: number }) {
+export default function CollisionMap({ cells, metrosA, metrosB, a, b, reveal = true, labelPx, named }: { cells: CollideCell[]; metrosA: City[]; metrosB: City[]; a: string; b: string; reveal?: boolean; labelPx?: number; named?: string }) {
   const { box, font } = useLabelFont(labelPx);
   const inA = new Set(metrosA.map((m) => m.name)), inB = new Set(metrosB.map((m) => m.name));
   const metros = [...metrosA, ...metrosB.filter((m) => !inA.has(m.name))];
@@ -63,7 +64,7 @@ export default function CollisionMap({ cells, metrosA, metrosB, a, b, reveal = t
         <StatesLayer />
         <Cells cells={cells} reveal={reveal} />
         <g className={reveal ? "labels-in" : "invisible"}>
-          <Labels metros={metros} hovered={null} font={font} count={metros.length} color={color} />
+          <Labels metros={metros} hovered={null} font={font} count={metros.length} color={color} named={named} />
         </g>
       </ComposableMap>
     </div>
