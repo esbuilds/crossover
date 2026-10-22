@@ -12,13 +12,14 @@ import { venueLine, venuesIn } from "./venues.ts";
 
 const must = <T,>(v: T | null): T => { if (v === null) throw new Cold(); return v; };
 
-export async function whereToStart(events: AskEvent[], ip: string | null): Promise<{ market: string; line: string | null } | null> {
+// name: another of the eight in place of the first call (the pitch sheet's pick, W2); the market stays the same
+export async function whereToStart(events: AskEvent[], ip: string | null, name?: string): Promise<{ market: string; line: string | null } | null> {
   const steps = stepsFrom(events);
   const d = decisionEvent(events);
   const first = d && d.type === "decision" && d.check.ok ? d.decision?.calls[0] : undefined;
   const seed = steps.find((s) => s.tool === "resolve")?.output as { name?: string; id?: string; type?: string } | undefined;
   const cands = (steps.find((s) => s.tool === "candidates")?.output as { candidates?: { name: string; id: string }[] } | undefined)?.candidates ?? [];
-  const pickName = first ? nameForDisplay(first.name) : null;
+  const pickName = name ?? (first ? nameForDisplay(first.name) : null);
   const pick = cands.find((c) => nameForDisplay(c.name) === pickName);
   if (!first || !seed?.id || !seed.type || !pick) return null;
   const m = mapStep(steps);

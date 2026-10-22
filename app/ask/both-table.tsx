@@ -4,7 +4,8 @@ import Link from "next/link";
 import { linkInline } from "@/app/ui";
 import { cell as show, OUT_LINES, slope, SLOPE, type BothWays } from "@/lib/ask/both-rules.ts";
 
-export function BothTable({ b, compact = false }: { b: BothWays; compact?: boolean }) {
+// lead: the pitch sheet's pick (W2), drawn in the accent and bold; without it the table renders as before
+export function BothTable({ b, compact = false, lead }: { b: BothWays; compact?: boolean; lead?: string }) {
   // DC F14: rows top-aligned and the ranks kept on one line, so a phone wraps the long name instead of every "not in their top 50"
   const cell = `align-top ${compact ? "py-0 pr-4" : "py-1 pr-6"}`;
   // persona round 2 (Olipop lead): a withheld table said nothing; now one line says why
@@ -29,7 +30,7 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
         </thead>
         <tbody>
           {b.rows.map((r) => (
-            <tr key={r.name} className={r.call ? "text-ink" : "text-ink-2"}>
+            <tr key={r.name} className={r.name === lead ? "font-semibold text-accent-strong" : r.call ? "text-ink" : "text-ink-2"}>
               <td className={`${cell} sm:whitespace-nowrap`}>{r.call ? <span className="font-semibold">{r.name} *</span> : r.name}</td>
               <td className={`${cell} whitespace-nowrap`}>{show(r.fwd)}</td>
               <td className={`${cell} whitespace-nowrap`}>{show(r.rev)}</td>
@@ -49,10 +50,10 @@ export function BothTable({ b, compact = false }: { b: BothWays; compact?: boole
 // slope), and the table on the page carries the same ranks for screen readers.
 // column: the call sheet's 2.6in side column (DES-7) takes the narrow drawing at every width and in print
 // left: leftSub's line for the wide drawing (W1); the phone and sheet drawings don't take it
-export function BothSlope({ b, column = false, left = null }: { b: BothWays; column?: boolean; left?: string | null }) {
+export function BothSlope({ b, column = false, left = null, lead }: { b: BothWays; column?: boolean; left?: string | null; lead?: string }) {
   // two drawings of the same rows: the wide one from 640, the narrow one on phones (DES-6), each sized so its text
   // renders at 12 to 14 px. The narrow one runs into the card's padding and never draws larger than 14 px.
-  const wide = slope(b, false, left), narrow = slope(b, true);
+  const wide = slope(b, false, left, lead), narrow = slope(b, true, null, lead);
   if (!wide || !narrow) return null;
   if (column) return <SlopeSvg b={b} s={narrow} narrow className="mt-2 w-full text-[12px]" />;
   return (

@@ -6,6 +6,6 @@ export function askLinks(asked: Asked, resolved: { id: string; type: string }) {
   const q = new URLSearchParams({ t: resolved.type });
   if ("query" in asked) q.set("q", asked.query);
   if ("case" in asked) q.set("case", asked.case);
-  return { share: `/ask/${resolved.id}?${q}`, sheet: `/ask/${resolved.id}/sheet?${q}` };
+  return { share: `/ask/${resolved.id}?${q}`, sheet: `/ask/${resolved.id}/sheet?${q}`, pitch: `/ask/${resolved.id}/pitch?${q}` };
 }
 

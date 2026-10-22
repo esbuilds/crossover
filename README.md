@@ -65,6 +65,7 @@ curl -sN -X POST https://crossover-henna.vercel.app/api/ask -H 'content-type: ap
 ## The ask, in five minutes
 
 - **The tie, and what separates it.** Each prepared ask's candidates (eight for Allbirds and Mt. Joy, six for Calm) tie within 0.05 by taste, because they come from the top 50 of the seed's own list; the page says so. At the top of the decision column, above "Call first", code beside the frozen answer draws the other direction: each candidate's fans' rank of the seed (`lib/ask/both-ways.ts`). Bombas fans rank Allbirds 1st; the other seven rank it 9th to 31st or not in their top 50. Shown only when the agent's three separate on it (Allbirds and Mt. Joy do, the Converse replay doesn't), never reordered.
+- **The seller's side** (`lib/ask/pitch.ts`, `/ask/<id>/pitch`). The same both-ways rows read down the right column: the name whose fans rank the seed highest is the pitch, and the pitch line is a template over the two ranks and the review score. The line is checked by `lib/ask/check.ts` with the both-ways rows appended as one cited step, so a wrong number is rejected the same way (`lib/ask/pitch.test.ts`). Mt. Joy: Allbirds fans rank it 4th; Outdoor Voices fans rank it 26th. It is what a seller can say, not a forecast: ranked this way the replay found the real partner 5 times in 23.
 - **The checker** (`lib/ask/check.ts`, rule v3.1). Every name and number must appear in a cited step; a score or rank right after a brand, in the same clause, must be that brand's own. Answers are re-checked under the current rule when shown (`decisionEvent` in `lib/ask/steps.ts`), so the cached runs and their hashes (`docs/freeze.md`) never change. `scripts/check-v2-gates.ts` re-runs the rule over every cached ask at 0 calls.
 - **We attacked the checker.** `scripts/mutation-gate.ts` copies every cached answer, changes one fact per copy (9 kinds) and re-checks it: rule v2 rejected 207 of 228, the misses showed two holes, rule v3 rejected 217 of 228; a later gap (a rank that ends a sentence wasn't bound to its brand) was found, fixed in rule v3.1 and added to the gate's rank tamper, and v3.1 rejects 219 of 230, with the gap and every miss published on /audit#fool-it. Any answer has a "Try to fool the checker" box running the same code in the browser (`lib/ask/fool.ts`).
 - **Smaller names, nearly the same fit** (`lib/ask/smaller.ts`). Under the answer, Qloo's brand list for the seed's fans read again with `filter.popularity.max=0.5`: the brands that stay within 0.05 of the leader (the answer's own tie rule). Allbirds: The Recreationalist at popularity 0.50 scores 0.90 against Outdoor Voices' 0.94 at 0.96. Gate run first (`audit/popularity-probe.json`): the same entity carries the same affinity in both reads, so the comparison holds; popularity 0 is Qloo's "no measurement" and is left out.
@@ -87,7 +88,7 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 
 ## Tests
 
-`npm test` runs 245 offline tests in a few seconds, with no API calls. `npx tsc --noEmit` is clean. Full list below the fold.
+`npm test` runs 250 offline tests in a few seconds, with no API calls. `npx tsc --noEmit` is clean. Full list below the fold.
 
 ## Run it
 
@@ -177,7 +178,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 
 ## Test list
 
-`npm test` runs 245 offline tests:
+`npm test` runs 250 offline tests:
 
 - match validation against recorded search results
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
@@ -191,6 +192,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 - rivals leans and same-field folds, the collision map, the rival finder and the vs payload
 - the category maps: the affinity matrix, missing and unknown brands, and the layout on a fixed fixture
 - share-link and category-map path checks (malformed links get a real 404)
+- the pitch sheet: the seller's pick, its line through the checker, and four tampers rejected
 - a guard that no client component imports the server-only Qloo client
 
 `npx tsc --noEmit` is clean.

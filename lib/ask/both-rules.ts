@@ -53,7 +53,7 @@ export function sentence(seed: string, noun: string, first: Row | undefined): st
 export const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
 export const cell = (r: Rank) => (r === null ? "no measurement" : r === "out" ? "not in their top 50" : th(r));
 
-const COUNT = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+export const COUNT = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight"];
 // The card's both-ways line (COLDJUDGE-8, HARSH-3, real Oct 22): the first call's fans' rank of the seed, then the other
 // rows' range, from the table's rows only. Allbirds: "Bombas fans rank Allbirds first; the other seven rank it 9th to
 // 31st or not in their top 50." null when the table isn't shown or any rank wasn't measured.
@@ -94,8 +94,9 @@ function spread(ys: number[], use: boolean[]) {
   for (const i of ys.map((_, i) => i).filter((i) => use[i]).sort((a, b) => ys[a] - ys[b])) prev = out[i] = Math.max(ys[i], prev + SLOPE.gap);
   return out;
 }
-// left: leftSub's line, wide only. The phone drawing ignores both sub-lines.
-export function slope(b: BothWays, narrow = false, left: string | null = null): { rows: SlopeRow[]; height: number; l: number; r: number; w: number; top: number; subs: { left: string | null; right: string | null } } | null {
+// left: leftSub's line, wide only. The phone drawing ignores both sub-lines. lead: the pitch sheet's pick (W2), the one
+// line in the accent instead of the climbing one
+export function slope(b: BothWays, narrow = false, left: string | null = null, lead?: string): { rows: SlopeRow[]; height: number; l: number; r: number; w: number; top: number; subs: { left: string | null; right: string | null } } | null {
   const drawn = b.rows.filter((r) => typeof r.fwd === "number" && r.rev !== null);
   if (!b.shown || drawn.length < 2) return null;
   const top = narrow ? SLOPE.top : WIDE.top, OUT_Y = outY(top);
@@ -107,7 +108,7 @@ export function slope(b: BothWays, narrow = false, left: string | null = null): 
   const right = drawn.map((r, i) => (r.rev === "out" && i !== firstOut ? "" : cell(r.rev)));
   const ly1 = spread(y1, drawn.map(() => true));
   const ly2 = spread(y2, right.map(Boolean));
-  const rows = drawn.map((r, i) => ({ name: r.name, left: cell(r.fwd), right: right[i], y1: y1[i], y2: y2[i], ly1: ly1[i], ly2: ly2[i], out: r.rev === "out", climbs: typeof r.rev === "number" && r.rev < (r.fwd as number), call: r.call }));
+  const rows = drawn.map((r, i) => ({ name: r.name, left: cell(r.fwd), right: right[i], y1: y1[i], y2: y2[i], ly1: ly1[i], ly2: ly2[i], out: r.rev === "out", climbs: lead ? r.name === lead : typeof r.rev === "number" && r.rev < (r.fwd as number), call: r.call }));
   const { ch, span, pad } = narrow ? NARROW : { ch: CH, span: WIDE.span, pad: SLOPE.pad };
   const subLen = (t: string | null) => (t ? t.length * WIDE.sub : 0);
   const outLabel = cell("out");

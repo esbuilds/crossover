@@ -21,7 +21,7 @@ test("a replay case is prepared only: its exact key is accepted, nothing else", 
 // Persona test, Oct 14 (Olipop lead): a typed ask is cached under the typed name, so its share and sheet links carry it.
 test("askLinks carry what was asked: a typed name, the case key, or the id", () => {
   const r = { id: "6647FB92-9390-4B58-885B-86D96FF5BB6D", type: "urn:entity:brand" };
-  assert.deepEqual(askLinks({ query: "Olipop" }, r), { share: "/ask/6647FB92-9390-4B58-885B-86D96FF5BB6D?t=urn%3Aentity%3Abrand&q=Olipop", sheet: "/ask/6647FB92-9390-4B58-885B-86D96FF5BB6D/sheet?t=urn%3Aentity%3Abrand&q=Olipop" });
+  assert.deepEqual(askLinks({ query: "Olipop" }, r), { share: "/ask/6647FB92-9390-4B58-885B-86D96FF5BB6D?t=urn%3Aentity%3Abrand&q=Olipop", sheet: "/ask/6647FB92-9390-4B58-885B-86D96FF5BB6D/sheet?t=urn%3Aentity%3Abrand&q=Olipop", pitch: "/ask/6647FB92-9390-4B58-885B-86D96FF5BB6D/pitch?t=urn%3Aentity%3Abrand&q=Olipop" });
   assert.equal(askLinks({ case: "coca-cola-x-converse" }, { id: "A539C8C9-4733-41A9-911A-11AC2B6D475A", type: "urn:entity:brand" }).sheet, "/ask/A539C8C9-4733-41A9-911A-11AC2B6D475A/sheet?t=urn%3Aentity%3Abrand&case=coca-cola-x-converse");
   assert.equal(askLinks(r, r).share, "/ask/6647FB92-9390-4B58-885B-86D96FF5BB6D?t=urn%3Aentity%3Abrand");
 });
