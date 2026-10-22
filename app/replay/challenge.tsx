@@ -3,7 +3,7 @@
 // seeded order saved in the browser so a refresh resumes where it was; nothing can be skipped by reloading. The reveal
 // shows the published rank and score even when the protocol missed. Two tallies, never pooled.
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { btnPrimary, btnText, linkInline } from "../ui";
 import type { ChallengeCase } from "@/lib/replay-challenge.ts";
 import { rotation } from "@/lib/replay-rotation.ts";
@@ -24,7 +24,7 @@ const bringIntoView = (id: string, always = false) => requestAnimationFrame(() =
 });
 const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
 
-export default function Challenge({ cases, protocol }: { cases: ChallengeCase[]; protocol: { v1: Tally; v2: Tally; line: string } }) {
+export default function Challenge({ cases, protocol, strip }: { cases: ChallengeCase[]; protocol: { v1: Tally; v2: Tally; line: string }; strip: ReactNode }) {
   const [state, setState] = useState<Saved | null>(null);
   useEffect(() => setState(load() ?? { seed: Math.floor(Math.random() * 2 ** 31) + 1, at: 0, picks: {} }), []);
   useEffect(() => { if (state) save(state); }, [state]);
@@ -75,6 +75,7 @@ export default function Challenge({ cases, protocol }: { cases: ChallengeCase[];
         {/* challenge persona (Oct 15): six numbers in one sentence; lead with the one that passed */}
         <p className="mt-1">{protocol.line} An earlier test, {protocol.v1.hits} of {protocol.v1.scored}, missed its bar. Both were frozen in git before they ran.</p>
         <p className="mt-1 text-sm text-ink-3">A hit for Qloo&apos;s data is the real partner in its top three of eight, not first. Your score and its score count different things and aren&apos;t added together.</p>
+        {strip}
         <p className="mt-2 flex flex-wrap gap-x-4">
           <Link href="/audit#replays" className={btnText}>The tests on the audit</Link>
           {done && <button type="button" onClick={() => setState({ seed: Math.floor(Math.random() * 2 ** 31) + 1, at: 0, picks: {} })} className={btnText}>Start over</button>}
