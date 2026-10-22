@@ -4,7 +4,7 @@
 // initial: a cached ask the server replayed (no POST, no Qloo call); pending: a share link whose ask isn't cached yet.
 import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { btnPrimary, btnText, chip, field, linkInline, panel, panelStrong } from "../ui";
+import { btnPrimary, btnSecondary, btnText, chip, cite, field, linkInline, panel, panelStrong } from "../ui";
 import CollisionMap, { MapKey } from "../vs/collision-map";
 import { CHECK_RULE, claimCount, displayName, forDisplay, nameForDisplay, type Check, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { checkEdit, nudge } from "@/lib/ask/fool.ts";
@@ -157,10 +157,11 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
         {play && initial && landed !== Infinity && (
           <div className="mt-4 sm:mt-6">
             {/* the trace rail: in the first screen at 390 and 1280, where the step list isn't */}
-            <ol className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-sm" aria-label="The agent's steps">
+            {/* a quiet numbered progress row (DES-3): pending steps outlined, landed ones filled */}
+            <ol className="flex flex-wrap gap-x-4 gap-y-2 text-sm" aria-label="The agent's steps">
               {steps.map((s) => (
                 <li key={s.n} className={s.n <= landed ? "is-on" : ""}>
-                  <a href={`#step-${s.n}`} onClick={() => setLanded((l) => Math.max(l, s.n))} className="rail-step">{s.n}. {TOOL_LABEL[s.tool] ?? s.tool}</a>
+                  <a href={`#step-${s.n}`} onClick={() => setLanded((l) => Math.max(l, s.n))} className="rail-step"><span className="rail-num" aria-hidden>{s.n}</span><span className="sr-only">{s.n}. </span>{TOOL_LABEL[s.tool] ?? s.tool}</a>
                 </li>
               ))}
             </ol>
@@ -168,7 +169,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
             {/* the button leads the line, both labels holding its width, so the end of the replay moves nothing (it used
                 to follow the text and shifted when the text changed, CLS 0.006 to 0.012) */}
             <div className="mt-2 flex max-w-lead items-start gap-x-4">
-              <button type="button" onClick={() => setLanded(playing ? steps.length : 0)} className={`${btnText} shrink-0 whitespace-nowrap`}>
+              <button type="button" onClick={() => setLanded(playing ? steps.length : 0)} className={`${btnSecondary} shrink-0 whitespace-nowrap`}>
                 <span className="grid *:col-start-1 *:row-start-1"><span>{playing ? "Skip" : "Replay it"}</span><span className="invisible" aria-hidden>{playing ? "Replay it" : "Skip"}</span></span>
               </button>
               <div className="grid min-w-0 pt-3 text-sm text-ink-3 *:col-start-1 *:row-start-1">
@@ -457,7 +458,7 @@ function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }
 function Steps({ ns }: { ns: number[] }) {
   const landed = useContext(Landed);
   // the stamp's room is held from the start (visibility), so a landing never reflows the sentence (MO F2)
-  return <span className="font-mono text-sm text-ink-3">{ns.map((n) => <a key={n} href={`#step-${n}`} className={`ml-1 whitespace-nowrap ${linkInline}`}>step {n}{landed !== Infinity && (
+  return <span>{ns.map((n) => <a key={n} href={`#step-${n}`} className={`ml-1 ${cite} transition-colors duration-150 ease-out hover:bg-rule hover:text-ink motion-reduce:transition-none`}>step {n}{landed !== Infinity && (
     <span className={`stamp${n <= landed ? " is-on" : ""}`} aria-hidden={n > landed}> <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.6 2.6L10 3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" pathLength="1" /></svg>checked</span>
   )}</a>)}</span>;
 }

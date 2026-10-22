@@ -10,6 +10,9 @@ export const btnSecondary =
 // chip for the rows of names to try. Underlines belong to linkInline only, until hover.
 export const linkInline =
   "underline decoration-ink-3 underline-offset-4 transition-[color,text-decoration-color] duration-150 ease-out motion-reduce:transition-none hover:text-ink hover:decoration-ink";
+// One citation style (DES-3, real Oct 23): a step or Qloo check named after a claim, as a small tinted tag in the body
+// face, quieter than the claim and still on every one. Mono stays for the trace; the sheet prints the same as [5].
+export const cite = "whitespace-nowrap rounded-sm bg-surface-2 px-1 py-px text-xs text-ink-3";
 export const btnText =
   "inline-flex min-h-11 items-center text-base font-medium text-ink decoration-ink-3 underline-offset-4 transition-[color,text-decoration-color] duration-150 ease-out motion-reduce:transition-none hover:underline disabled:text-ink-3 disabled:no-underline";
 // max-w-full and no nowrap of its own (FIX-F10): a long Qloo name wraps inside the chip instead of pushing a 390 page

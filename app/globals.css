@@ -248,20 +248,44 @@ summary::-webkit-details-marker {
   }
 }
 
-/* the trace rail (CT F1, MO F3): pending steps in ink-3, landed in ink with a 1px rule drawn under the label */
+/* the trace rail (CT F1, MO F3; DES-3 real Oct 23): a numbered progress row in the body face. Pending steps in ink-3
+   with an outlined number, landed in ink with the number filled; the label underlines on hover, as links do. */
 .rail-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   color: var(--color-ink-3);
-  background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0% 1px;
+  text-underline-offset: 4px;
+}
+.rail-step:hover {
+  text-decoration: underline;
+}
+.rail-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--color-rule-ui);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  line-height: 1;
 }
 li.is-on .rail-step {
   color: var(--color-ink);
-  background-size: 100% 1px;
+}
+li.is-on .rail-num {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-surface);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .rail-step {
+  .rail-step,
+  .rail-num {
     transition:
       color 240ms cubic-bezier(0.2, 0, 0, 1),
-      background-size 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      background-color 240ms cubic-bezier(0.2, 0, 0, 1),
+      border-color 240ms cubic-bezier(0.2, 0, 0, 1);
   }
 }
 

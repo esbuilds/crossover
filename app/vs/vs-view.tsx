@@ -1,7 +1,7 @@
 // The rivals result (brief-oct12-front): shared by the front door (client) and /vs (server). No hooks, no server
 // imports. Every word comes from code or from Qloo.
 import Link from "next/link";
-import { btnText, chip, Chip } from "@/app/ui";
+import { btnText, chip, Chip, cite } from "@/app/ui";
 import type { RivalRow, VsPayload, Xray } from "@/lib/rivals.ts";
 import { DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
 import { PAIR_CASE, VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
@@ -161,7 +161,7 @@ function FoldBox({ label, id, className = "", children }: { label: string; id?: 
   return (
     <details id={id} className={`group scroll-mt-4 border-b border-rule ${className}`}>
       {id && <OpenOnHash id={id} />}
-      <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-mono text-sm text-ink-2 hover:text-ink">
+      <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 text-base font-medium text-ink-2 hover:text-ink">
         <span>{label}</span>
         <span className="shrink-0 text-ink-3 group-open:hidden">Show</span>
         <span className="hidden shrink-0 text-ink-3 group-open:inline">Hide</span>
@@ -232,7 +232,7 @@ function Cite({ checks, children }: { checks: string; children: React.ReactNode 
 }
 
 export function CheckTag({ checks }: { checks: string }) {
-  return <span className="whitespace-nowrap font-mono text-sm text-ink-3">Qloo check{checks.includes(" ") ? "s" : ""} {checks}</span>;
+  return <span className={cite}>Qloo check{checks.includes(" ") ? "s" : ""} {checks}</span>;
 }
 
 function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow[]; d: VsPayload; side: "a" | "b"; empty: string }) {
