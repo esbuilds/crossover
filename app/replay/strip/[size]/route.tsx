@@ -2,6 +2,7 @@
 // strip (lib/og-strip.ts). Built at build time from the audit files: 0 Qloo calls, no cache read.
 import { ImageResponse } from "next/og";
 import { loadFonts } from "@/lib/og.tsx";
+import { Mark } from "@/lib/mark.tsx";
 import { stripBlocks, stripTitle, type StripBlock } from "@/lib/og-strip.ts";
 
 const SIZES: Record<string, { width: number; height: number }> = { "1200": { width: 1200, height: 800 }, "1920": { width: 1920, height: 1080 } };
@@ -41,7 +42,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ size: stri
     (
       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#ffffff", fontFamily: "Newsreader", color: INK }}>
         <div style={{ display: "flex", flexDirection: "column", width: px(1200), height: px(800), padding: `${px(40)}px ${px(56)}px` }}>
-          <div style={{ display: "flex", fontSize: px(28), fontWeight: 600, paddingBottom: px(12), borderBottom: `2px solid ${RULE}` }}>Crossover</div>
+          <div style={{ display: "flex", alignItems: "center", gap: px(11), fontSize: px(28), fontWeight: 600, paddingBottom: px(12), borderBottom: `2px solid ${RULE}` }}><Mark size={px(25)} />Crossover</div>
           <div style={{ display: "flex", marginTop: px(24), fontSize: px(33), fontWeight: 600, lineHeight: 1.15, maxWidth: px(1040) }}>{stripTitle()}</div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: px(36) }}>
             <Block b={v2} />

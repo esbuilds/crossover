@@ -2,6 +2,7 @@
 // The font comes from the Google Fonts CSS API (TTF for non-browser clients); if that fails the card still renders
 // in next/og's default face.
 import { ImageResponse } from "next/og";
+import { Mark } from "@/lib/mark.tsx";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 const INK = "#1b1716";
@@ -31,7 +32,7 @@ export async function ogCard({ title, line, rail }: { title: string; line?: stri
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#ffffff", padding: "64px 80px", fontFamily: "Newsreader", color: INK }}>
-        <div style={{ display: "flex", fontSize: 36, fontWeight: 600, paddingBottom: 20, borderBottom: `2px solid ${RULE}` }}>Crossover</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 36, fontWeight: 600, paddingBottom: 20, borderBottom: `2px solid ${RULE}` }}><Mark size={32} />Crossover</div>
         <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, justifyContent: "center" }}>
           <div style={{ display: "flex", fontSize: size, fontWeight: 600, lineHeight: 1.05, maxWidth: 1000 }}>{title}</div>
           {line && <div style={{ display: "flex", marginTop: 28, fontSize: 36, fontWeight: 400, color: INK_2 }}>{line}</div>}
@@ -55,7 +56,7 @@ export async function ogMapCard({ title, line, svg, legend, labels = [] }: { tit
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#ffffff", padding: "40px 56px", fontFamily: "Newsreader", color: INK }}>
-        <div style={{ display: "flex", fontSize: 30, fontWeight: 600, paddingBottom: 14, borderBottom: `2px solid ${RULE}` }}>Crossover</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 30, fontWeight: 600, paddingBottom: 14, borderBottom: `2px solid ${RULE}` }}><Mark size={27} />Crossover</div>
         <div style={{ display: "flex", flexGrow: 1, alignItems: "center", gap: 32 }}>
           <div style={{ display: "flex", position: "relative", width: 688, height: 430 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -1,6 +1,7 @@
 import type { Card } from "@/lib/slate.ts";
 import Link from "next/link";
 import NavLinks from "./nav-links";
+import { Mark } from "@/lib/mark.tsx";
 // Shared pieces of the design system (tokens live in globals.css). One primary button per screen.
 export const btnPrimary =
   "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-accent px-5 text-base font-medium text-white transition-[background-color,transform] duration-150 ease-out motion-reduce:transition-none hover:bg-accent-strong active:translate-y-px disabled:cursor-wait disabled:bg-ink-3 motion-reduce:active:translate-y-0";
@@ -116,7 +117,8 @@ export function SiteHeader(props: { href?: string; label?: string }) {
   void props;
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-4 border-b border-rule py-3 sm:py-4">
-      <Link href="/" className="inline-flex min-h-11 items-center font-display text-xl">
+      <Link href="/" className="inline-flex min-h-11 items-center gap-2 font-display text-xl">
+        <Mark size={20} />
         Crossover
       </Link>
       <NavLinks />
