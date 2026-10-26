@@ -43,6 +43,6 @@ Gate B: about 13 case asks at roughly 20 Qloo calls each, plus up to 16 `otherWa
 
 ## Note before Gate C (real Oct 22, UTC Oct 21; Eric's ruling)
 
-Gate B was not run. The replay control failed (audit/replay-control-protocol.md: scrambled seeds 17 of 23, real 17), so keeping the real partner wouldn't show taste; the reverse replay (audit/replay-reverse-protocol.md) measured the other direction directly instead, and failed too (5 of 23, bar 13). Gate C runs as written above, bar 14 of 16, on the next UTC day, at most 260 Qloo calls. The checker the second look uses is now rule v3.1 (369f3d7: a rank ending a sentence is bound too). AGENT-6's /audit row ships on Gate C's numbers, pass or fail.
+Gate B was not run. The replay control failed (audit/replay-control-protocol.md: scrambled seeds 17 of 23, real 17), so keeping the real partner wouldn't show taste; the reverse replay (audit/replay-reverse-protocol.md) measured the other direction directly instead, and failed too (5 of 23, bar 13). Gate C runs as written above, bar 14 of 16, on the next UTC day, at most 260 Qloo calls. The checker the second look uses is now rule v3.1 (b92e3b0: a rank ending a sentence is bound too). AGENT-6's /audit row ships on Gate C's numbers, pass or fail.
 
 Run note: Gate C ran UTC Oct 21 at Eric's instruction ("do it now"), not the next UTC day; the 260-call cap was enforced by QLOO_DAILY_CAP set to the day's count plus 260. Nothing else changed.

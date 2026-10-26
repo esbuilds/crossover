@@ -25,13 +25,13 @@ export const metadata: Metadata = { title: "Audit", robots: { index: false, foll
 
 type Brief = (typeof results.briefs)[number];
 type Challenge = (typeof results.resolution.challenges)[number];
-const FREEZE_COMMIT = "5120305";
+const FREEZE_COMMIT = "57cbc48";
 // Findings worth a line under a brief (decided Oct 11; the frozen protocol itself is unchanged)
 const NOTES: Record<string, string> = {
   "Red Bull": "The named gate (Monster Energy) missed Rockstar Energy Drink, which lands in the picks; the drafter labelled Rockstar ambiguous, not a competitor. A tag gate on energy drinks catches it.",
 };
-const REPLAY_FREEZE = "977561c";
-const REPLAY_V2_FREEZE = "ef1c2d5";
+const REPLAY_FREEZE = "c962409";
+const REPLAY_V2_FREEZE = "3dc6576";
 // From scripts/markets-probe.ts, real Oct 15: metros scoring within one point of each brand's fifth (lib/cities.ts over-index)
 // From scripts/reverse-probe.ts, real Oct 15: the seed's rank among each candidate's fans' top 50 of its type ("out": not in it)
 const REVERSE_RANKS: [string, string, string, boolean][] = [
@@ -331,7 +331,7 @@ export default function AuditPage() {
           </li>
           {/* Fable's Oct 16 ruling, pick 1: below the floor of 5 it is a probe entry, not a v3 line */}
           <li id="fresh-deals">
-            <span className="font-semibold">Fresh deals, chosen by rule, didn&apos;t reach the floor.</span> Real Oct 16 (34 calls, no affinity read), a third replay on deals chosen by rule after the protocol froze (ef1c2d5, Oct 13). The rule was committed before the search (7563d08: Marketing Dive and Food Dive, Aug 17 to Oct 16, two brands per deal, a floor of 5 scored cases) and the list before any Qloo call (f077437). 13 deals found; 3 excluded under the rule (Netflix and Wendy&apos;s were already used, Papa Johns&apos; partner was a film). Of the 10 left, 5 names didn&apos;t confirm (BeatBox, Biscoff and Flamin&apos; Hot matched more than one entity; BuzzBallz, Mike&apos;s Hot Honey and Pilgrim&apos;s matched none), and Realtree and Skippy carry no brand genre tag, so no decoys can be drawn. 3 built (Hoka x Strava, Shock Top x Spirit Halloween, e.l.f. Cosmetics x Zepeto) against a floor of 5, so nothing was scored and there is no third replay line. Most of the losses are small food and drink brands, as in the notes on the API below. Both sites&apos; listing pages wouldn&apos;t paginate, so the search rests on 26 domain-restricted web searches plus the first page of each listing (log in audit/replay-v3-search-log.md). Files: audit/replay-v3-protocol.md, replay-v3-cases.json and replay-v3-search.json; the scored file stays private under Qloo&apos;s terms.
+            <span className="font-semibold">Fresh deals, chosen by rule, didn&apos;t reach the floor.</span> Real Oct 16 (34 calls, no affinity read), a third replay on deals chosen by rule after the protocol froze (3dc6576, Oct 13). The rule was committed before the search (cbfb349: Marketing Dive and Food Dive, Aug 17 to Oct 16, two brands per deal, a floor of 5 scored cases) and the list before any Qloo call (8eeac27). 13 deals found; 3 excluded under the rule (Netflix and Wendy&apos;s were already used, Papa Johns&apos; partner was a film). Of the 10 left, 5 names didn&apos;t confirm (BeatBox, Biscoff and Flamin&apos; Hot matched more than one entity; BuzzBallz, Mike&apos;s Hot Honey and Pilgrim&apos;s matched none), and Realtree and Skippy carry no brand genre tag, so no decoys can be drawn. 3 built (Hoka x Strava, Shock Top x Spirit Halloween, e.l.f. Cosmetics x Zepeto) against a floor of 5, so nothing was scored and there is no third replay line. Most of the losses are small food and drink brands, as in the notes on the API below. Both sites&apos; listing pages wouldn&apos;t paginate, so the search rests on 26 domain-restricted web searches plus the first page of each listing (log in audit/replay-v3-search-log.md). Files: audit/replay-v3-protocol.md, replay-v3-cases.json and replay-v3-search.json; the scored file stays private under Qloo&apos;s terms.
           </li>
         </ul>
       </section>

@@ -1,9 +1,9 @@
-// Replay control, scrambled seeds (audit/replay-control-protocol.md, frozen 65d1f56): the /audit paragraph, every
+// Replay control, scrambled seeds (audit/replay-control-protocol.md, frozen 902906a): the /audit paragraph, every
 // number read from audit/replay-control.json and the frozen replay files.
 type Row = { realRank: number; scrambledRank: number | null; hit: boolean };
 type Control = { summary: { cases: number; realHits: number; scrambledHits: number; noMeasurement: number; pass: boolean; meanScrambledRank: number }; cases: Row[] };
 
-export const CONTROL_FREEZE = "65d1f56";
+export const CONTROL_FREEZE = "902906a";
 
 export function controlSentences(c: Control, v2From = 9) {
   const s = c.summary;
