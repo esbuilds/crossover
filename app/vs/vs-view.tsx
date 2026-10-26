@@ -96,7 +96,7 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
           {stateLine && <p className="mt-3 max-w-copy text-base text-ink-2">{stateLine}</p>}
           {d.share.length > 0 && (
             <p className="mt-3 text-sm">
-              <Chip kind="note" title="From Qloo check 7 (Qloo compare)">
+              <Chip kind="note" title="From step 7 (Qloo compare)">
                 Share by category: {[...new Map(d.share.map((t) => [t.toLowerCase(), t])).values()].join(", ")}
               </Chip>
             </p>
@@ -240,7 +240,8 @@ function Cite({ checks, children }: { checks: string; children: React.ReactNode 
 }
 
 export function CheckTag({ checks }: { checks: string }) {
-  return <span className={cite}>Qloo check{checks.includes(" ") ? "s" : ""} {checks}</span>;
+  // "step", as the ask cites (W5b, real Oct 25: "Qloo check" here, "step" there); the numbers are the steps fold's
+  return <span className={cite}>step{checks.includes(" ") ? "s" : ""} {checks}</span>;
 }
 
 function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow[]; d: VsPayload; side: "a" | "b"; empty: string }) {
@@ -249,6 +250,8 @@ function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow
       <h2 className="font-display text-xl">
         {title} <span className="font-sans text-base font-normal text-ink-3 tabular-nums">{rows.length}</span>
       </h2>
+      {/* cited once per column (W5b): every row's scores are steps 4 and 5, its ranks steps 2 and 3 */}
+      {rows.length > 0 && <p className="mt-1 text-sm text-ink-3">Scores from <CheckTag checks="4 and 5" />, ranks from <CheckTag checks="2 and 3" /></p>}
       {rows.length ? (
         <>
           {/* five rows on small screens, ten from 640 up; "Show all" appears where rows are hidden */}
@@ -298,7 +301,7 @@ function Rows({ rows, d, side, cls }: { rows: RivalRow[]; d: VsPayload; side: "a
               <Bar who={r.a.name} v={row.a} tone="bg-accent" check={4} />
               <Bar who={r.b.name} v={row.b} tone="bg-ink-2" check={5} />
               <p className="mt-1 text-sm text-ink-2 tabular-nums">
-                Gap {Math.abs(row.a - row.b).toFixed(2)} · <Cite checks="2 and 3">{rankContext(row, r.a.name, r.b.name)}</Cite>
+                Gap {Math.abs(row.a - row.b).toFixed(2)} · {rankContext(row, r.a.name, r.b.name)}
               </p>
             </>
           ) : (
@@ -317,7 +320,7 @@ function Bar({ who, v, tone, check }: { who: string; v: number; tone: string; ch
       <span className="h-2 min-w-0 flex-1 rounded-sm bg-surface-2">
         <span className={`block h-2 rounded-sm ${tone}`} style={{ width: `${Math.round(v * 100)}%` }} />
       </span>
-      <span className="w-10 shrink-0 text-right tabular-nums text-ink" title={`From Qloo check ${check}`}>
+      <span className="w-10 shrink-0 text-right tabular-nums text-ink" title={`From step ${check}`}>
         {v.toFixed(2)}
       </span>
     </div>

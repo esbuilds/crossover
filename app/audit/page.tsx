@@ -115,8 +115,15 @@ export default function AuditPage() {
       <section id="fool-it" className="mt-section max-w-copy scroll-mt-4">
         <h2 className="font-display text-xl">Can the checker be fooled?</h2>
         <p className="mt-3 text-base text-ink-2">
+          Every answer the site shows ({mutation.answers} cached on {mutation.date}) was copied and one fact was changed per copy: a score moved by 0.03, a rank or count moved by one, a brand swapped, a citation pointed at the wrong step. The checker re-checked each copy. 0 Qloo calls, 0 model calls. Today&apos;s rule rejects {mutation.gated.rejected} of {mutation.gated.of}; each kind is below, with what got through. Any answer on the site has a &ldquo;Try to fool the checker&rdquo; box that runs the same code on your edit.
+        </p>
+        {/* W5b (real Oct 25): the rule versions behind that number, folded; the paragraph as it read before is kept whole */}
+        <details className="mt-2">
+          <summary className="cursor-pointer text-base text-ink-2">How the rule got there: two gaps found by this test, one found later, all three closed</summary>
+        <p className="mt-2 text-base text-ink-2">
           Every answer the site shows ({mutation.answers} cached on {mutation.date}) was copied and one fact was changed per copy: a score moved by 0.03, a rank or count moved by one, a brand swapped, a citation pointed at the wrong step. The checker re-checked each copy. 0 Qloo calls, 0 model calls. Under rule {mutation.before.rule} it rejected {mutation.before.rejected} of {mutation.before.of}; the misses showed two holes, both closed in rule v3, which rejected {mutation.v3.rejected} of {mutation.v3.of} on {mutation.v3.date}. On {mutation.gap.found} a third hole was found: a rank at the end of a sentence (&ldquo;rank 9.&rdquo;) wasn&apos;t bound to the brand it was said of, and this test&apos;s own rank tamper skipped the same numbers. With the tamper corrected, rule v3 rejects {mutation.v3.withNewTamper.rejected} of {mutation.v3.withNewTamper.of}, under the gate&apos;s 95 in 100; rule {mutation.rule} (commit <code className="font-mono">{mutation.gap.fix}</code>) rejects {mutation.gated.rejected} of {mutation.gated.of}. Any answer on the site has a &ldquo;Try to fool the checker&rdquo; box that runs the same code on your edit.
         </p>
+        </details>
         <ul className="mt-3 max-w-copy space-y-2 text-sm text-ink-2">
           {mutation.kinds.map((k) => (
             <li key={k.kind} className="border-t border-rule pt-2">
@@ -203,8 +210,12 @@ export default function AuditPage() {
           The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Each prepared ask&apos;s candidates (eight for Allbirds and Mt. Joy, six for Calm) tie within 0.05 by taste, because they come from the top 50 of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the overlap check is shown whether it finds a pair or not.
         </p>
         <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far; blocked under the current rule: {blocked.filter((b) => b.underV2 !== "passes").length}. Each, with the sentence that failed, the reason and what the current rule says:</p>
-        <p className="mt-1 text-base text-ink-2">The rule was refined on Oct 15 (rule v2) after the judge-name probe blocked a true answer for Noah Kahan: a number after &ldquo;against&rdquo;, &ldquo;versus&rdquo;, &ldquo;while&rdquo;, &ldquo;for the others&rdquo;, a count of others (&ldquo;seven others&rdquo;) or a semicolon now has to be the next named brand&apos;s own number, or with none named, another candidate&apos;s, instead of the brand before the comma&apos;s. Every number still has to be in a cited step. Before it shipped, all 29 cached answers that passed still passed (33 on a re-run the same afternoon, 0 failing), the three real failures below still block, and a test proves a misattributed number still blocks. Answers are re-checked under the current rule when shown; the stored runs aren&apos;t changed.</p>
-        <p className="mt-1 text-base text-ink-2">Rule v3 (Oct 18) came from attacking the checker, below: a score written after the seed&apos;s name, and any rank, now has to be the named brand&apos;s own. The three frozen answers check identically, all 33 cached answers that passed still pass, and every entry in this list reads the same under v3 as under v2.</p>
+        {/* W5b (real Oct 25): the rule's version history, folded under a plain summary; every line kept */}
+        <details className="mt-1">
+          <summary className="cursor-pointer text-base text-ink-2">How the rule changed: twice, each time after a test found a gap, and every earlier answer re-checked</summary>
+        <p className="mt-2 text-base text-ink-2">The rule was refined on Oct 15 (rule v2) after the judge-name probe blocked a true answer for Noah Kahan: a number after &ldquo;against&rdquo;, &ldquo;versus&rdquo;, &ldquo;while&rdquo;, &ldquo;for the others&rdquo;, a count of others (&ldquo;seven others&rdquo;) or a semicolon now has to be the next named brand&apos;s own number, or with none named, another candidate&apos;s, instead of the brand before the comma&apos;s. Every number still has to be in a cited step. Before it shipped, all 29 cached answers that passed still passed (33 on a re-run the same afternoon, 0 failing), the three real failures below still block, and a test proves a misattributed number still blocks. Answers are re-checked under the current rule when shown; the stored runs aren&apos;t changed.</p>
+        <p className="mt-2 text-base text-ink-2">Rule v3 (Oct 18) came from attacking the checker, below: a score written after the seed&apos;s name, and any rank, now has to be the named brand&apos;s own. The three frozen answers check identically, all 33 cached answers that passed still pass, and every entry in this list reads the same under v3 as under v2.</p>
+        </details>
         <p className="mt-1 text-base text-ink-2">The checker reads names and numbers, not meaning; a true sentence can be blocked, a misleading one with correct numbers can pass.</p>
         <ul className="mt-2 max-w-copy space-y-2 text-sm text-ink-2">
           {blocked.map((b) => (
@@ -425,7 +436,7 @@ function Replay() {
       <h2 className="font-display text-xl">Would it have found real partners?</h2>
       <StripImage className="mt-4" />
       <p className="mt-3 max-w-copy text-base text-ink-2">
-        Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans score all eight. A hit is the real partner in the top three; chance is three in eight. Each test&apos;s protocol and bar were frozen in git before it ran.
+        Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans (the brand that made the deal) score all eight. A hit is the real partner in the top three; chance is three in eight. Each test&apos;s protocol and bar were frozen in git before it ran.
       </p>
       {/* W5b: the controls before any per-test pass line, and the two tests folded under them, so no passing number is
           read without the controls that undo it */}
