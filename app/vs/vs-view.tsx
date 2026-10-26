@@ -1,9 +1,9 @@
 // The rivals result (brief-oct12-front): shared by the front door (client) and /vs (server). No hooks, no server
 // imports. Every word comes from code or from Qloo.
 import Link from "next/link";
-import { btnText, chip, Chip, cite } from "@/app/ui";
+import { btnText, chip, Chip, cite, linkInline } from "@/app/ui";
 import type { RivalRow, VsPayload, Xray } from "@/lib/rivals.ts";
-import { DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
+import { DOESNT_ESTABLISH, emptyColumn, leadLine, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
 import { PAIR_CASE, VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
 import { LEAN_SPLIT } from "@/lib/collide.ts";
 import CollisionMap, { MapKey } from "./collision-map";
@@ -55,13 +55,15 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
       : []),
   ];
   const state = vsState(r);
+  const PAIR = r.a.entity_id.toUpperCase() === PAIR_CASE.a && r.b.entity_id.toUpperCase() === PAIR_CASE.b;
   const [line, stateLine] = verdict(r);
   const markets = mapLine(A, B, d.map);
+  const lead = leadLine(A, B, d.map, r.leansA);
   return (
     <>
-      {/* under 640 px the map comes before the verdict (CSS order, one copy of each); from 640 up, the verdict first.
-          From 1024 the map sits beside the verdict (WOW F3), so the picture is in the first screen at 1280 instead of
-          a page-wide map 700 px down. */}
+      {/* the verdict, then the map, at every width (W5b, real Oct 25: on phones the answer sat under the map). From 1024
+          the map sits beside the verdict (WOW F3), so the picture is in the first screen at 1280 instead of a page-wide
+          map 700 px down. */}
       <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12">
         <header className="order-1 mt-block lg:col-span-2">
           {/* the page's h1 is the question above the form (DC F8); the pair is the result's headline */}
@@ -75,8 +77,15 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
           )}
           {method && <div className="mt-3">{method.node}</div>}
         </header>
-        <div className="order-3 sm:order-2 lg:col-start-1 lg:row-start-2">
-          <p className="mt-6 max-w-lead text-lg text-ink">
+        <div className="order-2 lg:col-start-1 lg:row-start-2">
+          {/* what a partnerships lead does with it, from the numbers on this page (W5b, real Oct 25): it was only in a
+              fold at the bottom, so it leads now */}
+          {lead && (
+            <p className="mt-6 max-w-lead text-lg text-ink">
+              <Cite checks="4, 5, 8 and 9">{lead}</Cite>{PAIR && <> <a href={`#${PAIR_CASE.id}`} className={linkInline}>The worked case</a></>}
+            </p>
+          )}
+          <p className={`${lead ? "mt-3" : "mt-6"} max-w-lead text-lg text-ink`}>
             <Cite checks="4 and 5">{line}</Cite>
           </p>
           {markets && (
@@ -93,7 +102,7 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
             </p>
           )}
         </div>
-        <div className="order-2 sm:order-3 lg:col-start-2 lg:row-start-2">
+        <div className="order-3 lg:col-start-2 lg:row-start-2">
           <MapSection d={d} />
         </div>
       </div>

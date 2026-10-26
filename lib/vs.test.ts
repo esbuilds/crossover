@@ -1,7 +1,7 @@
 // The /vs page's states, verdict line and copy rules, from fixture payloads. No API calls.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bannedIn, DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "./vs.ts";
+import { bannedIn, DOESNT_ESTABLISH, emptyColumn, leadLine, mapLine, rankContext, verdict, vsState } from "./vs.ts";
 import { validShareLink } from "./share-link.ts";
 import type { Rivals, RivalRow } from "./rivals.ts";
 
@@ -69,6 +69,14 @@ const metros = (...names: string[]) => names.map((name) => ({ name }));
 test("map sentence: metros in one side's top five and not the other's, up to three each", () => {
   const m = { metrosA: metros("Los Angeles", "San Diego", "Denver", "Portland", "Austin"), metrosB: metros("Miami", "Tampa", "San Diego", "Dallas", "Los Angeles") } as never;
   assert.equal(mapLine("Liquid Death", "Celsius", m), "Liquid Death leads in Denver, Portland and Austin; Celsius in Miami, Tampa and Dallas.");
+});
+
+test("lead line: the left side's own markets, then its two widest gaps; nothing without a map or a measured row", () => {
+  const m = { metrosA: metros("Los Angeles", "San Diego", "Denver", "Portland", "Austin"), metrosB: metros("Miami", "Tampa", "San Diego", "Dallas", "Los Angeles") } as never;
+  const leans = [{ name: "Fallen Footwear", a: 0.87, b: 0.51 }, { name: "No data", a: null, b: null }, { name: "22Red", a: 0.87, b: 0.57 }, { name: "The Berrics", a: 0.84, b: 0.56 }];
+  assert.equal(leadLine("Liquid Death", "Celsius", m, leans), "For a partnerships lead at Liquid Death: test Denver, Portland and Austin first, where Liquid Death's audience runs hotter, and call Fallen Footwear (0.87 with Liquid Death, 0.51 with Celsius) and 22Red (0.87 with Liquid Death, 0.57 with Celsius) first, the widest gaps on Liquid Death's side.");
+  assert.equal(leadLine("Liquid Death", "Celsius", null, leans), null);
+  assert.equal(leadLine("Liquid Death", "Celsius", m, []), null);
 });
 
 test("map sentence: one side's markets all inside the other's, identical top fives, and no map", () => {
