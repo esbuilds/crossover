@@ -1,4 +1,5 @@
-// Match validation against recorded /search fixtures for the 20 probe brands. No live API, no LLM.
+// Match validation against the /search table for the probe brands (fixtures/search.json: our queries, every other word
+// of Qloo's results invented by scripts/demo-search.ts, so the token comparisons hold). No live API, no LLM.
 // Run: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -39,8 +40,8 @@ for (const [q, name] of Object.entries(KNOWN)) {
 
 // Oct 25: a person and an artist with the exact same name resolve to the artist, whichever Qloo lists first.
 for (const [q, id] of [
-  ["Taylor Swift", "4BBEF799-A0C4-4110-AB01-39216993C312"], // person listed first, separate artist entity
-  ["Metallica", "C445C761-CB38-4FEE-B085-D35F444A04DF"], // artist listed first
+  ["Taylor Swift", "7A591B34-D42B-4A28-9BB9-0B9F128E4449"], // person listed first, separate artist entity
+  ["Metallica", "67DE5A14-0870-4282-9189-45DDFED7F220"], // artist listed first
 ]) {
   test(`${q}: confident artist, not the person`, async () => {
     const r = await resolve(q, candidates(q), null);
@@ -54,14 +55,15 @@ for (const [q, id] of [
 // Oct 9 (real): "Stanley" exactly names the drinkware brand and an artist, and Stan Lee carries it as an alias. The
 // exact primary names win over the alias. Since Oct 11 (the cross-type rule) a brand and an artist sharing the exact
 // name ask which one, brand first in Qloo's order; the alias-only person is never offered.
-test("Stanley: asks brand or artist, never Stan Lee", async () => {
-  const fx = candidates("Stanley").map((c) => (c.name === "Stan Lee" ? { ...c, akas: ["Stanley"] } : c)); // the alias the live data carries
+const STAN_LEE = fixtures.Stanley[0].name; // the alias-only person, renamed in the table
+test("Stanley: asks brand or artist, never the alias-only person", async () => {
+  const fx = candidates("Stanley").map((c) => (c.name === STAN_LEE ? { ...c, akas: ["Stanley"] } : c)); // the alias the live data carries
   const r = await resolve("Stanley", fx, null);
   assert.equal(r.status, "ambiguous");
   if (r.status !== "ambiguous") return;
   assert.ok(r.candidates[0].types.includes("urn:entity:brand"));
   assert.ok(r.candidates.some((c) => c.types.includes("urn:entity:artist")));
-  assert.ok(!r.candidates.some((c) => c.name === "Stan Lee"));
+  assert.ok(!r.candidates.some((c) => c.name === STAN_LEE));
 });
 
 // Oct 11 gate: a rival of another type counts only on its primary name. "Metallica Through the Never" carries the

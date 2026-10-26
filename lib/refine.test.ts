@@ -1,17 +1,21 @@
-// Refine: constraint set shape, tag choice from a recorded /v2/tags shape, and unmappable constraints becoming notes.
+// Refine: constraint set shape, tag choice from a /v2/tags-shaped list, and unmappable constraints becoming notes.
 // No API calls.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { buildConstraintSet, pickTag, refineParams, relaxedParams, appliedSentence } from "./refine.ts";
 
-const tags = JSON.parse(readFileSync(new URL("../fixtures/tags-sample.json", import.meta.url), "utf8")).tags;
+// invented tags in the shape /v2/tags returns (id, name, type, parents): two place tags, then a brand tag
+const tags = [
+  { id: "urn:tag:cuisine:demo:smoked_trout", name: "Smoked Trout", type: "urn:tag:cuisine:demo", parents: [{ type: "urn:entity:place" }] },
+  { id: "urn:tag:category:place:demo_fish_counter", name: "Fish counter", type: "urn:tag:category:place", parents: [{ type: "urn:entity:place" }] },
+  { id: "urn:tag:genre:brand:demo:seafood", name: "Seafood", type: "urn:tag:genre:brand", parents: [{ type: "urn:entity:brand" }] },
+];
 const BEER = { tag_id: "urn:tag:genre:brand:beer", name: "Beer", type: "urn:tag:genre:brand" };
 const none = { include: [], exclude: [], region: null, domains: null, popularity_min: null, exclude_names: [], unmapped: [] };
 
 test("pickTag takes the first tag whose parents include a wanted entity type", () => {
-  assert.equal(pickTag(tags, ["brand"])?.tag_id, "urn:tag:genre:brand:food_and_beverage:food:meat_seafood_and_substitutes");
-  assert.equal(pickTag(tags, ["place"])?.tag_id, "urn:tag:cuisine:qloo:tinned_fish");
+  assert.equal(pickTag(tags, ["brand"])?.tag_id, "urn:tag:genre:brand:demo:seafood");
+  assert.equal(pickTag(tags, ["place"])?.tag_id, "urn:tag:cuisine:demo:smoked_trout");
   assert.equal(pickTag(tags, ["artist"]), null);
 });
 
