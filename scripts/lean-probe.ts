@@ -8,7 +8,7 @@ import { collide } from "../lib/collide.ts";
 import { getCities, marketOf } from "../lib/cities.ts";
 
 const SEED = "78A44C09-E691-42DA-A553-5CDE6EE9B18A";
-const ab = (await import("../lib/ask/fixtures/allbirds.json", { with: { type: "json" } })).default as { type: string; output?: { candidates?: { name: string; id: string }[] } }[];
+const ab = (await import(new URL("../lib/ask/fixtures/allbirds.json", import.meta.url).href, { with: { type: "json" } })).default as { type: string; output?: { candidates?: { name: string; id: string }[] } }[];
 const three = ab.find((e) => e.type === "result" && e.output?.candidates)!.output!.candidates!.slice(0, 3);
 
 const seedTop8 = (await getCities(SEED)).metros.slice(0, 8).map((m) => m.name);

@@ -13,7 +13,7 @@ const CASES = [
 ];
 const PICK_IDS: Record<string, string> = { Bombas: "", "Outdoor Voices": "011DFDA5-F5A7-461A-9D96-E28E4964E7FB", Converse: "7FFF01CF-7B0E-405A-A232-14176B165E60" };
 // Bombas' id from Allbirds' frozen answer
-const ab = (await import("../lib/ask/fixtures/allbirds.json", { with: { type: "json" } })).default as { type: string; output?: { candidates?: { name: string; id: string }[] } }[];
+const ab = (await import(new URL("../lib/ask/fixtures/allbirds.json", import.meta.url).href, { with: { type: "json" } })).default as { type: string; output?: { candidates?: { name: string; id: string }[] } }[];
 PICK_IDS.Bombas = ab.find((e) => e.type === "result" && e.output?.candidates)!.output!.candidates!.find((c) => c.name === "Bombas")!.id;
 
 const music = await placeTag("live music venue").catch(() => null);
