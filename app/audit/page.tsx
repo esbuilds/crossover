@@ -11,6 +11,7 @@ import replayAsk from "@/lib/ask/replay-ask.json";
 import judgeNames from "@/audit/judge-names.json";
 import mutation from "@/audit/mutation.json";
 import { forDisplay } from "@/lib/ask/check.ts";
+import { DEMO_AUDIT_NOTICE, isDemoAudit } from "@/lib/demo-audit.ts";
 import { btnPrimary, Chip, linkInline, panel, panelStrong, SiteHeader, shell } from "../ui";
 import { askLinks } from "@/lib/ask/links.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
@@ -101,7 +102,8 @@ export default function AuditPage() {
           </dl>
         </details>
       </section>
-      {/* W2 merge: DEMO_AUDIT_NOTICE renders here when isDemoAudit() (lib/demo-audit.ts on oct25-repo-data) */}
+      {/* W2: the public repo builds on stand-ins (audit/demo/); production never carries the mark */}
+      {isDemoAudit() && <p className="mt-6 max-w-copy text-sm text-ink-2">{DEMO_AUDIT_NOTICE}</p>}
 
       {/* persona round 2 (both readers): the page is long; a contents list up top */}
       <nav aria-label="On this page" className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm">

@@ -5,6 +5,7 @@ import Challenge from "./challenge";
 import { StripImage } from "./strip-image";
 import control from "@/audit/replay-control.json";
 import { replayLine } from "@/lib/replay-control.ts";
+import { DEMO_REPLAY_NOTICE, isDemoAudit } from "@/lib/demo-audit.ts";
 
 // The replay challenge (Fable's re-judge ruling, real Oct 15): the 23 frozen replay cases, guess then reveal. The
 // homepage stays the ask; this is its own route. Built from the audit files at build time: 0 Qloo and 0 model calls.
@@ -19,7 +20,8 @@ export default function ReplayPage() {
       <div className="max-w-[760px]">
         <section className="pt-page">
           <h1 className="font-display text-2xl sm:text-3xl">Spot the real partner</h1>
-          {/* W2 merge: DEMO_REPLAY_NOTICE renders here when isDemoAudit() (lib/demo-audit.ts on oct25-repo-data) */}
+          {/* W2: the public repo builds on stand-ins (audit/demo/); production never carries the mark */}
+          {isDemoAudit() && <p className="mt-3 max-w-copy text-sm text-ink-2">{DEMO_REPLAY_NOTICE}</p>}
           <p className="mt-3 max-w-copy text-lg text-ink-2 sm:mt-4">
             {CHALLENGE.length} real brand collaborations, each with a public source. The real partner hides among seven decoys from its own Qloo category and fame band, listed alphabetically with no mark. Pick one, then see where the seed&apos;s fans put it in Qloo&apos;s taste data.
           </p>
