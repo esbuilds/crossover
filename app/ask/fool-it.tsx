@@ -8,15 +8,17 @@ import { checkEdit, nudge } from "@/lib/ask/fool.ts";
 
 // Break the checker (moonshots round 4, real Oct 18): edit the reason above and the same checker that gates every answer
 // re-checks it here in the browser. Pure code, 0 calls; the answer itself never changes.
-export function FoolIt({ decision, steps }: { decision: Decision; steps: StepRecord[] }) {
+// label: the ask page's proof line names it in a few words (W3, real Oct 25); the pitch sheet keeps the full label
+export function FoolIt({ decision, steps, label = "Try to fool the checker", inline = false }: { decision: Decision; steps: StepRecord[]; label?: string; inline?: boolean }) {
   const shown = forDisplay(decision.calls[0].reason);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState(shown);
   const [result, setResult] = useState<Check | null>(null);
   const check = (t: string) => setResult(checkEdit(decision, steps, shown, t));
-  if (!open) return <p className="mt-2"><button type="button" onClick={() => setOpen(true)} className={btnText}>Try to fool the checker</button></p>;
+  // inline: a bare button inside the caller's line, and the open box takes the line's full width
+  if (!open) return inline ? <button type="button" onClick={() => setOpen(true)} className={btnText}>{label}</button> : <p className="mt-2"><button type="button" onClick={() => setOpen(true)} className={btnText}>{label}</button></p>;
   return (
-    <div className={`${panel} mt-4 p-4`}>
+    <div className={`${panel} mt-4 p-4${inline ? " basis-full" : ""}`}>
       <p className="max-w-copy text-sm text-ink-2">Change a number or swap in another brand, then check it. The same code that gates every answer runs here, in your browser.</p>
       {/* autoFocus: the button that opened this is gone, so focus moves into the field instead of dropping to the page (FIX-F8) */}
       <textarea value={text} onChange={(ev) => (setText(ev.target.value), setResult(null))} aria-label="The first call's reason, editable" rows={3} autoFocus className={`${field} mt-2 w-full`} />

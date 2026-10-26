@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         message: code ? FAIL_COPY[code]
           : err instanceof CapReached ? "You've hit today's limit of 20 new asks. Asks you've already opened still work, and the limit resets tomorrow."
           : err instanceof QuotaError || err instanceof ColdPairCap ? "Qloo's taste data is busy right now. Prepared asks still work; try this one again in a minute."
-          : "The agent stopped partway. The steps above are what it measured; try again to finish.",
+          : "The agent stopped partway. The steps below are what it measured; try again to finish.",
       });
     }
   });

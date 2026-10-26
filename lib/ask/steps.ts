@@ -60,7 +60,14 @@ export function cardsStep(steps: StepRecord[]): CardsStep | null {
   return { cards, fameFlat };
 }
 
-export type TwinsStep = { a: string; b: string; value: number; next: number };
+// The review's tie (J4, real Oct 25): the tied group's size and the candidates' count, or null when a clear three stood out
+export function tieOf(steps: StepRecord[]): { size: number; total: number } | null {
+  const r = outputOf<{ noClearThree?: boolean; groups: unknown[][]; notMeasured?: unknown[] }>(steps, "review");
+  if (!r?.noClearThree || !r.groups[0]) return null;
+  return { size: r.groups[0].length, total: r.groups.flat().length + (r.notMeasured?.length ?? 0) };
+}
+
+export type TwinsStep ={ a: string; b: string; value: number; next: number };
 
 export function twinsStep(steps: StepRecord[]): TwinsStep | null {
   const o = outputOf<{ found: boolean; a?: Named; b?: Named; value?: number; next?: number }>(steps, "twins");

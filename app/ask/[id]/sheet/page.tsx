@@ -12,7 +12,8 @@ import { PROOF } from "@/lib/ask/proof.ts";
 import blocked from "@/lib/ask/blocked.json";
 import { sheetModel } from "@/lib/ask/sheet.ts";
 import { whereToStart } from "@/lib/ask/where.ts";
-import { bothWays, firstCallHeading, LEGEND, WHO } from "@/lib/ask/both-ways.ts";
+import { bothWays, firstCallHeading, firstCallWhy, LEGEND, WHO } from "@/lib/ask/both-ways.ts";
+import { stepsFrom, tieOf } from "@/lib/ask/steps.ts";
 import { fieldNotesFor } from "@/lib/ask/field-notes.ts";
 import { BothSlope, BothTable } from "../../both-table";
 import { mapLine } from "@/lib/vs.ts";
@@ -57,6 +58,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
   const cells = vs && vs !== "cold" ? vs.map : null;
   const cities = s.map ? mapLine(s.map.seed.name, s.map.rival.name, { metrosA: s.map.seedMarkets.map((name) => ({ name })), metrosB: s.map.rivalMarkets.map((name) => ({ name })) } as unknown as Parameters<typeof mapLine>[2]) : null;
   // persona round 2 (Live Nation): copied text read "rank 1.4"; brackets keep the step apart from the number
+  const why = events ? firstCallWhy(both, s.calls[0].name, tieOf(stepsFrom(events))) : null;
   const fn = (ns: number[]) => <sup className="ml-0.5 font-mono text-[0.7em] text-ink-3">[{ns.join(",")}]</sup>;
 
   return (
@@ -69,6 +71,8 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
       {/* the same call card as the page (Fable tie ruling, Oct 14): two lines, two labels */}
       <div className={`${panelStrong} mt-2 px-3 py-2`}>
         <p className="text-base font-semibold">{s.card.first}</p>
+        {/* J4 (real Oct 25): inside a tie, whether the both-ways read separates the first call, as on the ask page */}
+        {why && <p>{why}</p>}
         {s.card.where && <p className="text-ink-2">{s.card.where}</p>}
         {where?.line && <p className="text-ink-2">{where.line}</p>}
       </div>

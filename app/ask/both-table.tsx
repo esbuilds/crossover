@@ -50,16 +50,20 @@ export function BothTable({ b, compact = false, lead }: { b: BothWays; compact?:
 // slope), and the table on the page carries the same ranks for screen readers.
 // column: the call sheet's 2.6in side column (DES-7) takes the narrow drawing at every width and in print
 // left: leftSub's line for the wide drawing (W1); the phone and sheet drawings don't take it
-export function BothSlope({ b, column = false, left = null, lead }: { b: BothWays; column?: boolean; left?: string | null; lead?: string }) {
+// drawn: the ask page's home replay (W3): "pending" holds the lines at a quarter strength until step 5 lands, "drawn" draws
+// the climbing line in; undefined (every other page, and the sheets) is at rest
+export function BothSlope({ b, column = false, left = null, lead, drawn }: { b: BothWays; column?: boolean; left?: string | null; lead?: string; drawn?: "pending" | "drawn" }) {
   // two drawings of the same rows: the wide one from 640, the narrow one on phones (DES-6), each sized so its text
   // renders at 12 to 14 px. The narrow one runs into the card's padding and never draws larger than 14 px.
   const wide = slope(b, false, left, lead), narrow = slope(b, true, null, lead);
   if (!wide || !narrow) return null;
   if (column) return <SlopeSvg b={b} s={narrow} narrow className="mt-2 w-full text-[12px]" />;
+  const state = drawn ? `slope-${drawn}` : "";
   return (
     <>
-      <SlopeSvg b={b} s={wide} className="mt-4 w-full max-w-md text-[13px] max-sm:hidden" />
-      <SlopeSvg b={b} s={narrow} narrow className="-mx-2 mt-4 w-[calc(100%+1rem)] text-[12px] sm:hidden" style={{ maxWidth: Math.round((narrow.w * 14) / 12) }} />
+      {/* W3: the answer's picture, as wide as its column allows up to text at 14 px (it was capped at 28rem) */}
+      <SlopeSvg b={b} s={wide} className={`mt-4 w-full text-[13px] max-sm:hidden ${state}`} style={{ maxWidth: Math.round((wide.w * 14) / 13) }} />
+      <SlopeSvg b={b} s={narrow} narrow className={`-mx-2 mt-4 w-[calc(100%+1rem)] text-[12px] sm:hidden ${state}`} style={{ maxWidth: Math.round((narrow.w * 14) / 12) }} />
     </>
   );
 }
@@ -94,8 +98,8 @@ function SlopeSvg({ b, s, narrow = false, className, style }: { b: BothWays; s: 
       {s.rows.map((x) => {
         const tone = x.climbs ? "stroke-accent" : "stroke-ink-3";
         return (
-          <g key={x.name}>
-            <line x1={l} y1={x.y1} x2={r} y2={x.y2} strokeWidth={x.climbs ? 2.5 : 1} className={tone} />
+          <g key={x.name} className="slope-row">
+            <line x1={l} y1={x.y1} x2={r} y2={x.y2} strokeWidth={x.climbs ? 2.5 : 1} className={`${tone}${x.climbs ? " slope-climb" : ""}`} pathLength={1} />
             <circle cx={l} cy={x.y1} r={3} className={x.climbs ? "fill-accent" : "fill-ink-3"} />
             <circle cx={r} cy={x.y2} r={3} strokeWidth={1.25} className={x.out ? "fill-surface stroke-ink-3" : x.climbs ? "fill-accent" : "fill-ink-3"} />
             <line x1={l - 12} y1={x.ly1} x2={l - 4} y2={x.y1} className="stroke-rule-ui" />

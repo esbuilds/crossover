@@ -6,7 +6,7 @@ import { PerRequest } from "@/app/dynamic";
 import { SiteHeader, shell } from "@/app/ui";
 import { peekAsk, type AskEvent } from "@/lib/ask/agent.ts";
 import { bodyFromParams } from "@/lib/ask/body.ts";
-import { PROOF } from "@/lib/ask/proof.ts";
+import { CAUGHT, PROOF } from "@/lib/ask/proof.ts";
 import { REPLAY_ASK, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import { peekCard } from "@/lib/slate.ts";
 import { whereToStart } from "@/lib/ask/where.ts";
@@ -43,7 +43,9 @@ export default function SharedAsk({ params, searchParams }: PageProps<"/ask/[id]
       <PerRequest />
       <main className={shell}>
         <SiteHeader href="/" label="Ask" />
-        <Suspense fallback={<div data-fallback><AskView /></div>}>
+        {/* the fallback holds a screen of room, so the footer stays below the fold while the answer streams in (CLS 0.14 at
+            1440 and 0.25 at 390 on production before W3, the same fix as the home page's Loading) */}
+        <Suspense fallback={<div data-fallback><AskView /><div className="min-h-screen" /></div>}>
           <Shared params={params} searchParams={searchParams} />
         </Suspense>
       </main>
@@ -59,9 +61,9 @@ async function Shared({ params, searchParams }: Pick<PageProps<"/ask/[id]">, "pa
   if (!r.events || !r.seed) {
     // the name for the chip (FIX-F7): the typed name, the replay case's label, or the cached card's name; cache only
     const label = "query" in asked ? asked.query ?? UNNAMED_ASK : "case" in asked ? REPLAY_ASK.label : (await peekCard(r.id, r.type).catch(() => null))?.name ?? UNNAMED_ASK;
-    return <AskView proof={PROOF} pending={{ label, body: asked }} />;
+    return <AskView proof={PROOF} caught={CAUGHT} pending={{ label, body: asked }} />;
   }
   // the where line, both-ways table and field notes from the cache on the server (MO F6, FIX-F3): nothing lands late
   const [where, both, notes] = await Promise.all([whereToStart(r.events, null).catch(() => null), bothWays(r.events, null).catch(() => null), fieldNotesFor(r.events, null).catch(() => null)]);
-  return <AskView proof={PROOF} initial={{ label: r.seed, events: r.events, asked, where: where?.line ?? undefined, both, notes }} />;
+  return <AskView proof={PROOF} caught={CAUGHT} initial={{ label: r.seed, events: r.events, asked, where: where?.line ?? undefined, both, notes }} />;
 }

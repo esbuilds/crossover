@@ -86,6 +86,24 @@ const NARROW = { ch: 6.83, span: 40, pad: 10 };
 export const OUT_LINES = ["not in their", "top 50"];
 export type SlopeRow = { name: string; left: string; right: string; y1: number; y2: number; ly1: number; ly2: number; out: boolean; climbs: boolean; call: boolean };
 const y = (r: number, top: number) => top + (Math.log(r) / Math.log(50)) * SLOPE.h;
+
+// The first call's reason inside a tie (J4, judge round real Oct 25: all four judges read "First call" over "No clear
+// three" as a contradiction). tie: the review's tied group (lib/ask/steps.ts tieOf), else null. When the both-ways read
+// separates the first call (its fans rank the seed above every other row's fans), say how, from the table's cells; when
+// it doesn't, say plainly that the call is the agent's. null outside a tie: the card keeps bothLine.
+export function firstCallWhy(b: BothWays | null, first: string, tie: { size: number; total: number } | null): string | null {
+  if (!tie) return null;
+  const n = COUNT[tie.size] ?? String(tie.size);
+  const head = `${tie.size === tie.total ? `All ${n}` : `The top ${n}`} are within 0.05 on taste`;
+  const row = b?.shown ? b.rows.find((r) => r.name === first) : undefined;
+  const others = b && row ? b.rows.filter((r) => r !== row) : [];
+  const at = (r: Rank) => (typeof r === "number" ? r : OUT);
+  const line = b && row ? bothLine(b, first) : null;
+  const separates = !!line && typeof row!.rev === "number" && others.every((r) => at(r.rev) > (row!.rev as number));
+  if (!separates) return `${head}, so this is the agent's pick, not a measured lead.`;
+  const lead = row!.rev === 1 ? `${first} is the only one whose fans rank ${b!.seed} first` : `${first} fans rank ${b!.seed} ${th(row!.rev as number)}, the highest of the ${COUNT[b!.rows.length] ?? b!.rows.length}`;
+  return `${head}. ${lead}; ${line!.slice(line!.indexOf("; ") + 2)}`;
+}
 const outY = (top: number) => top + SLOPE.h + 20;
 // each used label at its point, or one gap below the label above it
 function spread(ys: number[], use: boolean[]) {

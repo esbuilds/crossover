@@ -253,6 +253,7 @@ summary::-webkit-details-marker {
 .rail-step {
   display: inline-flex;
   align-items: center;
+  min-height: 1.5rem; /* WCAG 2.2 target size, 24px (W3) */
   gap: 0.375rem;
   color: var(--color-ink-3);
   text-underline-offset: 4px;
@@ -270,6 +271,17 @@ summary::-webkit-details-marker {
   border-radius: 999px;
   font-size: 0.75rem;
   line-height: 1;
+}
+/* phones show the numbers only, each a 44px target (W3) */
+@media (max-width: 639.98px) {
+  .rail-step {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    justify-content: center;
+  }
+}
+.rail-num[data-n]::before {
+  content: attr(data-n);
 }
 li.is-on .rail-step {
   color: var(--color-ink);
@@ -289,18 +301,35 @@ li.is-on .rail-num {
   }
 }
 
-/* the dumbbell draws each row from fame to taste (MO F8). Tailwind's translate is its own property, so scaleX composes
-   with it. A step still hidden by the replay holds the rows still, so they draw when the step lands. */
+/* The answer's pictures on the home replay (W3, real Oct 25; MO F8). Until step 5 lands they wait at a quarter strength
+   (the labels stay full, so nothing is hidden); when it lands the climbing line draws and the eight's rows draw from fame
+   to taste. 250 ms each, transform, opacity and stroke only. Share pages carry neither class and never animate. Reduced
+   motion: the replay lands every step at once, so the pending state never shows and no keyframe runs. */
+.slope-pending .slope-row line:not([class*="stroke-rule"]),
+.slope-pending .slope-row circle,
+.eight-pending .bell-line,
+.eight-pending .bell-taste {
+  opacity: 0.25;
+}
 @media (prefers-reduced-motion: no-preference) {
-  .bell-row .bell-line {
-    animation: bell-draw 400ms cubic-bezier(0.2, 0, 0, 1) calc(var(--i) * 40ms) backwards;
+  .slope-row line,
+  .slope-row circle {
+    transition: opacity 250ms cubic-bezier(0.2, 0, 0, 1);
   }
-  .bell-row .bell-taste {
-    animation: fade-in 200ms ease-out calc(var(--i) * 40ms + 300ms) backwards;
+  .slope-drawn .slope-climb {
+    stroke-dasharray: 1;
+    animation: line-draw 250ms cubic-bezier(0.2, 0, 0, 1) backwards;
   }
-  .invisible .bell-row .bell-line,
-  .invisible .bell-row .bell-taste {
-    animation: none;
+  .eight-drawn .bell-row .bell-line {
+    animation: bell-draw 250ms cubic-bezier(0.2, 0, 0, 1) calc(var(--i) * 30ms) backwards;
+  }
+  .eight-drawn .bell-row .bell-taste {
+    animation: fade-in 200ms ease-out calc(var(--i) * 30ms + 150ms) backwards;
+  }
+}
+@keyframes line-draw {
+  from {
+    stroke-dashoffset: 1;
   }
 }
 @keyframes bell-draw {

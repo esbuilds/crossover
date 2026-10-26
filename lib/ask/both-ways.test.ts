@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { bothWaysFrom, gate, sentence, type Row } from "./both-ways.ts";
 import allbirds from "./fixtures/allbirds.json" with { type: "json" };
 import mtJoy from "./fixtures/mt-joy.json" with { type: "json" };
-import { bothLine, cell, firstCallHeading, leftSub, oneWay, OUT_LINES, rightSub, slope, type BothWays } from "./both-rules.ts";
+import { bothLine, cell, firstCallHeading, firstCallWhy, leftSub, oneWay, OUT_LINES, rightSub, slope, type BothWays } from "./both-rules.ts";
 import type { AskEvent } from "./agent.ts";
 
 // Allbirds' rank among each candidate's fans' brands, as scripts/reverse-probe.ts measured it (0 = not in their top 50)
@@ -85,6 +85,19 @@ test("card line: the first call's reverse rank, then the other seven's range, fr
   assert.equal(bothLine(await mjBoth(), "Outdoor Voices"), "Outdoor Voices fans rank Mt. Joy 26th; the other seven rank it 4th to 28th or not in their top 50.");
   assert.equal(bothLine({ ...ab, shown: false }, "Bombas"), null);
   assert.equal(bothLine({ ...ab, rows: ab.rows.map((r, i) => (i === 3 ? { ...r, rev: null } : r)) }, "Bombas"), null);
+});
+
+test("J4: inside a tie the first call's reason says whether the both-ways read separates it", async () => {
+  const ab = (await bothWaysFrom(events, recorded()))!;
+  const all = { size: 8, total: 8 };
+  assert.equal(firstCallWhy(ab, "Bombas", all), "All eight are within 0.05 on taste. Bombas is the only one whose fans rank Allbirds first; the other seven rank it 9th to 31st or not in their top 50.");
+  assert.equal(firstCallWhy(await mjBoth(), "Outdoor Voices", all), "All eight are within 0.05 on taste, so this is the agent's pick, not a measured lead.");
+  assert.equal(firstCallWhy({ ...ab, shown: false }, "Bombas", { size: 6, total: 6 }), "All six are within 0.05 on taste, so this is the agent's pick, not a measured lead.");
+  assert.equal(firstCallWhy(null, "Bombas", { size: 5, total: 8 }), "The top five are within 0.05 on taste, so this is the agent's pick, not a measured lead.");
+  // a first call ranked 3rd still separates when every other row ranks the seed lower
+  const third = { ...ab, rows: ab.rows.map((r) => (r.name === "Bombas" ? { ...r, rev: 3 } : r)) };
+  assert.equal(firstCallWhy(third, "Bombas", all), "All eight are within 0.05 on taste. Bombas fans rank Allbirds 3rd, the highest of the eight; the other seven rank it 9th to 31st or not in their top 50.");
+  assert.equal(firstCallWhy(ab, "Bombas", null), null);
 });
 
 // scripts/slope-check.ts runs the same comparison over every cached ask in Redis
