@@ -6,7 +6,7 @@ One name in: an agent measures in Qloo step by step and says who that brand, art
 
 **Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
 
-**What's measured.** We attacked the checker with 230 altered answers; it rejects 219 after we found and fixed one gap, also published, and the 11 that got through are listed on /audit#fool-it. In the answer above, Bombas fans rank Allbirds first among brands and the other seven candidates' fans rank it 9th to 31st or not in their top 50. We replayed 23 real collaborations the agent never saw, and the real partner landed in its top three 17 times; two controls committed to git before their first call failed their bars (17 times again under a wrong seed brand, and 5 against 3 when ranked by where each candidate's fans put the seed, who appears in only 12 of 184 of their top-50 lists). Both are on /audit, so the replay shows the candidate lists are well built, and no more than that.
+**What's measured.** We attacked the checker with 230 altered answers; it rejects 219 after we found and fixed one gap, also published, and the 11 that got through are listed on /audit#fool-it. In the answer above, Bombas fans rank Allbirds first among brands and the other seven candidates' fans rank it 9th to 31st or not in their top 50. We replayed 23 real collaborations the agent never saw, and the real partner landed in its top three 17 times; two controls committed to git before their first call failed their bars (17 times again under a wrong seed brand, and 5 against 3 when ranked by where each candidate's fans put the seed, who appears in only 12 of 184 of their top-50 lists). Both are on /audit: the candidate lists favor the real partner whoever is asking, and the replay doesn't show that a seed's taste picks the right partner.
 
 ## Every Qloo call
 
@@ -79,14 +79,23 @@ curl -sN -X POST https://crossover-henna.vercel.app/api/ask -H 'content-type: ap
 
 ## Verify it with no keys
 
-`npm run verify` (`scripts/verify.ts`) needs no API key, no Redis and no network (Node 22.18 or later for type stripping; measured on 23.11). It reads the three recorded asks in `lib/ask/fixtures/` and prints:
+`npm run verify` (`scripts/verify.ts`) needs no API key, no Redis and no network (Node 22.18 or later for type stripping; measured on 23.11). The recorded asks are Qloo data, so this repo doesn't carry them (see Qloo's data, below). Verify runs on the demo world in `lib/ask/demo/`, three made-up asks in the recorded asks' shape, and prints:
 
-- the sha1 of each recorded ask beside the frozen hash in `docs/freeze.md`: Allbirds (1db30036) and Mt. Joy (79a549bd) are the cached answers production replays, byte for byte; the Coca-Cola x Converse replay ask has no fixture, so it is checked from the cache only (`scripts/ask-hashes.ts`);
-- the checker's verdict on each recorded decision under rule v3.1, with the count of names and numbers it matched to a cited step (Allbirds 31, Mt. Joy 33, Liquid Death 27);
-- the nine tampers of the checker attack (`lib/ask/tamper.ts`), run over the three recorded answers: 20 of 21 gated copies rejected; the one miss, on Mt. Joy, is a score nudged by 0.03, the kind behind 8 of the 11 published misses; the "unbracketed invented brand" kind is the documented ceiling and is counted apart (0 of 3);
-- the replay controls recounted from `audit/replay-control.json` and `audit/replay-reverse.json`: the real partner in the top three 17 of 23 times, 17 of 23 with the seed scrambled, and 5 against 3 when ranked the other way.
+- the frozen hash of each recorded ask from `docs/freeze.md`: Allbirds (1db30036) and Mt. Joy (79a549bd) are the cached answers production replays, byte for byte. The asks themselves stay private, so the hashes are checked where they are: by verify in the private repo the site deploys from, and against the cache by `scripts/ask-hashes.ts`, which also covers the Coca-Cola x Converse replay ask;
+- the checker's verdict on each demo decision under rule v3.1, with the count of names and numbers it matched to a cited step: 31, 33 and 27, the same counts as the recorded Allbirds, Mt. Joy and Liquid Death answers;
+- the nine tampers of the checker attack (`lib/ask/tamper.ts`), run over the three demo answers: 20 of 21 gated copies rejected, as on the recorded ones; the one miss, on the artist ask (Mt. Joy in the recorded set), is a score nudged by 0.03, the kind behind 8 of the 11 published misses; the "unbracketed invented brand" kind is the documented ceiling and is counted apart (0 of 3);
+- the replay controls recounted from `audit/replay-control.json` and `audit/replay-reverse.json` where those are the real tables (the private repo): the real partner in the top three 17 of 23 times, 17 of 23 with the seed scrambled, and 5 against 3 when ranked the other way. Here they are stand-ins, so this step says so and skips.
 
 It exits 1 if any of these differs. The full attack over every cached answer reads the Redis cache: `node --env-file=.env.local scripts/mutation-gate.ts` (0 Qloo calls); its published run, 219 of 230 under rule v3.1, is `audit/mutation.json`.
+
+## Rebuild the real data
+
+The real tables need a Qloo key and spend quota. Each script prints its Qloo calls and stops at `QLOO_DAILY_CAP`.
+
+- The search recordings: `scripts/record-fixtures.ts` (20 calls), then `scripts/demo-search.ts` for the committed table.
+- The held-out audit: `scripts/audit-run.ts <baseUrl> <outDir>` against a deploy writes `audit/results.json` (raw responses go to `<outDir>`, outside the repo).
+- The replays: `scripts/replay-build.ts`, then `scripts/replay-score.ts` (one call per case), each run only after its protocol is committed. Then the controls: `scripts/replay-control.ts` (23 calls) and `scripts/replay-reverse.ts` (one call per distinct candidate, 106 at most). `scripts/popularity-fair.ts` (0 calls) runs last.
+- The three recorded asks were captured from the production cache, from answers the site had already given. `scripts/demo-world.ts` makes the demo world from them, and `scripts/demo-audit.ts` makes the audit stand-ins from the real tables.
 
 ## How the checker works
 
@@ -97,7 +106,7 @@ The agent writes every brand, artist or show in double brackets and ends every s
 - **The tie, and what separates it.** Each prepared ask's candidates (eight for Allbirds and Mt. Joy, six for Calm) tie within 0.05 by taste, because they come from the top 50 of the seed's own list; the page says so. At the top of the decision column, above "Call first", code beside the frozen answer draws the other direction: each candidate's fans' rank of the seed (`lib/ask/both-ways.ts`). Bombas fans rank Allbirds 1st; the other seven rank it 9th to 31st or not in their top 50. Shown only when the agent's three separate on it (Allbirds and Mt. Joy do, the Converse replay doesn't), never reordered.
 - **The seller's side** (`lib/ask/pitch.ts`, `/ask/<id>/pitch`). The same both-ways rows read down the right column: the name whose fans rank the seed highest is the pitch, and the pitch line is a template over the two ranks and the review score. The line is checked by `lib/ask/check.ts` with the both-ways rows appended as one cited step, so a wrong number is rejected the same way (`lib/ask/pitch.test.ts`). Mt. Joy: Allbirds fans rank it 4th; Outdoor Voices fans rank it 26th. It is what a seller can say, not a forecast: ranked this way the replay found the real partner 5 times in 23.
 - **We attacked the checker.** `scripts/mutation-gate.ts` copies every cached answer, changes one fact per copy (9 kinds) and re-checks it: rule v2 rejected 207 of 228, the misses showed two holes, rule v3 rejected 217 of 228; a later gap (a rank that ends a sentence wasn't bound to its brand) was found, fixed in rule v3.1 and added to the gate's rank tamper, and v3.1 rejects 219 of 230, with the gap and every miss published on /audit#fool-it. Any answer has a "Try to fool the checker" box running the same code in the browser (`lib/ask/fool.ts`).
-- **Smaller names, nearly the same fit** (`lib/ask/smaller.ts`). Under the answer, Qloo's brand list for the seed's fans read again with `filter.popularity.max=0.5`: the brands that stay within 0.05 of the leader (the answer's own tie rule). Allbirds: The Recreationalist at popularity 0.50 scores 0.90 against Outdoor Voices' 0.94 at 0.96. Gate run first (`audit/popularity-probe.json`): the same entity carries the same affinity in both reads, so the comparison holds; popularity 0 is Qloo's "no measurement" and is left out.
+- **Smaller names, nearly the same fit** (`lib/ask/smaller.ts`). Under the answer, Qloo's brand list for the seed's fans read again with `filter.popularity.max=0.5`: the brands that stay within 0.05 of the leader (the answer's own tie rule). Allbirds: The Recreationalist at popularity 0.50 scores 0.90 against Outdoor Voices' 0.94 at 0.96. Gate run first (its file is Qloo data, kept private): the same entity carries the same affinity in both reads, so the comparison holds; popularity 0 is Qloo's "no measurement" and is left out.
 - **Use it from your agent (MCP).** `https://crossover-henna.vercel.app/api/mcp` (Streamable HTTP, `app/api/mcp/route.ts`): `crossover_ask` returns a cached checked answer with every cited step, `crossover_check` runs the checker on any decision and steps. Read-only over the cache, so it never spends Qloo calls. The URL opened in a browser describes the server and how to connect; `node scripts/mcp-gate.ts <url>` is the round-trip test.
 - **Agent or pipeline.** The order of tools is set in the prompt; the branches follow what Qloo returned. `scripts/routes.ts` counts them from the cache (Oct 15: 39 asks, 5 routes, 3 stopped at the name). Each step on the page says where it forked.
 - **Six names a judge might type** (`scripts/judge-names.ts`, results in `audit/judge-names.json` and on /audit): run on the live site before judging; the gate failed and is published.
@@ -112,12 +121,12 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 - **Match validation** (`lib/resolve.ts`). Qloo's search returns confident wrong matches for names it doesn't know (Fruition Chocolate Works comes back as Bath & Body Works). A match is confident only on an exact name or alias above a popularity floor of 0.3 (the review desk adds a cross-type check; see above). Several exact hits keep Qloo's relevance order, and an artist beats a person with the same name. Token overlap becomes a picker, and Claude Haiku is asked only in the narrow band in between. The user always sees the card and can say "Not it". The resolver is tested against recorded search results for 22 names, 14 of them small brands Qloo doesn't know.
 - **Stand-ins.** For a brand Qloo doesn't know, the user describes it and names brands their customers love. Haiku suggests more, and each is checked in Qloo. The slate is built from weighted stand-ins (10, 7, 5), and a banner says so on every screen.
 - **Never rank by popularity.** Order is Qloo's affinity order, kept by code. The model reviews picks but cannot reorder them. Popularity is a floor for matching and, on the front door, a labelled reference column, never a correction.
-- **Qloo's terms.** The repo holds no full Qloo responses, only scores: `lib/ask/fixtures/` keeps three asks' step outputs (Allbirds, Mt. Joy, Liquid Death), affinity and popularity included, so the tests run at 0 calls, and `audit/` keeps the scores each test and probe compared. No third-party logos or images in the app.
+- **Qloo's data.** Qloo's hackathon guide asks that no Qloo response data sit in a public repository, so this repo holds none: no recorded responses and no tables of Qloo scores. The recorded asks, the audit tables and the search recordings stay in the private repo the live site deploys from. In their place are `lib/ask/demo/` (three made-up asks, `scripts/demo-world.ts`), stand-ins for the six audit tables the pages read (`scripts/demo-audit.ts`, marked `"demo": true`, and /audit and /replay say so), and an invented search table (`scripts/demo-search.ts`). Their names are invented, so any match to a real company is chance. Entity ids and brand names stay in the code so it can call the API, and a few scores appear in sentences the live site also prints. No third-party logos or images in the app.
 - **Say what didn't work.** Refine phrases that map to nothing are listed as "Couldn't apply". Kinds of partner without a Qloo tag ("no cookware") are applied by the ranker and labeled "Applied by the agent". A fit ranked in only one side's top 50 shows as such instead of being hidden.
 
 ## Tests
 
-`npm test` runs 252 offline tests in a few seconds, with no API calls, and `npm run verify` checks the recorded answers with no keys at all (above). `npx tsc --noEmit` is clean. Full list below the fold.
+`npm test` runs 253 offline tests in a few seconds, with no API calls. In this repo 7 skip: 2 need the example slates in the gitignored `fixtures/demo/`, and 5 recount the private audit tables or pin a recorded ask's hash. `npm run verify` checks the checker on the demo world with no keys at all (above). `npx tsc --noEmit` is clean. Full list below the fold.
 
 ## Run it
 
@@ -134,11 +143,11 @@ npm run dev                  # http://localhost:3000
 | `QLOO_API_KEY` | Hackathon key; works only against `https://hackathon.api.qloo.com` (5 requests a second; the month's remaining quota comes back in a response header, and `/api/usage` shows it) |
 | `ANTHROPIC_API_KEY` | Claude Opus 5.5 (ranking, briefs, outreach, refine, verdicts) and Haiku 5.5 (match judge, stand-ins, age sentence) |
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis: the shared cache and the counters |
-| `QLOO_DAILY_CAP` | Qloo calls allowed per UTC day across all instances (300 by default) |
+| `QLOO_DAILY_CAP` | Qloo calls allowed per UTC day across all instances (unset means no cap; production sets 600) |
 | `WARM_TOKEN` | Optional: lets `scripts/warm.ts` keep its briefs off the per-visitor limit |
 | `CROSSOVER_FORCE` | Development only: `qloo429,qloo5xx,qloostall,anthropic,novenues,noheatmap` force each failure path (`CROSSOVER_FORCE_AT=<n>` picks the call that fails or stalls; the outage drill on /audit) |
 
-**Fixtures.** `fixtures/search.json` holds recorded `/search` results for the resolver tests (`node --env-file=.env.local scripts/record-fixtures.ts` re-records them). `fixtures/demo/` (gitignored, since it is Qloo data) holds the four example slates so local UI work spends no quota (`scripts/record-demo.ts`). In development, a file cache in `.cache/` sits in front of Redis.
+**Fixtures.** `fixtures/search.json` is an invented search table for the resolver tests: our queries, with every word of Qloo's results that isn't the query's own replaced, so the resolver's token rules hold. `node --env-file=.env.local scripts/record-fixtures.ts` records the real results into `fixtures/demo/search.json`, and `scripts/demo-search.ts` writes the table from it. `fixtures/demo/` (gitignored, since it is Qloo data) also holds the four example slates so local UI work spends no quota (`scripts/record-demo.ts`). In development, a file cache in `.cache/` sits in front of Redis.
 
 **Warming.** `node --env-file=.env.local scripts/warm.ts <url> scripts/warm-list.json [--no-cohort]` runs resolve, the full slate, badges and the top brand's brief for each name, one at a time. It stops before the daily cap, logs Qloo calls per name, skips names that don't resolve confidently (or uses a hand-picked id recorded with a note), and records progress so it can resume.
 
@@ -191,7 +200,7 @@ A fully cold pair is 8 or 9 calls; a warm one is 0.
 
 ## The audit
 
-`audit/briefs.json` is the protocol (audit-v1): twelve brand briefs of eight candidates, split six dev and six held-out by a fixed seed, plus 24 resolution challenges. It was frozen in git (commit `5120305`) before the held-out briefs ran once through `scripts/audit-run.ts`. `audit/results.json` keeps derived numbers only, and `/audit` shows them: 4 of 6 held-out briefs give a clear three; 0 of 12 "famous" names reach the picks; resolution was 20 of 24 as run and 24 of 24 after the review-v3 fix, labelled as not held-out.
+`audit/briefs.json` is the protocol (audit-v1): twelve brand briefs of eight candidates, split six dev and six held-out by a fixed seed, plus 24 resolution challenges. It was frozen in git (commit `5120305`) before the held-out briefs ran once through `scripts/audit-run.ts`. Its results are Qloo scores, so `audit/results.json` stays private (here it is a stand-in) and /audit on the live site shows them: 4 of 6 held-out briefs give a clear three; 0 of 12 "famous" names reach the picks; resolution was 20 of 24 as run and 24 of 24 after the review-v3 fix, labelled as not held-out.
 
 ## Architecture
 
@@ -209,9 +218,9 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 
 ## Test list
 
-`npm test` runs 252 offline tests:
+`npm test` runs 253 offline tests:
 
-- match validation against recorded search results
+- match validation against the invented search table
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
 - ranking order and decisions
 - refine constraint sets, including agent-applied categories and region handling
@@ -224,7 +233,8 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 - the category maps: the affinity matrix, missing and unknown brands, and the layout on a fixed fixture
 - share-link and category-map path checks (malformed links get a real 404)
 - the pitch sheet: the seller's pick, its line through the checker, and four tampers rejected
-- the checker attack's tampers over the three recorded asks (20 of 21 gated copies rejected) and the Allbirds fixture's frozen hash
+- the checker attack's tampers over the three demo asks (20 of 21 gated copies rejected, as on the recorded ones) and, where the recorded asks are present, the Allbirds ask's frozen hash
+- the demo-data notice, shown only where the audit tables are stand-ins
 - a guard that no client component imports the server-only Qloo client
 
 `npx tsc --noEmit` is clean.

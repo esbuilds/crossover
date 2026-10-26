@@ -1,0 +1,430 @@
+[
+ {
+  "type": "call",
+  "n": 1,
+  "tool": "resolve",
+  "why": "Confirm which brand this Qloo id refers to before measuring anything."
+ },
+ {
+  "type": "result",
+  "n": 1,
+  "summary": "Confirmed Corvid & Co.",
+  "output": {
+   "state": "confirmed",
+   "name": "Corvid & Co.",
+   "id": "638AC46F-0CE3-4C60-8BEF-3DE40A66B4B1",
+   "type": "urn:entity:brand"
+  }
+ },
+ {
+  "type": "call",
+  "n": 2,
+  "tool": "findRival",
+  "why": "Find the closest same-field brand among Corvid & Co. fans' top 50 so I can split the audience."
+ },
+ {
+  "type": "result",
+  "n": 2,
+  "summary": "Closest same-field brand: Brightwell Optics",
+  "output": {
+   "method": {
+    "topN": 50
+   },
+   "found": true,
+   "rival": {
+    "name": "Brightwell Optics",
+    "id": "225DA79B-E2F8-4CCB-9753-656763853EF7",
+    "type": "urn:entity:brand",
+    "affinity": 0.9
+   },
+   "by": "genre tag"
+  }
+ },
+ {
+  "type": "call",
+  "n": 3,
+  "tool": "split",
+  "why": "See which brands sit closer to Corvid & Co. than to Brightwell Optics, and each side's top markets."
+ },
+ {
+  "type": "result",
+  "n": 3,
+  "summary": "2 brands sit closer to Corvid & Co., 4 closer to Brightwell Optics, 50 within 0.05 of both",
+  "output": {
+   "method": {
+    "topN": 50,
+    "gap": 0.05
+   },
+   "seed": {
+    "name": "Corvid & Co.",
+    "id": "638AC46F-0CE3-4C60-8BEF-3DE40A66B4B1",
+    "type": "urn:entity:brand"
+   },
+   "rival": {
+    "name": "Brightwell Optics",
+    "id": "225DA79B-E2F8-4CCB-9753-656763853EF7",
+    "type": "urn:entity:brand"
+   },
+   "closerToSeed": 2,
+   "closerToRival": 4,
+   "withinGapOfBoth": 50,
+   "sameField": 19,
+   "seedSide": [
+    {
+     "name": "Foxglove Market",
+     "seed": 0.89,
+     "rival": 0.79
+    },
+    {
+     "name": "Ember Cola",
+     "seed": 0.89,
+     "rival": 0.79
+    }
+   ],
+   "seedMarkets": [
+    {
+     "name": "Asheville"
+    },
+    {
+     "name": "Birmingham"
+    },
+    {
+     "name": "Washington DC"
+    },
+    {
+     "name": "Oklahoma City"
+    },
+    {
+     "name": "Chicago"
+    }
+   ],
+   "rivalMarkets": [
+    {
+     "name": "Kansas City"
+    },
+    {
+     "name": "Asheville"
+    },
+    {
+     "name": "Riverside"
+    },
+    {
+     "name": "Richmond"
+    },
+    {
+     "name": "Santa Barbara"
+    }
+   ]
+  }
+ },
+ {
+  "type": "call",
+  "n": 4,
+  "tool": "candidates",
+  "why": "Get the candidate brands from Corvid & Co.'s side of the split."
+ },
+ {
+  "type": "result",
+  "n": 4,
+  "summary": "The split left 2 names; widened to the top 50. 8 candidates from the fans' top 50, own field left out",
+  "output": {
+   "method": {
+    "topN": 50
+   },
+   "source": "top50",
+   "note": "The split left 2 names; widened to the top 50.",
+   "candidates": [
+    {
+     "name": "Larkspur Labs",
+     "id": "A7E61BFA-252E-46F4-93B2-1F11DD533574"
+    },
+    {
+     "name": "Tidewater Swim",
+     "id": "B5966DC6-DC57-42C8-83F2-74477B6362F9"
+    },
+    {
+     "name": "Fernway",
+     "id": "2496DDB5-7DAF-4968-B4B1-94584E82CA51"
+    },
+    {
+     "name": "Brindle",
+     "id": "44F962E5-7BF5-4F68-A83B-13A5E92CDF90"
+    },
+    {
+     "name": "Sundry Peak",
+     "id": "229AB50E-C379-4DAC-82E4-A53AD2D05878"
+    },
+    {
+     "name": "Lumen Sock Co.",
+     "id": "BA9DFC8A-FB91-44F3-B4FE-F133E6F2DB42"
+    },
+    {
+     "name": "Wren & Lark",
+     "id": "23337FEA-211A-4871-BB55-E8FB6020F100"
+    },
+    {
+     "name": "Velvet Anvil",
+     "id": "5C5D79CF-7587-4FA4-B056-9D2C7E8D91EA"
+    }
+   ]
+  }
+ },
+ {
+  "type": "call",
+  "n": 5,
+  "tool": "review",
+  "why": "Score the eight candidates under Corvid & Co. fans to see if a clear three stands out."
+ },
+ {
+  "type": "result",
+  "n": 5,
+  "summary": "No clear three: 8 names within 0.05 of the top",
+  "output": {
+   "method": {
+    "gap": 0.05
+   },
+   "clearThree": [],
+   "noClearThree": true,
+   "tiedAtCutoff": [
+    {
+     "name": "Larkspur Labs"
+    },
+    {
+     "name": "Tidewater Swim"
+    },
+    {
+     "name": "Fernway"
+    },
+    {
+     "name": "Brindle"
+    },
+    {
+     "name": "Sundry Peak"
+    },
+    {
+     "name": "Lumen Sock Co."
+    },
+    {
+     "name": "Wren & Lark"
+    },
+    {
+     "name": "Velvet Anvil"
+    }
+   ],
+   "groups": [
+    [
+     {
+      "name": "Larkspur Labs",
+      "affinity": 0.92,
+      "popularity": 0.84
+     },
+     {
+      "name": "Tidewater Swim",
+      "affinity": 0.91,
+      "popularity": 0.99
+     },
+     {
+      "name": "Fernway",
+      "affinity": 0.91,
+      "popularity": 0.98
+     },
+     {
+      "name": "Brindle",
+      "affinity": 0.9,
+      "popularity": 0.96
+     },
+     {
+      "name": "Sundry Peak",
+      "affinity": 0.9,
+      "popularity": 0.84
+     },
+     {
+      "name": "Lumen Sock Co.",
+      "affinity": 0.9,
+      "popularity": 0.66
+     },
+     {
+      "name": "Wren & Lark",
+      "affinity": 0.9,
+      "popularity": null
+     },
+     {
+      "name": "Velvet Anvil",
+      "affinity": 0.9,
+      "popularity": 0.87
+     }
+    ]
+   ],
+   "fameBands": [
+    [
+     {
+      "name": "Tidewater Swim"
+     },
+     {
+      "name": "Fernway"
+     },
+     {
+      "name": "Brindle"
+     }
+    ],
+    [
+     {
+      "name": "Velvet Anvil"
+     },
+     {
+      "name": "Sundry Peak"
+     },
+     {
+      "name": "Larkspur Labs"
+     }
+    ],
+    [
+     {
+      "name": "Lumen Sock Co."
+     }
+    ],
+    [
+     {
+      "name": "Wren & Lark"
+     }
+    ]
+   ],
+   "ranks": [
+    {
+     "name": "Larkspur Labs",
+     "amongSeedFans": 2,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Tidewater Swim",
+     "amongSeedFans": 4,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Fernway",
+     "amongSeedFans": 5,
+     "seedAmongTheirs": 16
+    },
+    {
+     "name": "Brindle",
+     "amongSeedFans": 6,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Sundry Peak",
+     "amongSeedFans": 7,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Lumen Sock Co.",
+     "amongSeedFans": 8,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Wren & Lark",
+     "amongSeedFans": 9,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Velvet Anvil",
+     "amongSeedFans": 10,
+     "seedAmongTheirs": null
+    }
+   ],
+   "notMeasured": []
+  }
+ },
+ {
+  "type": "call",
+  "n": 6,
+  "tool": "twins",
+  "why": "Check whether any two contenders reach the same audience so I can warn against calling them together."
+ },
+ {
+  "type": "result",
+  "n": 6,
+  "summary": "No pair stands out among the contenders",
+  "output": {
+   "found": false
+  }
+ },
+ {
+  "type": "decision",
+  "decision": {
+   "calls": [
+    {
+     "name": "Larkspur Labs",
+     "reason": "[[Larkspur Labs]] has the highest score among [[Corvid & Co.]] fans at 0.92 and ranks 2 among them.",
+     "steps": [
+      5
+     ]
+    },
+    {
+     "name": "Tidewater Swim",
+     "reason": "[[Tidewater Swim]] scores 0.91 among [[Corvid & Co.]] fans and ranks 4 among them.",
+     "steps": [
+      5
+     ]
+    },
+    {
+     "name": "Fernway",
+     "reason": "[[Fernway]] scores 0.91, and [[Corvid & Co.]] ranks 16 among [[Fernway]] fans, so the link runs both ways.",
+     "steps": [
+      5
+     ]
+    }
+   ],
+   "cautions": [
+    {
+     "text": "There is no clear three, because all eight candidates sit in one group between 0.90 and 0.92.",
+     "steps": [
+      5
+     ]
+    },
+    {
+     "text": "Twins found no pair that reaches the same audience, so no two of these should be kept apart.",
+     "steps": [
+      6
+     ]
+    },
+    {
+     "text": "Only 2 names sat closer to [[Corvid & Co.]] than to [[Brightwell Optics]], so the candidates came from the top 50 instead.",
+     "steps": [
+      3,
+      4
+     ]
+    }
+   ],
+   "summary": [
+    {
+     "text": "[[Corvid & Co.]] was confirmed, and its closest rival is [[Brightwell Optics]] at 0.90.",
+     "steps": [
+      1,
+      2
+     ]
+    },
+    {
+     "text": "[[Foxglove Market]] and [[Ember Cola]] sit closer to [[Corvid & Co.]], at 0.89 against 0.79.",
+     "steps": [
+      3
+     ]
+    },
+    {
+     "text": "The top markets for [[Corvid & Co.]] are Asheville, Birmingham, Washington DC, Oklahoma City and Chicago.",
+     "steps": [
+      3
+     ]
+    },
+    {
+     "text": "Picking the first three by score from the top group gives [[Larkspur Labs]], [[Tidewater Swim]] and [[Fernway]].",
+     "steps": [
+      5
+     ]
+    }
+   ]
+  },
+  "check": {
+   "ok": true
+  }
+ }
+]

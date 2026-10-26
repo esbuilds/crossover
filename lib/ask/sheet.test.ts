@@ -7,7 +7,7 @@ import { sheetModel } from "./sheet.ts";
 import { stepsFrom } from "./steps.ts";
 import type { AskEvent } from "./agent.ts";
 
-const load = (name: string): AskEvent[] => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), "utf8"));
+const load = (name: string): AskEvent[] => JSON.parse(readFileSync(new URL(`./demo/${name}.json`, import.meta.url), "utf8"));
 const PROOF = "Against real deals it never saw, the protocol put the real partner in the top three 6 of 9 times (v1) and 11 of 14 times (v2). Each is a frozen test; details on /audit.";
 
 const numbersIn = (v: unknown, out: string[] = []): string[] => {
@@ -18,7 +18,7 @@ const numbersIn = (v: unknown, out: string[] = []): string[] => {
   return out;
 };
 
-for (const name of ["allbirds", "mt-joy"]) {
+for (const name of ["corvid-co", "low-tide-choir"]) {
   test(`${name}: the sheet carries the question, the calls, the doubles line, the limits, the proof and the blocked count`, () => {
     const events = load(name);
     const s = sheetModel(events, { proof: PROOF, blocked: 5 })!;
@@ -29,7 +29,7 @@ for (const name of ["allbirds", "mt-joy"]) {
     assert.ok(s.limits.length >= 3);
     assert.equal(s.proof, PROOF);
     assert.equal(s.blocked, "Blocked by the checker under its current rule: 5 answers, each listed on /audit with the rule that blocked it.");
-    if (name === "allbirds") assert.deepEqual([s.map?.closerToSeed, s.map?.closerToRival, s.map?.withinGapOfBoth], [2, 4, 50]);
+    if (name === "corvid-co") assert.deepEqual([s.map?.closerToSeed, s.map?.closerToRival, s.map?.withinGapOfBoth], [2, 4, 50]);
     else assert.equal(s.map, null);
   });
 

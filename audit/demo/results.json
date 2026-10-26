@@ -1,0 +1,1622 @@
+{
+ "demo": true,
+ "protocol": "audit-v1",
+ "rules": "review-v2",
+ "ranAt": "2026-10-10",
+ "briefs": [
+  {
+   "seed": "Numimi Fenzevex",
+   "set": "heldOut",
+   "picks": [
+    "Kelsonu Mitam"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [
+    "Wimfen",
+    "Kelhappell Wimpell",
+    "Quinrostmup"
+   ],
+   "groups": [
+    [
+     {
+      "name": "Kelsonu Mitam",
+      "matched": "Kelsonu Mitam Co.",
+      "affinity": 0.25,
+      "popularity": 0.54,
+      "role": "small"
+     }
+    ],
+    [
+     {
+      "name": "Wimfen",
+      "matched": "Wimfen",
+      "affinity": 0.03,
+      "popularity": 1,
+      "role": "strong"
+     },
+     {
+      "name": "Kelhappell Wimpell",
+      "matched": "Kelhappell Wimpell",
+      "affinity": 0.25,
+      "popularity": 0.86,
+      "role": "small"
+     },
+     {
+      "name": "Quinrostmup",
+      "matched": "Quinrostmup",
+      "affinity": 0.83,
+      "popularity": 0.79,
+      "role": "odd"
+     }
+    ],
+    [
+     {
+      "name": "Wimze",
+      "matched": "Wimze",
+      "affinity": 0.67,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ],
+    [
+     {
+      "name": "Tamkejor",
+      "matched": "Tamkejor",
+      "affinity": 0.25,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Wimze",
+     "Tamkejor",
+     "Wimfen"
+    ],
+    [
+     "Quinrostmup"
+    ],
+    [
+     "Kelsonu Mitam"
+    ],
+    [
+     "Kelhappell Wimpell"
+    ]
+   ],
+   "excluded": [],
+   "notMeasured": [
+    {
+     "name": "Rosthaprost",
+     "state": "ambiguous",
+     "role": "strong"
+    },
+    {
+     "name": "Kevexpell Fenhapti",
+     "state": "unresolved",
+     "role": "ambiguous"
+    }
+   ],
+   "otherTypes": []
+  },
+  {
+   "seed": "Sevrost",
+   "set": "dev",
+   "picks": [
+    "Bapellra Jorso",
+    "Sevmi",
+    "Golnu Darsev"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [],
+   "groups": [
+    [
+     {
+      "name": "Bapellra Jorso",
+      "matched": "Bapellra Jorso",
+      "affinity": 0.23,
+      "popularity": 0.04,
+      "role": "strong"
+     },
+     {
+      "name": "Sevmi",
+      "matched": "Sevmi",
+      "affinity": 0.34,
+      "popularity": 0.92,
+      "role": "strong"
+     }
+    ],
+    [
+     {
+      "name": "Golnu Darsev",
+      "matched": "Golnu Darsev",
+      "affinity": 0.51,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ],
+    [
+     {
+      "name": "Hapwim",
+      "matched": "Hapwim",
+      "affinity": 0.74,
+      "popularity": 0.8,
+      "role": "ambiguous"
+     }
+    ],
+    [
+     {
+      "name": "Tamtam",
+      "matched": "Tamtam",
+      "affinity": 0.64,
+      "popularity": 1,
+      "role": "odd"
+     },
+     {
+      "name": "Tamvexhap Hapso",
+      "matched": "Tamvexhap Hapso",
+      "affinity": 0.56,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Tamvexhap Hapso",
+     "Tamtam",
+     "Golnu Darsev",
+     "Bapellra Jorso",
+     "Hapwim"
+    ],
+    [
+     "Sevmi"
+    ]
+   ],
+   "excluded": [
+    {
+     "name": "Tamvexhap Hapso",
+     "reason": "competing soda"
+    }
+   ],
+   "notMeasured": [
+    {
+     "name": "Timupsev",
+     "state": "ambiguous",
+     "role": "small"
+    },
+    {
+     "name": "Timijor",
+     "state": "ambiguous",
+     "role": "small"
+    }
+   ],
+   "otherTypes": []
+  },
+  {
+   "seed": "Sevhappell",
+   "set": "dev",
+   "picks": [
+    "Rosttamze Keti",
+    "Misevwim"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [
+    "Tamloti",
+    "Quinsev Rostdarfen"
+   ],
+   "groups": [
+    [
+     {
+      "name": "Rosttamze Keti",
+      "matched": "Rosttamze Keti",
+      "affinity": 0.97,
+      "popularity": 1,
+      "role": "strong"
+     },
+     {
+      "name": "Misevwim",
+      "matched": "Misevwim",
+      "affinity": 0.17,
+      "popularity": 0.63,
+      "role": "small"
+     },
+     {
+      "name": "Sevvexjor",
+      "matched": "Sevvexjor",
+      "affinity": 0.04,
+      "popularity": 0.82,
+      "role": "ambiguous"
+     }
+    ],
+    [
+     {
+      "name": "Tamloti",
+      "matched": "Tamloti",
+      "affinity": 0.32,
+      "popularity": 0.54,
+      "role": "small"
+     },
+     {
+      "name": "Quinsev Rostdarfen",
+      "matched": "Quinsev Rostdarfen Motor Company",
+      "affinity": 0.76,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ],
+    [
+     {
+      "name": "Lolo Sofenso",
+      "matched": "Tisev",
+      "affinity": 0.77,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Zegol",
+      "matched": "Zegol",
+      "affinity": 0.96,
+      "popularity": 1,
+      "role": "odd"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Zegol",
+     "Lolo Sofenso",
+     "Quinsev Rostdarfen",
+     "Rosttamze Keti",
+     "Misevwim"
+    ],
+    [
+     "Tamloti",
+     "Sevvexjor"
+    ]
+   ],
+   "excluded": [
+    {
+     "name": "Sevvexjor",
+     "reason": "direct drinkware competitor"
+    }
+   ],
+   "notMeasured": [
+    {
+     "name": "Fenquin Fenpelljor",
+     "state": "ambiguous",
+     "role": "strong"
+    }
+   ],
+   "otherTypes": []
+  },
+  {
+   "seed": "Vonuba",
+   "set": "heldOut",
+   "picks": [
+    "Nuwimdar Kesev",
+    "Vorajor",
+    "Nobrafen Nobmi"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [],
+   "groups": [
+    [
+     {
+      "name": "Nuwimdar Kesev",
+      "matched": "Nuwimdar Kesev",
+      "affinity": 0.05,
+      "popularity": 0.88,
+      "role": "small"
+     },
+     {
+      "name": "Vorajor",
+      "matched": "ILIA",
+      "affinity": 0.46,
+      "popularity": 0.18,
+      "role": "small"
+     }
+    ],
+    [
+     {
+      "name": "Nobrafen Nobmi",
+      "matched": "Nobrafen Nobmi",
+      "affinity": 0.33,
+      "popularity": 0.74,
+      "role": "strong"
+     }
+    ],
+    [
+     {
+      "name": "Rostrosthap Nobjorrost",
+      "matched": "Rostrosthap Nobjorrost",
+      "affinity": 0.09,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ],
+    [
+     {
+      "name": "Wimze",
+      "matched": "Wimze",
+      "affinity": 0.8,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ],
+    [
+     {
+      "name": "Lora Sevnu",
+      "matched": "Lora Sevnu",
+      "affinity": 0.62,
+      "popularity": 0.71,
+      "role": "odd"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Wimze",
+     "Rostrosthap Nobjorrost",
+     "Lora Sevnu",
+     "Nobrafen Nobmi",
+     "Vorajor"
+    ],
+    [
+     "Nuwimdar Kesev"
+    ]
+   ],
+   "excluded": [],
+   "notMeasured": [
+    {
+     "name": "Vexbati Tilo",
+     "state": "unresolved",
+     "role": "strong"
+    },
+    {
+     "name": "Kelnurost",
+     "state": "unresolved",
+     "role": "ambiguous"
+    }
+   ],
+   "otherTypes": []
+  },
+  {
+   "seed": "Nusonu",
+   "set": "heldOut",
+   "picks": [
+    "Nufen Quinkel",
+    "Wimdardar Darhappell",
+    "Quinmi"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [],
+   "groups": [
+    [
+     {
+      "name": "Nufen Quinkel",
+      "matched": "Nufen Quinkel",
+      "affinity": 0.29,
+      "popularity": 0.85,
+      "role": "small"
+     },
+     {
+      "name": "Wimdardar Darhappell",
+      "matched": "Wimdardar Darhappell",
+      "affinity": 0.35,
+      "popularity": 0.14,
+      "role": "strong"
+     },
+     {
+      "name": "Quinmi",
+      "matched": "Quinmi",
+      "affinity": 0.2,
+      "popularity": 0.32,
+      "role": "small"
+     }
+    ],
+    [
+     {
+      "name": "Rosttamze Keti",
+      "matched": "Rosttamze Keti",
+      "affinity": 0.18,
+      "popularity": 1,
+      "role": "strong"
+     }
+    ],
+    [
+     {
+      "name": "Tivo",
+      "matched": "Tivo",
+      "affinity": 0.87,
+      "popularity": 1,
+      "role": "ambiguous"
+     },
+     {
+      "name": "Votamwim",
+      "matched": "Votamwim",
+      "affinity": 0.5,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Zekequin",
+      "matched": "Zekequin",
+      "affinity": 0.94,
+      "popularity": 0.74,
+      "role": "odd"
+     }
+    ],
+    [
+     {
+      "name": "Tamrost Hapsowim",
+      "matched": "Tamrost Hapsowim",
+      "affinity": 0.78,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Votamwim",
+     "Tivo",
+     "Tamrost Hapsowim",
+     "Rosttamze Keti",
+     "Zekequin",
+     "Wimdardar Darhappell",
+     "Quinmi"
+    ],
+    [
+     "Nufen Quinkel"
+    ]
+   ],
+   "excluded": [],
+   "notMeasured": [],
+   "otherTypes": []
+  },
+  {
+   "seed": "Zeba",
+   "set": "heldOut",
+   "picks": [
+    "Somi",
+    "Keso",
+    "Ketamwim Vowimvo"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [],
+   "groups": [
+    [
+     {
+      "name": "Somi",
+      "matched": "MINOR FIGURES",
+      "affinity": 0.37,
+      "popularity": 0.85,
+      "role": "small"
+     }
+    ],
+    [
+     {
+      "name": "Fenrake Zehappell",
+      "matched": "Fenrake Zehappell",
+      "affinity": 0.13,
+      "popularity": 0.88,
+      "role": "small"
+     },
+     {
+      "name": "Keso",
+      "matched": "Keso",
+      "affinity": 0.24,
+      "popularity": 0.42,
+      "role": "strong"
+     },
+     {
+      "name": "Ketamwim Vowimvo",
+      "matched": "Ketamwim Vowimvo",
+      "affinity": 0.62,
+      "popularity": 1,
+      "role": "strong"
+     }
+    ],
+    [
+     {
+      "name": "Sevze",
+      "matched": "Sevze, Incorporated",
+      "affinity": 0.28,
+      "popularity": 0.81,
+      "role": "ambiguous"
+     }
+    ],
+    [
+     {
+      "name": "Ranobvex",
+      "matched": "Ranobvex",
+      "affinity": 0.07,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Keldar",
+      "matched": "Keldar",
+      "affinity": 0.8,
+      "popularity": 1,
+      "role": "odd"
+     },
+     {
+      "name": "Keze",
+      "matched": "Keze",
+      "affinity": 0.86,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Ranobvex",
+     "Keldar",
+     "Keze",
+     "Ketamwim Vowimvo",
+     "Keso"
+    ],
+    [
+     "Fenrake Zehappell"
+    ],
+    [
+     "Somi"
+    ],
+    [
+     "Sevze"
+    ]
+   ],
+   "excluded": [
+    {
+     "name": "Fenrake Zehappell",
+     "reason": "competing oat milk"
+    }
+   ],
+   "notMeasured": [],
+   "otherTypes": []
+  },
+  {
+   "seed": "Rapellso",
+   "set": "dev",
+   "picks": [
+    "Wimfen",
+    "Wimhap",
+    "Quinkelkel"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [],
+   "groups": [
+    [
+     {
+      "name": "Wimfen",
+      "matched": "Wimfen",
+      "affinity": 0.48,
+      "popularity": 1,
+      "role": "strong"
+     },
+     {
+      "name": "Wimhap",
+      "matched": "The Walt Wimhap Company",
+      "affinity": 0.23,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Quinkelkel",
+      "matched": "Quinkelkel",
+      "affinity": 0.66,
+      "popularity": 1,
+      "role": "ambiguous"
+     }
+    ],
+    [
+     {
+      "name": "Tamvexhap Hapso",
+      "matched": "Tamvexhap Hapso",
+      "affinity": 0.18,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Ratamquin",
+      "matched": "Ratamquin",
+      "affinity": 0.61,
+      "popularity": 0.62,
+      "role": "odd"
+     },
+     {
+      "name": "Wimzelo Nobhap",
+      "matched": "Wimzelo Nobhap",
+      "affinity": 0.32,
+      "popularity": 1,
+      "role": "strong"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Wimhap",
+     "Wimfen",
+     "Tamvexhap Hapso",
+     "Wimzelo Nobhap",
+     "Quinkelkel",
+     "Ratamquin"
+    ]
+   ],
+   "excluded": [],
+   "notMeasured": [
+    {
+     "name": "Kelkelze",
+     "state": "ambiguous",
+     "role": "small"
+    },
+    {
+     "name": "Sodar Tamvonu",
+     "state": "unresolved",
+     "role": "small"
+    }
+   ],
+   "otherTypes": []
+  },
+  {
+   "seed": "Nobpellke",
+   "set": "dev",
+   "picks": [
+    "Rostbami",
+    "Voquin",
+    "Wimmi"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [],
+   "groups": [
+    [
+     {
+      "name": "Rostbami",
+      "matched": "Rostbami",
+      "affinity": 0.87,
+      "popularity": 1,
+      "role": "strong"
+     },
+     {
+      "name": "Keldar",
+      "matched": "Keldar",
+      "affinity": 0.71,
+      "popularity": 1,
+      "role": "strong"
+     },
+     {
+      "name": "Voquin",
+      "matched": "Voquin",
+      "affinity": 0.61,
+      "popularity": 0.04,
+      "role": "strong"
+     },
+     {
+      "name": "Wimmi",
+      "matched": "Wimmi Energy Drink",
+      "affinity": 0.76,
+      "popularity": 0.63,
+      "role": "ambiguous"
+     }
+    ],
+    [
+     {
+      "name": "Wimze",
+      "matched": "Wimze",
+      "affinity": 0.39,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ],
+    [
+     {
+      "name": "Golso Nuti",
+      "matched": "Golso Nuti",
+      "affinity": 0.71,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ],
+    [
+     {
+      "name": "Darnuquin",
+      "matched": "Darnuquin Cards",
+      "affinity": 0.55,
+      "popularity": 0.34,
+      "role": "odd"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Wimze",
+     "Golso Nuti",
+     "Rostbami",
+     "Keldar",
+     "Voquin",
+     "Wimmi"
+    ],
+    [
+     "Darnuquin"
+    ]
+   ],
+   "excluded": [
+    {
+     "name": "Keldar",
+     "reason": "direct competitor"
+    }
+   ],
+   "notMeasured": [
+    {
+     "name": "Tammupdar Mike",
+     "state": "unresolved",
+     "role": "small"
+    }
+   ],
+   "otherTypes": []
+  },
+  {
+   "seed": "Pellnu Sevfenti",
+   "set": "dev",
+   "picks": [],
+   "noClearThree": true,
+   "tiedAtCutoff": [
+    "Golhapze",
+    "Keljorhap",
+    "Rostrosthap Nobjorrost",
+    "Quinra"
+   ],
+   "groups": [
+    [
+     {
+      "name": "Golhapze",
+      "matched": "Golhapze",
+      "affinity": 0.63,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Keljorhap",
+      "matched": "Keljorhap",
+      "affinity": 0.16,
+      "popularity": 1,
+      "role": "strong"
+     },
+     {
+      "name": "Rostrosthap Nobjorrost",
+      "matched": "Rostrosthap Nobjorrost",
+      "affinity": 0.77,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Quinra",
+      "matched": "The Quinra",
+      "affinity": 0.42,
+      "popularity": 0.01,
+      "role": "odd"
+     }
+    ],
+    [
+     {
+      "name": "Nudarwim Baquinti",
+      "matched": "Nudarwim Baquinti",
+      "affinity": 0.31,
+      "popularity": 0.42,
+      "role": "small"
+     },
+     {
+      "name": "Kelfenkel Ramup",
+      "matched": "Kelfenkel Ramup",
+      "affinity": 0.48,
+      "popularity": 0.91,
+      "role": "strong"
+     },
+     {
+      "name": "Tilotam",
+      "matched": "Tilotam",
+      "affinity": 0.68,
+      "popularity": 0.7,
+      "role": "small"
+     }
+    ],
+    [
+     {
+      "name": "Sevke",
+      "matched": "Sevke",
+      "affinity": 0.71,
+      "popularity": 0.55,
+      "role": "ambiguous"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Rostrosthap Nobjorrost",
+     "Golhapze",
+     "Keljorhap",
+     "Quinra",
+     "Kelfenkel Ramup"
+    ],
+    [
+     "Tilotam",
+     "Nudarwim Baquinti"
+    ],
+    [
+     "Sevke"
+    ]
+   ],
+   "excluded": [],
+   "notMeasured": [],
+   "otherTypes": []
+  },
+  {
+   "seed": "Jorsevjor",
+   "set": "dev",
+   "picks": [
+    "Mike Sevnobmi",
+    "Babahap",
+    "Nuvo"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [],
+   "groups": [
+    [
+     {
+      "name": "Mike Sevnobmi",
+      "matched": "Mike Sevnobmi",
+      "affinity": 0.55,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Babahap",
+      "matched": "Babahap",
+      "affinity": 0.02,
+      "popularity": 1,
+      "role": "strong"
+     },
+     {
+      "name": "Nuvo",
+      "matched": "Nuvo",
+      "affinity": 0.1,
+      "popularity": 1,
+      "role": "strong"
+     }
+    ],
+    [
+     {
+      "name": "Darsotam Golmup",
+      "matched": "Darsotam Golmup",
+      "affinity": 0.15,
+      "popularity": 0.25,
+      "role": "small"
+     },
+     {
+      "name": "Tamvexhap Hapso",
+      "matched": "Tamvexhap Hapso",
+      "affinity": 0.53,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ],
+    [
+     {
+      "name": "Zeke Mupgol",
+      "matched": "Bapell",
+      "affinity": 0.44,
+      "popularity": 1,
+      "role": "odd"
+     },
+     {
+      "name": "Golsevjor",
+      "matched": "Golsevjor Air Lines",
+      "affinity": 0.57,
+      "popularity": 0.93,
+      "role": "ambiguous"
+     }
+    ],
+    [
+     {
+      "name": "Vorostmup",
+      "matched": "Vorostmup",
+      "affinity": 0.3,
+      "popularity": 0.6,
+      "role": "small"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Babahap",
+     "Mike Sevnobmi",
+     "Tamvexhap Hapso",
+     "Nuvo",
+     "Zeke Mupgol",
+     "Golsevjor",
+     "Darsotam Golmup"
+    ],
+    [
+     "Vorostmup"
+    ]
+   ],
+   "excluded": [
+    {
+     "name": "Vorostmup",
+     "reason": "direct competitor"
+    }
+   ],
+   "notMeasured": [],
+   "otherTypes": []
+  },
+  {
+   "seed": "Sevmi",
+   "set": "heldOut",
+   "picks": [
+    "Mupkello Nufenke",
+    "Raze Nusovex",
+    "Zepelljor"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [],
+   "groups": [
+    [
+     {
+      "name": "Mupkello Nufenke",
+      "matched": "Mupkello Nufenke",
+      "affinity": 0.95,
+      "popularity": 0.11,
+      "role": "strong"
+     },
+     {
+      "name": "Raze Nusovex",
+      "matched": "Raze Nusovex",
+      "affinity": 0.28,
+      "popularity": 0.47,
+      "role": "strong"
+     },
+     {
+      "name": "Zepelljor",
+      "matched": "Zepelljor",
+      "affinity": 0.81,
+      "popularity": 0.71,
+      "role": "small"
+     }
+    ],
+    [
+     {
+      "name": "Mupgol Pellti",
+      "matched": "Mupgol Pellti",
+      "affinity": 0.35,
+      "popularity": 0.3,
+      "role": "small"
+     }
+    ],
+    [
+     {
+      "name": "Lolo Sofenso",
+      "matched": "Tisev",
+      "affinity": 0.96,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Ranobvex",
+      "matched": "Ranobvex",
+      "affinity": 0.02,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Votipell",
+      "matched": "Votipell",
+      "affinity": 0.16,
+      "popularity": 0.67,
+      "role": "ambiguous"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Lolo Sofenso",
+     "Ranobvex",
+     "Votipell"
+    ],
+    [
+     "Mupkello Nufenke"
+    ],
+    [
+     "Mupgol Pellti",
+     "Raze Nusovex"
+    ],
+    [
+     "Zepelljor"
+    ]
+   ],
+   "excluded": [
+    {
+     "name": "Votipell",
+     "reason": "Qloo tags it beer"
+    }
+   ],
+   "notMeasured": [
+    {
+     "name": "Kemira Dargol",
+     "state": "unresolved",
+     "role": "odd"
+    }
+   ],
+   "otherTypes": []
+  },
+  {
+   "seed": "Hapbawim",
+   "set": "heldOut",
+   "picks": [
+    "Hapfenkel Sonob"
+   ],
+   "noClearThree": false,
+   "tiedAtCutoff": [
+    "Wimze",
+    "Sevrost",
+    "Hapra"
+   ],
+   "groups": [
+    [
+     {
+      "name": "Hapfenkel Sonob",
+      "matched": "Hapfenkel Sonob",
+      "affinity": 0.27,
+      "popularity": 1,
+      "role": "strong"
+     }
+    ],
+    [
+     {
+      "name": "Wimze",
+      "matched": "Wimze",
+      "affinity": 0.04,
+      "popularity": 1,
+      "role": "famous"
+     },
+     {
+      "name": "Sevrost",
+      "matched": "Sevrost",
+      "affinity": 0.46,
+      "popularity": 0.36,
+      "role": "small"
+     },
+     {
+      "name": "Hapra",
+      "matched": "Hapra",
+      "affinity": 0.84,
+      "popularity": 0.41,
+      "role": "odd"
+     }
+    ],
+    [
+     {
+      "name": "Votamwim",
+      "matched": "Votamwim",
+      "affinity": 0.33,
+      "popularity": 1,
+      "role": "famous"
+     }
+    ]
+   ],
+   "popularityBands": [
+    [
+     "Wimze",
+     "Votamwim",
+     "Hapfenkel Sonob",
+     "Hapra"
+    ],
+    [
+     "Sevrost"
+    ]
+   ],
+   "excluded": [],
+   "notMeasured": [
+    {
+     "name": "Vexso",
+     "state": "unresolved",
+     "role": "strong"
+    },
+    {
+     "name": "Vexquin",
+     "state": "unresolved",
+     "role": "small"
+    },
+    {
+     "name": "Pellminob",
+     "state": "unresolved",
+     "role": "ambiguous"
+    }
+   ],
+   "otherTypes": []
+  }
+ ],
+ "resolution": {
+  "rule": "review-v2",
+  "challenges": [
+   {
+    "q": "Fishwife",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Omsom",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Fly By Jing",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Brightland",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "confirmed",
+    "shown": [
+     "Brightland"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Haus Aperitif",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Lalo",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Hapwim",
+    "kind": "ambiguous",
+    "expect": "Hapwim (personal care brand) or ambiguous",
+    "state": "confirmed",
+    "shown": [
+     "Hapwim"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Votipell",
+    "kind": "ambiguous",
+    "expect": "Votipell (beer brand) or ambiguous",
+    "state": "confirmed",
+    "shown": [
+     "Votipell"
+    ],
+    "neverWrong": false,
+    "asExpected": false
+   },
+   {
+    "q": "Golsevjor",
+    "kind": "ambiguous",
+    "expect": "Golsevjor Air Lines or ambiguous",
+    "state": "confirmed",
+    "shown": [
+     "Golsevjor Air Lines"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Sevze",
+    "kind": "ambiguous",
+    "expect": "Sevze (company) or ambiguous; never Bruno Sevze",
+    "state": "confirmed",
+    "shown": [
+     "Sevze"
+    ],
+    "neverWrong": false,
+    "asExpected": false
+   },
+   {
+    "q": "Kevexpell Fenhapti",
+    "kind": "ambiguous",
+    "expect": "ambiguous",
+    "state": "confirmed",
+    "shown": [
+     "Kevexpell Fenhapti"
+    ],
+    "neverWrong": false,
+    "asExpected": false
+   },
+   {
+    "q": "Pellminob",
+    "kind": "ambiguous",
+    "expect": "ambiguous",
+    "state": "confirmed",
+    "shown": [
+     "Pellminob"
+    ],
+    "neverWrong": false,
+    "asExpected": false
+   },
+   {
+    "q": "Liquid Deth",
+    "kind": "near-miss",
+    "expect": "Numimi Fenzevex offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Olli Pop",
+    "kind": "near-miss",
+    "expect": "Sevrost offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Dr Squach",
+    "kind": "near-miss",
+    "expect": "Rosthaprost offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Hydroflask",
+    "kind": "near-miss",
+    "expect": "Hydro Flask offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Lulu Lemon",
+    "kind": "near-miss",
+    "expect": "Keljorhap offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Trader Joes",
+    "kind": "near-miss",
+    "expect": "Bapellra Jorso (apostrophes are dropped before matching)",
+    "state": "confirmed",
+    "shown": [
+     "Bapellra Jorso"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Blorpwater",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Quillbrook Outfitters",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Fennimore Soda Co.",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Glimmerjack Candles",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Starlight Pickle Works",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Nordvik Hydration",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   }
+  ]
+ },
+ "resolutionRecheck": {
+  "rule": "review-v3",
+  "challenges": [
+   {
+    "q": "Fishwife",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Omsom",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Fly By Jing",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Brightland",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "confirmed",
+    "shown": [
+     "Brightland"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Haus Aperitif",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Lalo",
+    "kind": "obscure",
+    "expect": "unresolved or ambiguous",
+    "state": "ambiguous",
+    "shown": [
+     "Lalo Schifrin"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Hapwim",
+    "kind": "ambiguous",
+    "expect": "Hapwim (personal care brand) or ambiguous",
+    "state": "confirmed",
+    "shown": [
+     "Hapwim"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Votipell",
+    "kind": "ambiguous",
+    "expect": "Votipell (beer brand) or ambiguous",
+    "state": "ambiguous",
+    "shown": [
+     "Votipell",
+     "Votipell"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Golsevjor",
+    "kind": "ambiguous",
+    "expect": "Golsevjor Air Lines or ambiguous",
+    "state": "confirmed",
+    "shown": [
+     "Golsevjor Air Lines"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Sevze",
+    "kind": "ambiguous",
+    "expect": "Sevze (company) or ambiguous; never Bruno Sevze",
+    "state": "ambiguous",
+    "shown": [
+     "Sevze",
+     "Sevze"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Kevexpell Fenhapti",
+    "kind": "ambiguous",
+    "expect": "ambiguous",
+    "state": "ambiguous",
+    "shown": [
+     "Kevexpell Fenhapti",
+     "Kevexpell Fenhapti",
+     "Kevexpell Fenhapti"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Pellminob",
+    "kind": "ambiguous",
+    "expect": "ambiguous",
+    "state": "ambiguous",
+    "shown": [
+     "Pellminob",
+     "Pellminob"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Liquid Deth",
+    "kind": "near-miss",
+    "expect": "Numimi Fenzevex offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Olli Pop",
+    "kind": "near-miss",
+    "expect": "Sevrost offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Dr Squach",
+    "kind": "near-miss",
+    "expect": "Rosthaprost offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Hydroflask",
+    "kind": "near-miss",
+    "expect": "Hydro Flask offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Lulu Lemon",
+    "kind": "near-miss",
+    "expect": "Keljorhap offered as an option, or unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Trader Joes",
+    "kind": "near-miss",
+    "expect": "Bapellra Jorso (apostrophes are dropped before matching)",
+    "state": "confirmed",
+    "shown": [
+     "Bapellra Jorso"
+    ],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Blorpwater",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Quillbrook Outfitters",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Fennimore Soda Co.",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Glimmerjack Candles",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Starlight Pickle Works",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   },
+   {
+    "q": "Nordvik Hydration",
+    "kind": "nonexistent",
+    "expect": "unresolved",
+    "state": "unresolved",
+    "shown": [],
+    "neverWrong": true,
+    "asExpected": true
+   }
+  ]
+ }
+}

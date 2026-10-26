@@ -1,0 +1,462 @@
+[
+ {
+  "type": "call",
+  "n": 1,
+  "tool": "resolve",
+  "why": "Confirm which brand this Qloo id refers to before measuring anything."
+ },
+ {
+  "type": "result",
+  "n": 1,
+  "summary": "Confirmed Calder Shoe",
+  "output": {
+   "state": "confirmed",
+   "name": "Calder Shoe",
+   "id": "0FC5E2E4-8A8E-45D4-B79A-0A6C967D32CD",
+   "type": "urn:entity:brand"
+  }
+ },
+ {
+  "type": "call",
+  "n": 2,
+  "tool": "findRival",
+  "why": "Find the closest same-field brand among Calder Shoe fans' top 50 so we can split audiences."
+ },
+ {
+  "type": "result",
+  "n": 2,
+  "summary": "Closest same-field brand: Ashgrove",
+  "output": {
+   "method": {
+    "topN": 50
+   },
+   "found": true,
+   "rival": {
+    "name": "Ashgrove",
+    "id": "D344054F-24F1-44A9-ACD3-0A46860DA77E",
+    "type": "urn:entity:brand",
+    "affinity": 0.8
+   },
+   "by": "genre tag"
+  }
+ },
+ {
+  "type": "call",
+  "n": 3,
+  "tool": "split",
+  "why": "See which brands sit closer to Calder Shoe than to Ashgrove, and each side's top markets."
+ },
+ {
+  "type": "result",
+  "n": 3,
+  "summary": "12 brands sit closer to Calder Shoe, 39 closer to Ashgrove, 28 within 0.05 of both",
+  "output": {
+   "method": {
+    "topN": 50,
+    "gap": 0.05
+   },
+   "seed": {
+    "name": "Calder Shoe",
+    "id": "0FC5E2E4-8A8E-45D4-B79A-0A6C967D32CD",
+    "type": "urn:entity:brand"
+   },
+   "rival": {
+    "name": "Ashgrove",
+    "id": "D344054F-24F1-44A9-ACD3-0A46860DA77E",
+    "type": "urn:entity:brand"
+   },
+   "closerToSeed": 12,
+   "closerToRival": 39,
+   "withinGapOfBoth": 28,
+   "sameField": 6,
+   "seedSide": [
+    {
+     "name": "Oakhollow",
+     "seed": 0.82,
+     "rival": 0.67
+    },
+    {
+     "name": "Copperline",
+     "seed": 0.84,
+     "rival": 0.7
+    },
+    {
+     "name": "Sparrow Swim",
+     "seed": 0.81,
+     "rival": 0.69
+    },
+    {
+     "name": "Morrow Tea",
+     "seed": 0.85,
+     "rival": 0.74
+    },
+    {
+     "name": "Lantern Pet",
+     "seed": 0.81,
+     "rival": 0.71
+    },
+    {
+     "name": "Pinecrest Supply",
+     "seed": 0.83,
+     "rival": 0.74
+    },
+    {
+     "name": "Harbor Cut",
+     "seed": 0.81,
+     "rival": 0.73
+    },
+    {
+     "name": "Kilnworks",
+     "seed": 0.82,
+     "rival": 0.76
+    },
+    {
+     "name": "Riverbend Soap",
+     "seed": 0.83,
+     "rival": 0.77
+    },
+    {
+     "name": "Mesa Grip",
+     "seed": 0.86,
+     "rival": 0.8
+    }
+   ],
+   "seedMarkets": [
+    {
+     "name": "Fort Worth"
+    },
+    {
+     "name": "Orlando"
+    },
+    {
+     "name": "Oklahoma City"
+    },
+    {
+     "name": "Chicago"
+    },
+    {
+     "name": "Kansas City"
+    }
+   ],
+   "rivalMarkets": [
+    {
+     "name": "Tacoma"
+    },
+    {
+     "name": "Asheville"
+    },
+    {
+     "name": "St. Paul"
+    },
+    {
+     "name": "Jacksonville"
+    },
+    {
+     "name": "Las Vegas"
+    }
+   ]
+  }
+ },
+ {
+  "type": "call",
+  "n": 4,
+  "tool": "candidates",
+  "why": "Get eight candidate brands from Calder Shoe's side of the split, widest gap first."
+ },
+ {
+  "type": "result",
+  "n": 4,
+  "summary": "8 candidates from the seed's side of the split",
+  "output": {
+   "method": {
+    "topN": 50
+   },
+   "source": "split",
+   "candidates": [
+    {
+     "name": "Oakhollow",
+     "id": "32146B66-EE76-4F7D-923C-99BA9FB2F46A"
+    },
+    {
+     "name": "Copperline",
+     "id": "6BCA42E0-0538-494C-910C-638C3F03E6C5"
+    },
+    {
+     "name": "Sparrow Swim",
+     "id": "76180960-8AB1-48D5-B1D0-36CA43F703E6"
+    },
+    {
+     "name": "Morrow Tea",
+     "id": "AF425619-DD51-4E37-A85E-CFF17A808741"
+    },
+    {
+     "name": "Lantern Pet",
+     "id": "67978F89-7EA4-401E-9A32-2689630942EA"
+    },
+    {
+     "name": "Pinecrest Supply",
+     "id": "721BF407-960F-4C7F-8241-33CEEB327F92"
+    },
+    {
+     "name": "Harbor Cut",
+     "id": "82EE59B5-D98B-4F3C-9C87-95FD9520B63D"
+    },
+    {
+     "name": "Kilnworks",
+     "id": "446397BC-CA85-44A4-8C21-663535C505F7"
+    }
+   ]
+  }
+ },
+ {
+  "type": "call",
+  "n": 5,
+  "tool": "review",
+  "why": "Score the eight candidates under Calder Shoe fans to see if a clear three stands out."
+ },
+ {
+  "type": "result",
+  "n": 5,
+  "summary": "No clear three: 8 names within 0.05 of the top",
+  "output": {
+   "method": {
+    "gap": 0.05
+   },
+   "clearThree": [],
+   "noClearThree": true,
+   "tiedAtCutoff": [
+    {
+     "name": "Morrow Tea"
+    },
+    {
+     "name": "Copperline"
+    },
+    {
+     "name": "Pinecrest Supply"
+    },
+    {
+     "name": "Kilnworks"
+    },
+    {
+     "name": "Oakhollow"
+    },
+    {
+     "name": "Harbor Cut"
+    },
+    {
+     "name": "Lantern Pet"
+    },
+    {
+     "name": "Sparrow Swim"
+    }
+   ],
+   "groups": [
+    [
+     {
+      "name": "Morrow Tea",
+      "affinity": 0.85
+     },
+     {
+      "name": "Copperline",
+      "affinity": 0.84
+     },
+     {
+      "name": "Pinecrest Supply",
+      "affinity": 0.83
+     },
+     {
+      "name": "Kilnworks",
+      "affinity": 0.82
+     },
+     {
+      "name": "Oakhollow",
+      "affinity": 0.82
+     },
+     {
+      "name": "Harbor Cut",
+      "affinity": 0.81
+     },
+     {
+      "name": "Lantern Pet",
+      "affinity": 0.81
+     },
+     {
+      "name": "Sparrow Swim",
+      "affinity": 0.81
+     }
+    ]
+   ],
+   "fameBands": [
+    [
+     {
+      "name": "Pinecrest Supply"
+     },
+     {
+      "name": "Harbor Cut"
+     }
+    ],
+    [
+     {
+      "name": "Sparrow Swim"
+     },
+     {
+      "name": "Kilnworks"
+     }
+    ],
+    [
+     {
+      "name": "Copperline"
+     }
+    ],
+    [
+     {
+      "name": "Morrow Tea"
+     }
+    ],
+    [
+     {
+      "name": "Lantern Pet"
+     },
+     {
+      "name": "Oakhollow"
+     }
+    ]
+   ],
+   "ranks": [
+    {
+     "name": "Morrow Tea",
+     "amongSeedFans": 7,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Copperline",
+     "amongSeedFans": 8,
+     "seedAmongTheirs": 11
+    },
+    {
+     "name": "Pinecrest Supply",
+     "amongSeedFans": 9,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Kilnworks",
+     "amongSeedFans": 24,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Oakhollow",
+     "amongSeedFans": 27,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Harbor Cut",
+     "amongSeedFans": 32,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Lantern Pet",
+     "amongSeedFans": 34,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Sparrow Swim",
+     "amongSeedFans": 40,
+     "seedAmongTheirs": null
+    }
+   ],
+   "notMeasured": []
+  }
+ },
+ {
+  "type": "call",
+  "n": 6,
+  "tool": "twins",
+  "why": "Check whether two of the contenders reach the same audience so we avoid calling them together."
+ },
+ {
+  "type": "result",
+  "n": 6,
+  "summary": "No pair stands out among the contenders",
+  "output": {
+   "found": false
+  }
+ },
+ {
+  "type": "decision",
+  "decision": {
+   "calls": [
+    {
+     "name": "Morrow Tea",
+     "reason": "[[Morrow Tea]] has the top score in the top group at 0.85 and sits closer to [[Calder Shoe]] (0.85) than to [[Ashgrove]] (0.74).",
+     "steps": [
+      3,
+      5
+     ]
+    },
+    {
+     "name": "Copperline",
+     "reason": "[[Copperline]] scores 0.84 and is the only candidate whose fans also rank [[Calder Shoe]], at 11.",
+     "steps": [
+      5
+     ]
+    },
+    {
+     "name": "Pinecrest Supply",
+     "reason": "[[Pinecrest Supply]] scores 0.83 and ranks 9 among [[Calder Shoe]] fans.",
+     "steps": [
+      5
+     ]
+    }
+   ],
+   "cautions": [
+    {
+     "text": "There is no clear three: all eight candidates sit in one group, from 0.81 to 0.85.",
+     "steps": [
+      5
+     ]
+    },
+    {
+     "text": "The twins check found no pair of contenders reaching the same audience, so no two names need to be kept apart.",
+     "steps": [
+      6
+     ]
+    },
+    {
+     "text": "[[Pinecrest Supply]] and [[Harbor Cut]] share a fame band.",
+     "steps": [
+      5
+     ]
+    }
+   ],
+   "summary": [
+    {
+     "text": "[[Calder Shoe]]'s closest same-field rival is [[Ashgrove]] at 0.80.",
+     "steps": [
+      2
+     ]
+    },
+    {
+     "text": "Only 12 brands sit closer to [[Calder Shoe]], while 39 sit closer to [[Ashgrove]].",
+     "steps": [
+      3
+     ]
+    },
+    {
+     "text": "[[Calder Shoe]]'s top markets are Fort Worth, Orlando, Oklahoma City, Chicago and Kansas City, and [[Ashgrove]]'s are Tacoma, Asheville, St. Paul, Jacksonville and Las Vegas.",
+     "steps": [
+      3
+     ]
+    },
+    {
+     "text": "With no clear three, the calls are the three top scorers in the group.",
+     "steps": [
+      5
+     ]
+    }
+   ]
+  },
+  "check": {
+   "ok": true
+  }
+ }
+]

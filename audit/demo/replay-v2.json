@@ -1,0 +1,1105 @@
+{
+ "demo": true,
+ "stage": "scored",
+ "builtAt": "2026-10-14",
+ "cases": [
+  {
+   "seed": "Golvojor",
+   "partner": "Rati",
+   "year": 2019,
+   "what": "Golvojor Rati sandwich",
+   "source": "https://www.businessinsider.nl/kfc-cheetos-sandwich-what-its-like-review-2019-6",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule c: Frito-Lay, Rati' parent, is among the decoys"
+  },
+  {
+   "seed": "Tamtiso",
+   "partner": "Rati",
+   "year": 2016,
+   "what": "Rati Chicken Fries",
+   "source": "https://www.cnbc.com/2016/09/12/burger-kings-newest-chicken-fries-are-covered-in-cheetos-dust.html",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule c: Frito-Lay, Rati' parent, is among the decoys"
+  },
+  {
+   "seed": "Soloquin Quinsowim",
+   "partner": "Tamvexhap Hapso",
+   "year": 2024,
+   "what": "Soloquin Quinsowim Tamvexhap Hapso cookie and Coke Soloquin Quinsowim Zero Sugar",
+   "source": "https://www.convenience.org/Media/Daily/2024/August/15/1-Soloquin Quinsowim-Tamvexhap Hapso-New-Collaboration-Items_CatMan",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule c: Sprite and Fanta, Tamvexhap Hapso brands, are among the decoys"
+  },
+  {
+   "seed": "Vohapti",
+   "partner": "Babahap",
+   "year": 2025,
+   "what": "Flamin' Hot packs for Squid Game season 3",
+   "source": "https://www.betterretailing.com/br/product-news/doritos-flamin-hot-partners-with-squid-game-3/",
+   "seedId": "47B4E23D-36E3-4D41-AF3D-3AE09392A578",
+   "seedMatched": "Vohapti",
+   "partnerId": "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE",
+   "partnerMatched": "Babahap",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:mobile_app:streaming_service",
+    "name": "Darjor"
+   },
+   "decoys": [
+    {
+     "name": "Darlo",
+     "id": "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1",
+     "popularity": 1
+    },
+    {
+     "name": "Nuvo",
+     "id": "74EC36A5-4C07-4854-9BA1-0FD3688235A1",
+     "popularity": 1
+    },
+    {
+     "name": "Jorsevrost",
+     "id": "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1",
+     "popularity": 1
+    },
+    {
+     "name": "Pellrostti",
+     "id": "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2",
+     "popularity": 1
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "id": "A348AE65-011C-4E3A-A0FA-D63DBD460B71",
+     "popularity": 0.23
+    },
+    {
+     "name": "Darsokel",
+     "id": "E23515E8-C4A5-4FA4-9EEE-513DCC492070",
+     "popularity": 0.29
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "id": "C4CA18F5-81F4-4112-930C-5D6D0C035A0D",
+     "popularity": 0.33
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 2,
+    "of": 8,
+    "affinity": 0.05,
+    "top": 0.83,
+    "inTopGroup": true,
+    "popularityRank": 6
+   },
+   "scores": {
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.45,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.58,
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.01,
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.05,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.1,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.74,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.82,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.25
+   }
+  },
+  {
+   "seed": "Vohapti",
+   "partner": "Jorsevrost",
+   "year": 2020,
+   "what": "official snack partner of Jorsevrost Rivals",
+   "source": "https://advertising.amazon.com/library/case-studies/twitch-doritos",
+   "seedId": "47B4E23D-36E3-4D41-AF3D-3AE09392A578",
+   "seedMatched": "Vohapti",
+   "partnerId": "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1",
+   "partnerMatched": "Jorsevrost",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:mobile_app:streaming_service",
+    "name": "Darjor"
+   },
+   "decoys": [
+    {
+     "name": "Nuvo",
+     "id": "74EC36A5-4C07-4854-9BA1-0FD3688235A1",
+     "popularity": 1
+    },
+    {
+     "name": "Babahap",
+     "id": "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE",
+     "popularity": 1
+    },
+    {
+     "name": "Darlo",
+     "id": "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1",
+     "popularity": 1
+    },
+    {
+     "name": "Pellrostti",
+     "id": "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2",
+     "popularity": 1
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "id": "A348AE65-011C-4E3A-A0FA-D63DBD460B71",
+     "popularity": 0.64
+    },
+    {
+     "name": "Darsokel",
+     "id": "E23515E8-C4A5-4FA4-9EEE-513DCC492070",
+     "popularity": 0.35
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "id": "C4CA18F5-81F4-4112-930C-5D6D0C035A0D",
+     "popularity": 0.09
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 8,
+    "of": 8,
+    "affinity": 0.42,
+    "top": 0.87,
+    "inTopGroup": true,
+    "popularityRank": 6
+   },
+   "scores": {
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.17,
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.44,
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.34,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.14,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.42,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.98,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.85,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.61
+   }
+  },
+  {
+   "seed": "Ranobvex",
+   "partner": "Darragol",
+   "year": 2025,
+   "what": "apparel for the McDonaldland return",
+   "source": "https://www.retailtouchpoints.com/news/pacsun-taps-1970s-nostalgia-for-assortment-celebrating-the-return-of-mcdonaldland/153887",
+   "seedId": "FCC8EEA5-A423-4051-8528-D53A1887C951",
+   "seedMatched": "Ranobvex",
+   "partnerId": "BFF6C150-8CC6-446C-8ED9-1955839EB1BF",
+   "partnerMatched": "Darragol",
+   "partnerPopularity": 0.32,
+   "tag": {
+    "id": "urn:tag:genre:brand:fashion:casual",
+    "name": "Sovo"
+   },
+   "decoys": [
+    {
+     "name": "Minu",
+     "id": "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498",
+     "popularity": 1
+    },
+    {
+     "name": "Tamti Jorvexso",
+     "id": "00405B98-ACDC-411D-835D-171922CDB7BB",
+     "popularity": 1
+    },
+    {
+     "name": "Quinso Jortam",
+     "id": "90CAD44A-1651-4D41-A740-152AB0EC91C3",
+     "popularity": 1
+    },
+    {
+     "name": "Hapgol",
+     "id": "9F4D16E0-2B29-4E00-A597-5BDD24D527DC",
+     "popularity": 1
+    },
+    {
+     "name": "Quinra Hapdar",
+     "id": "7CD4AC8C-79C6-45FF-B7E7-C67A3B200715",
+     "popularity": 1
+    },
+    {
+     "name": "Fenbapell Rostze",
+     "id": "EFA1D101-ABD5-43A4-B506-D7C5AF47E81E",
+     "popularity": 1
+    },
+    {
+     "name": "Pellti Golranob",
+     "id": "B4BAE23B-6657-4536-904A-45C54E19EC73",
+     "popularity": 1
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 1,
+    "of": 8,
+    "affinity": 0.36,
+    "top": 0.18,
+    "inTopGroup": false,
+    "popularityRank": 5
+   },
+   "scores": {
+    "BFF6C150-8CC6-446C-8ED9-1955839EB1BF": 0.67,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.73,
+    "00405B98-ACDC-411D-835D-171922CDB7BB": 0.12,
+    "90CAD44A-1651-4D41-A740-152AB0EC91C3": 0.53,
+    "9F4D16E0-2B29-4E00-A597-5BDD24D527DC": 0.88,
+    "7CD4AC8C-79C6-45FF-B7E7-C67A3B200715": 0.52,
+    "EFA1D101-ABD5-43A4-B506-D7C5AF47E81E": 0.22,
+    "B4BAE23B-6657-4536-904A-45C54E19EC73": 0.97
+   }
+  },
+  {
+   "seed": "Fenloti Fenfen",
+   "partner": "Tamvexhap Hapso",
+   "year": 2022,
+   "what": "canned Jack & Coke",
+   "source": "https://www.bevnet.com/spirits/2022/coca-cola-jack-daniels-set-to-launch-rtd-cocktail/",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule c: Sprite and Fanta, Tamvexhap Hapso brands, are among the decoys"
+  },
+  {
+   "seed": "Wimze",
+   "partner": "Babahap",
+   "year": 2019,
+   "what": "Stranger Things Hawkins High capsule",
+   "source": "https://mixmag.net/feature/nike-stranger-things-collection",
+   "seedId": "DF7AB23E-033D-4108-AB6E-98D7014F0723",
+   "seedMatched": "Wimze",
+   "partnerId": "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE",
+   "partnerMatched": "Babahap",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:mobile_app:streaming_service",
+    "name": "Darjor"
+   },
+   "decoys": [
+    {
+     "name": "Darlo",
+     "id": "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1",
+     "popularity": 1
+    },
+    {
+     "name": "Nuvo",
+     "id": "74EC36A5-4C07-4854-9BA1-0FD3688235A1",
+     "popularity": 1
+    },
+    {
+     "name": "Jorsevrost",
+     "id": "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1",
+     "popularity": 1
+    },
+    {
+     "name": "Pellrostti",
+     "id": "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2",
+     "popularity": 1
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "id": "A348AE65-011C-4E3A-A0FA-D63DBD460B71",
+     "popularity": 0.7
+    },
+    {
+     "name": "Darsokel",
+     "id": "E23515E8-C4A5-4FA4-9EEE-513DCC492070",
+     "popularity": 0.04
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "id": "C4CA18F5-81F4-4112-930C-5D6D0C035A0D",
+     "popularity": 0.14
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 4,
+    "of": 8,
+    "affinity": 0.26,
+    "top": 0.99,
+    "inTopGroup": true,
+    "popularityRank": 8
+   },
+   "scores": {
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.07,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.84,
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.3,
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.61,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.03,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.38,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.32,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.98
+   }
+  },
+  {
+   "seed": "Tammike Muplomi",
+   "partner": "Wimze",
+   "year": 2020,
+   "what": "SB Dunk Low Chunky Dunky",
+   "source": "https://www.inverse.com/input/style/nike-sb-chunky-dunky-ben-and-jerrys-snkrs-skate-shops",
+   "seedId": "09D2422A-1E88-4A75-BA7D-8C05AD3F19D8",
+   "seedMatched": "Tammike Muplomi",
+   "partnerId": "DF7AB23E-033D-4108-AB6E-98D7014F0723",
+   "partnerMatched": "Wimze",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:fashion:footwear:sneaker:running",
+    "name": "Nobwimra Wimsoba"
+   },
+   "decoys": [
+    {
+     "name": "Raquin Tamhap",
+     "id": "853BB52F-EB5C-44F2-BD00-49559CED4348",
+     "popularity": 1
+    },
+    {
+     "name": "Rostjorgol",
+     "id": "320540ED-F0A7-4F56-9DAD-E673E1010574",
+     "popularity": 1
+    },
+    {
+     "name": "Kelwimdar",
+     "id": "AB76D105-81F2-4F94-A0E6-6A374AF76363",
+     "popularity": 1
+    },
+    {
+     "name": "Minu",
+     "id": "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498",
+     "popularity": 1
+    },
+    {
+     "name": "Hapvoquin",
+     "id": "030131F6-55BA-4FA0-ABEC-EB3EE31C3885",
+     "popularity": 1
+    },
+    {
+     "name": "Zerost",
+     "id": "D9BCFFE8-0796-4027-B197-89E1709532E9",
+     "popularity": 1
+    },
+    {
+     "name": "Nugoljor Golzeke",
+     "id": "87C93D56-EA56-42F5-8B70-7E3B154D4793",
+     "popularity": 1
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 4,
+    "of": 8,
+    "affinity": 0.46,
+    "top": 0.96,
+    "inTopGroup": true,
+    "popularityRank": 1
+   },
+   "scores": {
+    "DF7AB23E-033D-4108-AB6E-98D7014F0723": 0.3,
+    "853BB52F-EB5C-44F2-BD00-49559CED4348": 0.72,
+    "320540ED-F0A7-4F56-9DAD-E673E1010574": 0.39,
+    "AB76D105-81F2-4F94-A0E6-6A374AF76363": 0.7,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.84,
+    "030131F6-55BA-4FA0-ABEC-EB3EE31C3885": 0.01,
+    "D9BCFFE8-0796-4027-B197-89E1709532E9": 0.36,
+    "87C93D56-EA56-42F5-8B70-7E3B154D4793": 0.79
+   }
+  },
+  {
+   "seed": "Banob",
+   "partner": "Rapellso",
+   "year": 2025,
+   "what": "doughnut Classic Clogs",
+   "source": "https://www.licenseglobal.com/footwear/krispy-kreme-and-crocs-launch-limited-edition-doughnut-inspired-footwear",
+   "seedId": "821B1A9D-18E7-4430-9E95-9FD1F5931E80",
+   "seedMatched": "Banob",
+   "partnerId": "C0B314F0-B825-4F80-A54D-FAE38AC51A27",
+   "partnerMatched": "Rapellso",
+   "partnerPopularity": 0.73,
+   "tag": {
+    "id": "urn:tag:genre:brand:fashion:footwear:sneaker:lifestyle",
+    "name": "Kelpellmi Wimtifen"
+   },
+   "decoys": [
+    {
+     "name": "Dartipell",
+     "id": "2E17B21B-05EF-461F-9544-C381F7D454E8",
+     "popularity": 0.91
+    },
+    {
+     "name": "Rostbanu",
+     "id": "4D01E103-D9E9-4D97-8F21-2F0FBDE5CC2C",
+     "popularity": 0.53
+    },
+    {
+     "name": "Quinsev",
+     "id": "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F",
+     "popularity": 0.52
+    },
+    {
+     "name": "Keloke",
+     "id": "E5A4D917-023B-4D9C-9B87-3492961435D6",
+     "popularity": 0.6
+    },
+    {
+     "name": "Sokel",
+     "id": "09D39220-8108-475E-9345-B85A7B575745",
+     "popularity": 0.28
+    },
+    {
+     "name": "Mupmike",
+     "id": "050B1C9E-A568-4E96-A013-16F34266CB08",
+     "popularity": 0.48
+    },
+    {
+     "name": "Darvexjor",
+     "id": "B55A9A13-285F-4675-8AEB-3828B5C993E2",
+     "popularity": 0.9
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 2,
+    "of": 8,
+    "affinity": 0.83,
+    "top": 0.24,
+    "inTopGroup": true,
+    "popularityRank": 5
+   },
+   "scores": {
+    "C0B314F0-B825-4F80-A54D-FAE38AC51A27": 0.51,
+    "2E17B21B-05EF-461F-9544-C381F7D454E8": 0.94,
+    "4D01E103-D9E9-4D97-8F21-2F0FBDE5CC2C": 0.03,
+    "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F": 0.68,
+    "E5A4D917-023B-4D9C-9B87-3492961435D6": 0.49,
+    "09D39220-8108-475E-9345-B85A7B575745": 0.59,
+    "050B1C9E-A568-4E96-A013-16F34266CB08": 0.93,
+    "B55A9A13-285F-4675-8AEB-3828B5C993E2": 0.72
+   }
+  },
+  {
+   "seed": "Rapellso",
+   "partner": "Sotinob Dargol",
+   "year": 2022,
+   "what": "cereal colorway clogs",
+   "source": "https://tsn.ca/crocs-celebrating-popular-breakfast-cereals-in-collaboration-with-general-mills-1.1792137",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule c: General Mills, its parent, and Lucky Charms, a General Mills brand, are among the decoys"
+  },
+  {
+   "seed": "Nuvo",
+   "partner": "Nugoljor Golzeke",
+   "year": 2020,
+   "what": "Zig Kinetica Undersounds",
+   "source": "https://www.digitalmusicnews.com/2020/09/29/reebok-spotify-playlists/",
+   "seedId": "74EC36A5-4C07-4854-9BA1-0FD3688235A1",
+   "seedMatched": "Nuvo",
+   "partnerId": "87C93D56-EA56-42F5-8B70-7E3B154D4793",
+   "partnerMatched": "Nugoljor Golzeke",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:fashion:footwear:sneaker:running",
+    "name": "Nobwimra Wimsoba"
+   },
+   "decoys": [
+    {
+     "name": "Zerost",
+     "id": "D9BCFFE8-0796-4027-B197-89E1709532E9",
+     "popularity": 1
+    },
+    {
+     "name": "Hapvoquin",
+     "id": "030131F6-55BA-4FA0-ABEC-EB3EE31C3885",
+     "popularity": 1
+    },
+    {
+     "name": "Minu",
+     "id": "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498",
+     "popularity": 1
+    },
+    {
+     "name": "Kelwimdar",
+     "id": "AB76D105-81F2-4F94-A0E6-6A374AF76363",
+     "popularity": 1
+    },
+    {
+     "name": "Rostjorgol",
+     "id": "320540ED-F0A7-4F56-9DAD-E673E1010574",
+     "popularity": 1
+    },
+    {
+     "name": "Raquin Tamhap",
+     "id": "853BB52F-EB5C-44F2-BD00-49559CED4348",
+     "popularity": 1
+    },
+    {
+     "name": "Wimze",
+     "id": "DF7AB23E-033D-4108-AB6E-98D7014F0723",
+     "popularity": 1
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 7,
+    "of": 8,
+    "affinity": 0.99,
+    "top": 0.44,
+    "inTopGroup": false,
+    "popularityRank": 5
+   },
+   "scores": {
+    "87C93D56-EA56-42F5-8B70-7E3B154D4793": 0.39,
+    "D9BCFFE8-0796-4027-B197-89E1709532E9": 0.22,
+    "030131F6-55BA-4FA0-ABEC-EB3EE31C3885": 0.01,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.76,
+    "AB76D105-81F2-4F94-A0E6-6A374AF76363": 0.11,
+    "320540ED-F0A7-4F56-9DAD-E673E1010574": 0.61,
+    "853BB52F-EB5C-44F2-BD00-49559CED4348": 0.52,
+    "DF7AB23E-033D-4108-AB6E-98D7014F0723": 0.96
+   }
+  },
+  {
+   "seed": "Keldar",
+   "partner": "Tamrost",
+   "year": 2023,
+   "what": "Tamrost cans",
+   "source": "https://metalpackager.com/2023/09/monster-limited-edition-call-of-duty-cans/",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule c: Tamrost: Vanguard, the same franchise, is among the decoys"
+  },
+  {
+   "seed": "Nobdar",
+   "partner": "Sevkelmi",
+   "year": 2019,
+   "what": "Hershey holiday capsule",
+   "source": "https://www.licenseglobal.com/apparel/forever-21-gets-sweet-hershey-collection",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule c: Reese's, a Hershey brand, is among the decoys"
+  },
+  {
+   "seed": "Sonob",
+   "partner": "Zeke Mupgol",
+   "year": 2025,
+   "what": "Pumpkin Spice Grahams",
+   "source": "https://www.foodnetwork.com/fn-dish/news/goldfish-dunkin-pumpkin-spice-grahams-return-2025",
+   "seedId": "71A969FC-C2AB-4FA2-A63C-E6DD632BC08A",
+   "seedMatched": "Wimnob Mivo",
+   "partnerId": "217AE54A-F81D-4030-B356-8FCE8F393054",
+   "partnerMatched": "Bapell",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:food_and_beverage:drinks:coffee_and_tea",
+    "name": "Hapsofen"
+   },
+   "decoys": [
+    {
+     "name": "Rostrosthap Nobjorrost",
+     "id": "876BBE88-24F0-466E-911D-6EC16BD6F800",
+     "popularity": 1
+    },
+    {
+     "name": "Quinnob Sevkelwim",
+     "id": "D85E1D1C-5A83-46A6-9D73-A2B592BC350B",
+     "popularity": 0.93
+    },
+    {
+     "name": "Darmi",
+     "id": "470F7543-6E25-4778-AE9D-071D87C3AB1A",
+     "popularity": 0.22
+    },
+    {
+     "name": "Rawim",
+     "id": "872EBA10-43E4-471E-A3D3-E9E378D867F2",
+     "popularity": 0.02
+    },
+    {
+     "name": "Hapmitam",
+     "id": "3B2DECDA-E806-4062-BF7C-DC7EC7073C33",
+     "popularity": 0.79
+    },
+    {
+     "name": "Pellsoze",
+     "id": "94817795-07E3-4A5C-A6A1-CD695654FEBE",
+     "popularity": 0.23
+    },
+    {
+     "name": "Balo",
+     "id": "6B3349CF-9655-4776-A42A-978D20210BE9",
+     "popularity": 0.36
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 2,
+    "of": 8,
+    "affinity": 0.2,
+    "top": 0.05,
+    "inTopGroup": true,
+    "popularityRank": 2
+   },
+   "scores": {
+    "217AE54A-F81D-4030-B356-8FCE8F393054": 0.41,
+    "876BBE88-24F0-466E-911D-6EC16BD6F800": 0.46,
+    "D85E1D1C-5A83-46A6-9D73-A2B592BC350B": 0.28,
+    "470F7543-6E25-4778-AE9D-071D87C3AB1A": 0.62,
+    "872EBA10-43E4-471E-A3D3-E9E378D867F2": 0.54,
+    "3B2DECDA-E806-4062-BF7C-DC7EC7073C33": 0.3,
+    "94817795-07E3-4A5C-A6A1-CD695654FEBE": 0.13,
+    "6B3349CF-9655-4776-A42A-978D20210BE9": 0.85
+   }
+  },
+  {
+   "seed": "Tamvexhap Hapso",
+   "partner": "Rafenke",
+   "year": 2025,
+   "what": "Chuck 70 capsule",
+   "source": "https://grandeconsumo.com/en/?p=240179",
+   "seedId": "0B8702CE-D459-4195-BB7E-0402894D60FD",
+   "seedMatched": "Tamvexhap Hapso",
+   "partnerId": "C99B03D6-A3E4-4CB3-A77F-478BE220ADD2",
+   "partnerMatched": "Rafenke",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:fashion:footwear:sneaker:skateboarding",
+    "name": "Kemisev"
+   },
+   "decoys": [
+    {
+     "name": "Kelhapke",
+     "id": "1A85FF0A-825B-4DE3-BEC7-9DF63379D563",
+     "popularity": 1
+    },
+    {
+     "name": "Wimfen",
+     "id": "F0930F1D-C951-4825-B9ED-8091478F4EB2",
+     "popularity": 1
+    },
+    {
+     "name": "Minu",
+     "id": "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498",
+     "popularity": 1
+    },
+    {
+     "name": "Tikenu",
+     "id": "D342AFDC-8D72-415D-BDBB-C412608F5E7B",
+     "popularity": 1
+    },
+    {
+     "name": "Sokelvex",
+     "id": "96A00D14-EE9E-4C72-A05D-8D299E8A8086",
+     "popularity": 0.23
+    },
+    {
+     "name": "Quinsev",
+     "id": "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F",
+     "popularity": 0.74
+    },
+    {
+     "name": "Mupmuprost",
+     "id": "7C8EC729-DAD3-4EE8-A2F4-BDF668F5B18F",
+     "popularity": 0.76
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 6,
+    "of": 8,
+    "affinity": 0.18,
+    "top": 0.52,
+    "inTopGroup": true,
+    "popularityRank": 1
+   },
+   "scores": {
+    "C99B03D6-A3E4-4CB3-A77F-478BE220ADD2": 0.07,
+    "1A85FF0A-825B-4DE3-BEC7-9DF63379D563": 0.2,
+    "F0930F1D-C951-4825-B9ED-8091478F4EB2": 0.55,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.2,
+    "D342AFDC-8D72-415D-BDBB-C412608F5E7B": 0.7,
+    "96A00D14-EE9E-4C72-A05D-8D299E8A8086": 0.67,
+    "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F": 0.17,
+    "7C8EC729-DAD3-4EE8-A2F4-BDF668F5B18F": 0.51
+   }
+  },
+  {
+   "seed": "Nutiso",
+   "partner": "Rapellso",
+   "year": 2024,
+   "what": "chip-holster boot and clogs",
+   "source": "https://www.deseret.com/business/2024/04/17/crocs-pringles-shoe-partnership/",
+   "seedId": "133FED6E-CAF8-4CEA-B357-1E9FAE18DF52",
+   "seedMatched": "Nutiso",
+   "partnerId": "C0B314F0-B825-4F80-A54D-FAE38AC51A27",
+   "partnerMatched": "Rapellso",
+   "partnerPopularity": 0.81,
+   "tag": {
+    "id": "urn:tag:genre:brand:fashion:footwear:sneaker:lifestyle",
+    "name": "Kelpellmi Wimtifen"
+   },
+   "decoys": [
+    {
+     "name": "Dartipell",
+     "id": "2E17B21B-05EF-461F-9544-C381F7D454E8",
+     "popularity": 0.73
+    },
+    {
+     "name": "Rostbanu",
+     "id": "4D01E103-D9E9-4D97-8F21-2F0FBDE5CC2C",
+     "popularity": 0.63
+    },
+    {
+     "name": "Quinsev",
+     "id": "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F",
+     "popularity": 0.28
+    },
+    {
+     "name": "Keloke",
+     "id": "E5A4D917-023B-4D9C-9B87-3492961435D6",
+     "popularity": 0.37
+    },
+    {
+     "name": "Sokel",
+     "id": "09D39220-8108-475E-9345-B85A7B575745",
+     "popularity": 0.1
+    },
+    {
+     "name": "Mupmike",
+     "id": "050B1C9E-A568-4E96-A013-16F34266CB08",
+     "popularity": 0.73
+    },
+    {
+     "name": "Darvexjor",
+     "id": "B55A9A13-285F-4675-8AEB-3828B5C993E2",
+     "popularity": 0.17
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 1,
+    "of": 8,
+    "affinity": 0.99,
+    "top": 0.89,
+    "inTopGroup": true,
+    "popularityRank": 4
+   },
+   "scores": {
+    "C0B314F0-B825-4F80-A54D-FAE38AC51A27": 0.15,
+    "2E17B21B-05EF-461F-9544-C381F7D454E8": 0.6,
+    "4D01E103-D9E9-4D97-8F21-2F0FBDE5CC2C": 0.57,
+    "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F": 0.92,
+    "E5A4D917-023B-4D9C-9B87-3492961435D6": 0.16,
+    "09D39220-8108-475E-9345-B85A7B575745": 0.45,
+    "050B1C9E-A568-4E96-A013-16F34266CB08": 0.49,
+    "B55A9A13-285F-4675-8AEB-3828B5C993E2": 0.87
+   }
+  },
+  {
+   "seed": "Wimfenjor Fenze",
+   "partner": "Golkelnu",
+   "year": 2026,
+   "what": "soccer-inspired collection",
+   "source": "https://www.geneonline.com/jack-in-the-box-and-the-hundreds-release-soccer-inspired-clothing-collection/",
+   "seedId": "1FA83E78-CE5C-4368-A5FC-FC5A77F8F94D",
+   "seedMatched": "Jornobze",
+   "partnerId": "8FE8D389-ED55-4B20-8D16-8660919C5E87",
+   "partnerMatched": "Golkelnu",
+   "partnerPopularity": 0.91,
+   "tag": {
+    "id": "urn:tag:genre:brand:fashion:footwear:sneaker:skateboarding",
+    "name": "Kemisev"
+   },
+   "decoys": [
+    {
+     "name": "Muplo",
+     "id": "025454E3-8BF9-4C6F-8CA9-F41265B26D71",
+     "popularity": 0.44
+    },
+    {
+     "name": "Mupmuprost",
+     "id": "7C8EC729-DAD3-4EE8-A2F4-BDF668F5B18F",
+     "popularity": 0.7
+    },
+    {
+     "name": "Quinsev",
+     "id": "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F",
+     "popularity": 0.21
+    },
+    {
+     "name": "Sokelvex",
+     "id": "96A00D14-EE9E-4C72-A05D-8D299E8A8086",
+     "popularity": 0.49
+    },
+    {
+     "name": "Tikenu",
+     "id": "D342AFDC-8D72-415D-BDBB-C412608F5E7B",
+     "popularity": 1
+    },
+    {
+     "name": "Minu",
+     "id": "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498",
+     "popularity": 1
+    },
+    {
+     "name": "Goljorrost",
+     "id": "1B30A802-4F53-4CB8-BD8A-D05748FD32C9",
+     "popularity": 0.45
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 5,
+    "of": 8,
+    "affinity": 0.56,
+    "top": 0.88,
+    "inTopGroup": true,
+    "popularityRank": 4
+   },
+   "scores": {
+    "8FE8D389-ED55-4B20-8D16-8660919C5E87": 0.22,
+    "025454E3-8BF9-4C6F-8CA9-F41265B26D71": 0.7,
+    "7C8EC729-DAD3-4EE8-A2F4-BDF668F5B18F": 0.79,
+    "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F": 0.77,
+    "96A00D14-EE9E-4C72-A05D-8D299E8A8086": 0.17,
+    "D342AFDC-8D72-415D-BDBB-C412608F5E7B": 0.19,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.08,
+    "1B30A802-4F53-4CB8-BD8A-D05748FD32C9": 0.86
+   }
+  },
+  {
+   "seed": "Ratam",
+   "partner": "Kelwimdar",
+   "year": 2019,
+   "what": "Curry 7 Ratam",
+   "source": "https://houseofheat.co/under-armour/ua-curry-7-sour-patch-kids-3021258-302-3021258-603release-date-info",
+   "seedId": "948646B3-49ED-47A9-8784-68DB3983F87C",
+   "seedMatched": "Ratam",
+   "partnerId": "AB76D105-81F2-4F94-A0E6-6A374AF76363",
+   "partnerMatched": "Kelwimdar",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:fashion:footwear:sneaker:running",
+    "name": "Nobwimra Wimsoba"
+   },
+   "decoys": [
+    {
+     "name": "Rostjorgol",
+     "id": "320540ED-F0A7-4F56-9DAD-E673E1010574",
+     "popularity": 1
+    },
+    {
+     "name": "Raquin Tamhap",
+     "id": "853BB52F-EB5C-44F2-BD00-49559CED4348",
+     "popularity": 1
+    },
+    {
+     "name": "Wimze",
+     "id": "DF7AB23E-033D-4108-AB6E-98D7014F0723",
+     "popularity": 1
+    },
+    {
+     "name": "Minu",
+     "id": "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498",
+     "popularity": 1
+    },
+    {
+     "name": "Hapvoquin",
+     "id": "030131F6-55BA-4FA0-ABEC-EB3EE31C3885",
+     "popularity": 1
+    },
+    {
+     "name": "Zerost",
+     "id": "D9BCFFE8-0796-4027-B197-89E1709532E9",
+     "popularity": 1
+    },
+    {
+     "name": "Nugoljor Golzeke",
+     "id": "87C93D56-EA56-42F5-8B70-7E3B154D4793",
+     "popularity": 1
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 4,
+    "of": 8,
+    "affinity": 0.59,
+    "top": 0.81,
+    "inTopGroup": true,
+    "popularityRank": 3
+   },
+   "scores": {
+    "AB76D105-81F2-4F94-A0E6-6A374AF76363": 0.37,
+    "320540ED-F0A7-4F56-9DAD-E673E1010574": 0.9,
+    "853BB52F-EB5C-44F2-BD00-49559CED4348": 0.56,
+    "DF7AB23E-033D-4108-AB6E-98D7014F0723": 0.02,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.74,
+    "030131F6-55BA-4FA0-ABEC-EB3EE31C3885": 0.85,
+    "D9BCFFE8-0796-4027-B197-89E1709532E9": 0.27,
+    "87C93D56-EA56-42F5-8B70-7E3B154D4793": 0.41
+   }
+  },
+  {
+   "seed": "Zewimba",
+   "partner": "Tikehap",
+   "year": 2022,
+   "what": "Aged by Audio cracker",
+   "source": "https://www.stocktitan.net/news/K/cheez-it-r-teams-up-with-pandora-r-to-create-first-ever-sonically-0le81l0e5zky.html",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule b: tag Jewelry; Qloo matched Tikehap the jewelry brand, the collaboration was Tikehap the music service"
+  },
+  {
+   "seed": "Nobdar",
+   "partner": "Keze",
+   "year": 2019,
+   "what": "Keze apparel line",
+   "source": "https://printandpromomarketing.com/article/forever-21-keeps-cranking-out-branded-apparel-collections-this-time-with-pepsi/",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule c: Mountain Dew, a PepsiCo brand, is among the decoys"
+  },
+  {
+   "seed": "Fenbapell Rostze",
+   "partner": "Loratam Loquinkel",
+   "year": 2024,
+   "what": "Avenger 4xe edition (Europe)",
+   "source": "https://www.meinauto.de/news/2024/10/jeep-avenger-4xe-limitierte-edition-in-kooperation-mit-the-north-face",
+   "seedId": "EFA1D101-ABD5-43A4-B506-D7C5AF47E81E",
+   "seedMatched": "Fenbapell Rostze",
+   "partnerId": "7833CAB7-BBC5-4100-B225-CF42988B1338",
+   "partnerMatched": "Loratam Loquinkel",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:automotive:car_and_suv",
+    "name": "Vozehap"
+   },
+   "decoys": [
+    {
+     "name": "Kegoltam",
+     "id": "68DCB067-6F37-49E2-94DF-6EF629E82157",
+     "popularity": 1
+    },
+    {
+     "name": "Pellpellvo",
+     "id": "997A1A84-65AE-479B-822C-66A17156773C",
+     "popularity": 1
+    },
+    {
+     "name": "Rostvo",
+     "id": "83587FFA-9381-49DC-AB70-F9995B4575BD",
+     "popularity": 1
+    },
+    {
+     "name": "Kelpellti Tamnobfen",
+     "id": "A89A3CD4-E15D-406A-AA67-4B6A5B298F39",
+     "popularity": 1
+    },
+    {
+     "name": "Wimnob",
+     "id": "A0CE5891-92E2-4535-AD27-8A9D70948CE9",
+     "popularity": 1
+    },
+    {
+     "name": "Kevexnu",
+     "id": "EF90E98B-6881-47DD-BD0B-4058C5B2EF81",
+     "popularity": 1
+    },
+    {
+     "name": "Ragolsev Fenkel",
+     "id": "F426A68C-7776-4228-B003-F02417EBA498",
+     "popularity": 1
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 2,
+    "of": 8,
+    "affinity": 0.42,
+    "top": 0.75,
+    "inTopGroup": true,
+    "popularityRank": 7
+   },
+   "scores": {
+    "7833CAB7-BBC5-4100-B225-CF42988B1338": 0.91,
+    "68DCB067-6F37-49E2-94DF-6EF629E82157": 0.45,
+    "997A1A84-65AE-479B-822C-66A17156773C": 0.41,
+    "83587FFA-9381-49DC-AB70-F9995B4575BD": 0.17,
+    "A89A3CD4-E15D-406A-AA67-4B6A5B298F39": 0.18,
+    "A0CE5891-92E2-4535-AD27-8A9D70948CE9": 0.38,
+    "EF90E98B-6881-47DD-BD0B-4058C5B2EF81": 0.87,
+    "F426A68C-7776-4228-B003-F02417EBA498": 0.21
+   }
+  },
+  {
+   "seed": "Zeke Mupgol",
+   "partner": "Nobbanob Pellvexvo",
+   "year": 2025,
+   "what": "campus streetwear capsule",
+   "source": "https://www.ypulse.com/newsfeed/2025/09/25/dunkin-is-making-campus-ready-streetwear-with-urban-outfitters/",
+   "seedId": "217AE54A-F81D-4030-B356-8FCE8F393054",
+   "seedMatched": "Bapell",
+   "partnerId": "1C9547B6-BCA0-4158-9C59-1DDCB8FAD333",
+   "partnerMatched": "Nobbanob Pellvexvo",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:retail:fashion",
+    "name": "Mivexti"
+   },
+   "decoys": [
+    {
+     "name": "Vexkel Wimnu",
+     "id": "62B1F473-51EA-4754-9A75-92F58A9F9A56",
+     "popularity": 1
+    },
+    {
+     "name": "Fenzenob Quinmilo",
+     "id": "105C011F-05FF-47B0-8A57-0871EDF8EC61",
+     "popularity": 1
+    },
+    {
+     "name": "Nulovo",
+     "id": "7032BABE-060C-4F06-9091-46B1FE2EBD3A",
+     "popularity": 1
+    },
+    {
+     "name": "Pellra",
+     "id": "C5639F53-54EF-4BF2-968E-22D06DADE995",
+     "popularity": 1
+    },
+    {
+     "name": "Bafen",
+     "id": "26EB1AB2-02F7-4F03-9111-DDC2FB4D7319",
+     "popularity": 1
+    },
+    {
+     "name": "Fenke",
+     "id": "81582DF5-004C-4E97-AF31-6ECA552EF7AE",
+     "popularity": 0.58
+    },
+    {
+     "name": "Hapti",
+     "id": "6F75C9DE-612B-4190-9721-E82F8288207D",
+     "popularity": 0.86
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 7,
+    "of": 8,
+    "affinity": 0.2,
+    "top": 0.53,
+    "inTopGroup": true,
+    "popularityRank": 3
+   },
+   "scores": {
+    "1C9547B6-BCA0-4158-9C59-1DDCB8FAD333": 0.96,
+    "62B1F473-51EA-4754-9A75-92F58A9F9A56": 0.98,
+    "105C011F-05FF-47B0-8A57-0871EDF8EC61": 0.14,
+    "7032BABE-060C-4F06-9091-46B1FE2EBD3A": 0.94,
+    "C5639F53-54EF-4BF2-968E-22D06DADE995": 0.69,
+    "26EB1AB2-02F7-4F03-9111-DDC2FB4D7319": 0.7,
+    "81582DF5-004C-4E97-AF31-6ECA552EF7AE": 0.76,
+    "6F75C9DE-612B-4190-9721-E82F8288207D": 0.67
+   }
+  },
+  {
+   "seed": "Minob",
+   "partner": "Nobmuphap",
+   "year": 2022,
+   "what": "Nobmuphap-themed menu",
+   "source": "https://www.businesswire.com/news/home/20220822005022/en",
+   "dropped": "decoy check before the freeze (Eric, real Oct 13): rule c: Rostrostba Rafenwim, Nobmuphap's parent, is among the decoys"
+  }
+ ],
+ "scoredAt": "2026-10-14",
+ "summary": {
+  "scored": 14,
+  "hits": 11,
+  "need": 9,
+  "pass": true,
+  "meanRank": 2.36,
+  "chanceMeanRank": 4.5,
+  "pOfAtLeast": 0.84
+ }
+}

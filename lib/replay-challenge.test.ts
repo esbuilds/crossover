@@ -3,8 +3,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { CHALLENGE, PROTOCOL } from "./replay-challenge.ts";
 import { rotation } from "./replay-rotation.ts";
+import replay from "../audit/replay.json" with { type: "json" };
+const STANDIN = "demo" in replay; // audit/demo/ (W2): the public mirror builds on made-up tables
 
-test("all 23 scored cases are in, each with eight scored names, alphabetical, and the published rank", () => {
+test("all 23 scored cases are in, each with eight scored names, alphabetical, and the published rank", { skip: STANDIN && "the real audit is Qloo data, kept private; audit/ holds stand-ins" }, () => {
   assert.equal(CHALLENGE.length, 23);
   assert.equal(new Set(CHALLENGE.map((c) => c.key)).size, 23);
   assert.equal(CHALLENGE.filter((c) => c.test === "v1").length, PROTOCOL.v1.scored);

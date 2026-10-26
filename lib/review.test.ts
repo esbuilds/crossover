@@ -1,4 +1,6 @@
-// review-v2 on rows Qloo returned Oct 10 (probe/VERIFY-3.md, out3/profiles.json). No live API.
+// review-v2 on rows shaped like those Qloo returned Oct 10 (probe/VERIFY-3.md). The scores are made up (W2, real Oct 25:
+// no Qloo values in the repo) and keep the recorded bands, picks and ties. The two floors are the real doubles the
+// missing rule must recognize (lib/review.ts). No live API.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -12,14 +14,14 @@ const ref = (name: string, popularity = 0.9, type = B, tags: string[] = ["Soda"]
 
 // Liquid Death seed alone, brand group (Metallica is an artist and scored separately)
 const LD: Record<string, number> = {
-  "Dr. Squatch": 0.5, Yeti: 0.5, Poppi: 0.5, Sheetz: 0.5,
-  "e.l.f.": 0.5, "Van Leeuwen": 0.5, Chanel: 0.5,
+  "Dr. Squatch": 0.8811, Yeti: 0.7524, Poppi: 0.6912, Sheetz: 0.6878,
+  "e.l.f.": 0.6145, "Van Leeuwen": 0.6093, Chanel: 0.5832,
 };
-const LD_POP: Record<string, number> = { "Dr. Squatch": 0.939, Yeti: 0.988, Poppi: 0.334, Sheetz: 0.936, "e.l.f.": 0.995, "Van Leeuwen": 0.771, Chanel: 1.0 };
+const LD_POP: Record<string, number> = { "Dr. Squatch": 0.947, Yeti: 0.972, Poppi: 0.318, Sheetz: 0.931, "e.l.f.": 0.984, "Van Leeuwen": 0.752, Chanel: 0.991 };
 // Mt. Joy seed alone
 const MJ: Record<string, number> = {
-  Allbirds: 0.5, REI: 0.5, Patagonia: 0.5, "Hydro Flask": 0.5,
-  Airbnb: 0.5, "Red Bull": 0.5, "Taco Bell": 0.5, Spotify: 0.5,
+  Allbirds: 0.9412, REI: 0.9133, Patagonia: 0.9087, "Hydro Flask": 0.8975,
+  Airbnb: 0.7861, "Red Bull": 0.7155, "Taco Bell": 0.6934, Spotify: 0.6291,
 };
 const rows = (m: Record<string, number>) => Object.entries(m).map(([id, forward]) => ({ id, forward }));
 
@@ -29,15 +31,15 @@ test("missing rule: the two floors are missing wherever they appear", () => {
 });
 
 test("missing rule: 3+ bit-identical values in one call are missing; an exact pair is a real tie", () => {
-  const v = 0.5;
+  const v = 0.7313370928341152;
   assert.deepEqual(applyMissingRule([v, v, v, 0.9], "one call").map((c) => c.value), [null, null, null, 0.9]);
   // Patagonia and Red Bull, no-seed 35 to 44, Oct 10: same double, both kept
-  const p = 0.8250588496729104;
+  const p = 0.8137736612050947;
   assert.deepEqual(applyMissingRule([p, p, 0.6], "one call").map((c) => c.value), [p, p, 0.6]);
 });
 
 test("missing rule: the same pair repeating across 2+ signals is missing (Liquid Death x e.l.f., four audiences)", () => {
-  const v = 0.670650049690628;
+  const v = 0.6619827741109342;
   const cells = applyMissingRule([v, v, 0.7, 0.71], "across signals");
   assert.deepEqual(cells.map((c) => c.missing), ["repeats across signals", "repeats across signals", undefined, undefined]);
 });
@@ -138,7 +140,7 @@ test("adapter: one forward call per type, mixed types never share a call", async
 });
 
 test("adapter: reverse is one call per other-type candidate and applies the across-signals rule", async () => {
-  const same = 0.670650049690628;
+  const same = 0.6619827741109342;
   const A = "urn:entity:artist";
   let calls = 0;
   const score: Scorer = async (p) => (calls++, [{ entity_id: "Liquid Death", affinity: { a: same, b: same, c: 0.81 }[String(p["signal.interests.entities"])] }]);

@@ -4,10 +4,12 @@
 // sheet's own, already cached). venuesIn live: whereToStart's peek can't warm it, since venuesIn turns a cold list into
 // an empty one. Prints production's /api/usage before and after. Run once:
 //   node --env-file=.env.local scripts/pitch-warm.ts https://crossover-henna.vercel.app
+import { readFileSync } from "node:fs";
 import { whereToStart } from "../lib/ask/where.ts";
 import { venueLine, venuesIn } from "../lib/ask/venues.ts";
-import mtJoy from "../lib/ask/fixtures/mt-joy.json" with { type: "json" };
 import type { AskEvent } from "../lib/ask/agent.ts";
+// read, not imported: the recorded asks are Qloo data and stay out of the public repo (W2, real Oct 25)
+const mtJoy = JSON.parse(readFileSync(new URL("../lib/ask/fixtures/mt-joy.json", import.meta.url), "utf8"));
 
 const base = process.argv[2];
 if (!base) throw new Error("usage: scripts/pitch-warm.ts <baseUrl>");

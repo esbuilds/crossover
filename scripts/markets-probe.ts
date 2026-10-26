@@ -8,7 +8,7 @@ import { getCities } from "../lib/cities.ts";
 const SEED = "78A44C09-E691-42DA-A553-5CDE6EE9B18A";
 const THREE = ["Bombas", "Warby Parker", "ClassPass"];
 const RIVAL_LEADS = ["Austin", "Seattle", "Dallas"];
-const ab = (await import("../lib/ask/fixtures/allbirds.json", { with: { type: "json" } })).default as { type: string; output?: { candidates?: { name: string; id: string }[] } }[];
+const ab = (await import(new URL("../lib/ask/fixtures/allbirds.json", import.meta.url).href, { with: { type: "json" } })).default as { type: string; output?: { candidates?: { name: string; id: string }[] } }[];
 const eight = ab.find((e) => e.type === "result" && e.output?.candidates)!.output!.candidates!;
 
 const top5 = async (id: string) => (await getCities(id)).metros.slice(0, 5);

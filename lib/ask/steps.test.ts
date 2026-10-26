@@ -1,5 +1,5 @@
-// The three step pictures on / (Pick A), shaped from an ask's recorded events. Fixtures are derived step outputs
-// captured from the production cache (names, ids, two-decimal scores), not raw Qloo responses.
+// The three step pictures on / (Pick A), shaped from an ask's events. The asks are the demo world (lib/ask/demo/, made by
+// scripts/demo-world.ts): invented names, ids and scores in the shape of three cached asks, so no Qloo data is in the repo.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -8,27 +8,27 @@ import control from "../../audit/replay-control.json" with { type: "json" };
 import mutation from "../../audit/mutation.json" with { type: "json" };
 import type { AskEvent } from "./agent.ts";
 
-const load = (name: string): AskEvent[] => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), "utf8"));
-const ld = stepsFrom(load("liquid-death"));
-const mj = stepsFrom(load("mt-joy"));
+const load = (name: string): AskEvent[] => JSON.parse(readFileSync(new URL(`./demo/${name}.json`, import.meta.url), "utf8"));
+const ld = stepsFrom(load("calder-shoe"));
+const mj = stepsFrom(load("low-tide-choir"));
 
 test("stepsFrom pairs each call with its result, in step order", () => {
   assert.deepEqual(ld.map((s) => s.tool), ["resolve", "findRival", "split", "candidates", "review", "twins"]);
   assert.ok(ld.every((s) => s.why.length > 0 && s.output));
 });
 
-test("mapStep: Liquid Death's split links /vs with both ids and carries the counts; Mt. Joy has no split", () => {
+test("mapStep: Calder Shoe's split links /vs with both ids and carries the counts; Low Tide Choir has no split", () => {
   const m = mapStep(ld)!;
-  assert.equal(m.href, "/vs/4DF7C265-52D9-4A99-8803-F62C2302D561/8E104A95-D942-4B31-88AC-07B26D1DE219?ta=urn%3Aentity%3Abrand&tb=urn%3Aentity%3Abrand");
+  assert.equal(m.href, "/vs/0FC5E2E4-8A8E-45D4-B79A-0A6C967D32CD/D344054F-24F1-44A9-ACD3-0A46860DA77E?ta=urn%3Aentity%3Abrand&tb=urn%3Aentity%3Abrand");
   assert.deepEqual([m.closerToSeed, m.closerToRival], [12, 39]);
-  assert.equal(m.seedMarkets[0], "Los Angeles");
+  assert.equal(m.seedMarkets[0], "Fort Worth");
   assert.equal(mapStep(mj), null);
 });
 
-test("cardsStep: eight cards in taste order with ids and fame bands; Mt. Joy leads with Outdoor Voices 0.97", () => {
+test("cardsStep: eight cards in taste order with ids and fame bands; Low Tide Choir leads with Brightwell Optics 0.97", () => {
   const c = cardsStep(mj)!;
   assert.equal(c.cards.length, 8);
-  assert.deepEqual([c.cards[0].name, c.cards[0].affinity], ["Outdoor Voices", 0.97]);
+  assert.deepEqual([c.cards[0].name, c.cards[0].affinity], ["Brightwell Optics", 0.97]);
   assert.ok(c.cards.every((x) => x.id.length > 0 && x.fameBand >= 0));
   assert.equal(c.fameFlat, false); // one taste group: the fame line's rule needs more than one
 });
@@ -76,12 +76,12 @@ test("dumbbellStep: rows sorted by taste minus fame, unmeasured last", () => {
 });
 
 test("dumbbellStep: nothing to draw without popularity in the review output (asks cached before the field)", () => {
-  assert.equal(dumbbellStep(ld), null); // Liquid Death's fixture predates the field
+  assert.equal(dumbbellStep(ld), null); // like the recorded ask it's shaped from, this one predates the field
 });
 
 // the two prepared asks as recaptured after the Pick 1 re-warm (real Oct 14): both draw eight rows
-test("dumbbellStep on the prepared asks: Mt. Joy (the tied hero fallback) and Allbirds (the map hero)", () => {
-  const ab = stepsFrom(load("allbirds"));
+test("dumbbellStep on the prepared asks: the artist ask (one tied group) and the brand ask (with a split)", () => {
+  const ab = stepsFrom(load("corvid-co"));
   for (const steps of [mj, ab]) {
     const d = dumbbellStep(steps)!;
     assert.equal(d.rows.length, 8);
@@ -93,25 +93,25 @@ test("dumbbellStep on the prepared asks: Mt. Joy (the tied hero fallback) and Al
     const firstMissing = d.rows.findIndex((r) => r.fame === null);
     if (firstMissing >= 0) assert.ok(d.rows.slice(firstMissing).every((r) => r.fame === null));
   }
-  assert.equal(dumbbellStep(stepsFrom(load("allbirds")))!.rows.find((r) => r.name === "Quince")!.fame, null);
+  assert.equal(dumbbellStep(stepsFrom(load("corvid-co")))!.rows.find((r) => r.name === "Wren & Lark")!.fame, null);
   {
   }
   const m = mapStep(ab)!;
-  assert.deepEqual([m.seed.name, m.rival.name, m.closerToSeed, m.closerToRival, m.withinGapOfBoth], ["Allbirds", "Outdoor Voices", 2, 4, 50]);
+  assert.deepEqual([m.seed.name, m.rival.name, m.closerToSeed, m.closerToRival, m.withinGapOfBoth], ["Corvid & Co.", "Brightwell Optics", 2, 4, 50]);
 });
 
 // Fable tie ruling (Oct 14): a two-line call card from existing outputs, two labels, never fused into one claim.
 test("callCard: the first call and where the seed's audience leads, as two separate lines", () => {
-  const ab = stepsFrom(load("allbirds"));
-  const decision = load("allbirds").findLast((e) => e.type === "decision") as Extract<AskEvent, { type: "decision" }>;
+  const ab = stepsFrom(load("corvid-co"));
+  const decision = load("corvid-co").findLast((e) => e.type === "decision") as Extract<AskEvent, { type: "decision" }>;
   const card = callCard(ab, decision.decision!)!;
-  assert.equal(card.first, "First call: Bombas.");
-  assert.equal(card.where, "Where Allbirds' audience leads: San Francisco, New York and Denver.");
+  assert.equal(card.first, "First call: Larkspur Labs.");
+  assert.equal(card.where, "Where Corvid & Co.'s audience leads: Birmingham, Washington DC and Oklahoma City.");
   // never one recommendation: the call line names no place, the place line names no call
   for (const c of decision.decision!.calls) assert.ok(!card.where!.includes(c.name.replace(/\[\[|\]\]/g, "")));
   assert.ok(!/\b(in|for|test)\b/.test(card.first.replace("First call:", "")));
-  const mjDecision = load("mt-joy").findLast((e) => e.type === "decision") as Extract<AskEvent, { type: "decision" }>;
+  const mjDecision = load("low-tide-choir").findLast((e) => e.type === "decision") as Extract<AskEvent, { type: "decision" }>;
   const mjCard = callCard(mj, mjDecision.decision!)!;
-  assert.equal(mjCard.first, "First call: Outdoor Voices.");
+  assert.equal(mjCard.first, "First call: Brightwell Optics.");
   assert.equal(mjCard.where, null); // no split, so no market in any step: no line
 });

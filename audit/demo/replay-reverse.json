@@ -1,0 +1,1222 @@
+{
+ "demo": true,
+ "stage": "scored",
+ "scoredAt": "2026-10-21",
+ "protocol": "audit/replay-reverse-protocol.md",
+ "summary": {
+  "cases": 23,
+  "need": 13,
+  "realHits": 5,
+  "scrambledHits": 3,
+  "noMeasurement": 0,
+  "pass": false,
+  "pOfAtLeastReal": 0.74,
+  "meanRealRank": 6.57,
+  "meanScrambledRank": 7.09,
+  "seedOutCells": 172,
+  "cells": 184,
+  "v2": {
+   "cases": 14,
+   "realHits": 1,
+   "scrambledHits": 2
+  }
+ },
+ "cases": [
+  {
+   "case": "Rapellso x Golvojor",
+   "scrambledSeed": "Nuvo",
+   "forwardRank": 5,
+   "noMeasurement": false,
+   "realRank": 8,
+   "realHit": false,
+   "scrambledRank": 8,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Jorke",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Bapell",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Zekequin",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Mupvo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Kewim",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Banob",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Tamjorso Kefenti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Vosevgol",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Zekequin x Vohapti",
+   "scrambledSeed": "Wimze",
+   "forwardRank": 5,
+   "noMeasurement": false,
+   "realRank": 8,
+   "realHit": false,
+   "scrambledRank": 7,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Vohapti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapquinso Sevkenu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Fenfen",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Mihapjor",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nutiso",
+     "seed": 31,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellgol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Jorzejor",
+     "seed": 29,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pelllojor",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Jortam Haprost x Soloquin Quinsowim",
+   "scrambledSeed": "Vohapti",
+   "forwardRank": 3,
+   "noMeasurement": false,
+   "realRank": 4,
+   "realHit": false,
+   "scrambledRank": 8,
+   "scrambledHit": true,
+   "cells": [
+    {
+     "name": "Soloquin Quinsowim",
+     "seed": null,
+     "scrambledSeed": 6
+    },
+    {
+     "name": "Rajor Pellwim",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapsevvo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darnu Tiloquin",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nobvo Nobgol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Tijorkel Wimfen",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Kevo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinfen",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Rostrosthap Nobjorrost x Nuvo",
+   "scrambledSeed": "Ratam",
+   "forwardRank": 5,
+   "noMeasurement": false,
+   "realRank": 1,
+   "realHit": true,
+   "scrambledRank": 5,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Nuvo",
+     "seed": 44,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Jorsevrost",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Babahap",
+     "seed": 8,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darlo",
+     "seed": 31,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellrostti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darsokel",
+     "seed": 28,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Vodar Fenmupkel x Nuvo",
+   "scrambledSeed": "Jortam Haprost",
+   "forwardRank": 3,
+   "noMeasurement": false,
+   "realRank": 7,
+   "realHit": true,
+   "scrambledRank": 4,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Nuvo",
+     "seed": 2,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Jorsevrost",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Babahap",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darlo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellrostti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darsokel",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Zekenob x Rarost Bafen",
+   "scrambledSeed": "Fenbapell Rostze",
+   "forwardRank": 3,
+   "noMeasurement": false,
+   "realRank": 7,
+   "realHit": false,
+   "scrambledRank": 8,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Quindarnu Goltidar",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Wimtamdar",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Fenjornob",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Tinob",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nobvex Kelwim",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Sevrost Quinbagol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Kekel",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Jorwimra",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Kewim x Nutiso",
+   "scrambledSeed": "Vodar Fenmupkel",
+   "forwardRank": 8,
+   "noMeasurement": false,
+   "realRank": 8,
+   "realHit": true,
+   "scrambledRank": 4,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Nutiso",
+     "seed": 10,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Mihapjor",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Fenfen",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapquinso Sevkenu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Vohapti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellgol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Jorzejor",
+     "seed": 12,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pelllojor",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Solo x Mike Sevnobmi",
+   "scrambledSeed": "Rapellso",
+   "forwardRank": 8,
+   "noMeasurement": false,
+   "realRank": 3,
+   "realHit": false,
+   "scrambledRank": 7,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Mike Sevnobmi",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Golso Nuti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Tisev",
+     "seed": 48,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rostrostba Rafenwim",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Votamwim",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Mikelnob",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Tammup Pellpellgol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Tamquin",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Kelfenkel Ramup x Keljorhap",
+   "scrambledSeed": "Tammike Muplomi",
+   "forwardRank": 1,
+   "noMeasurement": false,
+   "realRank": 6,
+   "realHit": true,
+   "scrambledRank": 2,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Keljorhap",
+     "seed": 27,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nugoljor Golzeke",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rosttamze Keti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapfenkel Sonob",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Sokelvex",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darvexjor",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Kelwimdar",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapti",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Vohapti x Babahap",
+   "scrambledSeed": "Jornobze",
+   "forwardRank": 7,
+   "noMeasurement": false,
+   "realRank": 1,
+   "realHit": false,
+   "scrambledRank": 7,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Babahap",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darlo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nuvo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Jorsevrost",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellrostti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darsokel",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Vohapti x Jorsevrost",
+   "scrambledSeed": "Ranobvex",
+   "forwardRank": 5,
+   "noMeasurement": false,
+   "realRank": 8,
+   "realHit": false,
+   "scrambledRank": 1,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Jorsevrost",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nuvo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Babahap",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darlo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellrostti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darsokel",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Ranobvex x Darragol",
+   "scrambledSeed": "Zekequin",
+   "forwardRank": 5,
+   "noMeasurement": false,
+   "realRank": 8,
+   "realHit": false,
+   "scrambledRank": 5,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Darragol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Minu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Tamti Jorvexso",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinso Jortam",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapgol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinra Hapdar",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Fenbapell Rostze",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellti Golranob",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Wimze x Babahap",
+   "scrambledSeed": "Banob",
+   "forwardRank": 8,
+   "noMeasurement": false,
+   "realRank": 7,
+   "realHit": false,
+   "scrambledRank": 8,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Babahap",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darlo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nuvo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Jorsevrost",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellrostti",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darsokel",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Tammike Muplomi x Wimze",
+   "scrambledSeed": "Bapell",
+   "forwardRank": 2,
+   "noMeasurement": false,
+   "realRank": 6,
+   "realHit": false,
+   "scrambledRank": 3,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Wimze",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Raquin Tamhap",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rostjorgol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Kelwimdar",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Minu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapvoquin",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Zerost",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nugoljor Golzeke",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Banob x Rapellso",
+   "scrambledSeed": "Wimnob Mivo",
+   "forwardRank": 8,
+   "noMeasurement": false,
+   "realRank": 5,
+   "realHit": true,
+   "scrambledRank": 4,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Rapellso",
+     "seed": 49,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Dartipell",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rostbanu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinsev",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Keloke",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Sokel",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Mupmike",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darvexjor",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Nuvo x Nugoljor Golzeke",
+   "scrambledSeed": "Bahapti Wimdar",
+   "forwardRank": 8,
+   "noMeasurement": false,
+   "realRank": 3,
+   "realHit": false,
+   "scrambledRank": 7,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Nugoljor Golzeke",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Zerost",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapvoquin",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Minu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Kelwimdar",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rostjorgol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Raquin Tamhap",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Wimze",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Sonob x Zeke Mupgol",
+   "scrambledSeed": "Tamvexhap Hapso",
+   "forwardRank": 4,
+   "noMeasurement": false,
+   "realRank": 2,
+   "realHit": false,
+   "scrambledRank": 1,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Bapell",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rostrosthap Nobjorrost",
+     "seed": null,
+     "scrambledSeed": 46
+    },
+    {
+     "name": "Quinnob Sevkelwim",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darmi",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rawim",
+     "seed": null,
+     "scrambledSeed": 39
+    },
+    {
+     "name": "Hapmitam",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellsoze",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Balo",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Tamvexhap Hapso x Rafenke",
+   "scrambledSeed": "Rostrosthap Nobjorrost",
+   "forwardRank": 7,
+   "noMeasurement": false,
+   "realRank": 5,
+   "realHit": false,
+   "scrambledRank": 1,
+   "scrambledHit": true,
+   "cells": [
+    {
+     "name": "Rafenke",
+     "seed": null,
+     "scrambledSeed": 10
+    },
+    {
+     "name": "Kelhapke",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Wimfen",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Minu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Tikenu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Sokelvex",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinsev",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Mupmuprost",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Nutiso x Rapellso",
+   "scrambledSeed": "Rostlo Sevba",
+   "forwardRank": 3,
+   "noMeasurement": false,
+   "realRank": 2,
+   "realHit": false,
+   "scrambledRank": 4,
+   "scrambledHit": true,
+   "cells": [
+    {
+     "name": "Rapellso",
+     "seed": null,
+     "scrambledSeed": 37
+    },
+    {
+     "name": "Dartipell",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rostbanu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinsev",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Keloke",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Sokel",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Mupmike",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Darvexjor",
+     "seed": null,
+     "scrambledSeed": 11
+    }
+   ]
+  },
+  {
+   "case": "Wimfenjor Fenze x Golkelnu",
+   "scrambledSeed": "Kewim",
+   "forwardRank": 6,
+   "noMeasurement": false,
+   "realRank": 4,
+   "realHit": false,
+   "scrambledRank": 5,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Golkelnu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Muplo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Mupmuprost",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Quinsev",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Sokelvex",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Tikenu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Minu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Goljorrost",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Ratam x Kelwimdar",
+   "scrambledSeed": "Nutiso",
+   "forwardRank": 7,
+   "noMeasurement": false,
+   "realRank": 5,
+   "realHit": false,
+   "scrambledRank": 8,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Kelwimdar",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rostjorgol",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Raquin Tamhap",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Wimze",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Minu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapvoquin",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Zerost",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nugoljor Golzeke",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Fenbapell Rostze x Loratam Loquinkel",
+   "scrambledSeed": "Vohapti",
+   "forwardRank": 4,
+   "noMeasurement": false,
+   "realRank": 2,
+   "realHit": false,
+   "scrambledRank": 1,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Loratam Loquinkel",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Kegoltam",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellpellvo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Rostvo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Kelpellti Tamnobfen",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Wimnob",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Kevexnu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Ragolsev Fenkel",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  },
+  {
+   "case": "Zeke Mupgol x Nobbanob Pellvexvo",
+   "scrambledSeed": "Kelfenkel Ramup",
+   "forwardRank": 6,
+   "noMeasurement": false,
+   "realRank": 3,
+   "realHit": false,
+   "scrambledRank": 4,
+   "scrambledHit": false,
+   "cells": [
+    {
+     "name": "Nobbanob Pellvexvo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Vexkel Wimnu",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Fenzenob Quinmilo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Nulovo",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Pellra",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Bafen",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Fenke",
+     "seed": null,
+     "scrambledSeed": null
+    },
+    {
+     "name": "Hapti",
+     "seed": null,
+     "scrambledSeed": null
+    }
+   ]
+  }
+ ]
+}
