@@ -77,7 +77,14 @@ export default function Challenge({ cases, protocol, strip }: { cases: Challenge
         {/* challenge persona (Oct 15): six numbers in one sentence; lead with the one that passed */}
         <p className="mt-1">{protocol.line} An earlier test, {protocol.v1.hits} of {protocol.v1.scored}, missed its bar. Both were frozen in git before they ran.</p>
         <p className="mt-1 text-sm text-ink-3">A hit for Qloo&apos;s data is the real partner in its top three of eight, not first. Your score and its score count different things and aren&apos;t added together.</p>
-        {strip}
+        {/* the strip names every case's real partner, so it stays folded until the last case is played (W5b, real Oct
+            25: the open strip gave away the answer to the case above it) */}
+        {done ? strip : (
+          <details className="mt-4">
+            <summary className={`${btnText} cursor-pointer`}>See all {order.length} results (this shows every answer)</summary>
+            {strip}
+          </details>
+        )}
         <p className="mt-2 flex flex-wrap gap-x-4">
           <Link href="/audit#replays" className={btnText}>The tests on the audit</Link>
           {done && <button type="button" onClick={() => setState({ seed: Math.floor(Math.random() * 2 ** 31) + 1, at: 0, picks: {} })} className={btnText}>Start over</button>}
