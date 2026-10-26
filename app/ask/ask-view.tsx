@@ -405,6 +405,8 @@ function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes
   if (q && asked && "case" in asked) q.set("case", asked.case);
   const key = q?.toString() ?? "";
   useEffect(() => {
+    // a reset when the ask changes, as before (lint fix J3b, real Oct 25: behavior unchanged)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!key) return setV(null);
     if (given) return setV(given);
     let live = true;

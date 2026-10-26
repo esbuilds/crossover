@@ -26,6 +26,8 @@ const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", 
 
 export default function Challenge({ cases, protocol, strip }: { cases: ChallengeCase[]; protocol: { v1: Tally; v2: Tally; line: string }; strip: ReactNode }) {
   const [state, setState] = useState<Saved | null>(null);
+  // localStorage exists only after mount, so the saved run is read here, not in useState (no hydration mismatch)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setState(load() ?? { seed: Math.floor(Math.random() * 2 ** 31) + 1, at: 0, picks: {} }), []);
   useEffect(() => { if (state) save(state); }, [state]);
   if (!state) return <p className="mt-6 min-h-64 text-sm text-ink-3">Shuffling the cases...</p>;
