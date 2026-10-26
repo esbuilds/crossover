@@ -298,9 +298,9 @@ export function AskHeadline({ seed }: { seed?: string }) {
     <>
       <h1 className="font-display text-2xl sm:text-3xl">{seed ? `Who should ${displayName(seed)} call first?` : "One name in. Who should they call first?"}</h1>
       <p className="mt-3 max-w-lead text-lg text-ink-2 sm:mt-4">
-        {/* phones get the short line, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
-        <span className="sm:hidden">Every number comes from Qloo; every name and number in the answer is checked.</span>
-        <span className="max-sm:hidden">The agent decides what to measure next and why; every number comes from Qloo, and every name and number in its answer is checked against the step it cites.</span>
+        {/* one sentence in the HTML, so a text reader gets it once (judge round, real Oct 25); phones skip the two
+            clauses, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
+        Every number comes from Qloo<span className="max-sm:hidden">, the agent decides what to measure next and why,</span> and every name and number in the answer is checked<span className="max-sm:hidden"> against the step it cites</span>.
       </p>
     </>
   );
