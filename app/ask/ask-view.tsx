@@ -300,24 +300,22 @@ export default function AskView({ initial, pending, proof, caught, play = false 
       )}
 
       {/* 5. How it got here: the six steps, each folded to its result and opening to the why, the fork and the picture */}
+      {/* only once there are steps: an empty one in the share page's fallback was a second #steps in the HTML */}
+      {steps.length > 0 && (
       <section id="steps" className="mt-section scroll-mt-4">
-        {steps.length > 0 && (
-          <>
-            <h2 className="font-display text-xl">How it got here</h2>
-            <p className="mt-1 max-w-copy text-sm text-ink-3">Each step is one measurement the agent chose to make in Qloo. Open one for what it asked and why.</p>
-          </>
-        )}
-        <ol className={steps.length > 0 ? "mt-4 border-b border-rule" : ""}>
+        <h2 className="font-display text-xl">How it got here</h2>
+        <p className="mt-1 max-w-copy text-sm text-ink-3">Each step is one measurement the agent chose to make in Qloo. Open one for what it asked and why.</p>
+        <ol className="mt-4 border-b border-rule">
           {/* every step holds its room from the start, so nothing re-flows as the replay lands them (MO F4) */}
           {steps.map((s) => (
             <li key={s.n} id={`step-${s.n}`} aria-hidden={s.n > landed || undefined} className={`scroll-mt-4 border-t border-rule ${s.n > landed ? "invisible" : landed !== Infinity ? "motion-safe:animate-[step-in_240ms_cubic-bezier(0.22,1,0.36,1)_backwards]" : ""}`}>
               <details className="group">
                 <summary className="flex min-h-11 cursor-pointer items-baseline gap-x-3 py-3 text-base">
-                  <span className="rail-num shrink-0 self-center border-ink bg-ink text-surface" aria-hidden>{s.n}</span>
-                  <span className="sr-only">{s.n}. </span>
+                  {/* the badge's number is drawn by CSS (data-n), so a text reader gets one line: "1. Find the name ..." */}
+                  <span className="rail-num shrink-0 self-center border-ink bg-ink text-surface" data-n={s.n} aria-hidden />
                   {/* the step's name, then its result: beside it from 640, under it on phones */}
                   <span className="min-w-0 flex-1">
-                    <span className="font-medium text-ink sm:mr-3">{TOOL_LABEL[s.tool] ?? s.tool}</span>
+                    <span className="font-medium text-ink sm:mr-2"><span className="sr-only">{s.n}. </span>{TOOL_LABEL[s.tool] ?? s.tool}</span>{" "}
                     <span className="text-ink-2 max-sm:block">{s.summary || (status === "running" ? <span className="working font-mono text-sm">Reading Qloo...</span> : "Qloo didn't answer this step; the steps above are what was measured.")}</span>
                   </span>
                   <Chevron />
@@ -333,6 +331,7 @@ export default function AskView({ initial, pending, proof, caught, play = false 
           ))}
         </ol>
       </section>
+      )}
 
       {/* 6. Proof: one quiet line; the checker, the cost, the counterexample, the limits and the agent's notes fold under
           it. Every line stays in the page */}

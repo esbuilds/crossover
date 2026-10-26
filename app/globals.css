@@ -280,6 +280,9 @@ summary::-webkit-details-marker {
     justify-content: center;
   }
 }
+.rail-num[data-n]::before {
+  content: attr(data-n);
+}
 li.is-on .rail-step {
   color: var(--color-ink);
 }
