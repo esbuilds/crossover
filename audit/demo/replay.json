@@ -1,0 +1,729 @@
+{
+ "demo": true,
+ "stage": "scored",
+ "builtAt": "2026-10-13",
+ "cases": [
+  {
+   "seed": "Rapellso",
+   "partner": "Golvojor",
+   "year": 2020,
+   "what": "fried-chicken clogs",
+   "source": "https://www.fox6now.com/news/kfc-crocs-create-clog-thats-covered-in-fried-chicken-with-a-charm-that-smells-like-it-too",
+   "seedId": "C0B314F0-B825-4F80-A54D-FAE38AC51A27",
+   "seedMatched": "Rapellso",
+   "partnerId": "C7E3778C-300E-4CC9-B0E4-5322153210CD",
+   "partnerMatched": "Jorke",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:dining",
+    "name": "Zehap"
+   },
+   "decoys": [
+    {
+     "name": "Bapell",
+     "id": "217AE54A-F81D-4030-B356-8FCE8F393054",
+     "popularity": 1
+    },
+    {
+     "name": "Zekequin",
+     "id": "0C74AC88-E358-4764-8334-A23DA5B1B147",
+     "popularity": 0.87
+    },
+    {
+     "name": "Mupvo",
+     "id": "CB9070F6-A753-4A73-BB30-E0ABB4A33B77",
+     "popularity": 1
+    },
+    {
+     "name": "Kewim",
+     "id": "6E309CC6-58A2-4689-93BA-3BD957C838D5",
+     "popularity": 1
+    },
+    {
+     "name": "Banob",
+     "id": "821B1A9D-18E7-4430-9E95-9FD1F5931E80",
+     "popularity": 0.14
+    },
+    {
+     "name": "Tamjorso Kefenti",
+     "id": "5797AD5B-074F-4834-AFF7-F2F59BB0F963",
+     "popularity": 1
+    },
+    {
+     "name": "Vosevgol",
+     "id": "FDA77768-561B-4FC7-9046-457D38C1F4D8",
+     "popularity": 1
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 8,
+    "of": 8,
+    "affinity": 0.86,
+    "top": 0.15,
+    "inTopGroup": true,
+    "popularityRank": 3
+   },
+   "scores": {
+    "C7E3778C-300E-4CC9-B0E4-5322153210CD": 0.74,
+    "217AE54A-F81D-4030-B356-8FCE8F393054": 0.9,
+    "0C74AC88-E358-4764-8334-A23DA5B1B147": 0.15,
+    "CB9070F6-A753-4A73-BB30-E0ABB4A33B77": 0.7,
+    "6E309CC6-58A2-4689-93BA-3BD957C838D5": 0.81,
+    "821B1A9D-18E7-4430-9E95-9FD1F5931E80": 0.69,
+    "5797AD5B-074F-4834-AFF7-F2F59BB0F963": 0.63,
+    "FDA77768-561B-4FC7-9046-457D38C1F4D8": 0.61
+   }
+  },
+  {
+   "seed": "Zekequin",
+   "partner": "Vohapti",
+   "year": 2012,
+   "what": "Vohapti Locos Tacos",
+   "source": "https://www.nrn.com/restaurant-insights/taco-bell-s-doritos-locos-tacos-to-debut-nationwide",
+   "seedId": "0C74AC88-E358-4764-8334-A23DA5B1B147",
+   "seedMatched": "Zekequin",
+   "partnerId": "47B4E23D-36E3-4D41-AF3D-3AE09392A578",
+   "partnerMatched": "Vohapti",
+   "partnerPopularity": 0.79,
+   "tag": {
+    "id": "urn:tag:genre:brand:food_and_beverage:food:packaged:snacks",
+    "name": "Nobwimjor"
+   },
+   "decoys": [
+    {
+     "name": "Hapquinso Sevkenu",
+     "id": "B22FDC32-D8A3-4995-AC32-2A75DBFE563F",
+     "popularity": 0.75
+    },
+    {
+     "name": "Fenfen",
+     "id": "B3C7BABB-0FEA-4BFB-B99E-16D0C0F74A03",
+     "popularity": 0.57
+    },
+    {
+     "name": "Mihapjor",
+     "id": "DDF855BA-2CDE-4164-8168-1B98E39BBBBC",
+     "popularity": 0.36
+    },
+    {
+     "name": "Nutiso",
+     "id": "133FED6E-CAF8-4CEA-B357-1E9FAE18DF52",
+     "popularity": 0.83
+    },
+    {
+     "name": "Pellgol",
+     "id": "1005779D-1DB9-45B8-9F12-563E5722948F",
+     "popularity": 0.46
+    },
+    {
+     "name": "Jorzejor",
+     "id": "3F1D9C0C-9EDB-45C1-88D7-8A44D6443B90",
+     "popularity": 0.34
+    },
+    {
+     "name": "Pelllojor",
+     "id": "E683B350-8D94-4BFA-B9D0-9A047DEE8B94",
+     "popularity": 0.24
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 8,
+    "of": 8,
+    "affinity": 0.26,
+    "top": 0.61,
+    "inTopGroup": true,
+    "popularityRank": 5
+   },
+   "scores": {
+    "47B4E23D-36E3-4D41-AF3D-3AE09392A578": 0.42,
+    "B22FDC32-D8A3-4995-AC32-2A75DBFE563F": 0.55,
+    "B3C7BABB-0FEA-4BFB-B99E-16D0C0F74A03": 0.57,
+    "DDF855BA-2CDE-4164-8168-1B98E39BBBBC": 0.13,
+    "133FED6E-CAF8-4CEA-B357-1E9FAE18DF52": 0.56,
+    "1005779D-1DB9-45B8-9F12-563E5722948F": 0.42,
+    "3F1D9C0C-9EDB-45C1-88D7-8A44D6443B90": 0.87,
+    "E683B350-8D94-4BFA-B9D0-9A047DEE8B94": 0.36
+   }
+  },
+  {
+   "seed": "Jortam Haprost",
+   "partner": "Soloquin Quinsowim",
+   "year": 2020,
+   "what": "branded Oreos",
+   "source": "https://www.foxbusiness.com/luxury/supreme-oreo-collaboration",
+   "seedId": "13F9CEF9-5C6D-42CA-B64B-F640019ACEBF",
+   "seedMatched": "Jortam Haprost",
+   "partnerId": "7AE7A169-21DC-474E-8E7A-ACE4249D4C0C",
+   "partnerMatched": "Soloquin Quinsowim",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:food_and_beverage:food:bakery",
+    "name": "Wimso Nobwim"
+   },
+   "decoys": [
+    {
+     "name": "Rajor Pellwim",
+     "id": "0D0BF29A-41A1-4C50-8263-1C81C9091FD7",
+     "popularity": 0.72
+    },
+    {
+     "name": "Hapsevvo",
+     "id": "58F2CFD1-FB40-4C4C-9069-9EB86A53F991",
+     "popularity": 0.22
+    },
+    {
+     "name": "Darnu Tiloquin",
+     "id": "D4EB2EA1-9E97-4C0B-955A-2B8DAA04C5F5",
+     "popularity": 0.28
+    },
+    {
+     "name": "Nobvo Nobgol",
+     "id": "3D3412DB-C794-452D-8906-0A0E730AB9C3",
+     "popularity": 0.7
+    },
+    {
+     "name": "Tijorkel Wimfen",
+     "id": "90335CD3-4543-4DC6-B812-B75C3BCDB732",
+     "popularity": 0.25
+    },
+    {
+     "name": "Kevo",
+     "id": "CD6FE166-E8E0-49BF-A959-DB245E43DBAB",
+     "popularity": 0.28
+    },
+    {
+     "name": "Quinfen",
+     "id": "BFB25F21-B511-4819-9AD9-4A1612BF6B92",
+     "popularity": 0.93
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 6,
+    "of": 8,
+    "affinity": 0.57,
+    "top": 0.04,
+    "inTopGroup": true,
+    "popularityRank": 6
+   },
+   "scores": {
+    "7AE7A169-21DC-474E-8E7A-ACE4249D4C0C": 0.58,
+    "0D0BF29A-41A1-4C50-8263-1C81C9091FD7": 0.95,
+    "58F2CFD1-FB40-4C4C-9069-9EB86A53F991": 0.99,
+    "D4EB2EA1-9E97-4C0B-955A-2B8DAA04C5F5": 0.4,
+    "3D3412DB-C794-452D-8906-0A0E730AB9C3": 0.07,
+    "90335CD3-4543-4DC6-B812-B75C3BCDB732": 0.42,
+    "CD6FE166-E8E0-49BF-A959-DB245E43DBAB": 0.88,
+    "BFB25F21-B511-4819-9AD9-4A1612BF6B92": 0.41
+   }
+  },
+  {
+   "seed": "Rostrosthap Nobjorrost",
+   "partner": "Nuvo",
+   "year": 2015,
+   "what": "music partnership",
+   "source": "https://fortune.com/2015/05/18/starbucks-spotify-music-streaming",
+   "seedId": "876BBE88-24F0-466E-911D-6EC16BD6F800",
+   "seedMatched": "Rostrosthap Nobjorrost",
+   "partnerId": "74EC36A5-4C07-4854-9BA1-0FD3688235A1",
+   "partnerMatched": "Nuvo",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:mobile_app:streaming_service",
+    "name": "Darjor"
+   },
+   "decoys": [
+    {
+     "name": "Jorsevrost",
+     "id": "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1",
+     "popularity": 1
+    },
+    {
+     "name": "Babahap",
+     "id": "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE",
+     "popularity": 1
+    },
+    {
+     "name": "Darlo",
+     "id": "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1",
+     "popularity": 1
+    },
+    {
+     "name": "Pellrostti",
+     "id": "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2",
+     "popularity": 1
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "id": "A348AE65-011C-4E3A-A0FA-D63DBD460B71",
+     "popularity": 0.16
+    },
+    {
+     "name": "Darsokel",
+     "id": "E23515E8-C4A5-4FA4-9EEE-513DCC492070",
+     "popularity": 0.73
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "id": "C4CA18F5-81F4-4112-930C-5D6D0C035A0D",
+     "popularity": 0.07
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 5,
+    "of": 8,
+    "affinity": 0.27,
+    "top": 0.46,
+    "inTopGroup": true,
+    "popularityRank": 1
+   },
+   "scores": {
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.22,
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.5,
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.43,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.65,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.05,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.47,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.19,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.03
+   }
+  },
+  {
+   "seed": "Wimze",
+   "partner": "Lolo Sofenso",
+   "year": 2006,
+   "what": "Wimze+iPod",
+   "source": "https://apple.com/newsroom/2006/05/23Nike-and-Lolo Sofenso-Team-Up-to-Launch-Wimze-iPod",
+   "dropped": "decoy rule check before the freeze: Qloo's most specific tag for Lolo Sofenso is Headphones: decoys are gaming headsets and Beats, which Lolo Sofenso owns"
+  },
+  {
+   "seed": "Vodar Fenmupkel",
+   "partner": "Nuvo",
+   "year": 2014,
+   "what": "in-car music",
+   "source": "https://fortune.com/2014/11/17/spotify-moves-into-cars-with-uber-partnership",
+   "seedId": "14F90CB3-320C-4680-B6EF-E0452646F6F0",
+   "seedMatched": "Vodar Fenmupkel",
+   "partnerId": "74EC36A5-4C07-4854-9BA1-0FD3688235A1",
+   "partnerMatched": "Nuvo",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:mobile_app:streaming_service",
+    "name": "Darjor"
+   },
+   "decoys": [
+    {
+     "name": "Jorsevrost",
+     "id": "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1",
+     "popularity": 1
+    },
+    {
+     "name": "Babahap",
+     "id": "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE",
+     "popularity": 1
+    },
+    {
+     "name": "Darlo",
+     "id": "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1",
+     "popularity": 1
+    },
+    {
+     "name": "Pellrostti",
+     "id": "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2",
+     "popularity": 1
+    },
+    {
+     "name": "Vonob Mupvogol",
+     "id": "A348AE65-011C-4E3A-A0FA-D63DBD460B71",
+     "popularity": 0.65
+    },
+    {
+     "name": "Darsokel",
+     "id": "E23515E8-C4A5-4FA4-9EEE-513DCC492070",
+     "popularity": 0.06
+    },
+    {
+     "name": "Quinmup Mizevo",
+     "id": "C4CA18F5-81F4-4112-930C-5D6D0C035A0D",
+     "popularity": 0.87
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 4,
+    "of": 8,
+    "affinity": 0.99,
+    "top": 0.86,
+    "inTopGroup": true,
+    "popularityRank": 7
+   },
+   "scores": {
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.1,
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.47,
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.07,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.36,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.93,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.24,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.66,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.3
+   }
+  },
+  {
+   "seed": "Zevex",
+   "partner": "Pellnobmi",
+   "year": 2020,
+   "what": "BYGGLEK storage",
+   "source": "https://www.lego.com/aboutus/news/2020/august/ikea-bygglek",
+   "dropped": "Pellnobmi has no brand genre tag"
+  },
+  {
+   "seed": "Zekenob",
+   "partner": "Rarost Bafen",
+   "year": 2023,
+   "what": "vodka pasta sauce",
+   "source": "https://www.itv.com/news/2023-03-22/heinz-partners-with-absolut-to-create-pasta-alla-vodka-sauce",
+   "seedId": "CB25A01C-877C-4B32-A3E8-27A210EE0B9E",
+   "seedMatched": "Bahapti Wimdar",
+   "partnerId": "FBA83AD2-F2D2-4FC7-9E70-14B837B8708D",
+   "partnerMatched": "Quindarnu Goltidar",
+   "partnerPopularity": 0.44,
+   "tag": {
+    "id": "urn:tag:genre:brand:wine_and_spirits:spirits:vodka",
+    "name": "Jorvo Darlo"
+   },
+   "decoys": [
+    {
+     "name": "Wimtamdar",
+     "id": "794ECB9E-5957-4B24-B18C-102F5913E6CC",
+     "popularity": 0.22
+    },
+    {
+     "name": "Fenjornob",
+     "id": "0A401B86-F4C5-47EE-A085-A06762D0A193",
+     "popularity": 0.8
+    },
+    {
+     "name": "Tinob",
+     "id": "EE4F2520-1CAC-4B39-80B4-25186C952A34",
+     "popularity": 0.7
+    },
+    {
+     "name": "Nobvex Kelwim",
+     "id": "036C4BF1-69DC-4E4E-9D20-CDE0AB0144F0",
+     "popularity": 0.8
+    },
+    {
+     "name": "Sevrost Quinbagol",
+     "id": "CF82586E-0F8A-4F37-BC8E-28DF78590C8F",
+     "popularity": 0.11
+    },
+    {
+     "name": "Kekel",
+     "id": "925219C9-82D2-43D0-8519-3E42C3CB2151",
+     "popularity": 0.13
+    },
+    {
+     "name": "Jorwimra",
+     "id": "7875AB88-E009-495C-BD6A-92DF4D8B6C87",
+     "popularity": 0.21
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 7,
+    "of": 8,
+    "affinity": 0.03,
+    "top": 0.31,
+    "inTopGroup": true,
+    "popularityRank": 3
+   },
+   "scores": {
+    "FBA83AD2-F2D2-4FC7-9E70-14B837B8708D": 0.18,
+    "794ECB9E-5957-4B24-B18C-102F5913E6CC": 0.21,
+    "0A401B86-F4C5-47EE-A085-A06762D0A193": 0.08,
+    "EE4F2520-1CAC-4B39-80B4-25186C952A34": 0.89,
+    "036C4BF1-69DC-4E4E-9D20-CDE0AB0144F0": 0.89,
+    "CF82586E-0F8A-4F37-BC8E-28DF78590C8F": 0.69,
+    "925219C9-82D2-43D0-8519-3E42C3CB2151": 0.36,
+    "7875AB88-E009-495C-BD6A-92DF4D8B6C87": 0.23
+   }
+  },
+  {
+   "seed": "Zekequin",
+   "partner": "Nobdar",
+   "year": 2017,
+   "what": "clothing line",
+   "source": "https://www.foxla.com/news/taco-bell-and-forever-21-launching-clothing-and-accessories-line",
+   "dropped": "decoy rule check before the freeze: Qloo's most specific tag for Nobdar is 'Other': decoys are luxury houses, not fast fashion"
+  },
+  {
+   "seed": "Zeke Mupgol",
+   "partner": "Somi Mirost",
+   "year": 2022,
+   "what": "makeup collection",
+   "source": "https://investor.elfbeauty.com/stock-and-financial/press-releases/landing-news/2022/03-30-2022",
+   "dropped": "decoy rule check before the freeze: Health & Beauty decoys include fashion houses (Pellti Golranob, Oscar De La Renta)"
+  },
+  {
+   "seed": "Nusonu",
+   "partner": "Raquin Tamhap",
+   "year": 2021,
+   "what": "FUTURECRAFT.FOOTPRINT low-carbon shoe",
+   "source": "https://nbcnews.com/shopping/footwear/adidas-allbirds-sustainable-shoe-n1267111",
+   "dropped": "decoy rule check before the freeze: Qloo's most specific tag for Raquin Tamhap is Basketball, not the partner's category for a running shoe"
+  },
+  {
+   "seed": "Rostrosthap Nobjorrost",
+   "partner": "Sevvexjor",
+   "year": 2024,
+   "what": "co-branded tumblers (source undated; Golnu Darsev release early 2024)",
+   "source": "https://www.nbcnewyork.com/news/national-international/starbucks-latest-stanley-cup-collaboration-causes-mayhem-at-target/",
+   "dropped": "Sevvexjor has no brand genre tag"
+  },
+  {
+   "seed": "Kewim",
+   "partner": "Nutiso",
+   "year": 2020,
+   "what": "Baconator-flavor chips",
+   "source": "https://drugstorenews.com/pringles-packs-wendys-baconator-flavors-its-chips",
+   "seedId": "6E309CC6-58A2-4689-93BA-3BD957C838D5",
+   "seedMatched": "Kewim",
+   "partnerId": "133FED6E-CAF8-4CEA-B357-1E9FAE18DF52",
+   "partnerMatched": "Nutiso",
+   "partnerPopularity": 0.91,
+   "tag": {
+    "id": "urn:tag:genre:brand:food_and_beverage:food:packaged:snacks",
+    "name": "Nobwimjor"
+   },
+   "decoys": [
+    {
+     "name": "Mihapjor",
+     "id": "DDF855BA-2CDE-4164-8168-1B98E39BBBBC",
+     "popularity": 0.56
+    },
+    {
+     "name": "Fenfen",
+     "id": "B3C7BABB-0FEA-4BFB-B99E-16D0C0F74A03",
+     "popularity": 0.27
+    },
+    {
+     "name": "Hapquinso Sevkenu",
+     "id": "B22FDC32-D8A3-4995-AC32-2A75DBFE563F",
+     "popularity": 0.54
+    },
+    {
+     "name": "Vohapti",
+     "id": "47B4E23D-36E3-4D41-AF3D-3AE09392A578",
+     "popularity": 0.42
+    },
+    {
+     "name": "Pellgol",
+     "id": "1005779D-1DB9-45B8-9F12-563E5722948F",
+     "popularity": 0.96
+    },
+    {
+     "name": "Jorzejor",
+     "id": "3F1D9C0C-9EDB-45C1-88D7-8A44D6443B90",
+     "popularity": 0.62
+    },
+    {
+     "name": "Pelllojor",
+     "id": "E683B350-8D94-4BFA-B9D0-9A047DEE8B94",
+     "popularity": 0.39
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 4,
+    "of": 8,
+    "affinity": 0.78,
+    "top": 0.88,
+    "inTopGroup": true,
+    "popularityRank": 2
+   },
+   "scores": {
+    "133FED6E-CAF8-4CEA-B357-1E9FAE18DF52": 0.57,
+    "DDF855BA-2CDE-4164-8168-1B98E39BBBBC": 0.18,
+    "B3C7BABB-0FEA-4BFB-B99E-16D0C0F74A03": 0.4,
+    "B22FDC32-D8A3-4995-AC32-2A75DBFE563F": 0.97,
+    "47B4E23D-36E3-4D41-AF3D-3AE09392A578": 0.93,
+    "1005779D-1DB9-45B8-9F12-563E5722948F": 0.59,
+    "3F1D9C0C-9EDB-45C1-88D7-8A44D6443B90": 0.73,
+    "E683B350-8D94-4BFA-B9D0-9A047DEE8B94": 0.87
+   }
+  },
+  {
+   "seed": "Solo",
+   "partner": "Mike Sevnobmi",
+   "year": 2016,
+   "what": "Jacquard Commuter Trucker jacket",
+   "source": "https://levistrauss.com/2016/05/20/function-meets-fashion-levis-commuter-x-jacquard-by-google",
+   "seedId": "6D94EF60-B5AD-461D-A827-BD0F63CC23FA",
+   "seedMatched": "Rostlo Sevba",
+   "partnerId": "BC8827B4-4B12-4222-996C-C828D2A354AE",
+   "partnerMatched": "Mike Sevnobmi",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:electronics:phones_and_tablets",
+    "name": "Bafenquin Fensev"
+   },
+   "decoys": [
+    {
+     "name": "Golso Nuti",
+     "id": "836EC8A2-2F9D-4F70-B8C7-BC27D6EF90B1",
+     "popularity": 1
+    },
+    {
+     "name": "Tisev",
+     "id": "AD21EE3B-4423-4D11-A108-759031DC5342",
+     "popularity": 1
+    },
+    {
+     "name": "Rostrostba Rafenwim",
+     "id": "3BB3CA3B-C6F9-4E77-A5EB-6652EB7C6440",
+     "popularity": 1
+    },
+    {
+     "name": "Votamwim",
+     "id": "BF9CA7DA-4528-4ECA-95D7-492E8A6A4FC5",
+     "popularity": 1
+    },
+    {
+     "name": "Mikelnob",
+     "id": "5D7C1C15-C0F6-46F7-BBB6-D191608E232B",
+     "popularity": 1
+    },
+    {
+     "name": "Tammup Pellpellgol",
+     "id": "38CABB08-80FE-4818-B311-49EF8DE60B67",
+     "popularity": 1
+    },
+    {
+     "name": "Tamquin",
+     "id": "15BD18F7-5906-4B89-974C-C927E8ADFF1D",
+     "popularity": 1
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 7,
+    "of": 8,
+    "affinity": 0.96,
+    "top": 0.2,
+    "inTopGroup": false,
+    "popularityRank": 5
+   },
+   "scores": {
+    "BC8827B4-4B12-4222-996C-C828D2A354AE": 0.88,
+    "836EC8A2-2F9D-4F70-B8C7-BC27D6EF90B1": 0.75,
+    "AD21EE3B-4423-4D11-A108-759031DC5342": 0.11,
+    "3BB3CA3B-C6F9-4E77-A5EB-6652EB7C6440": 0.45,
+    "BF9CA7DA-4528-4ECA-95D7-492E8A6A4FC5": 0.96,
+    "5D7C1C15-C0F6-46F7-BBB6-D191608E232B": 0.95,
+    "38CABB08-80FE-4818-B311-49EF8DE60B67": 0.59,
+    "15BD18F7-5906-4B89-974C-C927E8ADFF1D": 0.28
+   }
+  },
+  {
+   "seed": "Kelfenkel Ramup",
+   "partner": "Keljorhap",
+   "year": 2023,
+   "what": "multi-year partnership",
+   "source": "https://fashionunited.com/news/business/lululemon-and-peloton-establish-multi-year-deal/2023092856086",
+   "seedId": "4DA353CB-75AE-4D1D-8310-8DF388F96058",
+   "seedMatched": "Kelfenkel Ramup",
+   "partnerId": "2873CFDA-AE89-4D95-B021-9024BEA9A3F8",
+   "partnerMatched": "Keljorhap",
+   "partnerPopularity": 1,
+   "tag": {
+    "id": "urn:tag:genre:brand:fashion:athletic",
+    "name": "Mupra"
+   },
+   "decoys": [
+    {
+     "name": "Nugoljor Golzeke",
+     "id": "87C93D56-EA56-42F5-8B70-7E3B154D4793",
+     "popularity": 1
+    },
+    {
+     "name": "Rosttamze Keti",
+     "id": "0156F9F2-DFAF-4623-B27E-15E96E8FC176",
+     "popularity": 1
+    },
+    {
+     "name": "Hapfenkel Sonob",
+     "id": "AFAD3249-4020-4C53-A5A7-663144BFC6B1",
+     "popularity": 1
+    },
+    {
+     "name": "Sokelvex",
+     "id": "96A00D14-EE9E-4C72-A05D-8D299E8A8086",
+     "popularity": 0.73
+    },
+    {
+     "name": "Darvexjor",
+     "id": "B55A9A13-285F-4675-8AEB-3828B5C993E2",
+     "popularity": 0.12
+    },
+    {
+     "name": "Kelwimdar",
+     "id": "AB76D105-81F2-4F94-A0E6-6A374AF76363",
+     "popularity": 1
+    },
+    {
+     "name": "Hapti",
+     "id": "6F75C9DE-612B-4190-9721-E82F8288207D",
+     "popularity": 0.33
+    }
+   ],
+   "result": {
+    "state": "scored",
+    "rank": 7,
+    "of": 8,
+    "affinity": 0.61,
+    "top": 0.65,
+    "inTopGroup": true,
+    "popularityRank": 5
+   },
+   "scores": {
+    "2873CFDA-AE89-4D95-B021-9024BEA9A3F8": 0.07,
+    "87C93D56-EA56-42F5-8B70-7E3B154D4793": 0.09,
+    "0156F9F2-DFAF-4623-B27E-15E96E8FC176": 0.4,
+    "AFAD3249-4020-4C53-A5A7-663144BFC6B1": 0.15,
+    "96A00D14-EE9E-4C72-A05D-8D299E8A8086": 0.88,
+    "B55A9A13-285F-4675-8AEB-3828B5C993E2": 0.62,
+    "AB76D105-81F2-4F94-A0E6-6A374AF76363": 0.52,
+    "6F75C9DE-612B-4190-9721-E82F8288207D": 0.52
+   }
+  },
+  {
+   "seed": "Losevwim Zetisev",
+   "partner": "Vora",
+   "year": 2021,
+   "what": "Vora Losevwim Zetisev Cadillac Seville",
+   "source": "https://www.brandsuntapped.com/mattel-celebrates-100-years-of-gucci-with-hot-wheels-gucci-cadillac-seville/",
+   "dropped": "Vora has no brand genre tag"
+  },
+  {
+   "seed": "Tamtiso",
+   "partner": "Vorostke Wimke",
+   "year": 2022,
+   "what": "Barbie and Vora kids' meal toys",
+   "source": "https://www.licenseglobal.com/toys-games/burger-king-celebrates-inclusion-with-barbie-and-hot-wheels-toys",
+   "dropped": "Vorostke Wimke has no brand genre tag"
+  }
+ ],
+ "scoredAt": "2026-10-13",
+ "summary": {
+  "scored": 9,
+  "hits": 6,
+  "need": 7,
+  "pass": false,
+  "meanRank": 2.44,
+  "chanceMeanRank": 4.5,
+  "pOfAtLeast": 0.4
+ }
+}

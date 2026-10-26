@@ -1,0 +1,149 @@
+{
+ "demo": true,
+ "builtAt": "2026-10-21",
+ "note": "Re-analysis of numbers already in audit/replay.json and audit/replay-v2.json, not a pre-registered test. The popularityRank field stored there sorts the real partner first among equal popularities, so it favors the partner and is not a result; expectedTopThree breaks those ties at random.",
+ "scored": 23,
+ "expectedTopThree": 10.6,
+ "storedTopThree": 21,
+ "affinityTopThree": 17,
+ "cases": [
+  {
+   "pair": "Rapellso x Golvojor",
+   "chance": 0.05,
+   "storedPopularityRank": 8,
+   "affinityRank": 8
+  },
+  {
+   "pair": "Zekequin x Vohapti",
+   "chance": 0.2,
+   "storedPopularityRank": 4,
+   "affinityRank": 8
+  },
+  {
+   "pair": "Jortam Haprost x Soloquin Quinsowim",
+   "chance": 1,
+   "storedPopularityRank": 8,
+   "affinityRank": 7
+  },
+  {
+   "pair": "Rostrosthap Nobjorrost x Nuvo",
+   "chance": 0.56,
+   "storedPopularityRank": 2,
+   "affinityRank": 3
+  },
+  {
+   "pair": "Vodar Fenmupkel x Nuvo",
+   "chance": 0.94,
+   "storedPopularityRank": 7,
+   "affinityRank": 3
+  },
+  {
+   "pair": "Zekenob x Rarost Bafen",
+   "chance": 0.36,
+   "storedPopularityRank": 7,
+   "affinityRank": 2
+  },
+  {
+   "pair": "Kewim x Nutiso",
+   "chance": 0.48,
+   "storedPopularityRank": 6,
+   "affinityRank": 6
+  },
+  {
+   "pair": "Solo x Mike Sevnobmi",
+   "chance": 0.46,
+   "storedPopularityRank": 5,
+   "affinityRank": 6
+  },
+  {
+   "pair": "Kelfenkel Ramup x Keljorhap",
+   "chance": 0.35,
+   "storedPopularityRank": 3,
+   "affinityRank": 8
+  },
+  {
+   "pair": "Vohapti x Babahap",
+   "chance": 0.93,
+   "storedPopularityRank": 6,
+   "affinityRank": 8
+  },
+  {
+   "pair": "Vohapti x Jorsevrost",
+   "chance": 0.06,
+   "storedPopularityRank": 4,
+   "affinityRank": 7
+  },
+  {
+   "pair": "Ranobvex x Darragol",
+   "chance": 0,
+   "storedPopularityRank": 6,
+   "affinityRank": 6
+  },
+  {
+   "pair": "Wimze x Babahap",
+   "chance": 0.1,
+   "storedPopularityRank": 4,
+   "affinityRank": 6
+  },
+  {
+   "pair": "Tammike Muplomi x Wimze",
+   "chance": 0.06,
+   "storedPopularityRank": 5,
+   "affinityRank": 1
+  },
+  {
+   "pair": "Banob x Rapellso",
+   "chance": 0.07,
+   "storedPopularityRank": 4,
+   "affinityRank": 8
+  },
+  {
+   "pair": "Nuvo x Nugoljor Golzeke",
+   "chance": 0.22,
+   "storedPopularityRank": 6,
+   "affinityRank": 7
+  },
+  {
+   "pair": "Sonob x Zeke Mupgol",
+   "chance": 1,
+   "storedPopularityRank": 5,
+   "affinityRank": 4
+  },
+  {
+   "pair": "Tamvexhap Hapso x Rafenke",
+   "chance": 0.22,
+   "storedPopularityRank": 6,
+   "affinityRank": 8
+  },
+  {
+   "pair": "Nutiso x Rapellso",
+   "chance": 0.37,
+   "storedPopularityRank": 8,
+   "affinityRank": 1
+  },
+  {
+   "pair": "Wimfenjor Fenze x Golkelnu",
+   "chance": 0,
+   "storedPopularityRank": 2,
+   "affinityRank": 5
+  },
+  {
+   "pair": "Ratam x Kelwimdar",
+   "chance": 0.14,
+   "storedPopularityRank": 1,
+   "affinityRank": 3
+  },
+  {
+   "pair": "Fenbapell Rostze x Loratam Loquinkel",
+   "chance": 0.69,
+   "storedPopularityRank": 8,
+   "affinityRank": 6
+  },
+  {
+   "pair": "Zeke Mupgol x Nobbanob Pellvexvo",
+   "chance": 0.33,
+   "storedPopularityRank": 8,
+   "affinityRank": 1
+  }
+ ]
+}

@@ -85,6 +85,8 @@ export default function AuditPage() {
           </div>
         ))}
       </dl>
+      {/* W2 (real Oct 25): the public repo builds on stand-ins (audit/demo/); production never carries the mark */}
+      {"demo" in control && <p className="mt-6 max-w-copy text-sm text-ink-2">Demo data. This copy runs on made-up audit tables, because the real ones are Qloo data and stay private. The live site shows the real tables, and the README says how to rebuild them with a Qloo key.</p>}
 
       {/* persona round 2 (both readers): the page is long; a contents list up top */}
       <nav aria-label="On this page" className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm">

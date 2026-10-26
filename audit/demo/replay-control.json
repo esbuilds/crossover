@@ -1,0 +1,455 @@
+{
+ "demo": true,
+ "stage": "scored",
+ "scoredAt": "2026-10-21",
+ "protocol": "audit/replay-control-protocol.md",
+ "summary": {
+  "cases": 23,
+  "realHits": 17,
+  "scrambledHits": 17,
+  "noMeasurement": 0,
+  "pass": false,
+  "meanScrambledRank": 2.7,
+  "chanceMeanRank": 4.5,
+  "pOfAtLeastScrambled": 0.41
+ },
+ "cases": [
+  {
+   "case": "Rapellso x Golvojor",
+   "scrambledSeed": "Nuvo",
+   "realRank": 1,
+   "scrambledRank": 7,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "C7E3778C-300E-4CC9-B0E4-5322153210CD": 0.25,
+    "217AE54A-F81D-4030-B356-8FCE8F393054": 0.61,
+    "0C74AC88-E358-4764-8334-A23DA5B1B147": 0.46,
+    "CB9070F6-A753-4A73-BB30-E0ABB4A33B77": 0.35,
+    "6E309CC6-58A2-4689-93BA-3BD957C838D5": 0.76,
+    "821B1A9D-18E7-4430-9E95-9FD1F5931E80": 0.81,
+    "5797AD5B-074F-4834-AFF7-F2F59BB0F963": 0.94,
+    "FDA77768-561B-4FC7-9046-457D38C1F4D8": 0.09
+   }
+  },
+  {
+   "case": "Zekequin x Vohapti",
+   "scrambledSeed": "Wimze",
+   "realRank": 6,
+   "scrambledRank": 8,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "47B4E23D-36E3-4D41-AF3D-3AE09392A578": 0.64,
+    "B22FDC32-D8A3-4995-AC32-2A75DBFE563F": 0.52,
+    "B3C7BABB-0FEA-4BFB-B99E-16D0C0F74A03": 0.55,
+    "DDF855BA-2CDE-4164-8168-1B98E39BBBBC": 0.19,
+    "133FED6E-CAF8-4CEA-B357-1E9FAE18DF52": 0.32,
+    "1005779D-1DB9-45B8-9F12-563E5722948F": 0.7,
+    "3F1D9C0C-9EDB-45C1-88D7-8A44D6443B90": 0.97,
+    "E683B350-8D94-4BFA-B9D0-9A047DEE8B94": 0.47
+   }
+  },
+  {
+   "case": "Jortam Haprost x Soloquin Quinsowim",
+   "scrambledSeed": "Vohapti",
+   "realRank": 2,
+   "scrambledRank": 5,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "7AE7A169-21DC-474E-8E7A-ACE4249D4C0C": 0.24,
+    "0D0BF29A-41A1-4C50-8263-1C81C9091FD7": 0.66,
+    "58F2CFD1-FB40-4C4C-9069-9EB86A53F991": 0.29,
+    "D4EB2EA1-9E97-4C0B-955A-2B8DAA04C5F5": 0.88,
+    "3D3412DB-C794-452D-8906-0A0E730AB9C3": 0.77,
+    "90335CD3-4543-4DC6-B812-B75C3BCDB732": 0.9,
+    "CD6FE166-E8E0-49BF-A959-DB245E43DBAB": 0.94,
+    "BFB25F21-B511-4819-9AD9-4A1612BF6B92": 0.66
+   }
+  },
+  {
+   "case": "Rostrosthap Nobjorrost x Nuvo",
+   "scrambledSeed": "Ratam",
+   "realRank": 1,
+   "scrambledRank": 6,
+   "of": 8,
+   "hit": false,
+   "noMeasurement": false,
+   "scores": {
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.38,
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.03,
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.7,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.75,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.01,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.98,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.87,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.74
+   }
+  },
+  {
+   "case": "Vodar Fenmupkel x Nuvo",
+   "scrambledSeed": "Jortam Haprost",
+   "realRank": 7,
+   "scrambledRank": 3,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.02,
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.67,
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.41,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.03,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.82,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.81,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.72,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.1
+   }
+  },
+  {
+   "case": "Zekenob x Rarost Bafen",
+   "scrambledSeed": "Fenbapell Rostze",
+   "realRank": 4,
+   "scrambledRank": 1,
+   "of": 8,
+   "hit": false,
+   "noMeasurement": false,
+   "scores": {
+    "FBA83AD2-F2D2-4FC7-9E70-14B837B8708D": 0.01,
+    "794ECB9E-5957-4B24-B18C-102F5913E6CC": 0.57,
+    "0A401B86-F4C5-47EE-A085-A06762D0A193": 0.93,
+    "EE4F2520-1CAC-4B39-80B4-25186C952A34": 0.01,
+    "036C4BF1-69DC-4E4E-9D20-CDE0AB0144F0": 0.49,
+    "CF82586E-0F8A-4F37-BC8E-28DF78590C8F": 0.24,
+    "925219C9-82D2-43D0-8519-3E42C3CB2151": 0.86,
+    "7875AB88-E009-495C-BD6A-92DF4D8B6C87": 0.86
+   }
+  },
+  {
+   "case": "Kewim x Nutiso",
+   "scrambledSeed": "Vodar Fenmupkel",
+   "realRank": 4,
+   "scrambledRank": 2,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "133FED6E-CAF8-4CEA-B357-1E9FAE18DF52": 0.43,
+    "DDF855BA-2CDE-4164-8168-1B98E39BBBBC": 0.16,
+    "B3C7BABB-0FEA-4BFB-B99E-16D0C0F74A03": 0.63,
+    "B22FDC32-D8A3-4995-AC32-2A75DBFE563F": 0.62,
+    "47B4E23D-36E3-4D41-AF3D-3AE09392A578": 0.96,
+    "1005779D-1DB9-45B8-9F12-563E5722948F": 0.15,
+    "3F1D9C0C-9EDB-45C1-88D7-8A44D6443B90": 0.21,
+    "E683B350-8D94-4BFA-B9D0-9A047DEE8B94": 0.03
+   }
+  },
+  {
+   "case": "Solo x Mike Sevnobmi",
+   "scrambledSeed": "Rapellso",
+   "realRank": 8,
+   "scrambledRank": 8,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "BC8827B4-4B12-4222-996C-C828D2A354AE": 0.06,
+    "836EC8A2-2F9D-4F70-B8C7-BC27D6EF90B1": 0.24,
+    "AD21EE3B-4423-4D11-A108-759031DC5342": 0.74,
+    "3BB3CA3B-C6F9-4E77-A5EB-6652EB7C6440": 0.6,
+    "BF9CA7DA-4528-4ECA-95D7-492E8A6A4FC5": 0.49,
+    "5D7C1C15-C0F6-46F7-BBB6-D191608E232B": 0.77,
+    "38CABB08-80FE-4818-B311-49EF8DE60B67": 0.31,
+    "15BD18F7-5906-4B89-974C-C927E8ADFF1D": 0.31
+   }
+  },
+  {
+   "case": "Kelfenkel Ramup x Keljorhap",
+   "scrambledSeed": "Tammike Muplomi",
+   "realRank": 7,
+   "scrambledRank": 7,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "2873CFDA-AE89-4D95-B021-9024BEA9A3F8": 0.72,
+    "87C93D56-EA56-42F5-8B70-7E3B154D4793": 0.91,
+    "0156F9F2-DFAF-4623-B27E-15E96E8FC176": 0.74,
+    "AFAD3249-4020-4C53-A5A7-663144BFC6B1": 0.94,
+    "96A00D14-EE9E-4C72-A05D-8D299E8A8086": 0.49,
+    "B55A9A13-285F-4675-8AEB-3828B5C993E2": 0.72,
+    "AB76D105-81F2-4F94-A0E6-6A374AF76363": 0.03,
+    "6F75C9DE-612B-4190-9721-E82F8288207D": 0.18
+   }
+  },
+  {
+   "case": "Vohapti x Babahap",
+   "scrambledSeed": "Jornobze",
+   "realRank": 3,
+   "scrambledRank": 7,
+   "of": 8,
+   "hit": false,
+   "noMeasurement": false,
+   "scores": {
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.98,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.81,
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.05,
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.55,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.28,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.75,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.7,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.11
+   }
+  },
+  {
+   "case": "Vohapti x Jorsevrost",
+   "scrambledSeed": "Ranobvex",
+   "realRank": 1,
+   "scrambledRank": 5,
+   "of": 8,
+   "hit": false,
+   "noMeasurement": false,
+   "scores": {
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.19,
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.56,
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.92,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.19,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.09,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.33,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.93,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.06
+   }
+  },
+  {
+   "case": "Ranobvex x Darragol",
+   "scrambledSeed": "Zekequin",
+   "realRank": 5,
+   "scrambledRank": 1,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "BFF6C150-8CC6-446C-8ED9-1955839EB1BF": 0.73,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.84,
+    "00405B98-ACDC-411D-835D-171922CDB7BB": 0.26,
+    "90CAD44A-1651-4D41-A740-152AB0EC91C3": 0.77,
+    "9F4D16E0-2B29-4E00-A597-5BDD24D527DC": 0.46,
+    "7CD4AC8C-79C6-45FF-B7E7-C67A3B200715": 0.34,
+    "EFA1D101-ABD5-43A4-B506-D7C5AF47E81E": 0.88,
+    "B4BAE23B-6657-4536-904A-45C54E19EC73": 0.58
+   }
+  },
+  {
+   "case": "Wimze x Babahap",
+   "scrambledSeed": "Banob",
+   "realRank": 5,
+   "scrambledRank": 6,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "4DB7BA48-4DF7-4E30-9DDF-AAEEDD3FA2DE": 0.67,
+    "243EA6A4-A8C7-43DF-9F40-651CB9DA3EE1": 0.67,
+    "74EC36A5-4C07-4854-9BA1-0FD3688235A1": 0.7,
+    "1E82656E-38BE-4AE9-B7F8-5921E21EE9B1": 0.04,
+    "5CD788C6-9E4D-4E10-8DA2-9A480995ADF2": 0.04,
+    "A348AE65-011C-4E3A-A0FA-D63DBD460B71": 0.58,
+    "E23515E8-C4A5-4FA4-9EEE-513DCC492070": 0.94,
+    "C4CA18F5-81F4-4112-930C-5D6D0C035A0D": 0.79
+   }
+  },
+  {
+   "case": "Tammike Muplomi x Wimze",
+   "scrambledSeed": "Bapell",
+   "realRank": 4,
+   "scrambledRank": 1,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "DF7AB23E-033D-4108-AB6E-98D7014F0723": 0.79,
+    "853BB52F-EB5C-44F2-BD00-49559CED4348": 0.6,
+    "320540ED-F0A7-4F56-9DAD-E673E1010574": 0.06,
+    "AB76D105-81F2-4F94-A0E6-6A374AF76363": 0.69,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.15,
+    "030131F6-55BA-4FA0-ABEC-EB3EE31C3885": 0.23,
+    "D9BCFFE8-0796-4027-B197-89E1709532E9": 0.19,
+    "87C93D56-EA56-42F5-8B70-7E3B154D4793": 0.62
+   }
+  },
+  {
+   "case": "Banob x Rapellso",
+   "scrambledSeed": "Wimnob Mivo",
+   "realRank": 4,
+   "scrambledRank": 4,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "C0B314F0-B825-4F80-A54D-FAE38AC51A27": 0.06,
+    "2E17B21B-05EF-461F-9544-C381F7D454E8": 0.64,
+    "4D01E103-D9E9-4D97-8F21-2F0FBDE5CC2C": 0.31,
+    "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F": 0.64,
+    "E5A4D917-023B-4D9C-9B87-3492961435D6": 0.65,
+    "09D39220-8108-475E-9345-B85A7B575745": 0.38,
+    "050B1C9E-A568-4E96-A013-16F34266CB08": 0.78,
+    "B55A9A13-285F-4675-8AEB-3828B5C993E2": 0.06
+   }
+  },
+  {
+   "case": "Nuvo x Nugoljor Golzeke",
+   "scrambledSeed": "Bahapti Wimdar",
+   "realRank": 8,
+   "scrambledRank": 7,
+   "of": 8,
+   "hit": false,
+   "noMeasurement": false,
+   "scores": {
+    "87C93D56-EA56-42F5-8B70-7E3B154D4793": 0.64,
+    "D9BCFFE8-0796-4027-B197-89E1709532E9": 0.89,
+    "030131F6-55BA-4FA0-ABEC-EB3EE31C3885": 0.37,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.45,
+    "AB76D105-81F2-4F94-A0E6-6A374AF76363": 0.26,
+    "320540ED-F0A7-4F56-9DAD-E673E1010574": 0.53,
+    "853BB52F-EB5C-44F2-BD00-49559CED4348": 0.78,
+    "DF7AB23E-033D-4108-AB6E-98D7014F0723": 0.26
+   }
+  },
+  {
+   "case": "Sonob x Zeke Mupgol",
+   "scrambledSeed": "Tamvexhap Hapso",
+   "realRank": 6,
+   "scrambledRank": 4,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "217AE54A-F81D-4030-B356-8FCE8F393054": 0.59,
+    "876BBE88-24F0-466E-911D-6EC16BD6F800": 0.72,
+    "D85E1D1C-5A83-46A6-9D73-A2B592BC350B": 0.91,
+    "470F7543-6E25-4778-AE9D-071D87C3AB1A": 0.27,
+    "872EBA10-43E4-471E-A3D3-E9E378D867F2": 0.98,
+    "3B2DECDA-E806-4062-BF7C-DC7EC7073C33": 0.03,
+    "94817795-07E3-4A5C-A6A1-CD695654FEBE": 0.34,
+    "6B3349CF-9655-4776-A42A-978D20210BE9": 0.17
+   }
+  },
+  {
+   "case": "Tamvexhap Hapso x Rafenke",
+   "scrambledSeed": "Rostrosthap Nobjorrost",
+   "realRank": 3,
+   "scrambledRank": 1,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "C99B03D6-A3E4-4CB3-A77F-478BE220ADD2": 0.92,
+    "1A85FF0A-825B-4DE3-BEC7-9DF63379D563": 0.77,
+    "F0930F1D-C951-4825-B9ED-8091478F4EB2": 0.38,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.65,
+    "D342AFDC-8D72-415D-BDBB-C412608F5E7B": 0.07,
+    "96A00D14-EE9E-4C72-A05D-8D299E8A8086": 0.02,
+    "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F": 0.11,
+    "7C8EC729-DAD3-4EE8-A2F4-BDF668F5B18F": 0.22
+   }
+  },
+  {
+   "case": "Nutiso x Rapellso",
+   "scrambledSeed": "Rostlo Sevba",
+   "realRank": 8,
+   "scrambledRank": 4,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "C0B314F0-B825-4F80-A54D-FAE38AC51A27": 0.84,
+    "2E17B21B-05EF-461F-9544-C381F7D454E8": 0.41,
+    "4D01E103-D9E9-4D97-8F21-2F0FBDE5CC2C": 0.18,
+    "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F": 0.51,
+    "E5A4D917-023B-4D9C-9B87-3492961435D6": 0.11,
+    "09D39220-8108-475E-9345-B85A7B575745": 0.1,
+    "050B1C9E-A568-4E96-A013-16F34266CB08": 0.21,
+    "B55A9A13-285F-4675-8AEB-3828B5C993E2": 0.88
+   }
+  },
+  {
+   "case": "Wimfenjor Fenze x Golkelnu",
+   "scrambledSeed": "Kewim",
+   "realRank": 4,
+   "scrambledRank": 5,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "8FE8D389-ED55-4B20-8D16-8660919C5E87": 0.45,
+    "025454E3-8BF9-4C6F-8CA9-F41265B26D71": 0.19,
+    "7C8EC729-DAD3-4EE8-A2F4-BDF668F5B18F": 0.85,
+    "5B9B7C7C-761F-4FB5-A9AD-B122B2B8A93F": 0.28,
+    "96A00D14-EE9E-4C72-A05D-8D299E8A8086": 0.34,
+    "D342AFDC-8D72-415D-BDBB-C412608F5E7B": 0.63,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.76,
+    "1B30A802-4F53-4CB8-BD8A-D05748FD32C9": 0.61
+   }
+  },
+  {
+   "case": "Ratam x Kelwimdar",
+   "scrambledSeed": "Nutiso",
+   "realRank": 7,
+   "scrambledRank": 7,
+   "of": 8,
+   "hit": false,
+   "noMeasurement": false,
+   "scores": {
+    "AB76D105-81F2-4F94-A0E6-6A374AF76363": 0.31,
+    "320540ED-F0A7-4F56-9DAD-E673E1010574": 0.49,
+    "853BB52F-EB5C-44F2-BD00-49559CED4348": 0.85,
+    "DF7AB23E-033D-4108-AB6E-98D7014F0723": 0.74,
+    "FFB7B3EE-930B-4FC5-B50B-B7C119C6C498": 0.91,
+    "030131F6-55BA-4FA0-ABEC-EB3EE31C3885": 0.21,
+    "D9BCFFE8-0796-4027-B197-89E1709532E9": 0.86,
+    "87C93D56-EA56-42F5-8B70-7E3B154D4793": 0.23
+   }
+  },
+  {
+   "case": "Fenbapell Rostze x Loratam Loquinkel",
+   "scrambledSeed": "Vohapti",
+   "realRank": 7,
+   "scrambledRank": 7,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "7833CAB7-BBC5-4100-B225-CF42988B1338": 0.69,
+    "68DCB067-6F37-49E2-94DF-6EF629E82157": 0.99,
+    "997A1A84-65AE-479B-822C-66A17156773C": 0.93,
+    "83587FFA-9381-49DC-AB70-F9995B4575BD": 0.24,
+    "A89A3CD4-E15D-406A-AA67-4B6A5B298F39": 0.49,
+    "A0CE5891-92E2-4535-AD27-8A9D70948CE9": 0.37,
+    "EF90E98B-6881-47DD-BD0B-4058C5B2EF81": 0.6,
+    "F426A68C-7776-4228-B003-F02417EBA498": 0.47
+   }
+  },
+  {
+   "case": "Zeke Mupgol x Nobbanob Pellvexvo",
+   "scrambledSeed": "Kelfenkel Ramup",
+   "realRank": 1,
+   "scrambledRank": 1,
+   "of": 8,
+   "hit": true,
+   "noMeasurement": false,
+   "scores": {
+    "1C9547B6-BCA0-4158-9C59-1DDCB8FAD333": 0.01,
+    "62B1F473-51EA-4754-9A75-92F58A9F9A56": 0.71,
+    "105C011F-05FF-47B0-8A57-0871EDF8EC61": 0.82,
+    "7032BABE-060C-4F06-9091-46B1FE2EBD3A": 0.18,
+    "C5639F53-54EF-4BF2-968E-22D06DADE995": 0.21,
+    "26EB1AB2-02F7-4F03-9111-DDC2FB4D7319": 0.68,
+    "81582DF5-004C-4E97-AF31-6ECA552EF7AE": 0.27,
+    "6F75C9DE-612B-4190-9721-E82F8288207D": 0.84
+   }
+  }
+ ]
+}
