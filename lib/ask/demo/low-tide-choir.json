@@ -1,0 +1,350 @@
+[
+ {
+  "type": "call",
+  "n": 1,
+  "tool": "resolve",
+  "why": "I need to confirm which artist this Qloo id points to before measuring anything."
+ },
+ {
+  "type": "result",
+  "n": 1,
+  "summary": "Confirmed Low Tide Choir",
+  "output": {
+   "state": "confirmed",
+   "name": "Low Tide Choir",
+   "id": "02898764-3C08-4206-B9CC-17C0B09DD36E",
+   "type": "urn:entity:artist"
+  }
+ },
+ {
+  "type": "call",
+  "n": 2,
+  "tool": "findRival",
+  "why": "I need to know whether a same-field rival exists in Low Tide Choir's fans' top 50 to decide which candidate path to follow."
+ },
+ {
+  "type": "result",
+  "n": 2,
+  "summary": "No same-field brand in the fans' top 50",
+  "output": {
+   "found": false
+  }
+ },
+ {
+  "type": "call",
+  "n": 3,
+  "tool": "candidates",
+  "why": "With no rival found, I need eight candidate brands from Low Tide Choir's fans' top 50 outside its own field."
+ },
+ {
+  "type": "result",
+  "n": 3,
+  "summary": "8 candidates from the fans' top 50, own field left out",
+  "output": {
+   "method": {
+    "topN": 50
+   },
+   "source": "top50",
+   "candidates": [
+    {
+     "name": "Brightwell Optics",
+     "id": "225DA79B-E2F8-4CCB-9753-656763853EF7"
+    },
+    {
+     "name": "Corvid & Co.",
+     "id": "638AC46F-0CE3-4C60-8BEF-3DE40A66B4B1"
+    },
+    {
+     "name": "Bluehour",
+     "id": "BA8F02A7-DC45-4FE3-87E5-8ED674C4FFA4"
+    },
+    {
+     "name": "Lumen Sock Co.",
+     "id": "BA9DFC8A-FB91-44F3-B4FE-F133E6F2DB42"
+    },
+    {
+     "name": "Tinderbox Audio",
+     "id": "1FDFF017-5258-44E3-8120-73D18033A846"
+    },
+    {
+     "name": "Velvet Anvil",
+     "id": "5C5D79CF-7587-4FA4-B056-9D2C7E8D91EA"
+    },
+    {
+     "name": "Tallgrass Goods",
+     "id": "15C27423-BC7D-4260-9B42-8B234C47A2C4"
+    },
+    {
+     "name": "Driftline",
+     "id": "6D4A1CD9-011B-49FB-8CE3-014DB5D61CEF"
+    }
+   ]
+  }
+ },
+ {
+  "type": "call",
+  "n": 4,
+  "tool": "review",
+  "why": "I need to score all eight candidates under Low Tide Choir's fans to see whether a clear three stands out."
+ },
+ {
+  "type": "result",
+  "n": 4,
+  "summary": "No clear three: 8 names within 0.05 of the top",
+  "output": {
+   "method": {
+    "gap": 0.05
+   },
+   "clearThree": [],
+   "noClearThree": true,
+   "tiedAtCutoff": [
+    {
+     "name": "Brightwell Optics"
+    },
+    {
+     "name": "Corvid & Co."
+    },
+    {
+     "name": "Bluehour"
+    },
+    {
+     "name": "Lumen Sock Co."
+    },
+    {
+     "name": "Tinderbox Audio"
+    },
+    {
+     "name": "Velvet Anvil"
+    },
+    {
+     "name": "Tallgrass Goods"
+    },
+    {
+     "name": "Driftline"
+    }
+   ],
+   "groups": [
+    [
+     {
+      "name": "Brightwell Optics",
+      "affinity": 0.97,
+      "popularity": 0.93
+     },
+     {
+      "name": "Corvid & Co.",
+      "affinity": 0.96,
+      "popularity": 0.9
+     },
+     {
+      "name": "Bluehour",
+      "affinity": 0.96,
+      "popularity": 0.8
+     },
+     {
+      "name": "Lumen Sock Co.",
+      "affinity": 0.96,
+      "popularity": 0.6
+     },
+     {
+      "name": "Tinderbox Audio",
+      "affinity": 0.96,
+      "popularity": 0.87
+     },
+     {
+      "name": "Velvet Anvil",
+      "affinity": 0.96,
+      "popularity": 0.8
+     },
+     {
+      "name": "Tallgrass Goods",
+      "affinity": 0.96,
+      "popularity": 0.73
+     },
+     {
+      "name": "Driftline",
+      "affinity": 0.94,
+      "popularity": 0.6
+     }
+    ]
+   ],
+   "fameBands": [
+    [
+     {
+      "name": "Brightwell Optics"
+     },
+     {
+      "name": "Corvid & Co."
+     }
+    ],
+    [
+     {
+      "name": "Tinderbox Audio"
+     }
+    ],
+    [
+     {
+      "name": "Bluehour"
+     },
+     {
+      "name": "Velvet Anvil"
+     }
+    ],
+    [
+     {
+      "name": "Tallgrass Goods"
+     }
+    ],
+    [
+     {
+      "name": "Driftline"
+     },
+     {
+      "name": "Lumen Sock Co."
+     }
+    ]
+   ],
+   "ranks": [
+    {
+     "name": "Brightwell Optics",
+     "amongSeedFans": 1,
+     "seedAmongTheirs": 26
+    },
+    {
+     "name": "Corvid & Co.",
+     "amongSeedFans": 2,
+     "seedAmongTheirs": 4
+    },
+    {
+     "name": "Bluehour",
+     "amongSeedFans": 3,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Lumen Sock Co.",
+     "amongSeedFans": 4,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Tinderbox Audio",
+     "amongSeedFans": 5,
+     "seedAmongTheirs": 28
+    },
+    {
+     "name": "Velvet Anvil",
+     "amongSeedFans": 6,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Tallgrass Goods",
+     "amongSeedFans": 7,
+     "seedAmongTheirs": null
+    },
+    {
+     "name": "Driftline",
+     "amongSeedFans": 8,
+     "seedAmongTheirs": null
+    }
+   ],
+   "notMeasured": []
+  }
+ },
+ {
+  "type": "call",
+  "n": 5,
+  "tool": "twins",
+  "why": "With no clear three, I need to know which two contenders reach the same audience so they aren't called together."
+ },
+ {
+  "type": "result",
+  "n": 5,
+  "summary": "No pair stands out among the contenders",
+  "output": {
+   "found": false
+  }
+ },
+ {
+  "type": "decision",
+  "decision": {
+   "calls": [
+    {
+     "name": "Brightwell Optics",
+     "reason": "[[Brightwell Optics]] ranks 1 among [[Low Tide Choir]] fans with the top score of 0.97.",
+     "steps": [
+      4
+     ]
+    },
+    {
+     "name": "Corvid & Co.",
+     "reason": "[[Corvid & Co.]] scores 0.96 and ranks 2 among [[Low Tide Choir]] fans, and [[Low Tide Choir]] ranks 4 among [[Corvid & Co.]] fans.",
+     "steps": [
+      4
+     ]
+    },
+    {
+     "name": "Bluehour",
+     "reason": "[[Bluehour]] scores 0.96 and ranks 3 among [[Low Tide Choir]] fans.",
+     "steps": [
+      4
+     ]
+    }
+   ],
+   "cautions": [
+    {
+     "text": "There is no clear three: all eight candidates sit in one group, scoring between 0.94 and 0.97.",
+     "steps": [
+      4
+     ]
+    },
+    {
+     "text": "[[Bluehour]] is tied at 0.96 with [[Corvid & Co.]], [[Lumen Sock Co.]], [[Tinderbox Audio]], [[Velvet Anvil]] and [[Tallgrass Goods]], so the third slot could go to any of them.",
+     "steps": [
+      4
+     ]
+    },
+    {
+     "text": "No twin pair stood out, so the tools gave no pair to avoid calling together.",
+     "steps": [
+      5
+     ]
+    },
+    {
+     "text": "[[Low Tide Choir]] does not show up in the ranks among [[Bluehour]] fans, so that link was measured in only one direction.",
+     "steps": [
+      4
+     ]
+    }
+   ],
+   "summary": [
+    {
+     "text": "Qloo confirmed the id as the artist [[Low Tide Choir]].",
+     "steps": [
+      1
+     ]
+    },
+    {
+     "text": "No same-field rival was found, so the candidates came from the [[Low Tide Choir]] fans' top 50.",
+     "steps": [
+      2,
+      3
+     ]
+    },
+    {
+     "text": "[[Brightwell Optics]] sits closer to [[Low Tide Choir]] fans than any other candidate, at 0.97.",
+     "steps": [
+      4
+     ]
+    },
+    {
+     "text": "The calls follow the rank order among [[Low Tide Choir]] fans because the review found no clear three.",
+     "steps": [
+      4,
+      5
+     ]
+    }
+   ]
+  },
+  "check": {
+   "ok": true
+  }
+ }
+]
