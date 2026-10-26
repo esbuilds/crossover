@@ -16,10 +16,10 @@ export const linkInline =
 export const cite = "whitespace-nowrap rounded-sm bg-surface-2 px-1 py-px text-xs text-ink-3";
 export const btnText =
   "inline-flex min-h-11 items-center text-base font-medium text-ink decoration-ink-3 underline-offset-4 transition-[color,text-decoration-color] duration-150 ease-out motion-reduce:transition-none hover:underline disabled:text-ink-3 disabled:no-underline";
-// max-w-full and no nowrap of its own (FIX-F10): a long Qloo name wraps inside the chip instead of pushing a 390 page
+// 44px tall on phones (W3, PRODUCT.md's tap targets). max-w-full and no nowrap of its own (FIX-F10): a long Qloo name wraps inside the chip instead of pushing a 390 page
 // sideways; the /vs Try row on phones still scrolls as one line because its row sets nowrap and chips inherit it
 export const chip =
-  "inline-flex max-w-full shrink-0 items-center rounded-full border border-rule px-3 py-1 text-left text-sm text-ink transition-[border-color] duration-150 ease-out motion-reduce:transition-none hover:border-ink aria-[current=true]:border-ink disabled:text-ink-3";
+  "inline-flex max-w-full shrink-0 items-center rounded-full border border-rule px-3 py-1 text-left text-sm max-sm:min-h-11 text-ink transition-[border-color] duration-150 ease-out motion-reduce:transition-none hover:border-ink aria-[current=true]:border-ink disabled:text-ink-3";
 export const field =
   "min-h-11 w-full min-w-0 rounded-md border border-rule-ui bg-surface px-3 text-base text-ink placeholder:text-ink-3 outline-none transition-[border-color] duration-150 ease-out motion-reduce:transition-none focus:border-ink";
 // one card treatment (DC F9): panel for containers, panelStrong for the call card only (a firmer border, no tint)

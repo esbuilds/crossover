@@ -271,6 +271,14 @@ summary::-webkit-details-marker {
   font-size: 0.75rem;
   line-height: 1;
 }
+/* phones show the numbers only, each a 44px target (W3) */
+@media (max-width: 639.98px) {
+  .rail-step {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    justify-content: center;
+  }
+}
 li.is-on .rail-step {
   color: var(--color-ink);
 }

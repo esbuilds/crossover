@@ -120,10 +120,10 @@ export default function AskView({ initial, pending, proof, caught, play = false 
         if (e.type === "done") { ended = true; setStatus("done"); setReplayed(e.cached); }
         if (e.type === "error") { ended = true; setStatus("error"); setError(e.message); }
       });
-      if (!ended) { setStatus("error"); setError("The agent stopped partway. The steps above are what it measured; try again to finish."); }
+      if (!ended) { setStatus("error"); setError("The agent stopped partway. The steps below are what it measured; try again to finish."); }
     } catch {
       setStatus("error");
-      setError("The connection dropped. The steps above are what the agent measured; try again to finish.");
+      setError("The connection dropped. The steps below are what the agent measured; try again to finish.");
     }
   }
   const resolved = steps.find((s) => s.tool === "resolve")?.output as { state?: string; name?: string; id?: string; type?: string; options?: { name: string; id: string; type: string }[] } | undefined;
@@ -315,8 +315,11 @@ export default function AskView({ initial, pending, proof, caught, play = false 
                 <summary className="flex min-h-11 cursor-pointer items-baseline gap-x-3 py-3 text-base">
                   <span className="rail-num shrink-0 self-center border-ink bg-ink text-surface" aria-hidden>{s.n}</span>
                   <span className="sr-only">{s.n}. </span>
-                  <span className="shrink-0 font-medium text-ink">{TOOL_LABEL[s.tool] ?? s.tool}</span>
-                  <span className="min-w-0 flex-1 text-ink-2">{s.summary || (status === "running" ? <span className="working font-mono text-sm">Reading Qloo...</span> : "Qloo didn't answer this step; the steps above are what was measured.")}</span>
+                  {/* the step's name, then its result: beside it from 640, under it on phones */}
+                  <span className="min-w-0 flex-1">
+                    <span className="font-medium text-ink sm:mr-3">{TOOL_LABEL[s.tool] ?? s.tool}</span>
+                    <span className="text-ink-2 max-sm:block">{s.summary || (status === "running" ? <span className="working font-mono text-sm">Reading Qloo...</span> : "Qloo didn't answer this step; the steps above are what was measured.")}</span>
+                  </span>
                   <Chevron />
                 </summary>
                 <div className="max-w-copy pb-4 pl-8">
@@ -647,9 +650,9 @@ function Eight({ rows, both, steps, calls, drawn, lead }: { rows: DumbbellRow[] 
                 <span className="sr-only">Fame and taste, 0.5 to 1</span>
               </th>
             )}
-            {track && <th className="whitespace-nowrap py-1 pr-4 text-right font-normal">Taste</th>}
-            {ranks && <th className="whitespace-nowrap py-1 pr-4 font-normal">{ranks.seed} fans rank it</th>}
-            {ranks && <th className="whitespace-nowrap py-1 font-normal">Its fans rank {ranks.seed}</th>}
+            {track && <th className="py-1 pr-4 text-right font-normal sm:whitespace-nowrap">Taste</th>}
+            {ranks && <th className="py-1 pr-4 font-normal sm:whitespace-nowrap">{ranks.seed} fans rank it</th>}
+            {ranks && <th className="py-1 font-normal sm:whitespace-nowrap">Its fans rank {ranks.seed}</th>}
           </tr>
         </thead>
         <tbody>
@@ -671,9 +674,9 @@ function Eight({ rows, both, steps, calls, drawn, lead }: { rows: DumbbellRow[] 
                   {r.bell && r.bell.fame === null && r.bell.taste !== null && <span className="mt-0.5 block text-right text-xs text-ink-3">fame: no measurement</span>}
                 </td>
               )}
-              {track && <td className="whitespace-nowrap py-1.5 pr-4 text-right align-middle">{r.bell?.taste == null ? "no measurement" : r.bell.taste.toFixed(2)}</td>}
-              {ranks && <td className="whitespace-nowrap py-1.5 pr-4 align-middle">{show(r.fwd)}</td>}
-              {ranks && <td className="whitespace-nowrap py-1.5 align-middle">{show(r.rev)}</td>}
+              {track && <td className="py-1.5 pr-4 text-right align-middle sm:whitespace-nowrap">{r.bell?.taste == null ? "no measurement" : r.bell.taste.toFixed(2)}</td>}
+              {ranks && <td className="py-1.5 pr-4 align-middle sm:whitespace-nowrap">{show(r.fwd)}</td>}
+              {ranks && <td className="py-1.5 align-middle sm:whitespace-nowrap">{show(r.rev)}</td>}
             </tr>
           ))}
         </tbody>
