@@ -126,7 +126,7 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 
 ## Tests
 
-`npm test` runs 253 offline tests in a few seconds, with no API calls. In this repo 7 skip: 2 need the example slates in the gitignored `fixtures/demo/`, and 5 recount the private audit tables or pin a recorded ask's hash. `npm run verify` checks the checker on the demo world with no keys at all (above). `npx tsc --noEmit` is clean. Full list below the fold.
+`npm test` runs 255 offline tests in a few seconds, with no API calls. In this repo 248 pass and 7 skip: 2 need the example slates in the gitignored `fixtures/demo/`, and 5 recount the private audit tables or pin a recorded ask's hash. `npm run verify` checks the checker on the demo world with no keys at all (above). `npx tsc --noEmit` is clean. Full list below the fold.
 
 ## Run it
 
@@ -218,7 +218,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 
 ## Test list
 
-`npm test` runs 253 offline tests:
+`npm test` runs 255 offline tests:
 
 - match validation against the invented search table
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
