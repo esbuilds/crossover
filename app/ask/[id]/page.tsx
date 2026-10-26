@@ -43,7 +43,9 @@ export default function SharedAsk({ params, searchParams }: PageProps<"/ask/[id]
       <PerRequest />
       <main className={shell}>
         <SiteHeader href="/" label="Ask" />
-        <Suspense fallback={<div data-fallback><AskView /></div>}>
+        {/* the fallback holds a screen of room, so the footer stays below the fold while the answer streams in (CLS 0.14 at
+            1440 and 0.25 at 390 on production before W3, the same fix as the home page's Loading) */}
+        <Suspense fallback={<div data-fallback><AskView /><div className="min-h-screen" /></div>}>
           <Shared params={params} searchParams={searchParams} />
         </Suspense>
       </main>

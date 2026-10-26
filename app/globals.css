@@ -253,6 +253,7 @@ summary::-webkit-details-marker {
 .rail-step {
   display: inline-flex;
   align-items: center;
+  min-height: 1.5rem; /* WCAG 2.2 target size, 24px (W3) */
   gap: 0.375rem;
   color: var(--color-ink-3);
   text-underline-offset: 4px;

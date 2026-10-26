@@ -343,7 +343,7 @@ export default function AskView({ initial, pending, proof, caught, play = false 
               <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.6 2.6L10 3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </span>
             <span>{claims} names and numbers checked against the step each came from</span>
-            {caught && <><span aria-hidden className="text-ink-3">·</span><Link href="/audit#fool-it" className={linkInline}>{caught}</Link></>}
+            {caught && <><span aria-hidden className="text-ink-3">·</span><Link href="/audit#fool-it" className={`${linkInline} inline-flex min-h-11 items-center`}>{caught}</Link></>}
             <span aria-hidden className="text-ink-3">·</span>
             <FoolIt decision={verdict.decision} steps={steps} label="Try to fool it" inline />
           </div>
