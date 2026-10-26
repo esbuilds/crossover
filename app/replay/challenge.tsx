@@ -41,11 +41,14 @@ export default function Challenge({ cases, protocol, strip }: { cases: Challenge
 
   return (
     <section className="mt-block">
-      <p id="case-top" className="scroll-mt-4 font-mono text-sm text-ink-3">{done ? `All ${order.length} done` : `Case ${state.at + 1} of ${order.length}`}</p>
+      <p id="case-top" className="scroll-mt-4 text-sm text-ink-3 tabular-nums">{done ? `All ${order.length} done` : `Case ${state.at + 1} of ${order.length}`}</p>
 
       {c && (
         <>
-          <h2 className="mt-2 font-display text-xl">Which of these did {c.seed} actually partner with?</h2>
+          {/* the deal's own name, with the entity Qloo scored when it differs (W5b: the question said "Pepperidge Farm",
+              the strip "Goldfish") */}
+          <h2 className="mt-2 font-display text-xl">Which of these did {c.deal} actually partner with?</h2>
+          {c.deal.toLowerCase() !== c.seed.toLowerCase() && <p className="mt-1 text-sm text-ink-3">Scored in Qloo as {c.seed}.</p>}
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {c.eight.map((x, i) => {
               const isReal = x.name === c.partner, isPick = x.name === picked;
@@ -54,16 +57,20 @@ export default function Challenge({ cases, protocol, strip }: { cases: Challenge
                 <li key={x.name}>
                   <button type="button" disabled={!!picked} onClick={() => { setState({ ...state, picks: { ...state.picks, [c.key]: x.name } }); bringIntoView("verdict"); }} className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-md border px-3 text-left text-base text-ink motion-safe:transition-[border-color,background-color,opacity] motion-safe:duration-240 ${tone}`}>
                     <span>{x.name}{picked && isReal ? " (the real partner)" : picked && isPick ? " (your pick)" : ""}</span>
-                    {picked && <span className="font-mono text-sm text-ink-2 motion-safe:animate-[fade-in_200ms_ease-out_backwards]" style={{ animationDelay: `${i * 40}ms` }}>{x.score.toFixed(2)}</span>}
+                    {picked && <span className="text-sm tabular-nums text-ink-2 motion-safe:animate-[fade-in_200ms_ease-out_backwards]" style={{ animationDelay: `${i * 40}ms` }}>{x.score.toFixed(2)}</span>}
                   </button>
                 </li>
               );
             })}
           </ul>
 
+          {!picked && (
+            <p className="mt-3"><button type="button" onClick={() => { setState({ ...state, at: state.at + 1 }); bringIntoView("case-top", true); }} className={btnText}>Skip this one</button></p>
+          )}
+
           {picked && (
             <div id="verdict" className="mt-6 max-w-copy scroll-mt-4 text-base text-ink-2 motion-safe:animate-[step-in_240ms_cubic-bezier(0.22,1,0.36,1)]">
-              <p className="text-lg text-ink">{picked === c.partner ? "You found it." : `It was ${c.partner}.`} {c.seed} x {c.partner}: {c.what} ({c.year}). <a href={c.source} target="_blank" rel="noreferrer" className={linkInline}>Source</a></p>
+              <p className="text-lg text-ink">{picked === c.partner ? "You found it." : `It was ${c.partner}.`} {c.deal} x {c.partner}: {c.what} ({c.year}). <a href={c.source} target="_blank" rel="noreferrer" className={linkInline}>Source</a></p>
               <p className="mt-2">Under {whose(c.seed)} fans, {c.partner} scored {c.eight.find((x) => x.name === c.partner)!.score.toFixed(2)} against a top score of {c.top.toFixed(2)}, {th(c.rank)} of 8. {c.hit ? "In the top three of eight: a hit." : "Outside the top three: a miss for the test, shown as it came out."}</p>
               {c.sameEight > 1 && <p className="mt-2 text-sm text-ink-3">These eight appear in {c.sameEight} of the {cases.length} cases; decoys come from the partner&apos;s Qloo category and fame band, so deals in the same aisle share them.</p>}
               <p className="mt-3"><button type="button" onClick={() => { setState({ ...state, at: state.at + 1 }); bringIntoView("case-top", true); }} className={btnPrimary}>{state.at + 1 < order.length ? "Next case" : "See the tally"}</button></p>
