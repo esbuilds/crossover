@@ -76,7 +76,7 @@ export default function AuditPage() {
           ["Blocked by the checker", `${blocked.length}`, `${blocked.filter((b) => b.underV2 !== "passes").length} under the current rule`],
           // pooled with its control, as on /replay (AUDIT-STAT, real Oct 22): both counts from audit/replay-control.json
           // the verdict on the tile itself (SCORE-4, real Oct 23), so the tile alone doesn't read as a found effect
-          ["Replays, real partner in the top three", `${control.summary.realHits} of ${control.summary.cases}`, <><a href="#replay-controls" className={linkInline}>and {control.summary.scrambledHits} of {control.summary.cases} with the seed scrambled</a><span className="block">both controls failed: the lists are well built, no more</span></>],
+          ["Replays, real partner in the top three", `${control.summary.realHits} of ${control.summary.cases}`, <><a href="#replay-controls" className={linkInline}>and {control.summary.scrambledHits} of {control.summary.cases} with the seed scrambled</a><span className="block">both controls failed: the lists favor the real partner whoever is asking</span></>],
         ] as [string, ReactNode, ReactNode][]).map(([k, lead, rest]) => (
           <div key={k} className="sm:row-span-3 sm:grid sm:grid-rows-subgrid">
             <dt className="text-ink-3 sm:self-end">{k}</dt>
