@@ -43,7 +43,7 @@ export default function SharedAsk({ params, searchParams }: PageProps<"/ask/[id]
       <PerRequest />
       <main className={shell}>
         <SiteHeader href="/" label="Ask" />
-        <Suspense fallback={<AskView />}>
+        <Suspense fallback={<div data-fallback><AskView /></div>}>
           <Shared params={params} searchParams={searchParams} />
         </Suspense>
       </main>

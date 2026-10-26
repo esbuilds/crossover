@@ -30,7 +30,7 @@ export default function Home() {
 // 0.15 at 1280 and 0.23 at 390 when the replay replaced it).
 function Loading() {
   return (
-    <section className="pt-page" aria-busy>
+    <section className="pt-page" aria-busy data-fallback>
       <AskHeadline />
       <div className="min-h-screen" />
     </section>

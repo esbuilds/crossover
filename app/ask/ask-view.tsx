@@ -141,7 +141,10 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
       </form>
       <p className="mt-3 flex flex-wrap items-center gap-2 text-base">
         <span className="text-ink-2">Try:</span>
-        {chips.map((p) => (
+        {/* real links (AskLink); a case chip has no id to link, so it stays a button */}
+        {chips.map((p) => "id" in p.body ? (
+          <AskLink key={p.label} body={p.body} busy={status === "running"} go={() => { setQ(p.label.split(": ").at(-1)!); run(p.body); }}>{p.label}</AskLink>
+        ) : (
           <button key={p.label} type="button" disabled={status === "running"} onClick={() => (setQ(p.label.split(": ").at(-1)!), run(p.body))} className={chip}>{p.label}</button>
         ))}
       </p>
@@ -244,7 +247,7 @@ export default function AskView({ initial, pending, proof, play = false }: { ini
           {ambiguous && (
             <div>
               <p className="text-lg text-ink">Which one did you mean?</p>
-              <p className="mt-2 flex flex-wrap gap-2">{ambiguous.map((o) => <button key={o.id} type="button" onClick={() => run({ id: o.id, type: o.type })} className={chip}>{o.name} ({o.type.replace("urn:entity:", "").replace("_", " ")})</button>)}</p>
+              <p className="mt-2 flex flex-wrap gap-2">{ambiguous.map((o) => <AskLink key={o.id} body={{ id: o.id, type: o.type }} go={() => run({ id: o.id, type: o.type })}>{o.name} ({o.type.replace("urn:entity:", "").replace("_", " ")})</AskLink>)}</p>
             </div>
           )}
           {verdict && !verdict.ok && status !== "running" && (
@@ -442,6 +445,19 @@ function Steps({ ns }: { ns: number[] }) {
   return <span>{ns.map((n) => <a key={n} href={`#step-${n}`} className={`ml-1 ${cite} transition-colors duration-150 ease-out hover:bg-rule hover:text-ink motion-reduce:transition-none`}>step {n}{landed !== Infinity && (
     <span className={`stamp${n <= landed ? " is-on" : ""}`} aria-hidden={n > landed}> <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.6 2.6L10 3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" pathLength="1" /></svg>checked</span>
   )}</a>)}</span>;
+}
+
+// A chip that is a real link (judge round, real Oct 25): a text reader, a browser without JS or a modifier click follows
+// the href to the ask's server-rendered page (an uncached one waits for a click, so following it never spends); a plain
+// click runs it here, as the button did.
+function AskLink({ body, busy = false, go, children }: { body: { id: string; type: string }; busy?: boolean; go: () => void; children: React.ReactNode }) {
+  return (
+    <a href={askLinks(body, body).share} aria-disabled={busy || undefined} className={`${chip} aria-disabled:text-ink-3`} onClick={(ev) => {
+      if (ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+      ev.preventDefault();
+      if (!busy) go();
+    }}>{children}</a>
+  );
 }
 
 function CopyAsk({ href }: { href: string }) {
