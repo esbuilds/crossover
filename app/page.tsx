@@ -6,7 +6,7 @@ import { whereToStart } from "@/lib/ask/where.ts";
 import { bothWays } from "@/lib/ask/both-ways.ts";
 import { fieldNotesFor } from "@/lib/ask/field-notes.ts";
 import { PREPARED_ASKS } from "@/lib/ask/prepared.ts";
-import { PROOF } from "@/lib/ask/proof.ts";
+import { CAUGHT, PROOF } from "@/lib/ask/proof.ts";
 import AskView, { AskHeadline } from "./ask/ask-view";
 import HashRedirect from "./hash-redirect";
 
@@ -47,5 +47,5 @@ async function Replay() {
   const [where, both, notes] = events
     ? await Promise.all([whereToStart(events, null).catch(() => null), bothWays(events, null).catch(() => null), fieldNotesFor(events, null).catch(() => null)])
     : [null, null, null];
-  return <AskView proof={PROOF} play initial={events ? { label: first.label, events, asked: first.body, where: where?.line ?? undefined, both, notes } : undefined} />;
+  return <AskView proof={PROOF} caught={CAUGHT} play initial={events ? { label: first.label, events, asked: first.body, where: where?.line ?? undefined, both, notes } : undefined} />;
 }

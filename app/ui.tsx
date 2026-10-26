@@ -29,6 +29,29 @@ export const panelStrong = "rounded-md border border-rule-strong";
 // Every route's <main> uses it; the title section under the header takes pt-page (globals.css has the scale).
 export const shell = "mx-auto max-w-shell px-gutter pb-section";
 
+// The fold's marker: a chevron that turns as its <details> opens (the details carries the group class)
+export function Chevron() {
+  return (
+    <svg viewBox="0 0 12 12" aria-hidden="true" className="size-3 shrink-0 self-center text-ink-3 transition-transform duration-200 ease-out group-open:rotate-90 motion-reduce:transition-none">
+      <path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// One fold (W3, real Oct 25): a ruled row that opens to its lines, for long supporting text under a short visible line.
+// The lines are in the page either way, open or shut, and open without JS. Consecutive folds share one rule.
+export function Fold({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <details className="group mt-4 border-y border-rule [&+details]:mt-0 [&+details]:border-t-0">
+      <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-4 py-2 text-base text-ink">
+        <span>{title}</span>
+        <Chevron />
+      </summary>
+      <div className="max-w-copy pb-4">{children}</div>
+    </details>
+  );
+}
+
 // The one chip system: status on a pick or a market. Text always says what the color means.
 export type ChipKind = "mutual" | "partial" | "oneway" | "competitor" | "excluded" | "lower" | "approved" | "declined" | "note";
 const CHIP: Record<ChipKind, string> = {

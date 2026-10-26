@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const one = (k: string) => q.get(k) ?? undefined;
   const shared = parseShare({ c: one("c"), p: one("p"), g: one("g"), s: one("s"), n: q.getAll("n") });
   // no share query: the site's own card, the front door's line (the ask since Pick A, Oct 13) (Pick three links keep their card)
-  const res = await ogCard(shared ? shareCard(shared) : { title: "One name in. Who should they call first?", line: "An agent measures in Qloo step by step and says who to call first, with every line checked against the step behind it", rail: Object.values(TOOL_LABEL) });
+  const res = await ogCard(shared ? shareCard(shared) : { title: "One name in. Who should its partnerships team call first?", line: "An agent measures in Qloo step by step and says who to call first, with every line checked against the step behind it", rail: Object.values(TOOL_LABEL) });
   res.headers.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
   return res;
 }

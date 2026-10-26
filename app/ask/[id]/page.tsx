@@ -6,7 +6,7 @@ import { PerRequest } from "@/app/dynamic";
 import { SiteHeader, shell } from "@/app/ui";
 import { peekAsk, type AskEvent } from "@/lib/ask/agent.ts";
 import { bodyFromParams } from "@/lib/ask/body.ts";
-import { PROOF } from "@/lib/ask/proof.ts";
+import { CAUGHT, PROOF } from "@/lib/ask/proof.ts";
 import { REPLAY_ASK, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import { peekCard } from "@/lib/slate.ts";
 import { whereToStart } from "@/lib/ask/where.ts";
@@ -59,9 +59,9 @@ async function Shared({ params, searchParams }: Pick<PageProps<"/ask/[id]">, "pa
   if (!r.events || !r.seed) {
     // the name for the chip (FIX-F7): the typed name, the replay case's label, or the cached card's name; cache only
     const label = "query" in asked ? asked.query ?? UNNAMED_ASK : "case" in asked ? REPLAY_ASK.label : (await peekCard(r.id, r.type).catch(() => null))?.name ?? UNNAMED_ASK;
-    return <AskView proof={PROOF} pending={{ label, body: asked }} />;
+    return <AskView proof={PROOF} caught={CAUGHT} pending={{ label, body: asked }} />;
   }
   // the where line, both-ways table and field notes from the cache on the server (MO F6, FIX-F3): nothing lands late
   const [where, both, notes] = await Promise.all([whereToStart(r.events, null).catch(() => null), bothWays(r.events, null).catch(() => null), fieldNotesFor(r.events, null).catch(() => null)]);
-  return <AskView proof={PROOF} initial={{ label: r.seed, events: r.events, asked, where: where?.line ?? undefined, both, notes }} />;
+  return <AskView proof={PROOF} caught={CAUGHT} initial={{ label: r.seed, events: r.events, asked, where: where?.line ?? undefined, both, notes }} />;
 }
