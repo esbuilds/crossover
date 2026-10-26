@@ -204,15 +204,21 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
         {[...KNOWN.values()].sort((x, y) => x.name.localeCompare(y.name)).map((s) => <option key={s.id} value={s.name} />)}
       </datalist>
       <div className="mt-3">
-        {tryRow("Try:", [...VS_CASES, ...VS_MORE])}
-        <p className="mt-2 flex items-center gap-2 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
-          <span className="shrink-0 text-ink-2">Whole aisles:</span>
-          {CATEGORIES.map((c) => (
-            <Link key={c.slug} href={`/map/${c.slug}`} className={chip}>
-              {c.title}
-            </Link>
-          ))}
-        </p>
+        {/* four pairs, then the rest and the aisles behind one fold (W5b, real Oct 25: twelve chips sat above the result);
+            the fold starts open when the pair on screen is one of them, so its outlined chip is never hidden */}
+        {tryRow("Try:", VS_CASES)}
+        <details className="mt-1" open={VS_MORE.some((c) => active === key(c.a, c.b)) || undefined}>
+          <summary className={`${btnText} cursor-pointer`}>More pairs and whole aisles</summary>
+          {tryRow("More:", VS_MORE)}
+          <p className="mt-2 flex items-center gap-2 text-base max-sm:overflow-x-auto max-sm:whitespace-nowrap max-sm:pr-8 max-sm:[mask-image:linear-gradient(to_right,black_80%,transparent)] sm:flex-wrap">
+            <span className="shrink-0 text-ink-2">Whole aisles:</span>
+            {CATEGORIES.map((c) => (
+              <Link key={c.slug} href={`/map/${c.slug}`} className={chip}>
+                {c.title}
+              </Link>
+            ))}
+          </p>
+        </details>
       </div>
       {error && <p className="mt-block text-lg text-ink">{error}</p>}
       {finder && !inside && (
