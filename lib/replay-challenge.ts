@@ -7,7 +7,8 @@ import replayV2 from "../audit/replay-v2.json" with { type: "json" };
 export type ChallengeCase = {
   key: string;
   test: "v1" | "v2";
-  seed: string;
+  seed: string; // the entity Qloo scored ("Pepperidge Farm")
+  deal: string; // the deal's own name for it ("Goldfish"), as the strip and the audit print it
   partner: string;
   what: string;
   year: number;
@@ -32,6 +33,7 @@ function toCase(c: Raw, test: "v1" | "v2"): ChallengeCase | null {
     key: `${test}:${c.seed}:${c.partner}`,
     test,
     seed: c.seedMatched,
+    deal: c.seed,
     partner: c.partnerMatched,
     what: c.what,
     year: c.year,

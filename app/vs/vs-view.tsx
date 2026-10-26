@@ -1,9 +1,9 @@
 // The rivals result (brief-oct12-front): shared by the front door (client) and /vs (server). No hooks, no server
 // imports. Every word comes from code or from Qloo.
 import Link from "next/link";
-import { btnText, chip, Chip, cite } from "@/app/ui";
+import { btnText, chip, Chip, cite, linkInline } from "@/app/ui";
 import type { RivalRow, VsPayload, Xray } from "@/lib/rivals.ts";
-import { DOESNT_ESTABLISH, emptyColumn, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
+import { DOESNT_ESTABLISH, emptyColumn, leadLine, mapLine, rankContext, verdict, vsState } from "@/lib/vs.ts";
 import { PAIR_CASE, VS_CASES, vsHref } from "@/lib/rivals-cases.ts";
 import { LEAN_SPLIT } from "@/lib/collide.ts";
 import CollisionMap, { MapKey } from "./collision-map";
@@ -55,13 +55,15 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
       : []),
   ];
   const state = vsState(r);
+  const PAIR = r.a.entity_id.toUpperCase() === PAIR_CASE.a && r.b.entity_id.toUpperCase() === PAIR_CASE.b;
   const [line, stateLine] = verdict(r);
   const markets = mapLine(A, B, d.map);
+  const lead = leadLine(A, B, d.map, r.leansA);
   return (
     <>
-      {/* under 640 px the map comes before the verdict (CSS order, one copy of each); from 640 up, the verdict first.
-          From 1024 the map sits beside the verdict (WOW F3), so the picture is in the first screen at 1280 instead of
-          a page-wide map 700 px down. */}
+      {/* the verdict, then the map, at every width (W5b, real Oct 25: on phones the answer sat under the map). From 1024
+          the map sits beside the verdict (WOW F3), so the picture is in the first screen at 1280 instead of a page-wide
+          map 700 px down. */}
       <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12">
         <header className="order-1 mt-block lg:col-span-2">
           {/* the page's h1 is the question above the form (DC F8); the pair is the result's headline */}
@@ -75,8 +77,15 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
           )}
           {method && <div className="mt-3">{method.node}</div>}
         </header>
-        <div className="order-3 sm:order-2 lg:col-start-1 lg:row-start-2">
-          <p className="mt-6 max-w-lead text-lg text-ink">
+        <div className="order-2 lg:col-start-1 lg:row-start-2">
+          {/* what a partnerships lead does with it, from the numbers on this page (W5b, real Oct 25): it was only in a
+              fold at the bottom, so it leads now */}
+          {lead && (
+            <p className="mt-6 max-w-lead text-lg text-ink">
+              <Cite checks="4, 5, 8 and 9">{lead}</Cite>{PAIR && <> <a href={`#${PAIR_CASE.id}`} className={linkInline}>The worked case</a></>}
+            </p>
+          )}
+          <p className={`${lead ? "mt-3" : "mt-6"} max-w-lead text-lg text-ink`}>
             <Cite checks="4 and 5">{line}</Cite>
           </p>
           {markets && (
@@ -87,13 +96,13 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
           {stateLine && <p className="mt-3 max-w-copy text-base text-ink-2">{stateLine}</p>}
           {d.share.length > 0 && (
             <p className="mt-3 text-sm">
-              <Chip kind="note" title="From Qloo check 7 (Qloo compare)">
+              <Chip kind="note" title="From step 7 (Qloo compare)">
                 Share by category: {[...new Map(d.share.map((t) => [t.toLowerCase(), t])).values()].join(", ")}
               </Chip>
             </p>
           )}
         </div>
-        <div className="order-2 sm:order-3 lg:col-start-2 lg:row-start-2">
+        <div className="order-3 lg:col-start-2 lg:row-start-2">
           <MapSection d={d} />
         </div>
       </div>
@@ -231,7 +240,8 @@ function Cite({ checks, children }: { checks: string; children: React.ReactNode 
 }
 
 export function CheckTag({ checks }: { checks: string }) {
-  return <span className={cite}>Qloo check{checks.includes(" ") ? "s" : ""} {checks}</span>;
+  // "step", as the ask cites (W5b, real Oct 25: "Qloo check" here, "step" there); the numbers are the steps fold's
+  return <span className={cite}>step{checks.includes(" ") ? "s" : ""} {checks}</span>;
 }
 
 function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow[]; d: VsPayload; side: "a" | "b"; empty: string }) {
@@ -240,6 +250,8 @@ function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow
       <h2 className="font-display text-xl">
         {title} <span className="font-sans text-base font-normal text-ink-3 tabular-nums">{rows.length}</span>
       </h2>
+      {/* cited once per column (W5b): every row's scores are steps 4 and 5, its ranks steps 2 and 3 */}
+      {rows.length > 0 && <p className="mt-1 text-sm text-ink-3">Scores from <CheckTag checks="4 and 5" />, ranks from <CheckTag checks="2 and 3" /></p>}
       {rows.length ? (
         <>
           {/* five rows on small screens, ten from 640 up; "Show all" appears where rows are hidden */}
@@ -289,7 +301,7 @@ function Rows({ rows, d, side, cls }: { rows: RivalRow[]; d: VsPayload; side: "a
               <Bar who={r.a.name} v={row.a} tone="bg-accent" check={4} />
               <Bar who={r.b.name} v={row.b} tone="bg-ink-2" check={5} />
               <p className="mt-1 text-sm text-ink-2 tabular-nums">
-                Gap {Math.abs(row.a - row.b).toFixed(2)} · <Cite checks="2 and 3">{rankContext(row, r.a.name, r.b.name)}</Cite>
+                Gap {Math.abs(row.a - row.b).toFixed(2)} · {rankContext(row, r.a.name, r.b.name)}
               </p>
             </>
           ) : (
@@ -308,7 +320,7 @@ function Bar({ who, v, tone, check }: { who: string; v: number; tone: string; ch
       <span className="h-2 min-w-0 flex-1 rounded-sm bg-surface-2">
         <span className={`block h-2 rounded-sm ${tone}`} style={{ width: `${Math.round(v * 100)}%` }} />
       </span>
-      <span className="w-10 shrink-0 text-right tabular-nums text-ink" title={`From Qloo check ${check}`}>
+      <span className="w-10 shrink-0 text-right tabular-nums text-ink" title={`From step ${check}`}>
         {v.toFixed(2)}
       </span>
     </div>

@@ -33,15 +33,27 @@ export function verdict(r: Rivals): string[] {
 // the verdict's second sentence, from the map: metros in one side's top five and not the other's, up to three each
 // ("Liquid Death leads in Portland, Denver and Austin; Celsius in Miami, Tampa and Dallas."). Same lists as the map's
 // "Top markets" line, so the words and the map say one thing.
+const only = (xs: { name: string }[], ys: { name: string }[]) => xs.filter((m) => !ys.some((y) => y.name === m.name)).slice(0, 3).map((m) => m.name);
+const list = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : xs[0]);
+
 export function mapLine(a: string, b: string, map: Pick<VsMap, "metrosA" | "metrosB"> | null): string | null {
   if (!map) return null;
-  const only = (xs: { name: string }[], ys: { name: string }[]) => xs.filter((m) => !ys.some((y) => y.name === m.name)).slice(0, 3).map((m) => m.name);
-  const list = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : xs[0]);
   const [oa, ob] = [only(map.metrosA, map.metrosB), only(map.metrosB, map.metrosA)];
   if (!oa.length && !ob.length) return `${a} and ${b} share the same top five markets.`;
   if (!ob.length) return `${a} leads in ${list(oa)}; ${poss(b)} top five markets are all in ${poss(a)}.`;
   if (!oa.length) return `${b} leads in ${list(ob)}; ${poss(a)} top five markets are all in ${poss(b)}.`;
   return `${a} leads in ${list(oa)}; ${b} in ${list(ob)}.`;
+}
+
+// What a partnerships lead at the left name does with the split (W5b, real Oct 25), from the page's own numbers only:
+// the markets only its audience leads (mapLine's), then the first two rows on its side, the widest gaps. null without
+// a map or a measured row. Liquid Death vs Celsius gives the hand-written case's markets and brands (rivals-cases.ts).
+export function leadLine(a: string, b: string, map: Pick<VsMap, "metrosA" | "metrosB"> | null, leans: Pick<RivalRow, "name" | "a" | "b">[]): string | null {
+  const cities = map ? only(map.metrosA, map.metrosB) : [];
+  const two = leans.filter((r) => r.a !== null && r.b !== null).slice(0, 2);
+  if (!cities.length || !two.length) return null;
+  const rows = two.map((r) => `${r.name} (${r.a!.toFixed(2)} with ${a}, ${r.b!.toFixed(2)} with ${b})`);
+  return `For a partnerships lead at ${a}: test ${list(cities)} first, where ${poss(a)} audience runs hotter, and call ${list(rows)} first, the widest gaps on ${poss(a)} side.`;
 }
 
 // the rival finder's method line (rival-v2): says exactly how the name was chosen and which field, never "rival" or
