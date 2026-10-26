@@ -604,7 +604,8 @@ function Eight({ rows, both, steps, calls, drawn, lead }: { rows: DumbbellRow[] 
   const pick = seed && cands.length ? `/pick-three?${shareQuery({ caseKey: null, seed: { name: seed.name, id: seed.id, type: seed.type }, names: cands.map((x) => ({ name: x.name, id: x.id, type: "urn:entity:brand" })), picks: [], gate: false })}` : null;
   const ranks = both?.shown ? both : null;
   const track = !!rows;
-  const byName = new Map((rows ?? []).map((r) => [r.name, r]));
+  // keyed by display name: both-ways rows arrive as "Alternative Apparel", dumbbell rows as Qloo's bare "Alternative"
+  const byName = new Map((rows ?? []).map((r) => [displayName(r.name), r]));
   const list = ranks
     ? ranks.rows.map((r) => ({ name: r.name, call: r.call, bell: byName.get(r.name) ?? null, fwd: r.fwd, rev: r.rev }))
     : (rows ?? []).map((r) => ({ name: r.name, call: calls.includes(displayName(r.name)), bell: r, fwd: null, rev: null }));
