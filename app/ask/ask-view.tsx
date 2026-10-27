@@ -70,6 +70,7 @@ export default function AskView({ initial, pending, proof, caught, play = false 
   const [error, setError] = useState("");
   const [asked, setAsked] = useState<Body | null>(initial?.asked ?? null);
   const steps = stepsFrom(events);
+  const latest = steps.findLast((s) => s.summary)?.summary; // the wait screen's last landed result (A-10)
   const verdict = verdictOf(events);
   const answer = answerOf(events); // checked and with a first call; an unknown name passes with none (A-1)
   const map = mapStep(steps);
@@ -268,7 +269,11 @@ export default function AskView({ initial, pending, proof, caught, play = false 
           </div>
         )}
         {status === "running" && !verdict && !ambiguous && (
-          <p className="working font-mono text-sm text-ink-2" role="status">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
+          <div role="status">
+            <p className="working font-mono text-sm text-ink-2">Measuring in Qloo: step {Math.max(1, steps.length)} of about 6. A new name takes about 40 seconds.</p>
+            {/* the wait shows what each step found as it lands (A-10, real Oct 27), not one line for 25 seconds */}
+            {latest && <p className="mt-2 text-base text-ink">{latest}.</p>}
+          </div>
         )}
         {ambiguous && (
           <div>

@@ -40,7 +40,8 @@ export function MapKey({ a, b, sourceClass = "" }: { a: string; b: string; sourc
   );
   return (
     <>
-      <p className={`mt-1 text-xs text-ink-3 ${sourceClass}`}>Source: Qloo heatmaps, United States · cells where either audience is in its top half · Crossover&apos;s {LEAN_SPLIT} lean rule</p>
+      {/* plain words (A-7, real Oct 27): "cells" and "0.25 lean rule" meant nothing to a first-time reader */}
+      <p className={`mt-1 text-xs text-ink-3 ${sourceClass}`}>Source: Qloo&apos;s US heatmaps. A dot is a place either audience ranks in its top half; it leans to one side when that audience ranks it at least {Math.round(LEAN_SPLIT * 100)} places higher out of 100 (Crossover&apos;s rule), else it&apos;s Both.</p>
       <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-2">
         {swatch("a", `Leans ${a}`)}
         {swatch("b", `Leans ${b}`)}

@@ -30,7 +30,19 @@ export default function Challenge({ cases, protocol, strip }: { cases: Challenge
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setState(load() ?? { seed: Math.floor(Math.random() * 2 ** 31) + 1, at: 0, picks: {} }), []);
   useEffect(() => { if (state) save(state); }, [state]);
-  if (!state) return <p className="mt-6 min-h-64 text-sm text-ink-3">Shuffling the cases...</p>;
+  // without JS the shuffle never runs (D-7, real Oct 27: the served page held no case), so the first case is in the HTML
+  if (!state) return (
+    <>
+      <noscript>
+        <section className="mt-block">
+          <h2 className="font-display text-xl">Which of these did {cases[0].deal} actually partner with?</h2>
+          <ul className="mt-4 list-disc pl-5 text-base text-ink">{cases[0].eight.map((x) => <li key={x.name}>{x.name}</li>)}</ul>
+          <p className="mt-4 max-w-copy text-base text-ink-2">The game runs in your browser: turn on JavaScript to pick one and see where Qloo&apos;s data put the real partner. {protocol.line}</p>
+        </section>
+      </noscript>
+      <p className="mt-6 min-h-64 text-sm text-ink-3">Shuffling the cases...</p>
+    </>
+  );
 
   const order = rotation(cases.map((c) => c.key), state.seed);
   const done = state.at >= order.length;
