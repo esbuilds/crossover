@@ -1,7 +1,7 @@
 // Field notes (Fable's checker sign-off, real Oct 15): two code lines from the same fields() the candidates cut uses, so
 // a note and the cut can never disagree. "cut": the field the cut left out, by Qloo's tag name ("Own field left out:
 // Baseball"), so NFL teams under the Dodgers read as the rule's limit, not a slip. "shared": when the seed has no specific
-// tag the cut had nothing to run on, and a call shares a Qloo genre tag with it (Chipotle and MOD Pizza: dining).
+// tag the cut had nothing to run on, naming any call that shares a Qloo genre tag with it (Chipotle and MOD Pizza: dining).
 // Cache first (the rival finder already read both lists); a cold lookup spends the visitor's allowance.
 import { insights, type Entity } from "../qloo.ts";
 import { fields } from "../rivals.ts";
@@ -31,7 +31,9 @@ export function fieldNotes(seed: Entity, top: Entity[], calls: string[]): FieldN
     const tag = e && mine.find((m) => e.tags.some((t) => t.tag_id === m.tag_id));
     return tag ? [{ n, tag: tag.name.toLowerCase() }] : [];
   });
-  if (!hits.length) return { cut: null, shared: null };
+  // A-2 (real Oct 27): the answer card carries this line (Arby's: "First call: Wendy's"), so it's there whenever the cut
+  // couldn't run, a shared tag or not
+  if (!hits.length) return { cut: null, shared: `The same-field cut had no specific tag to run on for ${seed.name}, so brands in its own field can be among the candidates. The audit lists this limit.` };
   const tags = [...new Set(hits.map((h) => h.tag))];
   const only = mine.length === 1 ? "only " : "";
   return { cut: null, shared: `The same-field cut had no specific tag to run on for ${seed.name}; ${list(hits.map((h) => h.n))} ${hits.length > 1 ? "share" : "shares"} its ${only}Qloo tag, ${list(tags)}. The audit lists this limit.` };

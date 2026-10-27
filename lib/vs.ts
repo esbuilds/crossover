@@ -5,8 +5,8 @@ import type { RivalPick } from "./rival.ts";
 export type VsState = "split" | "two lists" | "shared-heavy";
 
 const n = (k: number, one: string, many = `${one}s`) => `${k} ${k === 1 ? one : many}`;
-// possessive: "Allbirds'" not "Allbirds's"
-export const poss = (name: string) => (/s$/i.test(name) ? `${name}'` : `${name}'s`);
+// possessive: "Allbirds'" not "Allbirds's"; a name that's already one stays as it is ("Arby's fans", A-14, real Oct 27)
+export const poss = (name: string) => (/['’]s$/i.test(name) ? name : /s$/i.test(name) ? `${name}'` : `${name}'s`);
 
 export function vsState(r: Rivals): VsState {
   if (r.layout === "two") return "two lists";

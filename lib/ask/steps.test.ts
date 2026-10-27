@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { callCard, cardsStep, checkerLine, dumbbellStep, mapStep, replayLine, stepsFrom, twinsStep } from "./steps.ts";
+import { answerOf, callCard, cardsStep, checkerLine, dumbbellStep, mapStep, replayLine, stepsFrom, twinsStep } from "./steps.ts";
 import control from "../../audit/replay-control.json" with { type: "json" };
 import mutation from "../../audit/mutation.json" with { type: "json" };
 import type { AskEvent } from "./agent.ts";
@@ -114,4 +114,16 @@ test("callCard: the first call and where the seed's audience leads, as two separ
   const mjCard = callCard(mj, mjDecision.decision!)!;
   assert.equal(mjCard.first, "First call: Brightwell Optics.");
   assert.equal(mjCard.where, null); // no split, so no market in any step: no line
+});
+
+// A-1 (real Oct 27): a typed name Qloo doesn't know resolves to nothing, and the agent's decision passes the checker with
+// no calls. That's no answer: the page must not render one (fool-it.tsx read calls[0].reason and the page crashed).
+test("answerOf: a passing decision with no calls is no answer; a passing one with calls is", () => {
+  const unknown = [
+    { type: "call", n: 1, tool: "resolve", why: "" },
+    { type: "result", n: 1, summary: "Qloo doesn't know \"Nobody's Pickle Co.\"", output: { state: "unresolved", name: "Nobody's Pickle Co." } },
+    { type: "decision", decision: { calls: [], cautions: [], summary: [{ text: "Qloo doesn't know [[Nobody's Pickle Co.]], so there is nothing to measure.", steps: [1] }] }, check: { ok: true } },
+  ] as AskEvent[];
+  assert.equal(answerOf(unknown), null);
+  assert.equal(answerOf(load("low-tide-choir"))?.calls[0].name, "Brightwell Optics");
 });

@@ -104,6 +104,31 @@ export function firstCallWhy(b: BothWays | null, first: string, tie: { size: num
   const lead = row!.rev === 1 ? `${first} is the only one whose fans rank ${b!.seed} first` : `${first} fans rank ${b!.seed} ${th(row!.rev as number)}, the highest of the ${COUNT[b!.rows.length] ?? b!.rows.length}`;
   return `${head}. ${lead}; ${line!.slice(line!.indexOf("; ") + 2)}`;
 }
+
+// A tie whose first call isn't the one the both-ways read favors (A-6, real Oct 27: Mt. Joy's first call is Outdoor
+// Voices, 26th, while Allbirds fans rank it 4th): name the row whose fans alone rank the seed highest and say the first
+// call is the agent's pick, so the rule reads the same as on a page where the read decides. Table cells only; null when
+// there's no tie, no table, an unmeasured rank, a shared best, or the first call is the favored row.
+export function favoredLine(b: BothWays | null, first: string, tie: { size: number; total: number } | null): string | null {
+  if (!tie || !b?.shown || b.rows.some((r) => r.rev === null)) return null;
+  const at = (r: Rank) => (typeof r === "number" ? r : OUT);
+  const best = Math.min(...b.rows.map((r) => at(r.rev)));
+  const top = b.rows.filter((r) => at(r.rev) === best);
+  if (top.length !== 1 || top[0].name === first || typeof top[0].rev !== "number") return null;
+  return `The both-ways read favors ${top[0].name}, whose fans rank ${b.seed} ${th(top[0].rev)}, the highest of the ${COUNT[b.rows.length] ?? b.rows.length}; ${first} is the agent's pick.`;
+}
+
+// Why there's no both-ways table (A-4, real Oct 27). The gate also hides it when the picks' reverse ranks run in their
+// forward order (Arby's: Wendy's, Denny's and DiGiorno fans rank it 1st, 2nd and 3rd), where "doesn't separate" was
+// wrong and the picks then cited those ranks. Say that rule with its cells; otherwise the line as before.
+export function noTableLine(b: BothWays): string {
+  const calls = b.rows.filter((r) => r.call);
+  const revs = calls.map((r) => r.rev);
+  const inOrder = calls.length > 1 && revs.every((r, i) => typeof r === "number" && (i === 0 || r > (revs[i - 1] as number)));
+  const list = (xs: string[]) => `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`;
+  if (inOrder) return `The other direction was measured too: ${list(calls.map((r) => r.name))} fans rank ${b.seed} ${list(revs.map((r) => th(r as number)))}, the same order as their taste scores, so it gets no table of its own.`;
+  return `The other direction (each one's fans' rank of ${b.seed}) was measured and doesn't separate these ${b.rows.length}, so there's no table.`;
+}
 const outY = (top: number) => top + SLOPE.h + 20;
 // each used label at its point, or one gap below the label above it
 function spread(ys: number[], use: boolean[]) {

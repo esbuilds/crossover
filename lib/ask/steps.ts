@@ -13,6 +13,13 @@ export function decisionEvent(events: AskEvent[]): Extract<AskEvent, { type: "de
   return { ...d, check: checkDecision(d.decision, stepsFrom(events)) };
 }
 
+// The decision the page shows as an answer: it passes the checker and names a first call. A name Qloo doesn't know ends
+// in a passing decision with no calls (A-1, real Oct 27: "Siegel Family Pickles" crashed the front door), which is none.
+export function answerOf(events: AskEvent[]): Decision | null {
+  const d = decisionEvent(events);
+  return d?.check.ok && d.decision?.calls.length ? d.decision : null;
+}
+
 export function stepsFrom(events: AskEvent[]): StepRecord[] {
   const out = new Map<number, StepRecord>();
   for (const e of events) {

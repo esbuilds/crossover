@@ -10,13 +10,13 @@ import CollisionMap, { MapKey } from "../vs/collision-map";
 import { CHECK_RULE, claimCount, displayName, forDisplay, nameForDisplay, type Decision, type StepRecord } from "@/lib/ask/check.ts";
 import { asideNote, smallerLine, type Smaller } from "@/lib/ask/smaller-rules.ts";
 import { askLinks } from "@/lib/ask/links.ts";
-import { callCard, cardsStep, categoryRival, decisionEvent, forkLine, dumbbellStep, mapStep, stepsFrom, tieOf, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
+import { answerOf, callCard, cardsStep, categoryRival, decisionEvent, forkLine, dumbbellStep, mapStep, stepsFrom, tieOf, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine, poss } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
 import { PREPARED_ASKS, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
-import { bothLine, cell as show, firstCallWhy, LEGEND, leftSub, readBoth, slope, WHO, type BothWays } from "@/lib/ask/both-rules.ts";
+import { bothLine, cell as show, favoredLine, firstCallWhy, LEGEND, leftSub, noTableLine, readBoth, slope, WHO, type BothWays } from "@/lib/ask/both-rules.ts";
 import type { FieldNotes } from "@/lib/ask/field-notes.ts";
 import { BothSlope } from "./both-table";
 import { FoolIt } from "./fool-it";
@@ -71,9 +71,10 @@ export default function AskView({ initial, pending, proof, caught, play = false 
   const [asked, setAsked] = useState<Body | null>(initial?.asked ?? null);
   const steps = stepsFrom(events);
   const verdict = verdictOf(events);
+  const answer = answerOf(events); // checked and with a first call; an unknown name passes with none (A-1)
   const map = mapStep(steps);
   const bell = dumbbellStep(steps);
-  const card = verdict?.ok && verdict.decision ? callCard(steps, verdict.decision) : null;
+  const card = answer ? callCard(steps, answer) : null;
   const [landed, setLanded] = useState(play && initial ? 0 : Infinity);
   useEffect(() => {
     if (landed >= steps.length) return;
@@ -98,7 +99,7 @@ export default function AskView({ initial, pending, proof, caught, play = false 
     return () => removeEventListener("hashchange", go);
   }, []);
   const playing = landed < steps.length;
-  const claims = verdict?.ok && verdict.decision ? claimCount(verdict.decision) : 0;
+  const claims = answer ? claimCount(answer) : 0;
   const replayLine = (p: boolean) => (
     <>
       {/* phones skip the stamp sentence (the stamps are below their first screen), so both versions wrap to the same height */}
@@ -127,19 +128,19 @@ export default function AskView({ initial, pending, proof, caught, play = false 
     }
   }
   const resolved = steps.find((s) => s.tool === "resolve")?.output as { state?: string; name?: string; id?: string; type?: string; options?: { name: string; id: string; type: string }[] } | undefined;
-  const answered = resolved?.id && resolved.type && verdict?.ok ? { id: resolved.id, type: resolved.type } : null;
+  const answered = resolved?.id && resolved.type && answer ? { id: resolved.id, type: resolved.type } : null;
   const seeded = asked === initial?.asked; // the server's reads belong to the ask it replayed, not to a later run
   const notes = useAskGet<FieldNotes>("field", "notes", answered, asked, seeded ? initial?.notes : undefined);
   const both = useAskGet<BothWays>("both", "both", answered, asked, seeded ? initial?.both : undefined);
   const small = useAskGet<Smaller>("smaller", "smaller", answered, asked);
   // persona test (agency strategist, Oct 14): the answer's permalink in the address bar once it arrives
   useEffect(() => {
-    if (!ranHere.current || status !== "done" || !verdict?.ok || !resolved?.id || !resolved.type) return;
+    if (!ranHere.current || status !== "done" || !answer || !resolved?.id || !resolved.type) return;
     const href = askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }).share;
     // pushState, not replaceState (FIX-F5): Back returns to the page the visitor came from in Crossover instead of
     // leaving the site; Next's router adopts the entry, so the view holds
     if (location.pathname + location.search !== href) history.pushState(null, "", href);
-  }, [status, verdict?.ok, resolved?.id, resolved?.type, asked]);
+  }, [status, answer, resolved?.id, resolved?.type, asked]);
   const ambiguous = resolved?.state === "ambiguous" ? resolved.options : undefined;
   const chips: { label: string; body: Body }[] = [...PREPARED_ASKS, ...(pending && !("query" in pending.body) ? [{ label: pending.label, body: pending.body }] : [])];
   const links = resolved?.id && resolved.type ? askLinks(asked ?? { id: resolved.id, type: resolved.type }, { id: resolved.id, type: resolved.type }) : null;
@@ -149,11 +150,12 @@ export default function AskView({ initial, pending, proof, caught, play = false 
   const review = steps.find((s) => s.tool === "review");
   const why = card ? firstCallWhy(both, card.name, tieOf(steps)) : null;
   const line = card && both ? bothLine(both, card.name) : null;
+  const favored = card ? favoredLine(both, card.name, tieOf(steps)) : null;
   const slopes = !!both && !!slope(both);
   const eightUp = !slopes && !!(bell || both); // no slopegraph (Calm): the eight is the answer's picture, drawn once
   // the pictures wait at a quarter strength until step 5 lands on the home replay, then draw; at rest everywhere else
   const drawn: "pending" | "drawn" | undefined = landed === Infinity || !review ? undefined : landed < review.n ? "pending" : "drawn";
-  const calls = verdict?.decision?.calls.map((c) => nameForDisplay(c.name)) ?? [];
+  const calls = answer?.calls.map((c) => nameForDisplay(c.name)) ?? [];
   const rivalStep = steps.find((s) => s.tool === "findRival");
   const rivalName = (rivalStep?.output as { rival?: { name: string } } | undefined)?.rival?.name;
   const lead = small ? { name: small.leader.name, aside: asideNote(small, rivalStep && rivalName ? { name: rivalName, step: rivalStep.n } : null) } : null;
@@ -220,13 +222,17 @@ export default function AskView({ initial, pending, proof, caught, play = false 
       {/* 2. The answer: one block, the reason and the call sheet on the left, the picture on the right (one column on
           phones, the picture after the actions) */}
       <section id="answer" className="mt-8 scroll-mt-4">
-        {card && verdict?.decision && (
+        {card && answer && (
           <div className={`${panelStrong} grid gap-x-12 gap-y-6 p-4 sm:px-8 sm:py-7 ${slopes || eightUp ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]" : ""}${landed !== Infinity && !playing ? " card-stamped" : ""}`}>
             <div className="min-w-0">
               <p className="font-display text-3xl text-ink">{card.first}</p>
+              {/* the same-field cut couldn't run (A-2, real Oct 27: Arby's got "First call: Wendy's"): the caveat is the
+                  card's second sentence, not a note under the picks */}
+              {notes?.shared && <p className="mt-3 max-w-copy text-lg text-ink">{notes.shared}</p>}
               {why ? <p className="mt-3 max-w-copy text-lg text-ink">{why}</p> : line && <p className="mt-3 max-w-copy text-lg text-ink">{line}</p>}
               {/* not separated: the measured ranks under the plain "agent's pick", so the reader sees why */}
               {why?.endsWith("not a measured lead.") && line && <p className="mt-2 max-w-copy text-base text-ink-2">{line}</p>}
+              {why?.endsWith("not a measured lead.") && favored && <p className="mt-2 max-w-copy text-base text-ink-2">{favored}</p>}
               {links && (
                 <div className="mt-6">
                   <p className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -270,6 +276,14 @@ export default function AskView({ initial, pending, proof, caught, play = false 
             <p className="mt-2 flex flex-wrap gap-2">{ambiguous.map((o) => <AskLink key={o.id} body={{ id: o.id, type: o.type }} go={() => run({ id: o.id, type: o.type })}>{o.name} ({o.type.replace("urn:entity:", "").replace("_", " ")})</AskLink>)}</p>
           </div>
         )}
+        {/* a run that ends with no first call (A-1): an unknown name, or the agent stopped short; never an error screen */}
+        {verdict?.ok && !answer && status !== "running" && (
+          <p className="max-w-lead text-lg text-ink" role="status">
+            {resolved?.state === "unresolved"
+              ? <>Qloo has no entry for &ldquo;{resolved.name}&rdquo;, so there&apos;s nothing to measure. Try a brand, artist, show or person with a public following, or one of the names above.</>
+              : "The agent ended without a first call. The steps below are what it measured."}
+          </p>
+        )}
         {verdict && !verdict.ok && status !== "running" && (
           <p className="text-base text-ink-2" role="status">{verdict.decision ? "The agent's summary didn't match its own steps, so it isn't shown. The steps are what it measured." : verdict.problems[0]}</p>
         )}
@@ -280,7 +294,7 @@ export default function AskView({ initial, pending, proof, caught, play = false 
       {/* 3. Where: the map, given room */}
       {map && (
         <section id="hero" className="mt-section scroll-mt-4">
-          <MapPicture m={map} n={steps.find((s) => s.tool === "split")!.n} named={[card?.where, ...(verdict?.decision ? [...verdict.decision.calls.map((c) => c.reason), ...verdict.decision.cautions.map((c) => c.text), ...verdict.decision.summary.map((c) => c.text)] : [])].join(" ")} />
+          <MapPicture m={map} n={steps.find((s) => s.tool === "split")!.n} named={[card?.where, ...(answer ? [...answer.calls.map((c) => c.reason), ...answer.cautions.map((c) => c.text), ...answer.summary.map((c) => c.text)] : [])].join(" ")} />
         </section>
       )}
 
@@ -292,9 +306,9 @@ export default function AskView({ initial, pending, proof, caught, play = false 
       )}
 
       {/* the agent's picks and their checked reasons, then the smaller names (code, not the agent; nothing above reorders) */}
-      {verdict?.ok && verdict.decision && (
+      {answer && (
         <section className="mt-section">
-          <Call decision={verdict.decision} steps={steps} shared={notes?.shared ?? null} />
+          <Call decision={answer} steps={steps} />
           {small && <SmallerBlock s={small} steps={steps} />}
         </section>
       )}
@@ -316,7 +330,7 @@ export default function AskView({ initial, pending, proof, caught, play = false 
                   {/* the step's name, then its result: beside it from 640, under it on phones */}
                   <span className="min-w-0 flex-1">
                     <span className="font-medium text-ink sm:mr-2"><span className="sr-only">{s.n}. </span>{TOOL_LABEL[s.tool] ?? s.tool}</span>{" "}
-                    <span className="text-ink-2 max-sm:block">{s.summary || (status === "running" ? <span className="working font-mono text-sm">Reading Qloo...</span> : "Qloo didn't answer this step; the steps above are what was measured.")}</span>
+                    <span className="text-ink-2 max-sm:block">{(s.tool === "candidates" && notes?.shared ? `${s.summary.replace(/, own field left out$/, "")}; the same-field cut couldn't run` : s.summary) || (status === "running" ? <span className="working font-mono text-sm">Reading Qloo...</span> : "Qloo didn't answer this step; the steps above are what was measured.")}</span>
                   </span>
                   <Chevron />
                 </summary>
@@ -335,7 +349,7 @@ export default function AskView({ initial, pending, proof, caught, play = false 
 
       {/* 6. Proof: one quiet line; the checker, the cost, the counterexample, the limits and the agent's notes fold under
           it. Every line stays in the page */}
-      {verdict?.ok && verdict.decision && (
+      {answer && (
         <section className="mt-section" aria-label="How it's checked">
           <div className="flex flex-wrap items-center gap-x-2 text-sm text-ink-2">
             <span className="stamp is-on">
@@ -344,11 +358,11 @@ export default function AskView({ initial, pending, proof, caught, play = false 
             <span>{claims} names and numbers checked against the step each came from</span>
             {caught && <><span aria-hidden className="text-ink-3">·</span><Link href="/audit#fool-it" className={`${linkInline} inline-flex min-h-11 items-center`}>{caught}</Link></>}
             <span aria-hidden className="text-ink-3">·</span>
-            <FoolIt decision={verdict.decision} steps={steps} label="Try to fool it" inline />
+            <FoolIt decision={answer} steps={steps} label="Try to fool it" inline />
           </div>
-          {verdict.decision.cautions.length + verdict.decision.summary.length > 0 && (
-            <Fold title={<>The agent&apos;s notes <span className="text-ink-3">({verdict.decision.cautions.length + verdict.decision.summary.length})</span></>}>
-              <Notes decision={verdict.decision} steps={steps} />
+          {answer.cautions.length + answer.summary.length > 0 && (
+            <Fold title={<>The agent&apos;s notes <span className="text-ink-3">({answer.cautions.length + answer.summary.length})</span></>}>
+              <Notes decision={answer} steps={steps} />
             </Fold>
           )}
           <Fold title="How every line is checked, and what this doesn't establish">
@@ -391,8 +405,8 @@ export function AskHeadline({ seed }: { seed?: string }) {
 // The agent's picks (Fable tie ruling, Oct 14; W3, real Oct 25): the first call and the others, each with its checked
 // reason. Inside a tie the list isn't numbered and says why, so "First call" above and "no order" here don't read as a
 // contradiction (J4). Then the same-audience line, found or not. Ink for what the agent decided, ink-2 for its notes,
-// ink-3 for caveats (DC F7).
-function Call({ decision, steps, shared }: { decision: Decision; steps: StepRecord[]; shared?: string | null }) {
+// ink-3 for caveats (DC F7). The same-field caveat moved up to the answer card (A-2, real Oct 27).
+function Call({ decision, steps }: { decision: Decision; steps: StepRecord[] }) {
   const review = steps.find((s) => s.tool === "review");
   const tied = !!(review?.output as { noClearThree?: boolean } | undefined)?.noClearThree;
   const twinsStepRec = steps.find((s) => s.tool === "twins");
@@ -421,7 +435,6 @@ function Call({ decision, steps, shared }: { decision: Decision; steps: StepReco
           <Steps ns={[twinsStepRec.n]} />
         </p>
       )}
-      {shared && <p className="mt-4 max-w-copy text-base text-ink-2">{shared}</p>}
     </>
   );
 }
@@ -590,8 +603,7 @@ function MapPicture({ m, n, named }: { m: MapStep; n: number; named: string }) {
 
 // The eight, drawn once (W3, real Oct 25). Step 5's fame and taste chart and the both-ways table were two drawings of the
 // same rows; now one table carries the fame-to-taste track, the taste score and, where the both-ways read is shown, both
-// ranks. Rows follow the both-ways table (the frozen review's order) when it's shown, else the chart's (the widest
-// taste-over-fame gap first). Phones hide the track where the ranks are shown: the slopegraph above draws them.
+// ranks. Rows follow the frozen review's order (by taste) either way. Phones hide the track where the ranks are shown: the slopegraph above draws them.
 // drawn: the home replay's state for step 5 (pending: a quarter strength; drawn: each row draws from fame to taste).
 // lead: the smaller names' leader (the top of Qloo's brand list for the seed's fans), so the footnote can say who holds
 // the places the eight don't (a judge asked "Bombas 2nd: who is 1st?")
@@ -604,11 +616,15 @@ function Eight({ rows, both, steps, calls, drawn, lead }: { rows: DumbbellRow[] 
   const pick = seed && cands.length ? `/pick-three?${shareQuery({ caseKey: null, seed: { name: seed.name, id: seed.id, type: seed.type }, names: cands.map((x) => ({ name: x.name, id: x.id, type: "urn:entity:brand" })), picks: [], gate: false })}` : null;
   const ranks = both?.shown ? both : null;
   const track = !!rows;
+  // no both-ways table (A-3, real Oct 27): rows by taste, the review's own order (scores unrounded), so the top score is
+  // the top row and the picks' "ranks second" reads down the table; rows the review didn't measure go last
+  const order = ((review?.output as { groups?: { name: string }[][] } | undefined)?.groups ?? []).flat().map((g) => g.name);
+  const at = (name: string) => (order.includes(name) ? order.indexOf(name) : order.length);
   // keyed by display name: both-ways rows arrive as "Alternative Apparel", dumbbell rows as Qloo's bare "Alternative"
   const byName = new Map((rows ?? []).map((r) => [displayName(r.name), r]));
   const list = ranks
     ? ranks.rows.map((r) => ({ name: r.name, call: r.call, bell: byName.get(r.name) ?? null, fwd: r.fwd, rev: r.rev }))
-    : (rows ?? []).map((r) => ({ name: r.name, call: calls.includes(displayName(r.name)), bell: r, fwd: null, rev: null }));
+    : [...(rows ?? [])].sort((a, b) => at(a.name) - at(b.name)).map((r) => ({ name: r.name, call: calls.includes(displayName(r.name)), bell: r, fwd: null, rev: null }));
   const x = (v: number) => `${Math.max(0, Math.min(1, (v - 0.5) / 0.5)) * 100}%`;
   const trackCell = `w-[38%] min-w-28 ${ranks ? "max-sm:hidden" : ""}`;
   const who = seed?.name ?? both?.seed ?? "the seed";
@@ -687,7 +703,7 @@ function Eight({ rows, both, steps, calls, drawn, lead }: { rows: DumbbellRow[] 
         <>
           {calls.length > 0 && <p className="mt-2 text-sm text-ink-3">* the agent&apos;s calls.</p>}
           {/* persona round 2 (Olipop lead): a withheld table said nothing; now one line says why */}
-          {both && !both.shown && <p className="mt-2 max-w-copy text-sm text-ink-3">The other direction (each one&apos;s fans&apos; rank of {both.seed}) was measured and doesn&apos;t separate these {both.rows.length}, so there&apos;s no table. <Link href="/audit#both-ways" className={linkInline}>How that&apos;s decided</Link></p>}
+          {both && !both.shown && <p className="mt-2 max-w-copy text-sm text-ink-3">{noTableLine(both)} <Link href="/audit#both-ways" className={linkInline}>How that&apos;s decided</Link></p>}
         </>
       )}
       {pick && <p className="mt-2"><Link href={pick} className={btnText}>Pick your own three from these {WORDS[cands.length] ?? cands.length}</Link></p>}

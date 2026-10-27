@@ -1,7 +1,7 @@
 // The /vs page's states, verdict line and copy rules, from fixture payloads. No API calls.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bannedIn, DOESNT_ESTABLISH, emptyColumn, leadLine, mapLine, rankContext, verdict, vsState } from "./vs.ts";
+import { bannedIn, DOESNT_ESTABLISH, emptyColumn, leadLine, mapLine, poss, rankContext, verdict, vsState } from "./vs.ts";
 import { validShareLink } from "./share-link.ts";
 import type { Rivals, RivalRow } from "./rivals.ts";
 
@@ -90,4 +90,10 @@ test("the Liquid Death vs Celsius case passes the copy rules", async () => {
   const { PAIR_CASE } = await import("./rivals-cases.ts");
   const names = ["Liquid Death", "Celsius", "Manscaped", "Bella+canvas", "Affliction Clothing", "Fallen Footwear", "22Red", "The Berrics", "Pretty Girls Sweat", "Yummy Spoonfuls"];
   assert.deepEqual(bannedIn([PAIR_CASE.label, ...PAIR_CASE.paragraphs].join(" "), names), []);
+});
+
+test("poss: a name that's already possessive stays as it is (A-14)", () => {
+  assert.equal(poss("Arby's"), "Arby's");
+  assert.equal(poss("Allbirds"), "Allbirds'");
+  assert.equal(poss("Calm"), "Calm's");
 });

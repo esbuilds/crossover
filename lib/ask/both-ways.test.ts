@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { bothWaysFrom, gate, sentence, type Row } from "./both-ways.ts";
 import allbirds from "./demo/corvid-co.json" with { type: "json" };
 import mtJoy from "./demo/low-tide-choir.json" with { type: "json" };
-import { bothLine, cell, firstCallHeading, firstCallWhy, leftSub, oneWay, OUT_LINES, rightSub, slope, type BothWays } from "./both-rules.ts";
+import { bothLine, cell, favoredLine, firstCallHeading, firstCallWhy, leftSub, noTableLine, oneWay, OUT_LINES, rightSub, slope, type BothWays } from "./both-rules.ts";
 import type { AskEvent } from "./agent.ts";
 
 // Corvid & Co.'s rank among each candidate's fans' brands, as the getter below returns it (0 = not in their top 50)
@@ -148,4 +148,29 @@ test("slopegraph, wide: the sub-lines are the review group's range and the table
   assert.equal(leftSub(ab, [g[0].slice(0, 3), g[0].slice(3)]), null);
   assert.equal(leftSub(ab, undefined), null);
   assert.deepEqual(slope(ab, true, "x")!.subs, { left: null, right: null });
+});
+
+// A-6 (real Oct 27): Low Tide Choir's first call is Brightwell Optics (its fans rank the seed 26th) while another row's
+// fans rank it 4th, the best of the eight. The card names that row and says the first call is the agent's pick.
+test("A-6: a tie whose first call isn't the one the both-ways read favors names the favored row and its rank", async () => {
+  const mj = await mjBoth();
+  const all = { size: 8, total: 8 };
+  const best = mj.rows.find((r) => r.rev === 4)!.name;
+  assert.equal(favoredLine(mj, "Brightwell Optics", all), `The both-ways read favors ${best}, whose fans rank Low Tide Choir 4th, the highest of the eight; Brightwell Optics is the agent's pick.`);
+  const ab = (await bothWaysFrom(events, recorded()))!;
+  assert.equal(favoredLine(ab, "Larkspur Labs", all), null); // the first call is the favored one
+  assert.equal(favoredLine(mj, "Brightwell Optics", null), null); // no tie
+  assert.equal(favoredLine({ ...mj, shown: false }, "Brightwell Optics", all), null); // no table, no ranks on the page
+  assert.equal(favoredLine({ ...mj, rows: mj.rows.map((r) => (r.rev === 26 ? { ...r, rev: 4 } : r)) }, "Brightwell Optics", all), null); // a shared best names no one
+});
+
+// A-4 (real Oct 27): the no-table line said the other direction "doesn't separate these 8" on a page whose picks cite
+// reverse ranks 1, 2 and 3. The gate also hides the table when the picks' reverse order is their forward order.
+test("A-4: the no-table line says which rule hid the table", () => {
+  const row = (name: string, fwd: number, rev: Row["rev"], call: boolean): Row => ({ name, fwd, rev, call });
+  const b = (rows: Row[]): BothWays => ({ seed: "Corvid & Co.", noun: "brands", rows, shown: false, sentence: null, oneWay: null });
+  const same = b([row("Larkspur Labs", 1, 1, true), row("Fernway", 2, 2, true), row("Brindle", 3, 3, true), row("Velvet Anvil", 4, 12, false)]);
+  assert.equal(noTableLine(same), "The other direction was measured too: Larkspur Labs, Fernway and Brindle fans rank Corvid & Co. 1st, 2nd and 3rd, the same order as their taste scores, so it gets no table of its own.");
+  const out = b([row("Larkspur Labs", 1, "out", true), row("Fernway", 2, "out", true), row("Brindle", 3, 9, false)]);
+  assert.equal(noTableLine(out), "The other direction (each one's fans' rank of Corvid & Co.) was measured and doesn't separate these 3, so there's no table.");
 });

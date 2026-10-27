@@ -27,6 +27,7 @@ export function rebracket(original: string, shown: string, edited: string): stri
 
 export function checkEdit(decision: Decision, steps: StepRecord[], shown: string, edited: string): Check {
   const [first, ...rest] = decision.calls;
+  if (!first) return { ok: false, problems: ["there's no first call to check"] };
   return checkDecision({ ...decision, calls: [{ ...first, reason: rebracket(first.reason, shown, edited) }, ...rest] }, steps);
 }
 

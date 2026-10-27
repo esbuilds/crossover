@@ -10,11 +10,13 @@ import { checkEdit, nudge } from "@/lib/ask/fool.ts";
 // re-checks it here in the browser. Pure code, 0 calls; the answer itself never changes.
 // label: the ask page's proof line names it in a few words (W3, real Oct 25); the pitch sheet keeps the full label
 export function FoolIt({ decision, steps, label = "Try to fool the checker", inline = false }: { decision: Decision; steps: StepRecord[]; label?: string; inline?: boolean }) {
-  const shown = forDisplay(decision.calls[0].reason);
+  const first = decision.calls[0]; // none on a name Qloo doesn't know (A-1, real Oct 27): no box, never a crash
+  const shown = first ? forDisplay(first.reason) : "";
   const [open, setOpen] = useState(false);
   const [text, setText] = useState(shown);
   const [result, setResult] = useState<Check | null>(null);
   const check = (t: string) => setResult(checkEdit(decision, steps, shown, t));
+  if (!first) return null;
   // inline: a bare button inside the caller's line, and the open box takes the line's full width
   if (!open) return inline ? <button type="button" onClick={() => setOpen(true)} className={btnText}>{label}</button> : <p className="mt-2"><button type="button" onClick={() => setOpen(true)} className={btnText}>{label}</button></p>;
   return (
@@ -28,7 +30,7 @@ export function FoolIt({ decision, steps, label = "Try to fool the checker", inl
         <button type="button" onClick={() => (setText(shown), setResult(null))} className={btnText}>Reset</button>
       </p>
       {result && (result.ok
-        ? <p className="mt-2 text-base text-ink">Passes: every name and number traces to {decision.calls[0].steps.length === 1 ? "the step" : "the steps"} it cites.</p>
+        ? <p className="mt-2 text-base text-ink">Passes: every name and number traces to {first.steps.length === 1 ? "the step" : "the steps"} it cites.</p>
         : <div className="mt-2" role="status"><p className="text-base text-ink">Rejected. This answer wouldn&apos;t be shown:</p><ul className="mt-1 list-disc pl-5 font-mono text-sm text-ink-2">{result.problems.map((p) => <li key={p}>{forDisplay(p.replace(/^call 1: /, ""))}</li>)}</ul></div>)}
       <p className="mt-2 text-sm text-ink-3">We attacked it ourselves first: <Link href="/audit#fool-it" className={linkInline}>what it catches, and what got through</Link>.</p>
     </div>
