@@ -175,12 +175,13 @@ export function cached<A extends unknown[], R>(name: string, fn: (...args: A) =>
   return Object.assign(process.env.NODE_ENV === "development" ? devFileCache(name, run) : run, { peek });
 }
 
-// Real Oct 27: two heatmaps (about 600 KB each) were read from Redis on every front-door, answer or /vs view, and the
-// month's Redis bandwidth ran out. A key's value never changes once written, so the first read's text is kept here and
-// parsed again on each read: the same bytes, and a fresh object for every caller, as before.
+// Real Oct 27: every front-door, answer or /vs view read two heatmaps (about 600 KB each) and dozens of insights lists
+// (1.7 MB on the front door) from Redis, and the month's Redis bandwidth ran out. A key's value never changes once
+// written, so the first read's text is kept here and parsed again on each read: the same bytes, and a fresh object for
+// every caller, as before.
 // ponytail: one Map per server instance, least recently used out first, capped at MEMO_CHARS (32M characters, about
-// 50 heatmaps); a cold instance still pays its first read of each key. Upgrade path: a CDN-cached route for the
-// heatmaps if instances churn.
+// 50 heatmaps or 600 insights lists); a cold instance still pays its first read of each key. Upgrade path: a
+// CDN-cached route for these reads if instances churn.
 const MEMO_CHARS = 32 * 1024 * 1024;
 const memoText = new Map<string, string>();
 let memoChars = 0;
@@ -235,6 +236,7 @@ export const search = cached("search", async (query: string, types: string[], ta
 
 export const insights = cached("insights", async (params: Record<string, string | number>) =>
   trimEntities(await request("/v2/insights", { query: params })),
+  { memo: true },
 );
 
 export type Signal = { id: string; weight: number };
