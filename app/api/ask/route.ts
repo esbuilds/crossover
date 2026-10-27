@@ -2,11 +2,8 @@
 // POST /api/ask { query } or { id, type } -> server-sent AskEvents (lib/ask/agent.ts), then done or error.
 import { type NextRequest } from "next/server";
 import { ask } from "@/lib/ask/agent.ts";
-import { CapReached, generationKey } from "@/lib/agent/stream-cache.ts";
-import { QuotaError } from "@/lib/qloo.ts";
-import { ColdPairCap } from "@/lib/rivals.ts";
-import { failCode } from "@/lib/failure.ts";
-import { FAIL_COPY } from "@/lib/fail-copy.ts";
+import { generationKey } from "@/lib/agent/stream-cache.ts";
+import { askErrorCopy } from "@/lib/failure.ts";
 import { sse } from "@/lib/sse.ts";
 import { parseAskBody } from "@/lib/ask/body.ts";
 
@@ -26,14 +23,7 @@ export async function POST(request: NextRequest) {
       send({ type: "done", cached: !r.ran });
     } catch (err) {
       console.error("[ask]", err);
-      const code = failCode(err);
-      send({
-        type: "error",
-        message: code ? FAIL_COPY[code]
-          : err instanceof CapReached ? "You've hit today's limit of 20 new asks. Asks you've already opened still work, and the limit resets tomorrow."
-          : err instanceof QuotaError || err instanceof ColdPairCap ? "Qloo's taste data is busy right now. Prepared asks still work; try this one again in a minute."
-          : "The agent stopped partway. The steps below are what it measured; try again to finish.",
-      });
+      send({ type: "error", message: askErrorCopy(err) });
     }
   });
 }
