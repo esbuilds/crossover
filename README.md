@@ -25,7 +25,7 @@ Nothing here needs a key. Node 22.18 or later.
 
 ```
 npm ci
-npm test            # 261 offline tests: 254 pass, 7 skip (they need Qloo data this repo doesn't hold)
+npm test            # 262 offline tests: 255 pass, 7 skip (they need Qloo data this repo doesn't hold)
 npm run typecheck   # clean; runs next typegen first, which writes the page types a fresh clone lacks
 npm run lint
 npm run verify      # the checker and its attack, run on a made-up demo world
@@ -238,7 +238,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 
 ## Test list
 
-`npm test` runs 261 offline tests:
+`npm test` runs 262 offline tests:
 
 - match validation against the invented search table
 - the review rules: missing data, leader-relative ties, selection, buyer gates, identity, request hygiene and share links
@@ -256,6 +256,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 - the checker attack's tampers over the three demo asks (20 of 21 gated copies rejected, as on the recorded ones) and, where the recorded asks are present, the Allbirds ask's frozen hash
 - the demo-data notice, shown only where the audit tables are stand-ins
 - a guard that no client component imports the server-only Qloo client
+- the in-memory memo in front of the heatmap and insights reads: a second read of a key never goes to Redis
 
 `npm run typecheck` is clean (it runs `next typegen` first, which writes the page types a fresh clone lacks).
 
