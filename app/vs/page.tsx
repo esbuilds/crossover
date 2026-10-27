@@ -9,7 +9,7 @@ import { peekVs, toPayload } from "@/lib/rivals.ts";
 import { VS_CASES } from "@/lib/rivals-cases.ts";
 import Front from "./front";
 
-// Two names in (the front door until Pick A, Oct 13): the rivals map, first prepared pair from the cache only (the
+// Two names in (the front door until Oct 13): the rivals map, first prepared pair from the cache only (the
 // server never spends here; a cold first pair loads in the browser).
 export const metadata: Metadata = { title: "Two names in" };
 
@@ -20,7 +20,7 @@ export default function Vs() {
       <Suspense fallback={<Skeleton lines={8} />}>
         <Hero />
       </Suspense>
-      {/* moved from the home footer (Pick 1, Oct 14): one judge path up front, the rest of Crossover behind /vs */}
+      {/* moved from the home footer (Oct 14): one judge path up front, the rest of Crossover behind /vs */}
       <footer className="mt-section border-t border-rule pt-block text-base">
         <p className="flex flex-wrap items-center gap-2">
           <span className="text-ink-2">Whole aisles:</span>

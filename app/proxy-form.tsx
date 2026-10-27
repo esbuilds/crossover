@@ -27,7 +27,7 @@ export default function ProxyForm({
   const [checked, setChecked] = useState<Checked | null>(null);
   const [proxies, setProxies] = useState<Card[]>([]);
 
-  // Gate (PLAN.md section 8, Oct 14): one named brand, or a description of eight words or more.
+  // Gate (Oct 14): one named brand, or a description of eight words or more.
   const named = brands.filter((b) => b.trim()).length;
   const words = description.trim().split(/\s+/).filter(Boolean).length;
   const ready = name.trim() && (named > 0 || words >= 8);

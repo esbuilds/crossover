@@ -329,7 +329,7 @@ export default function AuditPage() {
           <li id="audience-lens">
             <span className="font-semibold">Qloo&apos;s named audiences barely separate partners, so there is no audience lens.</span> Real Oct 18 (about 40 of 54 calls that day). Four seeds (Liquid Death, Olipop, Celsius, Allbirds), each with its top three brand partners, scored under eight Qloo audiences (Single, Parents With Young Children, Technology Enthusiast, Discount Shoppers, Running, Travel, Foodie, Music Festivals) with signal.demographics.audiences and the four ids in filter.results.entities. Pass mark, written before the run: most of the twelve partners spread at least 0.10 between their highest and lowest audience, and not the same top audience everywhere. 3 of 12 spread 0.10 or more (the largest 0.111); Foodie tops 6 of 12; Olipop, its three partners, Celsius and Fallen Footwear return 0.76 under every audience, which reads as a value with nothing behind it. Failed, not built. The measured file stays private under Qloo&apos;s terms; the script is scripts/audience-probe.ts.
           </li>
-          {/* Fable's Oct 16 ruling, pick 1: below the floor of 5 it is a probe entry, not a v3 line */}
+          {/* Oct 16 ruling, point 1: below the floor of 5 it is a probe entry, not a v3 line */}
           <li id="fresh-deals">
             <span className="font-semibold">Fresh deals, chosen by rule, didn&apos;t reach the floor.</span> Real Oct 16 (34 calls, no affinity read), a third replay on deals chosen by rule after the protocol froze (8354269, Oct 13). The rule was committed before the search (b2d3c28: Marketing Dive and Food Dive, Aug 17 to Oct 16, two brands per deal, a floor of 5 scored cases) and the list before any Qloo call (1f4c0c4). 13 deals found; 3 excluded under the rule (Netflix and Wendy&apos;s were already used, Papa Johns&apos; partner was a film). Of the 10 left, 5 names didn&apos;t confirm (BeatBox, Biscoff and Flamin&apos; Hot matched more than one entity; BuzzBallz, Mike&apos;s Hot Honey and Pilgrim&apos;s matched none), and Realtree and Skippy carry no brand genre tag, so no decoys can be drawn. 3 built (Hoka x Strava, Shock Top x Spirit Halloween, e.l.f. Cosmetics x Zepeto) against a floor of 5, so nothing was scored and there is no third replay line. Most of the losses are small food and drink brands, as in the notes on the API below. Both sites&apos; listing pages wouldn&apos;t paginate, so the search rests on 26 domain-restricted web searches plus the first page of each listing (log in audit/replay-v3-search-log.md). Files: audit/replay-v3-protocol.md, replay-v3-cases.json and replay-v3-search.json; the scored file stays private under Qloo&apos;s terms.
           </li>
@@ -347,7 +347,7 @@ export default function AuditPage() {
         </details>
       </section>
 
-      {/* Fable's Oct 16 ruling, pick 3: what we asked, what came back, what we shipped, the probe file. No adjectives, no asks. */}
+      {/* Oct 16 ruling, point 3: what we asked, what came back, what we shipped, the probe file. No adjectives, no asks. */}
       <section id="api-notes" className="mt-section max-w-copy scroll-mt-4">
         <h2 className="font-display text-xl">Notes on the API</h2>
         <ul className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-3 text-base text-ink">

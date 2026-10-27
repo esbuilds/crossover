@@ -1,4 +1,4 @@
-// The "both ways" table (Fable's columns ruling, real Oct 15): all eight rows in the frozen review's order, the agent's
+// The "both ways" table (the columns ruling, real Oct 15): all eight rows in the frozen review's order, the agent's
 // calls marked, both ranks, one static caption. Shared by the ask page and the sheet; no hooks.
 import Link from "next/link";
 import { linkInline } from "@/app/ui";

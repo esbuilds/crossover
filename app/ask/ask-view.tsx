@@ -1,5 +1,5 @@
 "use client";
-// The ask (the front door since Pick A, Oct 13). One story top to bottom (W3, real Oct 25): who it's for and the box; the
+// The ask (the front door since Oct 13). One story top to bottom (W3, real Oct 25): who it's for and the box; the
 // answer (the first call, why, the call sheet, one picture); where the audiences split; the eight, drawn once; the
 // agent's picks; how it got here (the steps, folded); and the proof, one line with the long text folded under it.
 // initial: a cached ask the server replayed (no POST, no Qloo call); pending: a share link whose ask isn't cached yet.
@@ -389,7 +389,7 @@ export default function AskView({ initial, pending, proof, caught, play = false 
             {/* counted from the steps, not from Qloo's meter: a cached replay makes no calls at all */}
             <p className="mt-2 text-sm text-ink-3">{steps.length} steps, each measured in Qloo; every number above comes from a step.{replayed ? " Replayed from an earlier run: 0 Qloo calls." : ""}</p>
             {proof && <p className="mt-2 text-sm text-ink-2">{proof} <Link href="/audit#fool-it" className={linkInline}>What got through</Link></p>}
-            {/* the re-judge's memorable moment lived only on /audit (Fable tie ruling, Oct 14) */}
+            {/* the re-judge's memorable moment lived only on /audit (tie ruling, Oct 14) */}
             <p className="mt-2 text-sm text-ink-2">The counterexample: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Taste is one input. <Link href="/audit" className={linkInline}>See it on the audit</Link></p>
             <p className="mt-2 text-sm text-ink-3">{LIMITS}</p>
             <p className="mt-1 text-sm text-ink-3">{WHO}{both?.shown ? ` ${LEGEND}` : ""}</p>
@@ -414,14 +414,14 @@ export function AskHeadline({ seed }: { seed?: string }) {
       <h1 className="font-display text-2xl sm:text-3xl">{seed ? `Who should ${displayName(seed)} call first?` : "One name in. Who should its partnerships team call first?"}</h1>
       <p className="mt-3 max-w-lead text-lg text-ink-2">
         {/* one sentence in the HTML, so a text reader gets it once (judge round, real Oct 25); phones skip the two
-            clauses, so the card and the map's top edge fit the first 390x800 screen (Fable tie ruling) */}
+            clauses, so the card and the map's top edge fit the first 390x800 screen (tie ruling) */}
         Every number comes from Qloo<span className="max-sm:hidden">, the agent decides what to measure next and why,</span> and every name and number in the answer is checked<span className="max-sm:hidden"> against the step it cites</span>.
       </p>
     </>
   );
 }
 
-// The agent's picks (Fable tie ruling, Oct 14; W3, real Oct 25): the first call and the others, each with its checked
+// The agent's picks (the tie ruling, Oct 14; W3, real Oct 25): the first call and the others, each with its checked
 // reason. Inside a tie the list isn't numbered and says why, so "First call" above and "no order" here don't read as a
 // contradiction (J4). Then the same-audience line, found or not. Ink for what the agent decided, ink-2 for its notes,
 // ink-3 for caveats (DC F7). The same-field caveat moved up to the answer card (A-2, real Oct 27).
@@ -498,7 +498,7 @@ function WhereLine({ id, type, asked, seed }: { id: string; type: string; asked:
 }
 
 // Code beside the frozen answer, from a cached ask (cache first): /api/ask/both, the eight ranked in each direction
-// (Fable's columns ruling, Oct 15), and /api/ask/field, the field notes (checker sign-off, Oct 15). null until it arrives.
+// (the columns ruling, Oct 15), and /api/ask/field, the field notes (checker sign-off, Oct 15). null until it arrives.
 // given: the value the server already read (FIX-F3); a null from the server was a cold cache, so the client still asks
 function useAskGet<T>(path: "both" | "field" | "smaller", field: "both" | "notes" | "smaller", seed: { id: string; type: string } | null, asked: Body | null, given?: T | null): T | null {
   const [v, setV] = useState<T | null>(given ?? null);

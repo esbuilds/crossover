@@ -6,7 +6,7 @@ import { SiteHeader, shell } from "@/app/ui";
 import { parseShare, shareCard, shareQuery } from "@/lib/review-share.ts";
 import ReviewView from "../review/review-view";
 
-// Pick three (its own route since Pick A, Oct 13; it sat below the rivals front door before). Share links
+// Pick three (its own route since Oct 13; it sat below the rivals front door before). Share links
 // (/pick-three?c=... or ?s=...&n=...) open on their reveal, with the title and card from the query alone.
 export async function generateMetadata({ searchParams }: PageProps<"/pick-three">): Promise<Metadata> {
   await connection();

@@ -20,7 +20,7 @@ import { mapLine } from "@/lib/vs.ts";
 import { peekVs } from "@/lib/rivals.ts";
 import { TONE } from "@/lib/collide.ts";
 
-// The call sheet (Pick 2, Oct 14): /ask/<id>/sheet?t=<type>. One printed page from a cached ask only; an ask that isn't
+// The call sheet (Oct 14): /ask/<id>/sheet?t=<type>. One printed page from a cached ask only; an ask that isn't
 // cached shows the waiting state and never spends.
 export const metadata: Metadata = { title: "Call sheet", robots: { index: false, follow: false } };
 
@@ -68,7 +68,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
         <p className="print:hidden"><PrintButton /></p>
       </header>
       <h1 className="mt-3 font-display text-2xl">{s.question}</h1>
-      {/* the same call card as the page (Fable tie ruling, Oct 14): two lines, two labels */}
+      {/* the same call card as the page (tie ruling, Oct 14): two lines, two labels */}
       <div className={`${panelStrong} mt-2 px-3 py-2`}>
         <p className="text-base font-semibold">{s.card.first}</p>
         {/* J4 (real Oct 25): inside a tie, whether the both-ways read separates the first call, as on the ask page */}

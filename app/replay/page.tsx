@@ -7,7 +7,7 @@ import control from "@/audit/replay-control.json";
 import { replayLine } from "@/lib/replay-control.ts";
 import { DEMO_REPLAY_NOTICE, isDemoAudit } from "@/lib/demo-audit.ts";
 
-// The replay challenge (Fable's re-judge ruling, real Oct 15): the 23 frozen replay cases, guess then reveal. The
+// The replay challenge (the re-judge ruling, real Oct 15): the 23 frozen replay cases, guess then reveal. The
 // homepage stays the ask; this is its own route. Built from the audit files at build time: 0 Qloo and 0 model calls.
 export const metadata: Metadata = { title: "Spot the real partner", description: "23 real brand collaborations, each hidden among seven decoys. Pick the real partner, then see where Qloo's taste data put it." };
 

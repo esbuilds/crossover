@@ -118,7 +118,7 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
         </p>
       )}
 
-      {/* folded by default since Pick A (Oct 13): one judge path, the X-ray one click away */}
+      {/* folded by default since Oct 13: one judge path, the X-ray one click away */}
       {d.xray?.length ? (
         <FoldBox label={`Beyond brands: the same split in ${d.xray.length} more Qloo domains`} className="mt-block border-t">
           <XraySection d={d} rows={d.xray} check={log.length} />

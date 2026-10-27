@@ -36,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             Nothing here applies with JS on. */}
         <noscript><style>{`body{display:flex;flex-direction:column}body>footer{order:1}[data-fallback]{display:none}@layer base{div[hidden][id^="S:"]:has(>.pt-page){display:block!important;width:100%;max-width:var(--container-shell);margin-inline:auto;padding-inline:var(--spacing-gutter)}}`}</style></noscript>
         {children}
-        {/* one colophon on every page (DC F6, TR F10): it carries the three stops (Pick A) and the tour */}
+        {/* one colophon on every page (DC F6, TR F10): it carries the three stops and the tour */}
         <footer className="mx-auto max-w-shell px-gutter pb-12 text-sm text-ink-3 print:hidden">
           <div className="border-t border-rule pt-8">
             <p><span className="font-display text-base text-ink">Crossover</span> · Data: Qloo, built on its taste graph</p>

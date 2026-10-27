@@ -26,7 +26,7 @@ const NOT_DESCRIPTIVE = /\bapp\b|advertising|brands|companies|enabled/i;
 const descriptor = (tags: string[]) => tags.filter((t) => t.length <= 20 && !/\d/.test(t) && !NOT_DESCRIPTIVE.test(t)).slice(0, 2).join(" · ");
 
 // initial: a share link, which opens on its reveal once the route answers (picks are indices into its names).
-// embedded: inside a page that brings its own shell and header (/pick-three since Pick A; below the rivals front door
+// embedded: inside a page that brings its own shell and header (/pick-three since Oct 13; below the rivals front door
 // before that). The top margin and rule that separated it from the rivals result are gone with that placement (WILD-F4,
 // real Oct 21): on its own page they read as an empty band under the header. The pick step's heading is the page's h1.
 export default function ReviewView({ initial, embedded = false }: { initial?: Shared; embedded?: boolean }) {

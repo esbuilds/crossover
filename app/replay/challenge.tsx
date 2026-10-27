@@ -1,5 +1,5 @@
 "use client";
-// The replay challenge's game (Fable's re-judge ruling, Oct 15). Every case comes round once, misses included, in a
+// The replay challenge's game (the re-judge ruling, Oct 15). Every case comes round once, misses included, in a
 // seeded order saved in the browser so a refresh resumes where it was; nothing can be skipped by reloading. The reveal
 // shows the published rank and score even when the protocol missed. Two tallies, never pooled.
 import Link from "next/link";

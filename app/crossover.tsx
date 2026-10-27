@@ -763,7 +763,7 @@ function PickRow({
   );
 }
 
-// Refine (PLAN.md section 2 step 8): one sentence of constraints re-plans the run. Applied constraints show as
+// Refine: one sentence of constraints re-plans the run. Applied constraints show as
 // chips; removing one re-runs without its phrase. What couldn't be mapped shows in the constraints box above the log.
 function RefineBar({
   refineText,

@@ -1,5 +1,5 @@
 "use client";
-// Old anchors on the front door (before Pick A, Oct 13) now live on their own pages: the Devpost's /#what-a-lead-does
+// Old anchors on the front door (before Oct 13) now live on their own pages: the Devpost's /#what-a-lead-does
 // and Pick three's /#pick-three.
 import { useEffect } from "react";
 

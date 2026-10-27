@@ -10,7 +10,7 @@ import { CAUGHT, PROOF } from "@/lib/ask/proof.ts";
 import AskView, { AskHeadline } from "./ask/ask-view";
 import HashRedirect from "./hash-redirect";
 
-// The front door (Pick A, Oct 13): one name in, the agent decides who to call first. The first prepared ask replays
+// The front door (Oct 13): one name in, the agent decides who to call first. The first prepared ask replays
 // from the cache on the server (never a Qloo call or a generation here); a cold cache leaves the page waiting for a
 // click. Old Pick three links (/?c=, /?s=) redirect to /pick-three (next.config.ts); old anchors in HashRedirect.
 export default function Home() {

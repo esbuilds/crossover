@@ -132,9 +132,9 @@ export function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void 
 
 
 // Wordmark left, the nav right. Same on every page.
-// One nav on every page (Pick 1, Oct 14): ask, two names in, Pick three, the audit. The old per-page link (href, label)
+// One nav on every page (Oct 14): ask, two names in, Pick three, the audit. The old per-page link (href, label)
 // is ignored, so the routes cut from the nav (/map, /find, /pair, /triage, /s, /review, /end-card) keep their own code.
-// Fable's ruling (Oct 15): the challenge takes Pick three's place; Pick three stays one click from every answer and the footer.
+// A review ruling (Oct 15): the challenge takes Pick three's place; Pick three stays one click from every answer and the footer.
 // The links live in NavLinks, a client component, because the current-page mark reads the path.
 export function SiteHeader(props: { href?: string; label?: string }) {
   void props;
@@ -178,7 +178,7 @@ export function ExampleLinks() {
   );
 }
 
-// The judge path (Pick A, Oct 13), on every main page: the ask, the measurement behind any step, the audit.
+// The judge path (Oct 13), on every main page: the ask, the measurement behind any step, the audit.
 export function JudgePath() {
   return (
     <p className="mt-2 text-sm text-ink-3">
