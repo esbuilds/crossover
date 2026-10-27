@@ -1,4 +1,4 @@
-// Match validation (PLAN.md section 3). /search returns confident wrong matches
+// Match validation. /search returns confident wrong matches
 // (Fruition Chocolate Works -> Bath & Body Works), so never trust the top hit and never rank by popularity.
 // Deterministic first, Haiku only in the ambiguous band, the user always sees the card.
 import { generateText, jsonSchema, Output } from "ai";
@@ -13,8 +13,8 @@ export type Resolution =
 // null means "no opinion available" (no key, API error); the caller keeps the result ambiguous.
 export type Judge = (query: string, candidates: Entity[]) => Promise<{ index: number | null; reason: string } | null>;
 
-// PLAN.md list, plus joiners (and/of/by/x) so "Fly By Jing" and "Savage X Fenty By Rihanna" don't share a token
-export const POPULARITY_FLOOR = 0.3; // same threshold PLAN.md suggests for filter.popularity.min
+// Stop words, plus joiners (and/of/by/x) so "Fly By Jing" and "Savage X Fenty By Rihanna" don't share a token
+export const POPULARITY_FLOOR = 0.3; // same threshold the design notes suggest for filter.popularity.min
 const STOP = new Set(["the", "co", "inc", "brand", "works", "company", "and", "of", "by", "x"]);
 
 export const tokens = (s: string) =>

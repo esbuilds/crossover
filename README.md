@@ -1,12 +1,52 @@
 # Crossover
 
+One name in. An agent measures in Qloo, step by step, and says who that brand, artist or show should call first. Every name and number in its answer is checked against the step it came from before the page shows it.
+
+**Live:** https://crossover-henna.vercel.app (the Allbirds answer is on the front door; nothing to install). Built for the Qloo Agentic Hackathon, 2026. MIT.
+
 ![The Allbirds answer: where Allbirds' and Outdoor Voices' audiences split on a US map, "First call: Bombas", and a slopegraph in which Bombas is the one line that climbs](docs/answer.png)
 
-One name in: an agent measures in Qloo step by step and says who that brand, artist or show should call first. Every name and number in its answer is checked against the step it came from before the page shows it.
+## What it is
 
-**Live:** https://crossover-henna.vercel.app · MIT · Built for the Qloo Agentic Hackathon (2026)
+A partnerships team types a brand. Claude picks the next measurement and says why. It can only measure through six tools over the Qloo Insights API (`lib/ask/tools.ts`): confirm the name, find the closest same-field rival, split the two audiences on a US map, pick eight candidates by a fixed rule, score them under the seed's fans, and check whether two candidates reach the same audience. Then it names up to three calls. `lib/ask/check.ts` matches every name and number in that answer to the step it cites. An answer that fails isn't shown.
 
-**What's measured.** We attacked the checker with 230 altered answers; it rejects 219 after we found and fixed one gap, also published, and the 11 that got through are listed on /audit#fool-it. In the answer above, Bombas fans rank Allbirds first among brands and the other seven candidates' fans rank it 9th to 31st or not in their top 50. We replayed 23 real collaborations the agent never saw, and the real partner landed in its top three 17 times; two controls committed to git before their first call failed their bars (17 times again under a wrong seed brand, and 5 against 3 when ranked by where each candidate's fans put the seed, who appears in only 12 of 184 of their top-50 lists). Both are on /audit: the candidate lists favor the real partner whoever is asking, and the replay doesn't show that a seed's taste picks the right partner.
+For Allbirds, all eight candidates tie within 0.05 on taste, so the page also reads the other direction (`lib/ask/both-ways.ts`): Bombas fans rank Allbirds first, and the other seven rank it 9th to 31st or leave it out of their top 50.
+
+## Where Qloo is used
+
+- `lib/qloo.ts` is the only file that calls Qloo. It paces calls to four a second, retries once on 429 and 5xx, trims responses, caches every response in Redis for 90 days and counts each call against a daily cap.
+- `lib/ask/tools.ts` turns `/search` and `/v2/insights` into the agent's six tools. `lib/ask/agent.ts` is the loop.
+- `lib/ask/both-ways.ts`, `lib/ask/smaller.ts` and `lib/ask/venues.ts` read beside the frozen answer.
+- The full table of endpoints and parameters, file by file, is under "Every Qloo call" below.
+
+## Run it
+
+Nothing here needs a key. Node 22.18 or later.
+
+```
+npm ci
+npm test            # 255 offline tests: 248 pass, 7 skip (they need Qloo data this repo doesn't hold)
+npm run typecheck   # clean; runs next typegen first, which writes the page types a fresh clone lacks
+npm run lint
+npm run verify      # the checker and its attack, run on a made-up demo world
+npm run build
+```
+
+To run the site itself you need a Qloo hackathon key, an Anthropic key and an Upstash Redis (`cp .env.example .env.local`, then `npm run dev`). A local run starts with an empty cache: the first ask of any name costs about 28 Qloo calls and 40 seconds and produces its own answer, not the frozen one on the live site. To see the product, use the live site.
+
+## What we measured, and what it doesn't show
+
+- We attacked the checker with 230 altered answers. It rejected 219. The 11 that got through, and the gap we found and fixed on the way, are on /audit#fool-it.
+- We replayed 23 real collaborations with the real partner hidden among seven decoys. It landed in the top three 17 times. Two controls, committed to git before they ran, both failed: a random wrong seed brand also scored 17, and ranking the other way scored 5 against 3. So the candidate lists favor the real partner whoever asks, and the replay doesn't show that a seed's taste picks the right partner.
+- Taste is one input for who to call first, never a verdict on a deal. Nothing here measures purchases or revenue.
+
+## Qloo's data
+
+Qloo's hackathon guide asks that no response data sit in a public repository, so this one holds none of the recorded asks or score tables. In their place: `lib/ask/demo/` (three made-up asks in the same shape, `scripts/demo-world.ts`), stand-ins for the six audit tables the pages read (marked `"demo": true`; /audit and /replay say so), and an invented search table (`fixtures/search.json`). Three files keep real sentences the live site prints, scores included: `lib/ask/blocked.json`, `audit/mutation.json` and `audit/judge-names.json`.
+
+## Reading the code
+
+Comments cite the date a rule changed ("rule v3.1, Oct 22") and the review round that asked for it. "ponytail:" marks a limit we know about and accepted on purpose. The rules live in `lib/` and are tested; the page components under `app/` are long because each page is one story.
 
 ## Every Qloo call
 
@@ -121,31 +161,15 @@ The nav is four stops: the ask (/), two names in (/vs, where audiences split, ce
 - **Match validation** (`lib/resolve.ts`). Qloo's search returns confident wrong matches for names it doesn't know (Fruition Chocolate Works comes back as Bath & Body Works). A match is confident only on an exact name or alias above a popularity floor of 0.3 (the review desk adds a cross-type check; see above). Several exact hits keep Qloo's relevance order, and an artist beats a person with the same name. Token overlap becomes a picker, and Claude Haiku is asked only in the narrow band in between. The user always sees the card and can say "Not it". The resolver is tested against recorded search results for 22 names, 14 of them small brands Qloo doesn't know.
 - **Stand-ins.** For a brand Qloo doesn't know, the user describes it and names brands their customers love. Haiku suggests more, and each is checked in Qloo. The slate is built from weighted stand-ins (10, 7, 5), and a banner says so on every screen.
 - **Never rank by popularity.** Order is Qloo's affinity order, kept by code. The model reviews picks but cannot reorder them. Popularity is a floor for matching and, on the front door, a labelled reference column, never a correction.
-- **Qloo's data.** Qloo's hackathon guide asks that no Qloo response data sit in a public repository, so this repo holds none: no recorded responses and no tables of Qloo scores. The recorded asks, the audit tables and the search recordings stay in the private repo the live site deploys from. In their place are `lib/ask/demo/` (three made-up asks, `scripts/demo-world.ts`), stand-ins for the six audit tables the pages read (`scripts/demo-audit.ts`, marked `"demo": true`, and /audit and /replay say so), and an invented search table (`scripts/demo-search.ts`). Their names are invented, so any match to a real company is chance. Entity ids and brand names stay in the code so it can call the API, and a few scores appear in sentences the live site also prints. No third-party logos or images in the app.
+- **Qloo's data.** Qloo's hackathon guide asks that no Qloo response data sit in a public repository, so this repo holds none: no recorded responses and no tables of Qloo scores. The recorded asks, the audit tables and the search recordings stay in the private repo the live site deploys from. In their place are `lib/ask/demo/` (three made-up asks, `scripts/demo-world.ts`), stand-ins for the six audit tables the pages read (`scripts/demo-audit.ts`, marked `"demo": true`, and /audit and /replay say so), and an invented search table (`scripts/demo-search.ts`). Their names are invented, so any match to a real company is chance. Entity ids and brand names stay in the code so it can call the API, and three files keep sentences with scores that the live site also prints (named under "Qloo's data" above). No third-party logos or images in the app.
 - **Say what didn't work.** Refine phrases that map to nothing are listed as "Couldn't apply". Kinds of partner without a Qloo tag ("no cookware") are applied by the ranker and labeled "Applied by the agent". A fit ranked in only one side's top 50 shows as such instead of being hidden.
 
-## Tests
+---
 
-`npm test` runs 255 offline tests in a few seconds, with no API calls. In this repo 248 pass and 7 skip: 2 need the example slates in the gitignored `fixtures/demo/`, and 5 recount the private audit tables or pin a recorded ask's hash. `npm run verify` checks the checker on the demo world with no keys at all (above). `npx tsc --noEmit` is clean. Full list below the fold.
+<details>
+<summary><strong>More: the walkthrough, rivals, the review desk, the audit, architecture, the agent design, the full test list</strong></summary>
 
-## Run it
-
-Node 22 or later.
-
-```
-npm install
-cp .env.example .env.local   # fill in the keys below
-npm run dev                  # http://localhost:3000
-```
-
-| Variable | Purpose |
-|---|---|
-| `QLOO_API_KEY` | Hackathon key; works only against `https://hackathon.api.qloo.com` (5 requests a second; the month's remaining quota comes back in a response header, and `/api/usage` shows it) |
-| `ANTHROPIC_API_KEY` | Claude Opus 5.5 (ranking, briefs, outreach, refine, verdicts) and Haiku 5.5 (match judge, stand-ins, age sentence) |
-| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis: the shared cache and the counters |
-| `QLOO_DAILY_CAP` | Qloo calls allowed per UTC day across all instances (unset means no cap; production sets 600) |
-| `WARM_TOKEN` | Optional: lets `scripts/warm.ts` keep its briefs off the per-visitor limit |
-| `CROSSOVER_FORCE` | Development only: `qloo429,qloo5xx,qloostall,anthropic,novenues,noheatmap` force each failure path (`CROSSOVER_FORCE_AT=<n>` picks the call that fails or stalls; the outage drill on /audit) |
+## Running the site
 
 **Fixtures.** `fixtures/search.json` is an invented search table for the resolver tests: our queries, with every word of Qloo's results that isn't the query's own replaced, so the resolver's token rules hold. `node --env-file=.env.local scripts/record-fixtures.ts` records the real results into `fixtures/demo/search.json`, and `scripts/demo-search.ts` writes the table from it. `fixtures/demo/` (gitignored, since it is Qloo data) also holds the four example slates so local UI work spends no quota (`scripts/record-demo.ts`). In development, a file cache in `.cache/` sits in front of Redis.
 
@@ -153,10 +177,6 @@ npm run dev                  # http://localhost:3000
 
 **Why a daily cap.** The hackathon key has a monthly quota, and one cold ask costs about 28 (9 to 22 for the steps, up to 8 for the both-ways table). The cap is counted in Redis across every serverless instance, so a burst of new names or a crawler can't spend the month. Each visitor also gets 20 new briefs a day; anything already generated is free. When either limit or the Anthropic balance runs out, the app says so plainly and points to the example brands.
 
----
-
-<details>
-<summary><strong>More: the walkthrough, rivals, the review desk, the audit, architecture, the agent design, the full test list</strong></summary>
 
 ## The 30-second path
 
@@ -237,7 +257,7 @@ Retrieval is code because Qloo's numbers are the evidence, and code makes the sa
 - the demo-data notice, shown only where the audit tables are stand-ins
 - a guard that no client component imports the server-only Qloo client
 
-`npx tsc --noEmit` is clean.
+`npm run typecheck` is clean (it runs `next typegen` first, which writes the page types a fresh clone lacks).
 
 </details>
 

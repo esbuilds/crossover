@@ -1,4 +1,4 @@
-// "Who does this land with?" (PLAN.md section 2 step 6, Oct 22): the partner's affinity among the seed's fans, one
+// "Who does this land with?" (Oct 22): the partner's affinity among the seed's fans, one
 // age bracket at a time. 6 Qloo calls on first use, then one Haiku sentence naming the strongest bracket. The whole
 // result is cached under cohort-v2; peekCohort reads it without ever calling Qloo or Claude.
 import { generateText } from "ai";

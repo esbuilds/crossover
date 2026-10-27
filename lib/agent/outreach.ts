@@ -1,4 +1,4 @@
-// Outreach email, written only after a human approves the brief (PLAN.md section 2, step 7). Nothing is sent.
+// Outreach email, written only after a human approves the brief. Nothing is sent.
 import { streamText, type LanguageModelUsage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { MODEL } from "./rank.ts";

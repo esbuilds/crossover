@@ -1,4 +1,4 @@
-// What a partnership means depends on who the seed is (PLAN.md section 1: any entity in). One table keyed by seed
+// What a partnership means depends on who the seed is (the design notes: any entity in). One table keyed by seed
 // type feeds the ranking prompt, the brief prompt and headings, the outreach framing, and the UI labels.
 // No runtime imports: the browser uses the labels too.
 

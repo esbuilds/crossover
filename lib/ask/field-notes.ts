@@ -1,4 +1,4 @@
-// Field notes (Fable's checker sign-off, real Oct 15): two code lines from the same fields() the candidates cut uses, so
+// Field notes (the checker sign-off, real Oct 15): two code lines from the same fields() the candidates cut uses, so
 // a note and the cut can never disagree. "cut": the field the cut left out, by Qloo's tag name ("Own field left out:
 // Baseball"), so NFL teams under the Dodgers read as the rule's limit, not a slip. "shared": when the seed has no specific
 // tag the cut had nothing to run on, and a call shares a Qloo genre tag with it (Chipotle and MOD Pizza: dining).

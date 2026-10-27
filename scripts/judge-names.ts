@@ -1,6 +1,6 @@
-// Six names a judge might type (Fable's judge-names brief, real Oct 15): each typed into the live site's /api/ask as a
+// Six names a judge might type (the judge-names brief, real Oct 15): each typed into the live site's /api/ask as a
 // visitor's browser sends it, timed to the decision, Qloo calls counted from the shared daily counter before and after.
-// Names and gate are written in research/report-oct15-judge-names.md before the run.
+// The names and the gate were written down before the run.
 //   node --env-file=.env.local scripts/judge-names.ts [base url]
 import { writeFileSync } from "node:fs";
 import { qlooToday } from "../lib/qloo.ts";

@@ -1,4 +1,4 @@
-// Review desk core (PLAN.md section 12, blind round 2 and the Oct 10 signal test), label review-v3 (v2: leader-relative ties; v3: an exact name shared across types is ambiguous).
+// Review desk core (the design notes, blind round 2 and the Oct 10 signal test), label review-v3 (v2: leader-relative ties; v3: an exact name shared across types is ambiguous).
 // Of up to eight proposed partners, which deserve investigation, and on what measured evidence? Pure functions plus
 // a fixed-candidate adapter that takes its Qloo scorer as an argument, so everything here runs in tests without the API.
 // Rules: forward affinity selects, reverse is context and never combined with it; gaps under GAP are ties; no
@@ -7,12 +7,12 @@ import type { Entity } from "./qloo.ts";
 import type { Resolution } from "./resolve.ts";
 
 export const REVIEW_VERSION = "review-v3";
-export const GAP = 0.05; // smallest affinity gap read as a difference (probe/VERIFY-3.md section 4)
+export const GAP = 0.05; // smallest affinity gap read as a difference
 export const MAX_NAMES = 8;
 const EPS = 1e-9;
 export const MAX_PICKS = 3;
 
-// Missing-data rule, defined from the Oct 10 rows (probe/VERIFY-3.md, out3/profiles.json):
+// Missing-data rule, defined from the Oct 10 rows:
 // 1. floor: Qloo returned these exact doubles for unrelated candidates under unrelated signals (0.7649962877984056
 //    27 times across audiences, 0.55405379801747 7 times across age brackets), so they mean "no data".
 // 2. shared in call: 3 or more candidates in one call with a bit-identical value (the 0.765 floor hit 3 to 4 per row).
@@ -153,7 +153,7 @@ export function select(rows: Row[]): Selection {
 // Twins (Oct 13, redundancy probe): among the contenders (picks plus a tie at the cutoff, or the whole top band when
 // there's no clear three), the pair whose audiences sit closest to each other, shown only when it is GAP or more above
 // every other contender pair. Costs no fit: both are already contenders. Swapping in a less redundant name always cost
-// more than GAP of fit on the 12 audit briefs (research/report-oct13-redundancy.md), so no swap is ever suggested.
+// more than GAP of fit on the 12 audit briefs, so no swap is ever suggested.
 export type Twins = { a: string; b: string; value: number; next: number };
 export const contendersOf = (s: Selection, affinityBands: string[][]) => (s.noClearThree ? affinityBands[0] ?? [] : [...s.picks, ...s.tiedAtCutoff]);
 

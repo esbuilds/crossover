@@ -1,11 +1,12 @@
+// A one-off probe, run by hand and kept as the record of how its result was made; nothing in the app imports it.
 // Record what the agent called on the one replay ask (from the cache, 0 Qloo calls) as derived numbers for /audit:
 // the protocol's rank beside the agent's call, both shown, whatever the agent said.
-//   node --env-file=.env.local scripts/replay-ask-record.ts
+//   node --env-file=.env.local scripts/probes/replay-ask-record.ts
 import { writeFileSync } from "node:fs";
-import { peekAsk } from "../lib/ask/agent.ts";
-import { REPLAY_ASK } from "../lib/ask/prepared.ts";
-import { unbracket } from "../lib/ask/check.ts";
-import replayV2 from "../audit/replay-v2.json" with { type: "json" };
+import { peekAsk } from "../../lib/ask/agent.ts";
+import { REPLAY_ASK } from "../../lib/ask/prepared.ts";
+import { unbracket } from "../../lib/ask/check.ts";
+import replayV2 from "../../audit/replay-v2.json" with { type: "json" };
 
 const events = await peekAsk({ ...REPLAY_ASK.body, caseKey: REPLAY_ASK.key });
 if (!events) throw new Error("the replay ask isn't cached; run it first");

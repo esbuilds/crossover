@@ -1,12 +1,13 @@
+// A one-off probe, run by hand and kept as the record of how its result was made; nothing in the app imports it.
 // Re-read the dev briefs under the current review rules (Oct 11 brief). Starts from the stored /api/review results in
 // probe/out-review/ (zero calls); names that resolved to the wrong entity type are re-searched brand-only and only
 // those briefs get a new forward call. Writes the new reviews next to the old ones as <seed>.v2.json.
 //
-//   QLOO_DAILY_CAP=<counter + hard stop> node --env-file=.env.local scripts/review-dev.ts <out-review dir>
+//   QLOO_DAILY_CAP=<counter + hard stop> node --env-file=.env.local scripts/probes/review-dev.ts <out-review dir>
 import { readFileSync, writeFileSync } from "node:fs";
-import { insights, search, qlooCallCount, type Entity } from "../lib/qloo.ts";
-import { resolve } from "../lib/resolve.ts";
-import { assemble, identityOf, toRef, scoreForward, scoreReverse, type Cell, type Identity, type Review } from "../lib/review.ts";
+import { insights, search, qlooCallCount, type Entity } from "../../lib/qloo.ts";
+import { resolve } from "../../lib/resolve.ts";
+import { assemble, identityOf, toRef, scoreForward, scoreReverse, type Cell, type Identity, type Review } from "../../lib/review.ts";
 
 const dir = process.argv[2];
 const BRAND = "urn:entity:brand";

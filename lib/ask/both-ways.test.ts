@@ -1,4 +1,4 @@
-// Both ways (Fable's columns ruling, real Oct 15): the demo world's brand and artist asks (lib/ask/demo/) against a recorded getter.
+// Both ways (the columns ruling, real Oct 15): the demo world's brand and artist asks (lib/ask/demo/) against a recorded getter.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { bothWaysFrom, gate, sentence, type Row } from "./both-ways.ts";
@@ -47,7 +47,7 @@ test("gate: no block when the three don't separate (the Converse case: all outsi
   assert.equal(gate([row("A", 1, true), row("B", 11, true), row("C", 9)]), true);
 });
 
-// The heading follows the measurement (Fable's persona round 2 ruling, Eric approved Oct 15), on the demo asks.
+// The heading follows the measurement (the persona round 2 ruling, Eric approved Oct 15), on the demo asks.
 const MJ_REV: Record<string, number> = { "Brightwell Optics": 26, "Corvid & Co.": 4, Bluehour: 0, "Lumen Sock Co.": 0, "Tinderbox Audio": 28, "Velvet Anvil": 0, "Tallgrass Goods": 0, Driftline: 0 };
 const MJ = "02898764-3C08-4206-B9CC-17C0B09DD36E";
 

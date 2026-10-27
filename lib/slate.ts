@@ -1,4 +1,4 @@
-// Partner slate: what the entity's fans over-index on, across six Qloo domains (PLAN.md section 3).
+// Partner slate: what the entity's fans over-index on, across six Qloo domains.
 import { insights, insightsPost, QuotaError, RESOLVE_TYPES, type Entity, type Signal } from "./qloo.ts";
 import { TAG_WEIGHT } from "./proxy-params.ts";
 
@@ -98,14 +98,14 @@ export async function getSlate(seed: string | Signal[], onDomain?: (d: Domain, p
 }
 
 // Brands first, then strongest evidence: domains by the mean affinity of their top three picks, places always last
-// (PLAN.md section 8: place picks skew to hotels and ski resorts until the agent filters them).
+// (the design notes: place picks skew to hotels and ski resorts until the agent filters them).
 export function orderSlate(slate: Slate): { domain: Domain; picks: Pick[] }[] {
   const strength = (picks: Pick[]) => picks.slice(0, 3).reduce((s, p) => s + p.affinity, 0) / 3;
   return DOMAINS.map((domain) => ({ domain, picks: slate[domain] }))
     .filter((d) => d.picks.length)
     .sort(
       (a, b) =>
-        Number(b.domain === "brand") - Number(a.domain === "brand") || // brands first: partners are the pitch (PLAN.md section 8, Oct 11)
+        Number(b.domain === "brand") - Number(a.domain === "brand") || // brands first: partners are the pitch (Oct 11)
         Number(a.domain === "place") - Number(b.domain === "place") ||
         strength(b.picks) - strength(a.picks),
     );

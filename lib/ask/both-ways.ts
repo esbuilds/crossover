@@ -1,4 +1,4 @@
-// Both ways (Fable's columns ruling, real Oct 15): for the eight, the seed's fans' rank of each (the frozen review's
+// Both ways (the columns ruling, real Oct 15): for the eight, the seed's fans' rank of each (the frozen review's
 // forward rank, the tie unrounded) beside each one's fans' rank of the seed (a different list: that brand's fans' own top
 // 50 of the seed's type). The only measurement on the probe that separates the eight (scripts/reverse-probe.ts:
 // Bombas fans rank Allbirds 1st, Parachute's 31st). Evidence beside the frozen decision, never a second decision: rows

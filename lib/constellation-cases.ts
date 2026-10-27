@@ -4,7 +4,7 @@ export type Brand = { name: string; id: string };
 // why when the choice isn't obvious; an aisle without leaders failed its gate and has no map.
 export type Category = { slug: string; title: string; brands: Brand[]; absent?: string[]; leaders?: { names: [string, string, string]; why?: string } };
 
-// Ids from /search on real Oct 12 (probe/constellation-ids.json). Qloo has no brand entity for Alani Nu, Ghost, Prime,
+// Ids from /search on real Oct 12. Qloo has no brand entity for Alani Nu, Ghost, Prime,
 // Culture Pop or San Pellegrino, and "Topo Chico" finds only the hard seltzer, so they're left out (the page says so).
 export const CATEGORIES: Category[] = [
   {

@@ -1,4 +1,4 @@
-// Reverse-rank probe (real Oct 15, research/report-oct15-columns.md): the seed's rank among each candidate's fans' brands,
+// Reverse-rank probe (real Oct 15): the seed's rank among each candidate's fans' brands,
 // the same rankIn as lib/review-run.ts (take 50), fetched into the same cache so the ask's block can read it later.
 // Gate written before the run: A) the agent's three differ by 5+ positions (or one is outside the top 50);
 // B) the reverse order isn't the forward order for the three.
@@ -12,7 +12,7 @@ const ASKS = {
   "mt-joy": { id: "A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A", type: "urn:entity:artist" },
   converse: { id: "A539C8C9-4733-41A9-911A-11AC2B6D475A", type: "urn:entity:brand", caseKey: "coca-cola-x-converse" },
 } as const;
-const steps = (await peekAsk(ASKS[(process.argv[2] ?? "allbirds") as keyof typeof ASKS])) as any[];
+const steps = (await peekAsk(ASKS[(process.argv[2] ?? "allbirds") as keyof typeof ASKS])) as any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
 if (!steps) throw new Error("frozen ask not cached");
 const seed = steps.find((e) => e.output?.state && e.output?.id).output;
 const ranks = steps.find((e) => e.output?.ranks).output.ranks as { name: string; amongSeedFans: number | null }[];

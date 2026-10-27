@@ -1,4 +1,4 @@
-// Field notes (Fable's checker sign-off, real Oct 15): from the same fields() the candidates cut uses.
+// Field notes (the checker sign-off, real Oct 15): from the same fields() the candidates cut uses.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fieldNotes } from "./field-notes.ts";
@@ -19,7 +19,7 @@ test("a seed with only a broad tag: the shared line names the call and the tag; 
   assert.deepEqual(fieldNotes(chipotle, top, ["Thomas' Breakfast"]), { cut: null, shared: null });
 });
 
-// Gate (Fable's sign-off): the shared line never appears on the frozen asks. Allbirds' and Coca-Cola's genre tags as Qloo
+// Gate (the sign-off): the shared line never appears on the frozen asks. Allbirds' and Coca-Cola's genre tags as Qloo
 // returns them (cached Oct 15) carry a specific field, so the cut ran and the shared branch can't fire. Mt. Joy is an
 // artist and the Converse replay is the case path; fieldNotesFor returns null for both.
 test("the frozen seeds carry a specific field, so no shared line", () => {

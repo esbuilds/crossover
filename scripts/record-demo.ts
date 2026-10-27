@@ -1,5 +1,5 @@
 // One-off: record resolve + slate + heatmap for the four demo entities into fixtures/demo/ (gitignored:
-// it holds Qloo response data, which PLAN.md says never to commit). 8 Qloo calls per entity, 32 total.
+// it holds Qloo response data, which Qloo's hackathon guide keeps out of public repositories). 8 Qloo calls per entity, 32 total.
 //   node --env-file=.env.local scripts/record-demo.ts
 import { mkdirSync, writeFileSync } from "node:fs";
 import { search, heatmap, qlooCallCount, RESOLVE_TYPES } from "../lib/qloo.ts";

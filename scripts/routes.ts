@@ -1,4 +1,4 @@
-// Routes the agent took (Fable's destroy brief 2d, real Oct 15): every cached ask in Redis (cx:ask:*, all prompt
+// Routes the agent took (the destroy brief 2d, real Oct 15): every cached ask in Redis (cx:ask:*, all prompt
 // versions), its route as the tools it called in order plus the candidates' source, and whether it stopped before a call.
 // Zero Qloo and model calls; reads Redis only. Prints the /audit sentence's numbers.
 //   node --env-file=.env.local scripts/routes.ts

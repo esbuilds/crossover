@@ -1,4 +1,4 @@
-// The call sheet (Pick 2, Oct 14): one page a partnerships lead forwards. Every number on it must come from a step the
+// The call sheet (Oct 14): one page a partnerships lead forwards. Every number on it must come from a step the
 // sheet cites, the replay line, or the blocked count; nothing is new model text.
 import { test } from "node:test";
 import assert from "node:assert/strict";

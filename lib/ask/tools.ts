@@ -116,7 +116,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void, opts: { c
       let list = source === "split" ? fromSplit(st.vs!.rivals.leansA) : await top50();
       let used: "split" | "top50" = source;
       let note: string | undefined;
-      // a split too tight to choose from widens to the top 50 (Fable reconcile, Oct 14: Allbirds' split left 2 names)
+      // a split too tight to choose from widens to the top 50 (reconcile ruling, Oct 14: Allbirds' split left 2 names)
       if (source === "split" && list.length < 4) {
         note = `The split left ${list.length} name${list.length === 1 ? "" : "s"}; widened to the top 50.`;
         list = await top50();
@@ -148,7 +148,7 @@ export function makeTools(deps: Deps, record: (s: StepRecord) => void, opts: { c
           clearThree: g.selection.noClearThree ? [] : g.selection.picks.map((id) => ({ name: nameOf(id), affinity: valueOf(id) })),
           noClearThree: g.selection.noClearThree,
           tiedAtCutoff: g.selection.tiedAtCutoff.map((id) => ({ name: nameOf(id) })),
-          // popularity beside taste: the step 5 dumbbell draws both ends (Pick 1, Oct 14)
+          // popularity beside taste: the step 5 dumbbell draws both ends (Oct 14)
           groups: g.affinityBands.map((band) => band.map((id) => ({ name: nameOf(id), affinity: valueOf(id), popularity: popOf(id) }))),
           fameBands: g.popularityBands.map((band) => band.map((id) => ({ name: nameOf(id) }))),
           ranks: g.rows.map((x) => ({ name: x.entity.name, amongSeedFans: r.ranks[x.entity.entity_id]?.amongSeedFans ?? null, seedAmongTheirs: r.ranks[x.entity.entity_id]?.seedAmongTheirs ?? null })),

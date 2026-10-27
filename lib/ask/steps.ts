@@ -1,11 +1,11 @@
-// The three step pictures on the ask page (Pick A, Oct 13), shaped from an ask's events. Pure and server-free: the page
+// The three step pictures on the ask page (Oct 13), shaped from an ask's events. Pure and server-free: the page
 // draws them with existing components; every value here is already in a step output the checker reads.
 import type { AskEvent } from "./agent.ts";
 import { checkDecision, nameForDisplay, type Decision, type StepRecord } from "./check.ts";
 
 type Named = { name: string; id?: string; type?: string };
 
-// The ask's decision, re-checked under the current rule (check v2, Fable's judge-probe ruling, real Oct 15) instead of
+// The ask's decision, re-checked under the current rule (check v2, the judge-probe ruling, real Oct 15) instead of
 // trusting the check stored when it ran. Deterministic, 0 calls; the cached events, and so the frozen hashes, don't change.
 export function decisionEvent(events: AskEvent[]): Extract<AskEvent, { type: "decision" }> | undefined {
   const d = events.findLast((e) => e.type === "decision");
@@ -87,7 +87,7 @@ export type Attack = { rejected: number; of: number };
 export const checkerLine = (g: Attack) =>
   `Every name and number above is matched to a measured step. We attacked that check with ${g.of} altered answers; it caught ${g.rejected}, and the ${g.of - g.rejected} that got through are listed on /audit.`;
 
-// Step 5's dumbbell (Pick 1, Oct 14): fame (Qloo popularity) at one end, taste (affinity) at the other, one row per
+// Step 5's dumbbell (Oct 14): fame (Qloo popularity) at one end, taste (affinity) at the other, one row per
 // candidate, the widest taste-over-fame gap first. A popularity of 0 is Qloo's missing value (lib/qloo.ts trims a missing
 // popularity to 0), so it reads as no measurement and sorts after the measured rows, never as the widest gap (Quince,
 // Allbirds' eight, Oct 14). Unmeasured taste last. null for asks cached before popularity joined the review output.
@@ -95,7 +95,7 @@ export type DumbbellRow = { name: string; fame: number | null; taste: number | n
 export function dumbbellStep(steps: StepRecord[]): { rows: DumbbellRow[] } | null {
   const r = outputOf<{ groups: { name: string; affinity: number; popularity?: number | null }[][]; notMeasured?: Named[] }>(steps, "review");
   const measured = r?.groups.flat() ?? [];
-  // a payload without the field at all (cached before Pick 1) has nothing to draw; null is a measured "no measurement"
+  // a payload without the field at all (cached before the dumbbell, Oct 14) has nothing to draw; null is a measured "no measurement"
   if (!r || !measured.length || measured.some((x) => x.popularity === undefined)) return null;
   const rows: DumbbellRow[] = measured.map((x) => ({ name: x.name, fame: x.popularity && x.popularity > 0 ? x.popularity : null, taste: x.affinity }));
   const known = rows.filter((x) => x.fame !== null).sort((a, b) => b.taste! - b.fame! - (a.taste! - a.fame!));
@@ -103,7 +103,7 @@ export function dumbbellStep(steps: StepRecord[]): { rows: DumbbellRow[] } | nul
   return { rows: [...known, ...noFame, ...(r.notMeasured ?? []).map((x) => ({ name: x.name, fame: null, taste: null }))] };
 }
 
-// The call card (Fable tie ruling, Oct 14): two code-generated lines from existing outputs, two labels, never one claim.
+// The call card (the tie ruling, Oct 14): two code-generated lines from existing outputs, two labels, never one claim.
 // The first call is the agent's first pick; the place line is the split's "leads in" markets (the seed's own top
 // markets not shared with the rival, as /vs's city sentence), or null when no step measured markets.
 export function callCard(steps: StepRecord[], decision: Decision): { first: string; name: string; where: string | null } | null {
@@ -116,7 +116,7 @@ export function callCard(steps: StepRecord[], decision: Decision): { first: stri
   return { first: `First call: ${nameForDisplay(first.name)}.`, name: nameForDisplay(first.name), where: m && list ? `Where ${whose(m.seed.name)} audience leads: ${list}.` : null };
 }
 
-// The fork under a step (Fable's destroy brief 2d, real Oct 15): only where the path branches. The order of tools is
+// The fork under a step (the destroy brief 2d, real Oct 15): only where the path branches. The order of tools is
 // set in the agent's instructions and the branches follow what Qloo returned (scripts/routes.ts: 39 cached asks on Oct 15, 5
 // routes). The candidates step already names its source in its own summary, so it gets no line.
 export function forkLine(step: StepRecord): string | null {

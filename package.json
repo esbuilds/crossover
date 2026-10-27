@@ -1,12 +1,16 @@
 {
-  "name": "app",
+  "name": "crossover",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "node --test --disable-warning=ExperimentalWarning 'lib/**/*.test.ts'",
     "verify": "node --disable-warning=ExperimentalWarning scripts/verify.ts"
   },

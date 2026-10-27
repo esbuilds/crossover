@@ -1,4 +1,4 @@
-// Pairing check (PLAN.md section 1, widening 2): two names in, a fit readout out. Everything is assembled from
+// Pairing check (the design notes, widening 2): two names in, a fit readout out. Everything is assembled from
 // cached pieces: both cards, each side's rank among the other's fans (lib/fit.ts), the markets both run hot in,
 // shared tags. The verdict class is decided in code (classify); one Opus call writes about it.
 import { generateText, type LanguageModelUsage } from "ai";

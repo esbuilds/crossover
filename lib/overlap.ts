@@ -1,5 +1,5 @@
 // Where both audiences run hot: markets in both entities' top tens, by combined over-index.
-// Used by the brief agent to pick a launch market (PLAN.md section 2 step 6, geographic overlap).
+// Used by the brief agent to pick a launch market (the design notes, geographic overlap).
 import type { City } from "./cities.ts";
 
 export type Overlap = { market: string; seed_over_index: number; partner_over_index: number; combined: number };

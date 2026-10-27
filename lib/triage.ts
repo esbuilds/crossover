@@ -1,4 +1,4 @@
-// Inbound triage (PLAN.md section 11, idea 1). The buckets are decided here, in code; the model only explains them.
+// Inbound triage. The buckets are decided here, in code; the model only explains them.
 // Client-safe: no server imports, so the triage page shares these rules and the share-link parser.
 
 export type Bucket = "take" | "maybe" | "pass";
