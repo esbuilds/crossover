@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
-  // Pick A (Oct 13): the ask is the front door. Old Pick three links (/?c=, /?s=, /review) open /pick-three with their
+  // Oct 13: the ask is the front door. Old Pick three links (/?c=, /?s=, /review) open /pick-three with their
   // query; /ask is the home page.
   async redirects() {
     return [

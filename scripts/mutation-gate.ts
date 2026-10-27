@@ -48,7 +48,7 @@ console.log(`GATE ${expectedTotal && expectedCaught / expectedTotal >= 0.95 ? "P
 console.log("* the documented ceiling in check.ts: published as a known miss, not counted in the gate");
 if (process.argv.includes("--write")) {
   writeFileSync("audit/mutation.json", JSON.stringify({ date: new Date().toISOString().slice(0, 10), rule: CHECK_RULE, answers: runs.length, gated: { rejected: expectedCaught, of: expectedTotal }, before: { rule: "v2", rejected: 207, of: 228 },
-    // rule v3 as published Oct 18, and the same v3 against the corrected rank tamper (measured UTC Oct 21, before b92e3b0)
-    v3: { date: "2026-10-18", rejected: 217, of: 228, withNewTamper: { rejected: 217, of: 230 } }, gap: { found: "2026-10-21", fix: "b92e3b0" }, kinds: report }, null, 2) + "\n");
+    // rule v3 as published Oct 18, and the same v3 against the corrected rank tamper (measured UTC Oct 21, before ce17137)
+    v3: { date: "2026-10-18", rejected: 217, of: 228, withNewTamper: { rejected: 217, of: 230 } }, gap: { found: "2026-10-21", fix: "ce17137" }, kinds: report }, null, 2) + "\n");
   console.log("wrote audit/mutation.json");
 }

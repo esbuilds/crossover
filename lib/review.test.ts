@@ -1,4 +1,4 @@
-// review-v2 on rows shaped like those Qloo returned Oct 10 (probe/VERIFY-3.md). The scores are made up (W2, real Oct 25:
+// review-v2 on rows shaped like those Qloo returned Oct 10. The scores are made up (W2, real Oct 25:
 // no Qloo values in the repo) and keep the recorded bands, picks and ties. The two floors are the real doubles the
 // missing rule must recognize (lib/review.ts). No live API.
 import { test } from "node:test";

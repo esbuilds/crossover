@@ -1,5 +1,5 @@
-// Markets probe (Fable's destroy brief 2a, real Oct 15): does each of Allbirds' eight lead in different metros?
-// Gate set before the run (research/report-oct15-markets.md): A) at least two of the eight differ from Allbirds' top five
+// Markets probe (the destroy brief 2a, real Oct 15): does each of Allbirds' eight lead in different metros?
+// Gate set before the run: A) at least two of the eight differ from Allbirds' top five
 // in two or more metros; B) at least one of the agent's three has Austin, Seattle or Dallas (Outdoor Voices' lead
 // markets) in its top five. One US heatmap per candidate, 8 calls; Allbirds' own map is cached.
 //   QLOO_DAILY_CAP=<n> node --env-file=.env.local scripts/markets-probe.ts
@@ -16,7 +16,7 @@ const seedTop = (await top5(SEED)).map((m) => m.name);
 console.log(`Allbirds top five: ${seedTop.join(", ")}\n`);
 
 let differ = 0;
-let rivalHit: string[] = [];
+const rivalHit: string[] = [];
 for (const c of eight) {
   const metros = await top5(c.id);
   const names = metros.map((m) => m.name);

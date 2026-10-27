@@ -1,4 +1,4 @@
-// Check rule v2's gates (Fable's judge-probe ruling, real Oct 15), over the cache only: 0 Qloo, 0 Anthropic calls.
+// Check rule v2's gates (the judge-probe ruling, real Oct 15), over the cache only: 0 Qloo, 0 Anthropic calls.
 // 1) the three frozen asks check identically; 2) every cached ask that passed still passes; 3) the blocked list and Noah
 // Kahan, re-checked: which pass under v2 and which still block.
 //   node --env-file=.env.local scripts/check-v2-gates.ts

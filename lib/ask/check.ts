@@ -11,8 +11,8 @@ export type Check = { ok: true } | { ok: false; problems: string[] };
 
 const BRACKET = /\[\[([^\]]+)\]\]/g;
 const DECIMAL = /(?<![\w.])\d+\.\d+/g;
-// the fixed list from Fable's judge-probe ruling (Oct 15); a semicolon counts too
-// plus a count of others ("seven others", "7 others"; Fable's checker sign-off, Oct 15), bound as "the others" is
+// the fixed list from the judge-probe ruling (Oct 15); a semicolon counts too
+// plus a count of others ("seven others", "7 others"; the checker sign-off, Oct 15), bound as "the others" is
 const CONTRAST = /\b(?:against|versus|vs\.?|compared with|while|whereas|for the others|for the rest|the others|the rest|(?:[2-9]|\d{2,}|two|three|four|five|six|seven|eight|nine) others?)\b|;/i;
 export const CHECK_RULE = "v3.1"; // v3.1 real Oct 22: a rank that ends a sentence ("9.") is bound too; v3 until then; v2 until real Oct 18 (mutation gate); v1 until real Oct 15: a number after the first brand, up to the next name, was its own
 export const unbracket = (t: string) => t.replace(BRACKET, "$1");
@@ -91,7 +91,7 @@ export function checkDecision(d: Decision, steps: StepRecord[]): Check {
       // [[seed]] fans at 0.97" is X's number); only another brand's bracket does
       const nextOther = [...after.matchAll(BRACKET)].find((m) => !seed.has(m[1]));
       const upto = nextOther ? nextOther.index! : after.length;
-      // rule v2 (Fable's judge-probe ruling, real Oct 15): the first brand's segment also ends at a contrast marker.
+      // rule v2 (the judge-probe ruling, real Oct 15): the first brand's segment also ends at a contrast marker.
       // Numbers after the marker belong to the next bracketed brand if one follows, else to some other candidate.
       const cut = after.slice(0, upto).search(CONTRAST);
       const segment = after.slice(0, cut >= 0 ? cut : upto).replace(BRACKET, " ");

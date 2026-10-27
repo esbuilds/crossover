@@ -1,5 +1,5 @@
-// Lean probe (Fable's markets ruling, real Oct 15): the split map's own diff (lib/collide.ts), candidate against Allbirds,
-// for the agent's three, on cached heatmaps (0 calls). Gate written in research/brief-oct15-markets-ruling.md before the run:
+// Lean probe (the markets ruling, real Oct 15): the split map's own diff (lib/collide.ts), candidate against Allbirds,
+// for the agent's three, on cached heatmaps (0 calls). Gate written before the run:
 // each of the three has cells leaning its way; the three counts are not all within 10% of each other; each one's leaning
 // cells name at least one metro outside Allbirds' own top eight (the 127 block).
 //   node --env-file=.env.local scripts/lean-probe.ts

@@ -1,4 +1,4 @@
-// Rivals (rivals-v1, wow brief Oct 11; probe/VERIFY-4.md). Two seeds, both seeds' top 50 brands, the union scored under
+// Rivals (rivals-v1, wow brief Oct 11; docs/qloo-field-guide.md). Two seeds, both seeds' top 50 brands, the union scored under
 // each seed in the same call shape, split by the review GAP: leans A, leans B, shared. Brands only.
 // Copy rules live in the brief: "sits closer to A", never "prefers"; no audience labels; no counts.
 import { insights, compareTags, heatmap, type Entity } from "./qloo.ts";

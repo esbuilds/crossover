@@ -41,7 +41,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Qloo response data, never commit (PLAN.md section 3)
+# Qloo response data, never commit
 /fixtures/demo/
 
 # dev-only file cache (lib/qloo.ts devFileCache)
@@ -51,3 +51,6 @@ next-env.d.ts
 /docs/*.mp4
 scripts/warm-state.json
 .superpowers/
+
+# written by next dev when it sees a coding agent; not part of the project
+/AGENTS.md

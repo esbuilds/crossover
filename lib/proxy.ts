@@ -1,4 +1,4 @@
-// Proxy mode (PLAN.md section 3, proxy fallback): a brand Qloo doesn't know gets its slate from fans of 2-5
+// Proxy mode (the design notes, proxy fallback): a brand Qloo doesn't know gets its slate from fans of 2-5
 // brands Qloo does know. The user names some; Haiku proposes the rest; each goes through match validation.
 // A brand-category tag keeps the brand results in the seed's category (stand-ins alone pull toward their own).
 import { generateText, jsonSchema, Output } from "ai";

@@ -1,5 +1,5 @@
 // The both-ways rules, client-safe (no server imports): the gate, the two sentences and the heading. lib/ask/both-ways.ts
-// measures; the ask page and the sheet render from these (Fable's columns and persona round 2 rulings, Oct 15).
+// measures; the ask page and the sheet render from these (the columns and persona round 2 rulings, Oct 15).
 import { poss } from "../vs.ts";
 export const OUT = 51; // "not in their top 50", for the gate's arithmetic only
 export type Rank = number | "out" | null; // null: no measurement (never fetched), never shown as a blank
@@ -19,7 +19,7 @@ export function gate(rows: Row[]): boolean {
   return calls.some((r, i) => byRev[i] !== r);
 }
 
-// The mirror (Fable's persona round 2 ruling, Oct 15): the first call's fans don't have the seed in their top 50. Names the
+// The mirror (the persona round 2 ruling, Oct 15): the first call's fans don't have the seed in their top 50. Names the
 // candidate whose fans rank the seed highest; nothing is reordered. Tyler Childers: Shinesty out, Chubbies 18th.
 export function oneWay(seed: string, noun: string, rows: Row[], first: Row | undefined): string | null {
   if (!first || first.rev !== "out") return null;
@@ -37,7 +37,7 @@ export const readBoth = (seed: string) => `Read both ways: the left is where ${p
 export const WHO = "Who this is for: the partnerships lead who has to pick up the phone, and the sponsorship seller on the other end of it.";
 export const LEGEND = "The left column is the shortlist; the right column is the pitch line.";
 
-// The heading follows the measurement (Fable's persona round 2 ruling, Eric approved Oct 15): "Call first" only when the
+// The heading follows the measurement (the persona round 2 ruling, Eric approved Oct 15): "Call first" only when the
 // first call's fans also rank the seed 1st to 3rd; otherwise it's the agent's call, stated as such. Rendering only.
 export function firstCallHeading(b: BothWays | null, first: string): string {
   const row = b?.shown ? b.rows.find((r) => r.name === first) : undefined;

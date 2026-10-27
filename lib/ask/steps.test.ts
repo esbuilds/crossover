@@ -1,4 +1,4 @@
-// The three step pictures on / (Pick A), shaped from an ask's events. The asks are the demo world (lib/ask/demo/, made by
+// The three step pictures on /, shaped from an ask's events. The asks are the demo world (lib/ask/demo/, made by
 // scripts/demo-world.ts): invented names, ids and scores in the shape of three cached asks, so no Qloo data is in the repo.
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -62,7 +62,7 @@ test("checkerLine: the mutation gate's count and the misses, from the published 
   );
 });
 
-// Pick 1 (world-class brief, Oct 14): step 5 draws a dumbbell, fame (Qloo popularity) at one end, taste (affinity) at
+// The world-class brief (Oct 14): step 5 draws a dumbbell, fame (Qloo popularity) at one end, taste (affinity) at
 // the other, one row per candidate, sorted by the gap between them; unmeasured names last.
 test("dumbbellStep: rows sorted by taste minus fame, unmeasured last", () => {
   const steps = [
@@ -79,7 +79,7 @@ test("dumbbellStep: nothing to draw without popularity in the review output (ask
   assert.equal(dumbbellStep(ld), null); // like the recorded ask it's shaped from, this one predates the field
 });
 
-// the two prepared asks as recaptured after the Pick 1 re-warm (real Oct 14): both draw eight rows
+// the two prepared asks as recaptured after the dumbbell re-warm (real Oct 14): both draw eight rows
 test("dumbbellStep on the prepared asks: the artist ask (one tied group) and the brand ask (with a split)", () => {
   const ab = stepsFrom(load("corvid-co"));
   for (const steps of [mj, ab]) {
@@ -100,7 +100,7 @@ test("dumbbellStep on the prepared asks: the artist ask (one tied group) and the
   assert.deepEqual([m.seed.name, m.rival.name, m.closerToSeed, m.closerToRival, m.withinGapOfBoth], ["Corvid & Co.", "Brightwell Optics", 2, 4, 50]);
 });
 
-// Fable tie ruling (Oct 14): a two-line call card from existing outputs, two labels, never fused into one claim.
+// The tie ruling (Oct 14): a two-line call card from existing outputs, two labels, never fused into one claim.
 test("callCard: the first call and where the seed's audience leads, as two separate lines", () => {
   const ab = stepsFrom(load("corvid-co"));
   const decision = load("corvid-co").findLast((e) => e.type === "decision") as Extract<AskEvent, { type: "decision" }>;

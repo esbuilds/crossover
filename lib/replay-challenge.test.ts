@@ -1,4 +1,4 @@
-// The replay challenge (Fable's re-judge ruling, Oct 15): all 23 frozen cases, complete, and the published tallies.
+// The replay challenge (the re-judge ruling, Oct 15): all 23 frozen cases, complete, and the published tallies.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { CHALLENGE, PROTOCOL } from "./replay-challenge.ts";

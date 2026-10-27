@@ -1,9 +1,10 @@
+// A one-off probe, run by hand and kept as the record of how its result was made; nothing in the app imports it.
 // Bridge probe (Perplexity moonshot 4, real Oct 13): a brand plus the audience it wants to reach, blended as weighted
 // POST signals, brands out. Gate (set before the run): at 0.5/0.5 the top 10 is not swamped, meaning each seed drives
 // at least 3 of the 10 (Qloo explainability, driven_by) and no more than 7 come from one seed's own top 50.
 // Pass on 2 of 3 pairs. Weights 0.3/0.7 and 0.7/0.3 printed for the sweep. About 15 calls, serial.
-//   node --env-file=.env.local scripts/bridge-probe.ts
-import { insights, insightsPost, qlooCallCount } from "../lib/qloo.ts";
+//   node --env-file=.env.local scripts/probes/bridge-probe.ts
+import { insights, insightsPost, qlooCallCount } from "../../lib/qloo.ts";
 
 const BRAND = "urn:entity:brand";
 const PAIRS = [

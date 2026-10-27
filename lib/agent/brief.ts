@@ -1,5 +1,5 @@
 // Brief agent: a tool-using Claude Opus 5.5 loop that checks a pairing both ways in Qloo, finds where both
-// audiences run hot and where to launch, then writes a partnership one-pager (PLAN.md section 2, step 6).
+// audiences run hot and where to launch, then writes a partnership one-pager.
 import { streamText, jsonSchema, tool, isStepCount, type LanguageModelUsage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { insights, insightsPost, placeTag, tags, type Signal } from "../qloo.ts";
@@ -87,7 +87,7 @@ function userTurn({ seed, pick, domain, slateRank, slateSize, fromSlate = true, 
 
 // --- tools ---
 
-// Reverse direction (PLAN.md section 3, pairing row): raw pairwise affinity is inflated by popularity, so report
+// Reverse direction (the design notes, pairing row): raw pairwise affinity is inflated by popularity, so report
 // where the seed lands in the partner's own top 50 for the seed's category, not just the raw number. 2 Qloo calls.
 async function reverseAffinity(seed: Card, pick: Pick) {
   const d = await rankAmongFans(seed, pick.entity_id); // shared with the slate badges and pairing mode

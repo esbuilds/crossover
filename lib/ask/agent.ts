@@ -38,7 +38,7 @@ Deciding: up to three calls, from the review's clear three, or from its top grou
 
 Writing: wrap every brand, artist or show name in double brackets, like [[Oreo]]. Use only numbers that appear in the steps you cite, with two decimals for scores. Name places and brands exactly as the steps give them; never group them into regions or describe what kind of brand they are. Say "sits closer to", never "prefers" or "wins". No percentages. Each reason and sentence is one short sentence and cites the step numbers it rests on. Steps are numbered in the order you ran them, starting at 1.`;
 
-// The replay ask's prompt (Pick 2, Oct 14): its own path, then the normal prompt's deciding and writing rules verbatim.
+// The replay ask's prompt (Oct 14): its own path, then the normal prompt's deciding and writing rules verbatim.
 // SYSTEM itself is untouched, so every normal ask's prompt and cache key stay byte-identical.
 const SYSTEM_CASE = `You decide which brands a partnerships team should call first, for one brand, from a fixed list of eight candidates the case gives you. You can only measure through the tools. You never add a fact the tools didn't return.
 

@@ -1,5 +1,5 @@
 // Ranking agent: Claude Opus 5.5 reviews Qloo's raw slate one domain at a time, writes a why-line per pick, and
-// drops or demotes picks a partner couldn't or shouldn't sign (PLAN.md section 4: deterministic retrieval,
+// drops or demotes picks a partner couldn't or shouldn't sign (the design notes: deterministic retrieval,
 // agentic reasoning). All six domains run in parallel, so why-lines land row by row.
 // rank-v3 (Oct 17): the order is Qloo's affinity order, set in code. The model can only drop or demote a pick,
 // always with a stated reason, never promote one, so the scorecard's "#N of 10" matches the card order.

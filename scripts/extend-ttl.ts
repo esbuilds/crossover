@@ -1,7 +1,7 @@
 // Push every cached response's expiry to a fixed date (Oct 11 brief, item 4): judging runs to Nov 16 and cache keys
 // written in early October would lapse around Nov 9. Zero Qloo calls: it only touches Redis key expiries.
 // Skips the counters (cx:count:*, which includes the per-IP brief cap) and shared state (cx:qloo:*).
-// Run after every warm pass, and again on Oct 27 after the final one (docs/recording-runbook.md).
+// Run after every warm pass, and again on Oct 27 after the final one.
 //
 //   node --env-file=.env.local scripts/extend-ttl.ts [2026-12-01T00:00:00Z]
 export {}; // a module, for top-level await

@@ -1,5 +1,5 @@
 // Fit in one direction: where an entity lands among another entity's fans, within its own category.
-// Raw pairwise affinity is inflated by popularity (PLAN.md section 3, pairing row: Liquid Death to Metallica and
+// Raw pairwise affinity is inflated by popularity (the design notes, pairing row: Liquid Death to Metallica and
 // to Taylor Swift both score 0.82), so fit is reported as a rank in the fans' own top 50, with cutoffs for context.
 // Shared by the slate's mutual badges, the brief's reverse check, and pairing mode, with identical Qloo params so
 // they share cache entries.

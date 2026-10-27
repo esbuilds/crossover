@@ -13,7 +13,7 @@ import { askLinks } from "@/lib/ask/links.ts";
 import { answerOf, callCard, cardsStep, categoryRival, decisionEvent, forkLine, dumbbellStep, mapStep, stepsFrom, tieOf, twinsStep, type DumbbellRow, type MapStep } from "@/lib/ask/steps.ts";
 import { mapLine, poss } from "@/lib/vs.ts";
 import { shareQuery } from "@/lib/review-share.ts";
-import { PREPARED_ASKS, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
+import { ANSWERED, PREPARED_ASKS, UNNAMED_ASK } from "@/lib/ask/prepared.ts";
 import type { AskEvent } from "@/lib/ask/agent.ts";
 import type { VsPayload } from "@/lib/rivals.ts";
 import { bothLine, cell as show, favoredLine, firstCallWhy, LEGEND, leftSub, noTableLine, readBoth, slope, WHO, type BothWays } from "@/lib/ask/both-rules.ts";
@@ -184,6 +184,20 @@ export default function AskView({ initial, pending, proof, caught, play = false 
           <button key={p.label} type="button" disabled={status === "running"} onClick={() => (setQ(p.label.split(": ").at(-1)!), run(p.body))} className={chip}>{p.label}</button>
         ))}
       </p>
+      {/* D-2 (real Oct 27), front door only: cached household names as plain links, so a judge, a no-JS browser or an
+          AI reader opens a second answer at once; the line after says what a new name costs */}
+      {play && (
+        <div className="mt-3 max-w-lead text-sm text-ink-2">
+          <p className="leading-8">
+            Already answered, no wait:{" "}
+            {ANSWERED.map((a, i) => (
+              // each dot rides with the name before it, so a line never starts with one
+              <span key={a.label}><span className="whitespace-nowrap"><a href={askLinks(a.asked, a.seed).share} className={`${linkInline} text-ink`}>{a.label}</a>{i < ANSWERED.length - 1 && " ·"}</span>{" "}</span>
+            ))}
+          </p>
+          <p className="mt-1 text-ink-3">A new name runs live in Qloo and takes up to about 45 seconds.</p>
+        </div>
+      )}
     </>
   );
 

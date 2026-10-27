@@ -1,8 +1,9 @@
+// A one-off probe, run by hand and kept as the record of how its result was made; nothing in the app imports it.
 // One-off: per-domain ranking at effort low vs medium on the four demo slates (fixtures/demo, no Qloo calls).
-//   node --env-file=.env.local scripts/compare-effort.ts
+//   node --env-file=.env.local scripts/probes/compare-effort.ts
 import { readFileSync, writeFileSync } from "node:fs";
-import { rankDomainUncached, seedFromCard, type Effort, type Ranking } from "../lib/agent/rank.ts";
-import { DOMAINS, toCard, type Slate } from "../lib/slate.ts";
+import { rankDomainUncached, seedFromCard, type Effort, type Ranking } from "../../lib/agent/rank.ts";
+import { DOMAINS, toCard, type Slate } from "../../lib/slate.ts";
 
 const price = (u: { inputTokenDetails: { noCacheTokens?: number; cacheReadTokens?: number; cacheWriteTokens?: number }; outputTokens?: number }) =>
   ((u.inputTokenDetails.noCacheTokens ?? 0) * 4 + (u.inputTokenDetails.cacheWriteTokens ?? 0) * 5 + (u.inputTokenDetails.cacheReadTokens ?? 0) * 0.2 + (u.outputTokens ?? 0) * 20) / 1e6;
@@ -10,7 +11,7 @@ const price = (u: { inputTokenDetails: { noCacheTokens?: number; cacheReadTokens
 const rows: string[] = [];
 const all: Record<string, Ranking> = {};
 for (const slug of ["liquid-death", "olipop", "mt-joy", "somebody-feed-phil"]) {
-  const fx = JSON.parse(readFileSync(new URL(`../fixtures/demo/${slug}.json`, import.meta.url), "utf8"));
+  const fx = JSON.parse(readFileSync(new URL(`../../fixtures/demo/${slug}.json`, import.meta.url), "utf8"));
   const seed = seedFromCard(toCard(fx.resolution.match));
   const slate: Slate = fx.slate;
   for (const effort of ["low", "medium"] as Effort[]) {

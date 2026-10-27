@@ -1,4 +1,4 @@
-// Refine turn (PLAN.md section 2 step 8): one sentence of constraints ("no alcohol partners, Texas only") becomes a
+// Refine turn: one sentence of constraints ("no alcohol partners, Texas only") becomes a
 // constraint set that re-plans retrieval. Opus reads the sentence; code resolves every piece against Qloo (tags via
 // /v2/tags, names via search) and anything that doesn't map becomes a visible "could not apply" note, never a
 // silent no-op.

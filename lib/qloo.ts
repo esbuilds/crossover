@@ -62,7 +62,7 @@ async function request(path: string, init: { query?: Record<string, string | num
     await slot();
     calls++;
     console.log(`[qloo] call #${calls} ${opts.method} ${path}`);
-    // outage drill (Fable's v7 review, Oct 15), dev only: the Nth call of the process fails as a 5xx after its retry, or stalls 12 s
+    // outage drill (the v7 review, Oct 15), dev only: the Nth call of the process fails as a 5xx after its retry, or stalls 12 s
     if (forced("qloo5xx") && calls === Number(process.env.CROSSOVER_FORCE_AT ?? 3)) throw new Error(`Qloo 503 ${path}: forced`);
     if (forced("qloostall") && calls === Number(process.env.CROSSOVER_FORCE_AT ?? 3)) await sleep(12000);
     const res = await fetch(BASE + path + qs, opts);
@@ -117,7 +117,7 @@ export async function qlooToday() {
 // ponytail: per process. On Vercel each instance counts its own calls; the month header is the real total.
 export const qlooUsage = () => ({ calls, monthRemaining });
 
-// --- trimming: keep only what the app uses (PLAN.md section 3), so cache entries stay small ---
+// --- trimming: keep only what the app uses, so cache entries stay small ---
 type Raw = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 function trimEntity(e: Raw): Entity {
@@ -194,7 +194,7 @@ function devFileCache<A extends unknown[], R>(name: string, run: (...args: A) =>
 
 // --- public API ---
 
-// what the resolve step searches across. PLAN.md section 3 listed place too; dropped Oct 9 because
+// what the resolve step searches across. The design notes listed place too; dropped Oct 9 because
 // exact-name local shops crowd out brands (a "Pistakio" gelato shop, a "Fruition Chocolate Works" storefront)
 export const RESOLVE_TYPES = ["brand", "artist", "tv_show", "movie", "person"].map((t) => `urn:entity:${t}`);
 
@@ -267,7 +267,7 @@ export const fullTags = cached("fullTags", async (params: Record<string, string 
 });
 
 // /v2/insights/compare: on this host it returns tags only (shared tags with a score, each side's tags, no entities;
-// probe/VERIFY-4.md). Rivals shows the shared ones as "Share by category". 1 call, cached.
+// docs/qloo-field-guide.md). Rivals shows the shared ones as "Share by category". 1 call, cached.
 export const compareTags = cached("compareTags", async (a: string, b: string): Promise<string[]> => {
   const body = await request("/v2/insights/compare", { query: { "a.signal.interests.entities": a, "b.signal.interests.entities": b } });
   return ((body.results?.tags ?? []) as Raw[]).sort((x, y) => (y.query?.score ?? 0) - (x.query?.score ?? 0)).map((t) => t.name as string);

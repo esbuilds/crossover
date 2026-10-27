@@ -11,7 +11,7 @@ export const TOUR = [
   { path: "/", line: "One name in. The agent measured Allbirds in Qloo, step by step, and calls Bombas first; every name and number in its answer is checked against the step it cites." },
   { path: `/ask/${REPLAY_ASK.body.id}`, line: `A real deal, replayed blind: given Coca-Cola and eight brands without knowing which was real, the agent called Converse first. Across ${CONTROL.cases} real deals, the real partner made the top three ${CONTROL.realHits} times, and ${CONTROL.scrambledHits} times again with the wrong seed brand swapped in, so the replay measures how the candidate lists were built.` },
   { path: "/audit", line: "Where taste doesn't decide: Liquid Death x e.l.f. sold out in 45 minutes with weaker measured taste. Every test on this page was frozen in git before it ran." },
-  // Fable's re-judge ruling (Oct 15): the replay challenge, guess then reveal
+  // The re-judge ruling (Oct 15): the replay challenge, guess then reveal
   { path: "/replay", line: "Your turn: 23 real collaborations, each hidden among seven decoys. Pick the real partner, then see where the seed's fans put it." },
 ];
 

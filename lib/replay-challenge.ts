@@ -1,4 +1,4 @@
-// The replay challenge (Fable's re-judge ruling, real Oct 15): the 23 frozen replay cases (v1's 9, v2's 14 scored) as a
+// The replay challenge (the re-judge ruling, real Oct 15): the 23 frozen replay cases (v1's 9, v2's 14 scored) as a
 // guess-then-reveal game. Server only: built from the audit files, so nothing is generated and 0 calls are made. The
 // eight are shown alphabetically with no mark, as the Converse replay ask was; the reveal shows the published rank.
 import replay from "../audit/replay.json" with { type: "json" };
@@ -51,7 +51,7 @@ export const CHALLENGE: ChallengeCase[] = [
   ...(replayV2.cases as unknown as Raw[]).map((c) => toCase(c, "v2")),
 ].filter((c): c is ChallengeCase => c !== null);
 
-// Fable's ruling (Oct 15): deals in the same aisle share decoys; count each set of eight across the cases
+// A review ruling (Oct 15): deals in the same aisle share decoys; count each set of eight across the cases
 const setOf = (c: ChallengeCase) => c.eight.map((x) => x.name).join("|");
 for (const c of CHALLENGE) c.sameEight = CHALLENGE.filter((x) => setOf(x) === setOf(c)).length;
 

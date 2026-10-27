@@ -1,4 +1,4 @@
-// Prepared rivals pairs (brief-oct13-vs ruling 5). Ids only, hand-picked in probe/VERIFY-4.md: "New York Yankees"
+// Prepared rivals pairs (brief-oct13-vs ruling 5). Ids only, picked by hand: "New York Yankees"
 // searches at popularity 0.00, so a typed name would ask instead of landing.
 const B = "urn:entity:brand", AR = "urn:entity:artist";
 export type VsCase = { a: { name: string; id: string; type: string }; b: { name: string; id: string; type: string } };
@@ -13,7 +13,7 @@ export const vsHref = (c: VsCase) => `/vs/${c.a.id}/${c.b.id}?ta=${encodeURIComp
 // "or try" pairs (brief-oct12-front list; brief-oct12-design ruling 1: Stanley by its warm-list id, D3D8956E, because
 // typed "Stanley" asks brand or artist). Only pairs already warm are listed; the last four were warmed real Oct 12.
 const TV = "urn:entity:tv_show";
-// cut to five for Pick A (Oct 13, Fable round 4); the dropped pairs stay warm and linkable
+// cut to five when the ask became the front door (Oct 13, review round 4); the dropped pairs stay warm and linkable
 export const VS_MORE: VsCase[] = [
   { a: { name: "Dr. Squatch", id: "F688F736-4F16-480A-84C4-08BBCC550375", type: B }, b: { name: "Manscaped", id: "461A4F35-1565-4372-916F-7A3E10903ED5", type: B } },
   // YETI first: that order is the one already warm (pair order is part of the cache keys)

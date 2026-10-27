@@ -1,10 +1,10 @@
-// Heatmap to launch cities (PLAN.md section 3). The locality boundary 500s on the hackathon host,
+// Heatmap to launch cities. The locality boundary 500s on the hackathon host,
 // so geohash cells are aggregated to a static table of US markets, one per market and at least 100 km apart.
 // A market can fold in satellite cities ("also"): a cell counts if it's within 40 km of any of its centers.
 import markets from "../data/metros.json" with { type: "json" };
 import { heatmap, type HeatCell, type Signal } from "./qloo.ts";
 
-// overIndex: metro score / national mean of all cells x 100. 130 reads "30% above the country" (PLAN.md section 8).
+// overIndex: metro score / national mean of all cells x 100. 130 reads "30% above the country".
 export type City = { name: string; state?: string; lat: number; lon: number; score: number; overIndex: number; cells: number };
 export type MapCell = [lat: number, lon: number, affinity: number, popularity: number];
 export type Cities = { metros: City[]; cells: MapCell[]; cellCount: number; marketCount: number };

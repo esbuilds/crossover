@@ -33,7 +33,7 @@ test("runReview withTwins false leaves twins empty; twinsFor computes them on de
   assert.deepEqual(await twinsFor(r.groups[0], score), { a: "REI", b: "Patagonia", value: 0.971, next: 0.894 });
 });
 
-// Fable round 4 (Oct 13): a cold review (a list nobody has run, like "pick from these eight") counts against the
+// Review round 4 (Oct 13): a cold review (a list nobody has run, like "pick from these eight") counts against the
 // visitor's cold cap like a pair; a warm one never does.
 test("warmFirst: a warm run never spends; a cold one spends once, then runs live", async () => {
   let spent = 0;
