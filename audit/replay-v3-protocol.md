@@ -4,7 +4,7 @@ Written real Oct 16, 2026, on Fable's ruling (research/brief-oct16-moonshots-rul
 
 ## What "out of sample" means here
 
-The replay protocol was last changed at 3dc6576 (Oct 13, 2026, 17:19 PDT, "Replay v2 frozen"): candidate rule, decoy rule, hit rule and bar. Nothing in scripts/replay-build.ts or scripts/replay-score.ts has changed since. The changes to lib/qloo.ts since then are a dev-only outage drill and a new audiences endpoint, so the replay path doesn't touch them. v3 cases are chosen by the rule below, after that freeze, and the full list is committed before any Qloo call. Nobody picked them knowing a score.
+The replay protocol was last changed at 8354269 (Oct 13, 2026, 17:19 PDT, "Replay v2 frozen"): candidate rule, decoy rule, hit rule and bar. Nothing in scripts/replay-build.ts or scripts/replay-score.ts has changed since. The changes to lib/qloo.ts since then are a dev-only outage drill and a new audiences endpoint, so the replay path doesn't touch them. v3 cases are chosen by the rule below, after that freeze, and the full list is committed before any Qloo call. Nobody picked them knowing a score.
 
 Qloo's data may already reflect an announced deal. That applies to all 23 earlier cases as much as to these.
 

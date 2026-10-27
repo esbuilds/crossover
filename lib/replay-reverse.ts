@@ -10,7 +10,7 @@ export function partnerRank(at: (number | null)[], partner: number): number {
 
 export const isHit = (at: (number | null)[], partner: number) => partnerRank(at, partner) <= 3;
 
-export const REVERSE_FREEZE = "2e151f7";
+export const REVERSE_FREEZE = "8948428";
 type Reverse = { summary: { cases: number; need: number; realHits: number; scrambledHits: number; pass: boolean; seedOutCells: number; cells: number; v2: { cases: number; realHits: number; scrambledHits: number } }; cases: { cells: { seed: number | null }[] }[] };
 // the /audit paragraph under Replay controls; every number is read from audit/replay-reverse.json
 export function reverseSentences(r: Reverse) {
