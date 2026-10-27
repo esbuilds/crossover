@@ -26,9 +26,14 @@ async function pipeline(commands: (string | number)[][]): Promise<unknown[] | nu
   }
 }
 
-export async function getJson<T>(key: string): Promise<T | null> {
+export async function getText(key: string): Promise<string | null> {
   const [v] = (await pipeline([["GET", key]])) ?? [null];
-  return typeof v === "string" ? (JSON.parse(v) as T) : null;
+  return typeof v === "string" ? v : null;
+}
+
+export async function getJson<T>(key: string): Promise<T | null> {
+  const v = await getText(key);
+  return v === null ? null : (JSON.parse(v) as T);
 }
 
 export async function setJson(key: string, value: unknown, ttlSeconds: number) {

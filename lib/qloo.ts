@@ -1,7 +1,7 @@
 // Server-side Qloo client. Every Qloo call in the app goes through this file.
 import { createHash } from "node:crypto";
 import { forced } from "./force.ts";
-import { getJson, setJson, incr, decr, getNumber, setNumber, today } from "./redis.ts";
+import { getJson, getText, setJson, incr, decr, getNumber, setNumber, today } from "./redis.ts";
 
 // ponytail: env guard instead of the server-only package; the key is not NEXT_PUBLIC so it never reaches a bundle anyway
 if (typeof window !== "undefined") throw new Error("lib/qloo is server-only");
@@ -158,19 +158,50 @@ const trimEntities = (body: Raw): Entity[] => {
 // never invalidates anything. unstable_cache was dropped Oct 16: its key includes the function's source, and every
 // deploy rebuilt it, so each deploy started cold and re-spent Qloo calls.
 // Also used by the agent (rankings, briefs, proposals) so repeat demos are identical and free.
-export function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promise<R>) {
+// memo: also keep the value in this instance's memory after the first read (immutable keys read on every render).
+export function cached<A extends unknown[], R>(name: string, fn: (...args: A) => Promise<R>, { memo = false } = {}) {
   const keyOf = (args: A) => `cx:${name}:${createHash("sha1").update(JSON.stringify(args)).digest("hex")}`;
+  const read = (key: string) => (memo ? readMemo(key).then((v) => (v === null ? null : (JSON.parse(v) as R))) : getJson<R>(key));
   const run = async (...args: A): Promise<R> => {
     const key = keyOf(args);
-    const hit = await getJson<R>(key);
+    const hit = await read(key);
     if (hit !== null) return hit;
     const result = await fn(...args);
     await setJson(key, result, NINETY_DAYS);
     return result;
   };
   // peek: the cached value or null, never a Qloo call (for crawlers: OG images, metadata)
-  const peek = (...args: A) => getJson<R>(keyOf(args));
+  const peek = (...args: A) => read(keyOf(args));
   return Object.assign(process.env.NODE_ENV === "development" ? devFileCache(name, run) : run, { peek });
+}
+
+// Real Oct 27: two heatmaps (about 600 KB each) were read from Redis on every front-door, answer or /vs view, and the
+// month's Redis bandwidth ran out. A key's value never changes once written, so the first read's text is kept here and
+// parsed again on each read: the same bytes, and a fresh object for every caller, as before.
+// ponytail: one Map per server instance, least recently used out first, capped at MEMO_CHARS (32M characters, about
+// 50 heatmaps); a cold instance still pays its first read of each key. Upgrade path: a CDN-cached route for the
+// heatmaps if instances churn.
+const MEMO_CHARS = 32 * 1024 * 1024;
+const memoText = new Map<string, string>();
+let memoChars = 0;
+async function readMemo(key: string): Promise<string | null> {
+  const hit = memoText.get(key);
+  if (hit !== undefined) {
+    memoText.delete(key); // re-insert: Map order is the recency order
+    memoText.set(key, hit);
+    return hit;
+  }
+  const text = await getText(key);
+  // a miss isn't kept (the key may be written later), and a concurrent first read may have kept it already
+  if (text === null || text.length > MEMO_CHARS || memoText.has(key)) return text;
+  memoText.set(key, text);
+  memoChars += text.length;
+  for (const [k, v] of memoText) {
+    if (memoChars <= MEMO_CHARS) break;
+    memoText.delete(k);
+    memoChars -= v.length;
+  }
+  return text;
 }
 
 // Development only: a read-through file layer in front of Redis, so local work doesn't touch the shared cache's
@@ -233,7 +264,7 @@ export const heatmap = cached("heatmap", async (seed: string | Signal[], locatio
     affinity_rank: r(c.query.affinity_rank, 3),
     popularity: r(c.query.popularity, 3),
   }));
-});
+}, { memo: true });
 
 // The same heatmap for one Qloo age bracket (signal.demographics.age), for the age-scrubbed collision map probe
 // (brief-oct13-moonshots pick 2). Its own cache name: the national map's keys don't move. 1 call, cached.
@@ -247,7 +278,7 @@ export const heatmapAge = cached("heatmapAge", async (seed: string, locationQuer
     affinity_rank: r(c.query.affinity_rank, 3),
     popularity: r(c.query.popularity, 3),
   }));
-});
+}, { memo: true });
 
 // Untrimmed tags for the rival finder (rival-v2): the cached entities keep 12 tags each, and Olipop, Erewhon and A24
 // carry no genre tag at all, so the finder reads the full set once per seed card and once per seed list and keeps only
