@@ -1,0 +1,891 @@
+{
+ "Pistakio": [],
+ "Jesse & Ben's": [
+  {
+   "name": "Jesse Kelra",
+   "entity_id": "A1A391AB-4417-459E-82CE-92C6D41A8A5C",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Jesse Rostgolsev",
+   "entity_id": "6AE8BC89-509E-4174-9CD2-5DDE96A06D22",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Jesse Rostba",
+   "entity_id": "38518AE0-E01F-44C0-ABD1-1CAF257D6854",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Jesse & Zewimvex",
+   "entity_id": "FF675D31-899D-4C45-AA33-FA4E51645129",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "The Sevlomup of Jesse Fennobmup by the Jorvo Rostrostti Darhapba",
+   "entity_id": "AB47A385-4C1C-4808-81D8-AB521E095707",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Aware Hair": [
+  {
+   "name": "Voti Hair",
+   "entity_id": "4EE4A327-4779-46A7-B1DB-6A7842B2B0B5",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Hair Muplorost",
+   "entity_id": "9516F343-F00E-4868-972F-BDF92F677A9B",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Lowim Hair",
+   "entity_id": "F9557984-C72F-4737-9303-7715CB3DD702",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Mupketi Works Hair Tiloke",
+   "entity_id": "B6883960-F70D-4262-B830-A2C77BAEE7B9",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Hair",
+   "entity_id": "4894722E-5CA5-4DDC-8945-0AD0C4031240",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Girl Meets Dirt": [
+  {
+   "name": "Golmirost Meets Girl",
+   "entity_id": "3C39B594-2DC3-4296-B04F-5EC6061196A2",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Golmirost Meets Girl",
+   "entity_id": "6FB85195-214A-4FF8-9C30-EA8C038D0DBD",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Girl Meets Rahapquin",
+   "entity_id": "37BF9388-1E39-4D5F-B8AD-AC556777F912",
+   "types": [
+    "urn:entity:tv_show"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Golmirost Meets Girl",
+   "entity_id": "0EF18407-E2AE-454A-9C3F-DB4A23022867",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Fenkelmup Sosevmup: Girl Meets Golmirost",
+   "entity_id": "083395E9-8D21-4C8C-B640-AB790C78ADB4",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Fruition Chocolate Works": [
+  {
+   "name": "Tamvoba & Pellsoba Works",
+   "entity_id": "B26C9FD8-FE26-4B4D-93B7-4FDA55956096",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Golso and the Chocolate Vohap",
+   "entity_id": "CB6C245A-6EBC-4400-8BC9-7E70032BF68A",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Sevti Ravex & the Chocolate Vohap",
+   "entity_id": "157211D7-C57D-4098-B3A3-C2F31019F187",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Fenkelmup Chocolate",
+   "entity_id": "2DE3AF0D-27FE-4384-8CE7-2FA45E98AF5F",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Wimquin Sevnu Works",
+   "entity_id": "49115E10-FD97-438A-A46C-259CD160C3B3",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Little Latke": [
+  {
+   "name": "Little Kelwimrost Nobnuquin",
+   "entity_id": "53D44B2A-129A-4BAF-AC31-B2DFACAC970B",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Little Vozeke",
+   "entity_id": "F57D044A-24BC-4333-903E-E499C95B4E7E",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Mupvexrost Little Ralovex",
+   "entity_id": "4B9437FB-663A-4662-BAB4-A1F180F39A2E",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Little Razenob",
+   "entity_id": "E2F26437-7315-401A-9D4A-B6426A54A917",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Little Tike",
+   "entity_id": "FD412BCF-199C-42BD-920B-C10F613BC507",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Floura": [
+  {
+   "name": "Loso",
+   "entity_id": "0ADC94AB-F16B-4472-ADB2-E744AC6B0BEB",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Hapkel Nobdarba",
+   "entity_id": "E043AC63-EC50-45A2-814B-0495B82C99CA",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Vextamjor Nobgolra",
+   "entity_id": "0EA80839-2475-442E-8EF3-8D8E9A4523E3",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Sovo Muploze",
+   "entity_id": "9D34C449-8651-426C-9BDA-E2211BBCB726",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Tamnobze Muploze",
+   "entity_id": "085C55ED-6087-49AC-9B4A-FB3F167B9D88",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Shuug": [
+  {
+   "name": "Kelquinke Vojor",
+   "entity_id": "2AF1A696-60BF-4FDA-BB08-B59FBEF6831A",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Kelquinke Vexbanob",
+   "entity_id": "736B0A0C-D75D-4BF8-8EE5-51ED49566742",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Baba Lokel",
+   "entity_id": "2F23027A-3778-4142-91C3-003B04A15B28",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Tamsomi Fenhapvo",
+   "entity_id": "A0CF3679-FCE6-44D8-A720-27FA3DD9C203",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Kelquinke Loke",
+   "entity_id": "2D137CE3-15EE-46CC-8899-1ED632CABCD0",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Bawi": [
+  {
+   "name": "Bawi",
+   "entity_id": "B050BB12-C398-45FD-93B7-5B5A6D3CCE61",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Tamba Mijor",
+   "entity_id": "64E2FCCF-682B-4823-8D91-D4C23AAB360B",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Nupellsev. Mupba. Nobmup",
+   "entity_id": "6E2C7F78-97B5-4724-B4B8-521F5B04AE8E",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Hapnobze mupti Tamrostquin",
+   "entity_id": "754E1E85-C850-4B72-92EE-B19738ECFE60",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Sevwimfen Tinobso",
+   "entity_id": "DCB2907C-B548-4887-9423-A583CB927822",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Honey Department": [
+  {
+   "name": "Department of Darjorti",
+   "entity_id": "CAAA8BC3-3405-4B71-ABE2-2D26D06DA9C7",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Tivoke Tivoke Honey Fennob",
+   "entity_id": "28931A0E-4A5F-449A-AC73-EBD91BC59519",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Wimtamwim Honey",
+   "entity_id": "A21423FD-9E75-4DC8-86AD-F20AD7D097EB",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Sevwim Fenze Department Of Rosttam Muplofen",
+   "entity_id": "D47C75D1-FB90-436D-9C7A-BC44EEFB0CB2",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Honey Wimsovex",
+   "entity_id": "FBC640B4-A9BA-4DB2-8B84-2BD15FBE65C7",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Ghia": [
+  {
+   "name": "Sevfen",
+   "entity_id": "D747B030-1D76-442C-8E4C-2742FC486537",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Ghia",
+   "entity_id": "3F14D295-5543-42A3-8741-B82065190E1F",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Quinvo Wimvex",
+   "entity_id": "43A51BFC-B7C3-47FB-90DE-EF1A33133C77",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Golke Darwimwim",
+   "entity_id": "4F6B23A1-3DDE-4A24-A868-8ACD89E68662",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Jordar Keljorsev",
+   "entity_id": "25016A56-F6CB-47B1-BF85-1BEEF0C5C528",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Fishwife": [],
+ "Graza": [
+  {
+   "name": "Graza",
+   "entity_id": "C4FCACAD-67B6-4625-8582-622F95603F70",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Golhap. Vexwimfen Nobba",
+   "entity_id": "4770C6AA-C695-44D9-A979-8D33D1C017DB",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Sotam Fenmisev",
+   "entity_id": "17D96B4A-A681-4625-BEFA-F74BC6EAEE9B",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Nuzeso Pellrost",
+   "entity_id": "BBDE4819-CB5B-4A1D-84CD-6089BDF10637",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Jorhap Nobpell",
+   "entity_id": "A2E81CCC-F234-455C-B257-FC9CAD9A0BCE",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Omsom": [],
+ "Fly By Jing": [
+  {
+   "name": "Fly by Mipell",
+   "entity_id": "8635D2FB-08FD-4CE2-89B5-F5FA16FBC6AE",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Fly by Mipell",
+   "entity_id": "F532728C-8644-4112-897D-157A9530C28D",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Fly By Nutinob",
+   "entity_id": "981C7036-FEF1-44DA-ACDD-48E2A499ACC4",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Fly By Kelwimnob",
+   "entity_id": "8ACDBC8A-EFF3-43D2-B660-9BD9BB044DF6",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Golrostdar Jorra By",
+   "entity_id": "8374A869-C155-4B0C-BE10-380F4A917152",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Liquid Death": [
+  {
+   "name": "Liquid Death",
+   "entity_id": "935B436D-58E9-4D5A-AD4D-D97D4E262EEF",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Liquid Death - The Nobgol: Mimi & Quinmi Sohapsev",
+   "entity_id": "51831444-1E20-4B26-A533-557BF946BC27",
+   "types": [
+    "urn:entity:tv_show"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Death Zepelllo timi Kevomup",
+   "entity_id": "40A6C0CA-39C7-4F10-8209-2836EE97EF26",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Death Hapjorra",
+   "entity_id": "3823CF0D-0C71-4B57-A2F5-1FA2A4A3936A",
+   "types": [
+    "urn:entity:tv_show"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Zezeba Fenradar Death Baquin",
+   "entity_id": "308F50D4-3E2C-440B-92A4-450D0F0F9934",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Olipop": [
+  {
+   "name": "Olipop",
+   "entity_id": "CA7ABD4F-87DF-4C15-AC18-D0B4AC1F3401",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Starbucks": [
+  {
+   "name": "Starbucks",
+   "entity_id": "596193C3-8008-4DA7-BF5F-187E4B7F7E57",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Starbucks Sozekel",
+   "entity_id": "19BBC972-F058-4C26-8AF1-8663591C8A6D",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Sevvexnob nobrostti Starbucks",
+   "entity_id": "6256FB6D-65E0-4D6B-A9E0-B4734DC49884",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Pepsi": [
+  {
+   "name": "Pepsi",
+   "entity_id": "E5A8A393-2938-4C23-BDBE-0C3163CA09D3",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Pepsi, Kequin Rakeke Vexbanu?",
+   "entity_id": "4A2CA982-EEE2-4EB6-974A-1C0B69D3D35F",
+   "types": [
+    "urn:entity:tv_show"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Pepsi & Lodargol",
+   "entity_id": "482B03B6-C6C2-4E85-9BA2-0A6B16694F60",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Pepsi Kelkel",
+   "entity_id": "C9D85C46-5FA7-440E-BDB5-B7F693297B06",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Pepsi Zedarkel Kelfenhap",
+   "entity_id": "8DD97598-5A87-4AD0-A9C1-719003F8BDFD",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Nike": [
+  {
+   "name": "Nike",
+   "entity_id": "A6FE8AD1-996F-4392-99D9-E85B67C1DD55",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Nike Nurost Darhap",
+   "entity_id": "68E37408-D8D0-45FE-9423-244FCF133F58",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Kesosev Keltamra Pellnob Rostgolwim",
+   "entity_id": "6DD255BE-B9F1-4AEA-8A00-E346312C8B10",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Nike Balovo",
+   "entity_id": "02FB0ED4-A6A2-45E2-9DE7-24CBB10E2B84",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Nobvexmi Quinvex Loquinmi",
+   "entity_id": "F34CC346-CB58-4C0D-B966-BB2FB0640243",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Taylor Swift": [
+  {
+   "name": "Taylor Swift",
+   "entity_id": "3B070671-F784-40B3-83F4-3509CE2E437E",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Taylor Swift",
+   "entity_id": "7A591B34-D42B-4A28-9BB9-0B9F128E4449",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": true
+  },
+  {
+   "name": "Taylor Swift: The Miba Jorrosthap",
+   "entity_id": "91387E6D-6514-4270-9CC3-221973EE9F4C",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Taylor Swift: Hapsevvex Jorrost Jorrosthap",
+   "entity_id": "092E4212-3F93-409F-B921-895D7CD32159",
+   "types": [
+    "urn:entity:tv_show"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Taylor Swift: Hapfen: The Fenkesev Mijornob Mihapgol Logol",
+   "entity_id": "3645B456-D82E-464A-B48B-748C66697F47",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Metallica": [
+  {
+   "name": "Metallica",
+   "entity_id": "67DE5A14-0870-4282-9189-45DDFED7F220",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": true
+  },
+  {
+   "name": "Metallica",
+   "entity_id": "67DE5A14-0870-4282-9189-45DDFED7F220",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Metallica: Vokehap Bavex of Fennu",
+   "entity_id": "31804792-11C3-4613-82B6-56729A4476E8",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Metallica Mupfen the Jorkel",
+   "entity_id": "3A88B9C7-4D24-4981-8FA8-B78B7CAF8731",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Metallica Vorakel Rakeke Sokelquin",
+   "entity_id": "B7E77450-674E-497A-9A03-3DFFE8E35B08",
+   "types": [
+    "urn:entity:movie"
+   ],
+   "belowFloor": true,
+   "winsPersonArtistTie": false
+  }
+ ],
+ "Stanley": [
+  {
+   "name": "Vodar Golba",
+   "entity_id": "EC7D38C8-CE4C-419D-9D18-F717E2AD95BE",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Jorhap Stanley",
+   "entity_id": "2799A59D-BE06-4ABD-830D-45D00910A0CC",
+   "types": [
+    "urn:entity:person"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Stanley",
+   "entity_id": "1D031A3D-A105-4EC2-8314-63F7322FD317",
+   "types": [
+    "urn:entity:brand"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Stanley",
+   "entity_id": "DAF0EB04-0B95-42DF-813B-DAA6AD284E01",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  },
+  {
+   "name": "Stanley Zera",
+   "entity_id": "BCBC7E56-A08E-4DDD-A50C-C9534B6705BA",
+   "types": [
+    "urn:entity:artist"
+   ],
+   "belowFloor": false,
+   "winsPersonArtistTie": false
+  }
+ ]
+}
