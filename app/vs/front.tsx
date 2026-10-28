@@ -12,7 +12,7 @@ import { Skeleton } from "../brief-panel";
 import { CheckTag, VsResult } from "./vs-view";
 import { COMPETITOR_LABEL, finderOrder } from "@/lib/vs.ts";
 
-// The front door (brief-oct12-front): two names in, the collision map and the columns out. Prepared pairs swap the
+// The front door: two names in, the collision map and the columns out. Prepared pairs swap the
 // page from the cache (0 Qloo calls); typed names go through the shared resolver, with the picker on either side, and
 // never run until both sides are settled. Every result's URL is its /vs id route, so it's a share link. A blank right
 // side asks the rival finder (lib/rival.ts) for the closest same-field brand, then runs that pair.
@@ -204,7 +204,7 @@ export default function Front({ initial }: { initial: { a: Side; b: Side; payloa
         {[...KNOWN.values()].sort((x, y) => x.name.localeCompare(y.name)).map((s) => <option key={s.id} value={s.name} />)}
       </datalist>
       <div className="mt-3">
-        {/* four pairs, then the rest and the aisles behind one fold (W5b, real Oct 25: twelve chips sat above the result);
+        {/* four pairs, then the rest and the aisles behind one fold (twelve chips sat above the result);
             the fold starts open when the pair on screen is one of them, so its outlined chip is never hidden */}
         {tryRow("Try:", VS_CASES)}
         <details className="mt-1" open={VS_MORE.some((c) => active === key(c.a, c.b)) || undefined}>

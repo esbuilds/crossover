@@ -8,7 +8,7 @@ if (typeof window !== "undefined") throw new Error("lib/qloo is server-only");
 
 const BASE = "https://hackathon.api.qloo.com";
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
-const NINETY_DAYS = 60 * 60 * 24 * 90; // cached responses (Oct 11): outlives judging (ends Nov 16) from any warm pass in October
+const NINETY_DAYS = 60 * 60 * 24 * 90; // cached responses: outlives judging (ends Nov 16) from any warm pass in October
 
 export type Tag = { tag_id: string; name: string; type: string };
 export type Entity = {
@@ -268,8 +268,8 @@ export const heatmap = cached("heatmap", async (seed: string | Signal[], locatio
   }));
 }, { memo: true });
 
-// The same heatmap for one Qloo age bracket (signal.demographics.age), for the age-scrubbed collision map probe
-// (brief-oct13-moonshots pick 2). Its own cache name: the national map's keys don't move. 1 call, cached.
+// The same heatmap for one Qloo age bracket (signal.demographics.age), for the age-scrubbed collision map probe.
+// Its own cache name: the national map's keys don't move. 1 call, cached.
 export const heatmapAge = cached("heatmapAge", async (seed: string, locationQuery: string, age: string): Promise<HeatCell[]> => {
   const body = await request("/v2/insights", { query: { "filter.type": "urn:heatmap", "signal.interests.entities": seed, "filter.location.query": locationQuery, "signal.demographics.age": age } });
   const r = (n: number, d: number) => Math.round(n * 10 ** d) / 10 ** d;

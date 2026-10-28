@@ -32,8 +32,8 @@ const NOTES: Record<string, string> = {
 };
 const REPLAY_FREEZE = "77c81de";
 const REPLAY_V2_FREEZE = "8354269";
-// From scripts/markets-probe.ts, real Oct 15: metros scoring within one point of each brand's fifth (lib/cities.ts over-index)
-// From scripts/reverse-probe.ts, real Oct 15: the seed's rank among each candidate's fans' top 50 of its type ("out": not in it)
+// From scripts/markets-probe.ts, Oct 15: metros scoring within one point of each brand's fifth (lib/cities.ts over-index)
+// From scripts/reverse-probe.ts, Oct 15: the seed's rank among each candidate's fans' top 50 of its type ("out": not in it)
 const REVERSE_RANKS: [string, string, string, boolean][] = [
   ["Allbirds", "Bombas 1, Warby Parker 11, ClassPass 16", "9, 12, 30, 31, out", true],
   ["Mt. Joy", "Outdoor Voices 26, Allbirds 4, Alternative Apparel out", "28, out, out, out, out", true],
@@ -67,7 +67,7 @@ export default function AuditPage() {
         <p className="mt-3 max-w-copy text-lg text-ink-2 sm:mt-4">Every test here was frozen in git before it ran, and every result is published as it came out, misses included. What we tried to break comes first: the checker, then the replay and the two controls that undid its best number. The held-out briefs, the agent&apos;s blocked answers and the known limits follow.</p>
       </section>
 
-      {/* W5b (judge round, real Oct 25): what we tried to break leads, in sentences, not tiles. Every number is read
+      {/* what we tried to break leads, in sentences, not tiles. Every number is read
           from its file; row two keeps "both controls failed" beside the replay's number. The six counts that were tiles
           stay, folded, as a plain list. */}
       <section aria-labelledby="tried" className={`${panelStrong} mt-block max-w-[900px] p-4 sm:p-6`}>
@@ -83,14 +83,14 @@ export default function AuditPage() {
           <summary className="cursor-pointer text-sm text-ink-2">Every count on this page, in one list</summary>
           <dl className="mt-3 grid gap-y-2 text-sm text-ink-2">
             {([
-              // the attacked checker leads (DES-8, real Oct 23): the line under every answer, from audit/mutation.json
+              // the attacked checker leads: the line under every answer, from audit/mutation.json
               ["Altered answers caught", <a key="m" href="#fool-it" className={linkInline}>{mutation.gated.rejected} of {mutation.gated.of}</a>, ""],
               ["Cached asks (Oct 15)", "39", ""],
               ["Reached a decision", "36", "(3 stopped at the name)"],
               ["Distinct routes", "5", ""],
               ["Blocked by the checker", `${blocked.length}`, `${blocked.filter((b) => b.underV2 !== "passes").length} under the current rule`],
-              // pooled with its control, as on /replay (AUDIT-STAT, real Oct 22): both counts from audit/replay-control.json
-              // the verdict on the tile itself (SCORE-4, real Oct 23), so the tile alone doesn't read as a found effect
+              // pooled with its control, as on /replay: both counts from audit/replay-control.json
+              // the verdict on the tile itself, so the tile alone doesn't read as a found effect
               ["Replays, real partner in the top three", `${control.summary.realHits} of ${control.summary.cases}`, <><a href="#replay-controls" className={linkInline}>and {control.summary.scrambledHits} of {control.summary.cases} with the seed scrambled</a><span>; both controls failed: the lists favor the real partner whoever is asking</span></>],
             ] as [string, ReactNode, ReactNode][]).map(([k, lead, rest]) => (
               <div key={k} className="flex flex-wrap gap-x-2">
@@ -102,26 +102,26 @@ export default function AuditPage() {
           </dl>
         </details>
       </section>
-      {/* W2: the public repo builds on stand-ins (audit/demo/); production never carries the mark */}
+      {/* the public repo builds on stand-ins (audit/demo/); production never carries the mark */}
       {isDemoAudit() && <p className="mt-6 max-w-copy text-sm text-ink-2">{DEMO_AUDIT_NOTICE}</p>}
 
-      {/* persona round 2 (both readers): the page is long; a contents list up top */}
+      {/* the page is long; a contents list up top */}
       <nav aria-label="On this page" className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm">
         {[["#fool-it", "Can the checker be fooled?"], ["#replays", "Real partners, replayed"], ["#counterexample", "The counterexample"], ["#checker", "What the agent may say, and what was blocked"], ["#probes", "Probes, the judge names and the limits"], ["#held-out", "Held-out briefs"], ["#api-notes", "Notes on the API"]].map(([href, label]) => (
           <a key={href} href={href} className={`text-ink-2 ${linkInline}`}>{label}</a>
         ))}
       </nav>
-      {/* W5b (real Oct 25): the page's working words, said once in plain terms before the sections use them */}
+      {/* the page's working words, said once in plain terms before the sections use them */}
       <p className="mt-4 max-w-copy text-sm text-ink-2">Words this page uses: the <span className="text-ink">seed</span> is the brand a test asks about; a <span className="text-ink">protocol</span> is a test&apos;s plan, written and frozen in git before its first call; a <span className="text-ink">pass mark</span> is the result the plan said would count as a pass; <span className="text-ink">held out</span> means kept back from tuning and run once, after the rules were frozen; a <span className="text-ink">probe</span> is a one-off measurement run to decide whether to build something; a <span className="text-ink">buyer gate</span> is a brand or kind of brand a brief rules out.</p>
 
-      {/* W5b: the attack on the checker first, then the replay with its controls (what we tried to break leads) */}
-      {/* moonshots round 4, real Oct 18: the checker attacked by script before a visitor gets to try (scripts/mutation-gate.ts) */}
+      {/* the attack on the checker first, then the replay with its controls (what we tried to break leads) */}
+      {/* the checker attacked by script before a visitor gets to try (scripts/mutation-gate.ts) */}
       <section id="fool-it" className="mt-section max-w-copy scroll-mt-4">
         <h2 className="font-display text-xl">Can the checker be fooled?</h2>
         <p className="mt-3 text-base text-ink-2">
           Every answer the site shows ({mutation.answers} cached on {mutation.date}) was copied and one fact was changed per copy: a score moved by 0.03, a rank or count moved by one, a brand swapped, a citation pointed at the wrong step. The checker re-checked each copy. 0 Qloo calls, 0 model calls. Today&apos;s rule rejects {mutation.gated.rejected} of {mutation.gated.of}; each kind is below, with what got through. Any answer on the site has a &ldquo;Try to fool the checker&rdquo; box that runs the same code on your edit.
         </p>
-        {/* W5b (real Oct 25): the rule versions behind that number, folded; the paragraph as it read before is kept whole */}
+        {/* the rule versions behind that number, folded; the paragraph as it read before is kept whole */}
         <details className="mt-2">
           <summary className="cursor-pointer text-base text-ink-2">How the rule got there: two gaps found by this test, one found later, all three closed</summary>
         <p className="mt-2 text-base text-ink-2">
@@ -214,7 +214,7 @@ export default function AuditPage() {
           The agent on the front page chooses what to measure next and writes the answer, but it can only measure through Crossover&apos;s own tools, and its answer is shown only if every name and number in it appears in a step it cites. When a line doesn&apos;t match, the page shows the steps without the answer and says so. Each prepared ask&apos;s candidates (eight for Allbirds and Mt. Joy, six for Calm) tie within 0.05 by taste, because they come from the top 50 of the seed&apos;s own affinity list; the three shown are the agent&apos;s pick inside the tie, with its reason in the trace, and the overlap check is shown whether it finds a pair or not.
         </p>
         <p className="mt-3 text-base text-ink">The checker has blocked {blocked.length} answers so far; blocked under the current rule: {blocked.filter((b) => b.underV2 !== "passes").length}. Each, with the sentence that failed, the reason and what the current rule says:</p>
-        {/* W5b (real Oct 25): the rule's version history, folded under a plain summary; every line kept */}
+        {/* the rule's version history, folded under a plain summary; every line kept */}
         <details className="mt-1">
           <summary className="cursor-pointer text-base text-ink-2">How the rule changed: twice, each time after a test found a gap, and every earlier answer re-checked</summary>
         <p className="mt-2 text-base text-ink-2">The rule was refined on Oct 15 (rule v2) after the judge-name probe blocked a true answer for Noah Kahan: a number after &ldquo;against&rdquo;, &ldquo;versus&rdquo;, &ldquo;while&rdquo;, &ldquo;for the others&rdquo;, a count of others (&ldquo;seven others&rdquo;) or a semicolon now has to be the next named brand&apos;s own number, or with none named, another candidate&apos;s, instead of the brand before the comma&apos;s. Every number still has to be in a cited step. Before it shipped, all 29 cached answers that passed still passed (33 on a re-run the same afternoon, 0 failing), the three real failures below still block, and a test proves a misattributed number still blocks. Answers are re-checked under the current rule when shown; the stored runs aren&apos;t changed.</p>
@@ -321,15 +321,15 @@ export default function AuditPage() {
           <li>
             <span className="font-semibold">A brand&apos;s footprint decides an aisle map, so the leaders map uses three.</span> Run real Oct 12 on cached heatmaps (scripts/leaders-probe.ts), pass mark: no brand above its share limit, and most coloured cells agreeing with their neighbours. All nine energy brands, each ranked within its own cells: Red Bull leads 2,880 of 6,134 coloured cells, because its map has 11,060 cells and 5-hour Energy&apos;s 1,235, so a small map can&apos;t lead where it has no reading (4,134 of 5,923 cells agree with their neighbours; fails the share limit of two in five). Ranked within the 1,208 cells all nine carry: the largest share is Red Bull&apos;s 195 of 1,053 coloured cells, but only 491 of 870 agree with their neighbours. The top four by cell count (Red Bull, Monster, Bang, Rockstar; 7,018 shared cells): Bang leads 1,953 of 4,834 and 3,440 of 4,587 agree, but Celsius drops out. The camp heads (Red Bull, Monster, Celsius; 3,957 shared cells, all of Celsius&apos;s map): Celsius leads 1,241 of 2,878, and 2,123 of 2,650 agree. The shipped rule: three camp heads per aisle, ranked within the cells all three carry, a pass mark of at least 3,000 shared cells, no brand above half the coloured cells, and at least three in five agreeing with their neighbours. Soda passes with Olipop, LaCroix and Simply Pop (4,681 cells; LaCroix leads 1,205 of 2,922; 2,141 of 2,734 agree; Poppi shares only 1,961). Outdoor fails on regions (Patagonia, The North Face, REI: 11,240 cells; Patagonia leads 2,242 of 6,364; only 3,485 of 6,170 agree) and has no leaders map.
           </li>
-          {/* moonshots round 4, real Oct 18: the popularity cap gate passed, built as the smaller-names block */}
+          {/* the popularity cap gate passed, built as the smaller-names block */}
           <li id="smaller-names">
             <span className="font-semibold">A popularity cap keeps the fit, so the answer page shows smaller names.</span> Real Oct 18 (12 of 54 calls that day). Four seeds (Liquid Death, Olipop, Celsius, Allbirds), Qloo&apos;s brand list for each read three ways: as is, and with filter.popularity.max at 0.7 and 0.5. Pass mark, written before the run: affinity has to be the same number for the same brand in every read, or no comparison across reads means anything (it was, for every brand that appeared in two reads); and for three of the four seeds, at least five brands under the 0.7 cap with the strongest of them scoring at least four fifths of the leader&apos;s affinity (all four did: every capped list had 20 brands, and the strongest kept 0.98 or more of the leader&apos;s score). Passed. The block on the answer page uses the 0.5 cap and the product&apos;s own 0.05 tie rule, both chosen after the run. Two things the run showed: Qloo gives some brands popularity 0, which is no measurement, so they pass any cap untested and are left out; and Olipop&apos;s capped list is mostly those unmeasured brands, so it shows little. The measured file stays private under Qloo&apos;s terms.
           </li>
-          {/* moonshots round 4, real Oct 18: the audience lens gate failed, published as found */}
+          {/* the audience lens gate failed, published as found */}
           <li id="audience-lens">
             <span className="font-semibold">Qloo&apos;s named audiences barely separate partners, so there is no audience lens.</span> Real Oct 18 (about 40 of 54 calls that day). Four seeds (Liquid Death, Olipop, Celsius, Allbirds), each with its top three brand partners, scored under eight Qloo audiences (Single, Parents With Young Children, Technology Enthusiast, Discount Shoppers, Running, Travel, Foodie, Music Festivals) with signal.demographics.audiences and the four ids in filter.results.entities. Pass mark, written before the run: most of the twelve partners spread at least 0.10 between their highest and lowest audience, and not the same top audience everywhere. 3 of 12 spread 0.10 or more (the largest 0.111); Foodie tops 6 of 12; Olipop, its three partners, Celsius and Fallen Footwear return 0.76 under every audience, which reads as a value with nothing behind it. Failed, not built. The measured file stays private under Qloo&apos;s terms; the script is scripts/audience-probe.ts.
           </li>
-          {/* Oct 16 ruling, point 1: below the floor of 5 it is a probe entry, not a v3 line */}
+          {/* point 1: below the floor of 5 it is a probe entry, not a v3 line */}
           <li id="fresh-deals">
             <span className="font-semibold">Fresh deals, chosen by rule, didn&apos;t reach the floor.</span> Real Oct 16 (34 calls, no affinity read), a third replay on deals chosen by rule after the protocol froze (8354269, Oct 13). The rule was committed before the search (b2d3c28: Marketing Dive and Food Dive, Aug 17 to Oct 16, two brands per deal, a floor of 5 scored cases) and the list before any Qloo call (1f4c0c4). 13 deals found; 3 excluded under the rule (Netflix and Wendy&apos;s were already used, Papa Johns&apos; partner was a film). Of the 10 left, 5 names didn&apos;t confirm (BeatBox, Biscoff and Flamin&apos; Hot matched more than one entity; BuzzBallz, Mike&apos;s Hot Honey and Pilgrim&apos;s matched none), and Realtree and Skippy carry no brand genre tag, so no decoys can be drawn. 3 built (Hoka x Strava, Shock Top x Spirit Halloween, e.l.f. Cosmetics x Zepeto) against a floor of 5, so nothing was scored and there is no third replay line. Most of the losses are small food and drink brands, as in the notes on the API below. Both sites&apos; listing pages wouldn&apos;t paginate, so the search rests on 26 domain-restricted web searches plus the first page of each listing (log in audit/replay-v3-search-log.md). Files: audit/replay-v3-protocol.md, replay-v3-cases.json and replay-v3-search.json; the scored file stays private under Qloo&apos;s terms.
           </li>
@@ -347,7 +347,7 @@ export default function AuditPage() {
         </details>
       </section>
 
-      {/* Oct 16 ruling, point 3: what we asked, what came back, what we shipped, the probe file. No adjectives, no asks. */}
+      {/* point 3: what we asked, what came back, what we shipped, the probe file. No adjectives, no asks. */}
       <section id="api-notes" className="mt-section max-w-copy scroll-mt-4">
         <h2 className="font-display text-xl">Notes on the API</h2>
         <ul className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-3 text-base text-ink">
@@ -442,7 +442,7 @@ function Replay() {
       <p className="mt-3 max-w-copy text-base text-ink-2">
         Real brand collaborations, each with a public source. For each, the real partner sits among seven decoys from its own Qloo category and fame band, chosen by rule with no taste score read; then the seed&apos;s fans (the brand that made the deal) score all eight. A hit is the real partner in the top three; chance is three in eight. Each test&apos;s protocol and bar were frozen in git before it ran.
       </p>
-      {/* W5b: the controls before any per-test pass line, and the two tests folded under them, so no passing number is
+      {/* the controls before any per-test pass line, and the two tests folded under them, so no passing number is
           read without the controls that undo it */}
       <ReplayControls />
       <details className="mt-6">

@@ -1,4 +1,4 @@
-// review-v2 on rows shaped like those Qloo returned Oct 10. The scores are made up (W2, real Oct 25:
+// review-v2 on rows shaped like those Qloo returned Oct 10. The scores are made up (
 // no Qloo values in the repo) and keep the recorded bands, picks and ties. The two floors are the real doubles the
 // missing rule must recognize (lib/review.ts). No live API.
 import { test } from "node:test";
@@ -188,7 +188,7 @@ test("adversarial: tag gates match whole words and quote Qloo's tag", () => {
   assert.equal(gateFor(ref("x", 0.9, B, ["a+b"]), "x", { excludeTags: ["(.*)"] }).state, "eligible"); // rules are text, not regex
 });
 
-// --- adversarial pass (Oct 10): partial returns, hostile input, contradictory gates, boundaries ---
+// --- adversarial pass: partial returns, hostile input, contradictory gates, boundaries ---
 
 test("adversarial: a gap of exactly 0.05 is a difference, despite floating point", () => {
   const two = [{ id: "a", forward: 0.95 }, { id: "b", forward: 0.9 }, { id: "c", forward: 0.85 }];

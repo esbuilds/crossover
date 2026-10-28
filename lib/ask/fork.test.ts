@@ -1,4 +1,4 @@
-// The fork line (the destroy brief 2d, real Oct 15): only where the path branches, from the step's own output.
+// The fork line: only where the path branches, from the step's own output.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { forkLine } from "./steps.ts";

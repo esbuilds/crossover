@@ -2,7 +2,7 @@ import forks from "@/audit/forks.json";
 import look from "@/audit/second-look.json";
 import { forksSentences } from "@/lib/forks.ts";
 
-// What the agent decided, counted (AGENT-6, real Oct 22): scripts/forks.ts over every cached ask, then the second look's
+// What the agent decided, counted: scripts/forks.ts over every cached ask, then the second look's
 // Gate C (audit/second-look-protocol.md). Published as run.
 export function AgentForks() {
   return (

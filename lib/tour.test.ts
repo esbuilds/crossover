@@ -1,4 +1,4 @@
-// The 60-second judge tour (Eric's features push, real Oct 14): three stops, each a page that already exists.
+// The 60-second judge tour: three stops, each a page that already exists.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { CONTROL, TOUR, tourHref } from "./tour.ts";
@@ -18,6 +18,6 @@ test("each stop's line carries only numbers already published on the site", () =
   for (const s of TOUR) for (const n of s.line.match(/\d+/g) ?? []) assert.ok(allowed.includes(n), `${n} in "${s.line}"`);
 });
 
-test("the tour's replay numbers are the published control's (REPLAY-LINE, real Oct 22)", () => {
+test("the tour's replay numbers are the published control's", () => {
   assert.deepEqual(CONTROL, { cases: control.summary.cases, realHits: control.summary.realHits, scrambledHits: control.summary.scrambledHits });
 });

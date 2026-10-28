@@ -1,4 +1,4 @@
-// The checker attack over the three demo asks (W3, real Oct 24; the demo world W2, real Oct 25), offline: the same kinds
+// The checker attack over the three demo asks, offline: the same kinds
 // scripts/mutation-gate.ts runs over the cache. The demo keeps the recorded asks' one miss (a score nudged by 0.03, on
 // the artist ask); the ceiling kind is counted apart.
 import { test } from "node:test";

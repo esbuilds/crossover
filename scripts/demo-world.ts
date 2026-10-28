@@ -1,4 +1,4 @@
-// The demo world (W2, real Oct 25): three made-up asks shaped like the recorded ones in lib/ask/fixtures/, so the tests
+// The demo world: three made-up asks shaped like the recorded ones in lib/ask/fixtures/, so the tests
 // and npm run verify run without Qloo data in the repo (Qloo's hackathon guide: no response data in a public repository).
 // It runs only where the recorded asks exist (the private repo):
 //   node --disable-warning=ExperimentalWarning scripts/demo-world.ts <map-out.json> [out-dir, default lib/ask/demo]

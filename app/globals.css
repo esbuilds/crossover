@@ -41,13 +41,13 @@
   --text-2xl: 1.75rem;
   --text-2xl--line-height: 2.1rem;
   /* the page title grows with the viewport (36 at 640, 42 at 1024, 44 from 1180): a 2.75:1 step over body text, so the
-     h1 reads as the one headline at 1280 and 1440 without a second breakpoint (SPACE, real Oct 21) */
+     h1 reads as the one headline at 1280 and 1440 without a second breakpoint */
   --text-3xl: clamp(2.25rem, 1.65rem + 1.5vw, 2.75rem);
   --text-3xl--line-height: 1.12;
   --text-4xl: 3.25rem;
   --text-4xl--line-height: 3.5rem;
 
-  /* Rhythm (SPACE, real Oct 21). Four named steps, fluid, so desktop breathes and the phone's first screen holds.
+  /* Rhythm. Four named steps, fluid, so desktop breathes and the phone's first screen holds.
      Values at 390 / 1280 / 1440:
        page     24 / 55 / 62   header rule to the h1 (pt-page)
        section  48 / 75 / 82   between the page's sections (mt-section); one step bigger than anything inside a section
@@ -88,11 +88,11 @@ body {
   background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  /* one figure policy (TR F5): every number lines up in a column; mono is for citations, hashes and step labels */
+  /* one figure policy: every number lines up in a column; mono is for citations, hashes and step labels */
   font-variant-numeric: tabular-nums lining-nums;
 }
 
-/* feel (TR F2, TR F9): a warm selection, smooth jumps to a cited step, and the step it lands on lights once */
+/* feel: a warm selection, smooth jumps to a cited step, and the step it lands on lights once */
 ::selection {
   background: var(--color-accent-tint);
   color: var(--color-ink);
@@ -126,17 +126,17 @@ h2,
 h3 {
   text-wrap: balance;
 }
-/* prose wraps without an orphaned last word (SPACE) */
+/* prose wraps without an orphaned last word */
 p {
   text-wrap: pretty;
 }
 
-/* the display face says its weight instead of leaning on the one loaded cut (TR F4). In the base layer, so an
+/* the display face says its weight instead of leaning on the one loaded cut. In the base layer, so an
    explicit weight utility on the same element still wins. .font-italic-display is the "vs" on /vs only. */
 @layer base {
   .font-display {
     font-weight: 600;
-    /* a hair tighter (SPACE): at 44px the serif's default fit opens up; at 22px this is a fifth of a pixel */
+    /* a hair tighter: at 44px the serif's default fit opens up; at 22px this is a fifth of a pixel */
     letter-spacing: -0.01em;
   }
   .font-italic-display {
@@ -174,7 +174,7 @@ summary::-webkit-details-marker {
   }
 }
 
-/* Watch it think stamps (MO F2): the tick draws once, the word fades in, and a claim settles from a tint when the last
+/* Watch it think stamps: the tick draws once, the word fades in, and a claim settles from a tint when the last
    step it cites lands. Reduced motion: every stamp is on at first paint and no keyframe runs. */
 .stamp {
   color: var(--color-success);
@@ -240,7 +240,7 @@ summary::-webkit-details-marker {
   }
 }
 
-/* a replayed step rising into the room it already holds (MO F4); applied under motion-safe only */
+/* a replayed step rising into the room it already holds; applied under motion-safe only */
 @keyframes step-in {
   from {
     opacity: 0;
@@ -248,12 +248,12 @@ summary::-webkit-details-marker {
   }
 }
 
-/* the trace rail (CT F1, MO F3; DES-3 real Oct 23): a numbered progress row in the body face. Pending steps in ink-3
+/* the trace rail: a numbered progress row in the body face. Pending steps in ink-3
    with an outlined number, landed in ink with the number filled; the label underlines on hover, as links do. */
 .rail-step {
   display: inline-flex;
   align-items: center;
-  min-height: 1.5rem; /* WCAG 2.2 target size, 24px (W3) */
+  min-height: 1.5rem; /* WCAG 2.2 target size, 24px */
   gap: 0.375rem;
   color: var(--color-ink-3);
   text-underline-offset: 4px;
@@ -272,7 +272,7 @@ summary::-webkit-details-marker {
   font-size: 0.75rem;
   line-height: 1;
 }
-/* phones show the numbers only, each a 44px target (W3) */
+/* phones show the numbers only, each a 44px target */
 @media (max-width: 639.98px) {
   .rail-step {
     min-width: 2.75rem;
@@ -301,7 +301,7 @@ li.is-on .rail-num {
   }
 }
 
-/* The answer's pictures on the home replay (W3, real Oct 25; MO F8). Until step 5 lands they wait at a quarter strength
+/* The answer's pictures on the home replay. Until step 5 lands they wait at a quarter strength
    (the labels stay full, so nothing is hidden); when it lands the climbing line draws and the eight's rows draw from fame
    to taste. 250 ms each, transform, opacity and stroke only. Share pages carry neither class and never animate. Reduced
    motion: the replay lands every step at once, so the pending state never shows and no keyframe runs. */
@@ -338,7 +338,7 @@ li.is-on .rail-num {
   }
 }
 
-/* the collision map makes its argument in 500 ms (MO F9): shared cells, then each side, then the names. Opacity only. */
+/* the collision map makes its argument in 500 ms: shared cells, then each side, then the names. Opacity only. */
 @media (prefers-reduced-motion: no-preference) {
   .cells-in path {
     animation: fade-in 300ms ease-out backwards;
@@ -354,7 +354,7 @@ li.is-on .rail-num {
   }
 }
 
-/* a live step (MO F7): the text holds still and one caret blinks after it, as a terminal shows a running process.
+/* a live step: the text holds still and one caret blinks after it, as a terminal shows a running process.
    Reduced motion: the caret stays, steady. */
 .working::after {
   content: "";
@@ -376,7 +376,7 @@ li.is-on .rail-num {
   }
 }
 
-/* the call sheet prints on one page at Letter as well as A4 (persona round 2, Live Nation: page two held only the footer) */
+/* the call sheet prints on one page at Letter as well as A4 (page two held only the footer) */
 @page {
   margin: 0.4in;
 }

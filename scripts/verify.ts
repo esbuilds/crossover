@@ -1,5 +1,5 @@
-// Verify it with no keys (W3, real Oct 24): no API key, no Redis, no network. Reads the three recorded asks in
-// lib/ask/fixtures/ where they exist, and otherwise the demo world in lib/ask/demo/ (W2, real Oct 25: the recorded asks
+// Verify it with no keys: no API key, no Redis, no network. Reads the three recorded asks in
+// lib/ask/fixtures/ where they exist, and otherwise the demo world in lib/ask/demo/ (the recorded asks
 // and the audit tables are Qloo data, which Qloo's hackathon guide keeps out of public repos, so the public repo ships
 // made-up asks of the same shape and stand-ins marked "demo"). Exits 1 if anything differs from what's stated here.
 //   npm run verify
@@ -12,7 +12,7 @@ import type { AskEvent } from "../lib/ask/agent.ts";
 import control from "../audit/replay-control.json" with { type: "json" };
 import reverse from "../audit/replay-reverse.json" with { type: "json" };
 
-// what this run must reproduce (measured real Oct 24 at rule v3.1); the frozen hashes come from docs/freeze.md itself
+// what this run must reproduce (measured Oct 24 at rule v3.1); the frozen hashes come from docs/freeze.md itself
 // (the demo asks keep each recorded ask's claim count and the attack's result, so one table serves both)
 const EXPECT = { claims: [31, 33, 27], gated: [20, 21], ceiling: [0, 3], control: [17, 17], reverse: [5, 3] };
 let bad = 0;

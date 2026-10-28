@@ -29,7 +29,7 @@ function Cells({ cells, reveal }: { cells: CollideCell[]; reveal: boolean }) {
   );
 }
 
-// The map's furniture (TR F6, CT F4): a source line, then the key, so a side never rests on hue alone.
+// The map's furniture: a source line, then the key, so a side never rests on hue alone.
 // sourceClass lets the home page hide the source line on phones, where the first screen is tight.
 export function MapKey({ a, b, sourceClass = "" }: { a: string; b: string; sourceClass?: string }) {
   const swatch = (tone: Tone, label: string) => (
@@ -40,7 +40,7 @@ export function MapKey({ a, b, sourceClass = "" }: { a: string; b: string; sourc
   );
   return (
     <>
-      {/* plain words (A-7, real Oct 27): "cells" and "0.25 lean rule" meant nothing to a first-time reader */}
+      {/* plain words: "cells" and "0.25 lean rule" meant nothing to a first-time reader */}
       <p className={`mt-1 text-xs text-ink-3 ${sourceClass}`}>Source: Qloo&apos;s US heatmaps. A dot is a place either audience ranks in its top half; it leans to one side when that audience ranks it at least {Math.round(LEAN_SPLIT * 100)} places higher out of 100 (Crossover&apos;s rule), else it&apos;s Both.</p>
       <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-2">
         {swatch("a", `Leans ${a}`)}
@@ -51,7 +51,7 @@ export function MapKey({ a, b, sourceClass = "" }: { a: string; b: string; sourc
   );
 }
 
-// named: the text shown with the map; every city it names keeps its label (DES-follow-up)
+// named: the text shown with the map; every city it names keeps its label
 // reveal (default true): the home replay passes false until the split's step lands, so the states draw at first paint
 // and the cells and names arrive with their step (WOW F2). /vs and /ask never pass it.
 export default function CollisionMap({ cells, metrosA, metrosB, a, b, reveal = true, labelPx, named }: { cells: CollideCell[]; metrosA: City[]; metrosB: City[]; a: string; b: string; reveal?: boolean; labelPx?: number; named?: string }) {

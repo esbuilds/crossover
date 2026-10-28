@@ -1,5 +1,5 @@
 // A one-off probe, run by hand and kept as the record of how its result was made; nothing in the app imports it.
-// City probe (Perplexity re-judge moonshot 3, real Oct 13): does a location signal change Pick three? Mt. Joy's eight
+// City probe: does a location signal change Pick three? Mt. Joy's eight
 // scored nationally (cached) and with signal.location.query per metro. Gate (set before the run): the top three by
 // affinity changes in at least 2 of 4 metros. 4 calls, serial.
 //   node --env-file=.env.local scripts/probes/city-probe.ts

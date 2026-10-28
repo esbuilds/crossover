@@ -92,7 +92,7 @@ test("the Liquid Death vs Celsius case passes the copy rules", async () => {
   assert.deepEqual(bannedIn([PAIR_CASE.label, ...PAIR_CASE.paragraphs].join(" "), names), []);
 });
 
-test("poss: a name that's already possessive stays as it is (A-14)", () => {
+test("poss: a name that's already possessive stays as it is", () => {
   assert.equal(poss("Arby's"), "Arby's");
   assert.equal(poss("Allbirds"), "Allbirds'");
   assert.equal(poss("Calm"), "Calm's");

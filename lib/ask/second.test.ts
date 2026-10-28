@@ -59,7 +59,7 @@ test("the loop: measures the other way, the checker's no comes back once as a ch
   assert.deepEqual(ev[4], { type: "look", outcome: "changed", frozen: ["Bombas", "Warby Parker"], calls: ["Bombas"], measured: true, checkFed: true, citedLess: false });
 });
 
-test("AGENT-4: an answer that passes the second time only by dropping what it couldn't cite counts as cited less", async () => {
+test("an answer that passes the second time only by dropping what it couldn't cite counts as cited less", async () => {
   const less = { calls: [{ name: "Bombas", reason: "[[Bombas]] fans rank [[Allbirds]] highest.", steps: [4] }], cautions: [], summary: [] };
   const ev = await look([["otherWay", { why: "Tied.", names: ["Bombas"] }], ["decide", bad], ["decide", less]]);
   assert.equal((ev.at(-1) as { citedLess: boolean }).citedLess, true);

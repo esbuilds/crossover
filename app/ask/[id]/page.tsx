@@ -56,14 +56,14 @@ export default function SharedAsk({ params, searchParams }: PageProps<"/ask/[id]
 async function Shared({ params, searchParams }: Pick<PageProps<"/ask/[id]">, "params" | "searchParams">) {
   await connection(); // request time: the cache reads below must not run in the prerender (they read the clock)
   const r = await load(params, searchParams);
-  if (!r) notFound(); // an id that isn't a Qloo id is a broken link, as on /s (FIX-F6), not a blank ask page
+  if (!r) notFound(); // an id that isn't a Qloo id is a broken link, as on /s, not a blank ask page
   const asked = "query" in r.body && r.body.query ? { query: r.body.query } : r.body.caseKey ? { case: r.body.caseKey } : { id: r.id, type: r.type };
   if (!r.events || !r.seed) {
-    // the name for the chip (FIX-F7): the typed name, the replay case's label, or the cached card's name; cache only
+    // the name for the chip: the typed name, the replay case's label, or the cached card's name; cache only
     const label = "query" in asked ? asked.query ?? UNNAMED_ASK : "case" in asked ? REPLAY_ASK.label : (await peekCard(r.id, r.type).catch(() => null))?.name ?? UNNAMED_ASK;
     return <AskView proof={PROOF} caught={CAUGHT} pending={{ label, body: asked }} />;
   }
-  // the where line, both-ways table and field notes from the cache on the server (MO F6, FIX-F3): nothing lands late
+  // the where line, both-ways table and field notes from the cache on the server: nothing lands late
   const [where, both, notes] = await Promise.all([whereToStart(r.events, null).catch(() => null), bothWays(r.events, null).catch(() => null), fieldNotesFor(r.events, null).catch(() => null)]);
   return <AskView proof={PROOF} caught={CAUGHT} initial={{ label: r.seed, events: r.events, asked, where: where?.line ?? undefined, both, notes }} />;
 }

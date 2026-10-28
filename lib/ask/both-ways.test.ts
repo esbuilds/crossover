@@ -1,4 +1,4 @@
-// Both ways (the columns ruling, real Oct 15): the demo world's brand and artist asks (lib/ask/demo/) against a recorded getter.
+// Both ways: the demo world's brand and artist asks (lib/ask/demo/) against a recorded getter.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { bothWaysFrom, gate, sentence, type Row } from "./both-ways.ts";
@@ -47,7 +47,7 @@ test("gate: no block when the three don't separate (the Converse case: all outsi
   assert.equal(gate([row("A", 1, true), row("B", 11, true), row("C", 9)]), true);
 });
 
-// The heading follows the measurement (the persona round 2 ruling, Eric approved Oct 15), on the demo asks.
+// The heading follows the measurement, on the demo asks.
 const MJ_REV: Record<string, number> = { "Brightwell Optics": 26, "Corvid & Co.": 4, Bluehour: 0, "Lumen Sock Co.": 0, "Tinderbox Audio": 28, "Velvet Anvil": 0, "Tallgrass Goods": 0, Driftline: 0 };
 const MJ = "02898764-3C08-4206-B9CC-17C0B09DD36E";
 
@@ -72,7 +72,7 @@ test("one-way line: the first call's fans don't have the seed in their top 50; n
   assert.equal(oneWay("Corvid & Co.", "brands", [r("Larkspur Labs", 1, true)], r("Larkspur Labs", 1, true)), null);
 });
 
-// The card line and the slopegraph (COLDJUDGE-8, SPECTACLE-2, real Oct 22): every rank either prints is a table cell.
+// The card line and the slopegraph: every rank either prints is a table cell.
 const mjBoth = async () => {
   const mjEvents = mtJoy as unknown as AskEvent[];
   const mjCands = (mjEvents.find((e) => (e as { output?: { candidates?: unknown } }).output?.candidates) as unknown as { output: { candidates: { name: string; id: string }[] } }).output.candidates;
@@ -87,7 +87,7 @@ test("card line: the first call's reverse rank, then the other seven's range, fr
   assert.equal(bothLine({ ...ab, rows: ab.rows.map((r, i) => (i === 3 ? { ...r, rev: null } : r)) }, "Larkspur Labs"), null);
 });
 
-test("J4: inside a tie the first call's reason says whether the both-ways read separates it", async () => {
+test("inside a tie the first call's reason says whether the both-ways read separates it", async () => {
   const ab = (await bothWaysFrom(events, recorded()))!;
   const all = { size: 8, total: 8 };
   assert.equal(firstCallWhy(ab, "Larkspur Labs", all), "All eight are within 0.05 on taste. Larkspur Labs is the only one whose fans rank Corvid & Co. first; the other seven rank it 9th to 31st or not in their top 50.");
@@ -124,7 +124,7 @@ test("slopegraph: labels equal the table's cells; Larkspur Labs is the one line 
   for (const s of [ab, mj]) for (const r of s.rows) assert.ok(r.ly1 >= r.y1 && r.ly2 >= r.y2 && r.ly1 < s.height && r.ly2 < s.height);
 });
 
-// DES-6 (real Oct 23): the phone drawing has the same rows and labels, and is narrow enough that its 12px text renders
+// the phone drawing has the same rows and labels, and is narrow enough that its 12px text renders
 // at 12px or more in a 390 card (340 px wide once it runs into the padding); the open-end label's two lines are the cell
 test("slopegraph, phone: same labels as the wide one, and the text renders at 12 px or more at 390", async () => {
   assert.equal(OUT_LINES.join(" "), cell("out"));
@@ -135,7 +135,7 @@ test("slopegraph, phone: same labels as the wide one, and the text renders at 12
   }
 });
 
-// W1 (real Oct 24): the wide drawing's sub-lines come from step 5's one group and the table's cells; no line when the
+// the wide drawing's sub-lines come from step 5's one group and the table's cells; no line when the
 // review split into groups, and the phone drawing never carries them
 test("slopegraph, wide: the sub-lines are the review group's range and the table's best to worst cell", async () => {
   const groups = (ev: AskEvent[]) => (ev.find((e) => (e as { output?: { groups?: unknown } }).output?.groups) as unknown as { output: { groups: { name: string; affinity: number }[][] } }).output.groups;
@@ -150,9 +150,9 @@ test("slopegraph, wide: the sub-lines are the review group's range and the table
   assert.deepEqual(slope(ab, true, "x")!.subs, { left: null, right: null });
 });
 
-// A-6 (real Oct 27): Low Tide Choir's first call is Brightwell Optics (its fans rank the seed 26th) while another row's
+// Low Tide Choir's first call is Brightwell Optics (its fans rank the seed 26th) while another row's
 // fans rank it 4th, the best of the eight. The card names that row and says the first call is the agent's pick.
-test("A-6: a tie whose first call isn't the one the both-ways read favors names the favored row and its rank", async () => {
+test("a tie whose first call isn't the one the both-ways read favors names the favored row and its rank", async () => {
   const mj = await mjBoth();
   const all = { size: 8, total: 8 };
   const best = mj.rows.find((r) => r.rev === 4)!.name;
@@ -164,9 +164,9 @@ test("A-6: a tie whose first call isn't the one the both-ways read favors names 
   assert.equal(favoredLine({ ...mj, rows: mj.rows.map((r) => (r.rev === 26 ? { ...r, rev: 4 } : r)) }, "Brightwell Optics", all), null); // a shared best names no one
 });
 
-// A-4 (real Oct 27): the no-table line said the other direction "doesn't separate these 8" on a page whose picks cite
+// the no-table line said the other direction "doesn't separate these 8" on a page whose picks cite
 // reverse ranks 1, 2 and 3. The gate also hides the table when the picks' reverse order is their forward order.
-test("A-4: the no-table line says which rule hid the table", () => {
+test("the no-table line says which rule hid the table", () => {
   const row = (name: string, fwd: number, rev: Row["rev"], call: boolean): Row => ({ name, fwd, rev, call });
   const b = (rows: Row[]): BothWays => ({ seed: "Corvid & Co.", noun: "brands", rows, shown: false, sentence: null, oneWay: null });
   const same = b([row("Larkspur Labs", 1, 1, true), row("Fernway", 2, 2, true), row("Brindle", 3, 3, true), row("Velvet Anvil", 4, 12, false)]);

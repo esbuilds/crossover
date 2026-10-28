@@ -1,5 +1,5 @@
 "use client";
-// The replay challenge's game (the re-judge ruling, Oct 15). Every case comes round once, misses included, in a
+// The replay challenge's game. Every case comes round once, misses included, in a
 // seeded order saved in the browser so a refresh resumes where it was; nothing can be skipped by reloading. The reveal
 // shows the published rank and score even when the protocol missed. Two tallies, never pooled.
 import Link from "next/link";
@@ -15,7 +15,7 @@ const KEY = "crossover:replay-challenge:v1";
 const load = (): Saved | null => { try { const v = localStorage.getItem(KEY); return v ? (JSON.parse(v) as Saved) : null; } catch { return null; } };
 const save = (s: Saved) => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* private mode: the game still works, it just won't resume */ } };
 const whose = (n: string) => (n.endsWith("s") ? `${n}'` : `${n}'s`);
-// after a pick the verdict can sit below a phone's fold; after Next the question can sit above it (challenge persona, Oct 15)
+// after a pick the verdict can sit below a phone's fold; after Next the question can sit above it
 const bringIntoView = (id: string, always = false) => requestAnimationFrame(() => {
   const el = document.getElementById(id);
   if (!el) return;
@@ -30,7 +30,7 @@ export default function Challenge({ cases, protocol, strip }: { cases: Challenge
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setState(load() ?? { seed: Math.floor(Math.random() * 2 ** 31) + 1, at: 0, picks: {} }), []);
   useEffect(() => { if (state) save(state); }, [state]);
-  // without JS the shuffle never runs (D-7, real Oct 27: the served page held no case), so the first case is in the HTML
+  // without JS the shuffle never runs (the served page held no case), so the first case is in the HTML
   if (!state) return (
     <>
       <noscript>
@@ -57,7 +57,7 @@ export default function Challenge({ cases, protocol, strip }: { cases: Challenge
 
       {c && (
         <>
-          {/* the deal's own name, with the entity Qloo scored when it differs (W5b: the question said "Pepperidge Farm",
+          {/* the deal's own name, with the entity Qloo scored when it differs (the question said "Pepperidge Farm",
               the strip "Goldfish") */}
           <h2 className="mt-2 font-display text-xl">Which of these did {c.deal} actually partner with?</h2>
           {c.deal.toLowerCase() !== c.seed.toLowerCase() && <p className="mt-1 text-sm text-ink-3">Scored in Qloo as {c.seed}.</p>}
@@ -93,11 +93,11 @@ export default function Challenge({ cases, protocol, strip }: { cases: Challenge
 
       <div className="mt-block border-t border-rule pt-6 text-base text-ink-2">
         {answered.length > 0 && <p className="text-ink">You: {mine} of {answered.length} picked the real partner. Chance, picking one of eight, is one in eight.</p>}
-        {/* challenge persona (Oct 15): six numbers in one sentence; lead with the one that passed */}
+        {/* six numbers in one sentence; lead with the one that passed */}
         <p className="mt-1">{protocol.line} An earlier test, {protocol.v1.hits} of {protocol.v1.scored}, missed its bar. Both were frozen in git before they ran.</p>
         <p className="mt-1 text-sm text-ink-3">A hit for Qloo&apos;s data is the real partner in its top three of eight, not first. Your score and its score count different things and aren&apos;t added together.</p>
-        {/* the strip names every case's real partner, so it stays folded until the last case is played (W5b, real Oct
-            25: the open strip gave away the answer to the case above it) */}
+        {/* the strip names every case's real partner, so it stays folded until the last case is played (the
+            open strip gave away the answer to the case above it) */}
         {done ? strip : (
           <details className="mt-4">
             <summary className={`${btnText} cursor-pointer`}>See all {order.length} results (this shows every answer)</summary>

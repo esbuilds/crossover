@@ -1,4 +1,4 @@
-// Markets probe (the destroy brief 2a, real Oct 15): does each of Allbirds' eight lead in different metros?
+// Markets probe: does each of Allbirds' eight lead in different metros?
 // Gate set before the run: A) at least two of the eight differ from Allbirds' top five
 // in two or more metros; B) at least one of the agent's three has Austin, Seattle or Dallas (Outdoor Voices' lead
 // markets) in its top five. One US heatmap per candidate, 8 calls; Allbirds' own map is cached.

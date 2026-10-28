@@ -1,4 +1,4 @@
-// Popularity alone, ties broken fairly (moonshot round 2, real Oct 22). The replay files store a popularityRank that
+// Popularity alone, ties broken fairly. The replay files store a popularityRank that
 // sorts the real partner first among equal popularities (scripts/replay-score.ts lists it first, and the sort is
 // stable), so it reads 21 of 23 in the top three. Fair: under a random tie-break the partner lands in the top three
 // with probability (3 - higher) / (tied + 1), capped at 1. Re-analysis of stored numbers, 0 calls, not a test.

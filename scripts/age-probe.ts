@@ -1,4 +1,4 @@
-// Age probe (brief-oct13-moonshots pick 2, gate): does the collision map change between Qloo's youngest and oldest
+// Age probe: does the collision map change between Qloo's youngest and oldest
 // brackets? Two prepared pairs, 24 and under vs 55 and over: 8 calls (national maps are cached). Serial.
 // Pass: on one pair, at least 15% of cells leaned in both bracket maps flip side, and each bracket map keeps more
 // than 70% of the brand's national cell count.

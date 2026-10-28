@@ -1,5 +1,5 @@
 // The both-ways rules, client-safe (no server imports): the gate, the two sentences and the heading. lib/ask/both-ways.ts
-// measures; the ask page and the sheet render from these (the columns and persona round 2 rulings, Oct 15).
+// measures; the ask page and the sheet render from these.
 import { poss } from "../vs.ts";
 export const OUT = 51; // "not in their top 50", for the gate's arithmetic only
 export type Rank = number | "out" | null; // null: no measurement (never fetched), never shown as a blank
@@ -19,7 +19,7 @@ export function gate(rows: Row[]): boolean {
   return calls.some((r, i) => byRev[i] !== r);
 }
 
-// The mirror (the persona round 2 ruling, Oct 15): the first call's fans don't have the seed in their top 50. Names the
+// The mirror: the first call's fans don't have the seed in their top 50. Names the
 // candidate whose fans rank the seed highest; nothing is reordered. Tyler Childers: Shinesty out, Chubbies 18th.
 export function oneWay(seed: string, noun: string, rows: Row[], first: Row | undefined): string | null {
   if (!first || first.rev !== "out") return null;
@@ -28,16 +28,16 @@ export function oneWay(seed: string, noun: string, rows: Row[], first: Row | und
   return `${first.name} fans don't have ${seed} in their top 50 ${noun}; the pull runs one way.${best ? ` ${best.name} fans rank ${seed} ${ord(best.rev as number)}, the highest of the eight.` : ""}`;
 }
 
-// Names the both-ways read (DEEP-1, real Oct 23), above the slopegraph on every answer page that draws one. Crossover
+// Names the both-ways read, above the slopegraph on every answer page that draws one. Crossover
 // asks from both sides, not the agent: the reverse ranks are code's (lib/ask/both-ways.ts).
 export const readBoth = (seed: string) => `Read both ways: the left is where ${poss(seed)} fans rank each name, the right is where that name's fans rank ${seed}. Each Qloo call ranks from one side; Crossover asks from both.`;
 
-// Who it's for, both sides of one call (DEEP-3, DEEP-7, real Oct 23), under the answer and at the foot of the call
+// Who it's for, both sides of one call, under the answer and at the foot of the call
 // sheet; the legend only where the both-ways table renders.
 export const WHO = "Who this is for: the partnerships lead who has to pick up the phone, and the sponsorship seller on the other end of it.";
 export const LEGEND = "The left column is the shortlist; the right column is the pitch line.";
 
-// The heading follows the measurement (the persona round 2 ruling, Eric approved Oct 15): "Call first" only when the
+// The heading follows the measurement: "Call first" only when the
 // first call's fans also rank the seed 1st to 3rd; otherwise it's the agent's call, stated as such. Rendering only.
 export function firstCallHeading(b: BothWays | null, first: string): string {
   const row = b?.shown ? b.rows.find((r) => r.name === first) : undefined;
@@ -54,7 +54,7 @@ export const th = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : 
 export const cell = (r: Rank) => (r === null ? "no measurement" : r === "out" ? "not in their top 50" : th(r));
 
 export const COUNT = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight"];
-// The card's both-ways line (COLDJUDGE-8, HARSH-3, real Oct 22): the first call's fans' rank of the seed, then the other
+// The card's both-ways line: the first call's fans' rank of the seed, then the other
 // rows' range, from the table's rows only. Allbirds: "Bombas fans rank Allbirds first; the other seven rank it 9th to
 // 31st or not in their top 50." null when the table isn't shown or any rank wasn't measured.
 export function bothLine(b: BothWays | null, first: string): string | null {
@@ -69,17 +69,17 @@ export function bothLine(b: BothWays | null, first: string): string | null {
   return `${head}; the other ${n} rank it ${span}${ranks.length < others.length ? " or not in their top 50" : ""}.`;
 }
 
-// The both-ways slopegraph (SPECTACLE-2, real Oct 22): the table's two rank columns as one picture, on one log scale
+// The both-ways slopegraph: the table's two rank columns as one picture, on one log scale
 // (1st at the top, 50th at the bottom, "not in their top 50" under it as an open end). Labels are spaced apart and a
 // short leader runs to the true point. Rows missing a rank aren't drawn; the table still lists them. The width fits the
 // longest label (CH: a 13px system-font character, estimated), so a phone draws the text as large as it can.
 export const SLOPE = { top: 46, h: 200, gap: 17, span: 70, pad: 18 };
 const CH = 7.4;
-// Asked both ways (W1, real Oct 24): the wide drawing gets twice the span and room above the axes for the two direction
+// Asked both ways: the wide drawing gets twice the span and room above the axes for the two direction
 // arrows and an italic sub-line under each header (11.5px, so CH scaled). The phone drawing and the sheet are unchanged.
-// sub: the italic line measured 5.3 per character (real Oct 24, Chromium), 0.75 of CH leaves a margin
+// sub: the italic line measured 5.3 per character (Oct 24, Chromium), 0.75 of CH leaves a margin
 const WIDE = { top: 60, span: 140, sub: 0.75 };
-// Phones (DES-6, real Oct 23): the same rows and labels in a tighter frame, so the text renders at 12 px or more in a
+// Phones: the same rows and labels in a tighter frame, so the text renders at 12 px or more in a
 // 390 card instead of scaling down to 9 to 11. 12px characters, a shorter span, and the shared open-end label set on
 // two lines (OUT_LINES), the widest right-hand label on every Mt. Joy-style card.
 const NARROW = { ch: 6.83, span: 40, pad: 10 };
@@ -87,7 +87,7 @@ export const OUT_LINES = ["not in their", "top 50"];
 export type SlopeRow = { name: string; left: string; right: string; y1: number; y2: number; ly1: number; ly2: number; out: boolean; climbs: boolean; call: boolean };
 const y = (r: number, top: number) => top + (Math.log(r) / Math.log(50)) * SLOPE.h;
 
-// The first call's reason inside a tie (J4, judge round real Oct 25: all four judges read "First call" over "No clear
+// The first call's reason inside a tie (all four judges read "First call" over "No clear
 // three" as a contradiction). tie: the review's tied group (lib/ask/steps.ts tieOf), else null. When the both-ways read
 // separates the first call (its fans rank the seed above every other row's fans), say how, from the table's cells; when
 // it doesn't, say plainly that the call is the agent's. null outside a tie: the card keeps bothLine.
@@ -105,7 +105,7 @@ export function firstCallWhy(b: BothWays | null, first: string, tie: { size: num
   return `${head}. ${lead}; ${line!.slice(line!.indexOf("; ") + 2)}`;
 }
 
-// A tie whose first call isn't the one the both-ways read favors (A-6, real Oct 27: Mt. Joy's first call is Outdoor
+// A tie whose first call isn't the one the both-ways read favors (Mt. Joy's first call is Outdoor
 // Voices, 26th, while Allbirds fans rank it 4th): name the row whose fans alone rank the seed highest and say the first
 // call is the agent's pick, so the rule reads the same as on a page where the read decides. Table cells only; null when
 // there's no tie, no table, an unmeasured rank, a shared best, or the first call is the favored row.
@@ -118,7 +118,7 @@ export function favoredLine(b: BothWays | null, first: string, tie: { size: numb
   return `The both-ways read favors ${top[0].name}, whose fans rank ${b.seed} ${th(top[0].rev)}, the highest of the ${COUNT[b.rows.length] ?? b.rows.length}; ${first} is the agent's pick.`;
 }
 
-// Why there's no both-ways table (A-4, real Oct 27). The gate also hides it when the picks' reverse ranks run in their
+// Why there's no both-ways table. The gate also hides it when the picks' reverse ranks run in their
 // forward order (Arby's: Wendy's, Denny's and DiGiorno fans rank it 1st, 2nd and 3rd), where "doesn't separate" was
 // wrong and the picks then cited those ranks. Say that rule with its cells; otherwise the line as before.
 export function noTableLine(b: BothWays): string {
@@ -137,7 +137,7 @@ function spread(ys: number[], use: boolean[]) {
   for (const i of ys.map((_, i) => i).filter((i) => use[i]).sort((a, b) => ys[a] - ys[b])) prev = out[i] = Math.max(ys[i], prev + SLOPE.gap);
   return out;
 }
-// left: leftSub's line, wide only. The phone drawing ignores both sub-lines. lead: the pitch sheet's pick (W2), the one
+// left: leftSub's line, wide only. The phone drawing ignores both sub-lines. lead: the pitch sheet's pick, the one
 // line in the accent instead of the climbing one
 export function slope(b: BothWays, narrow = false, left: string | null = null, lead?: string): { rows: SlopeRow[]; height: number; l: number; r: number; w: number; top: number; subs: { left: string | null; right: string | null } } | null {
   const drawn = b.rows.filter((r) => typeof r.fwd === "number" && r.rev !== null);
@@ -163,7 +163,7 @@ export function slope(b: BothWays, narrow = false, left: string | null = null, l
   return { rows, height: Math.ceil(Math.max(OUT_Y + outDrop, ...ly1, ...ly2)) + 12, l, r, w, top, subs };
 }
 
-// The sub-lines under the wide drawing's headers (W1). Left: the review's one group, only when it holds every row, from
+// The sub-lines under the wide drawing's headers. Left: the review's one group, only when it holds every row, from
 // step 5's own affinities; else null. Right: the best rank to the worst cell, both table cells.
 export function leftSub(b: BothWays, groups: { name: string; affinity: number }[][] | undefined): string | null {
   if (groups?.length !== 1 || groups[0].length !== b.rows.length) return null;

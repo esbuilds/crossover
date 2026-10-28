@@ -1,4 +1,4 @@
-// Moment vs durable (Oct 22): the seed's brand list fetched twice more, once with trend
+// Moment vs durable: the seed's brand list fetched twice more, once with trend
 // lift switched off and once at its strongest. 2 Qloo calls per seed, cached under trends-v1.
 import { cached, insights, insightsPost, type Signal } from "./qloo.ts";
 import { TAG_WEIGHT } from "./proxy-params.ts";

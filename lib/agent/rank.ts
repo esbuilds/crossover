@@ -1,7 +1,7 @@
 // Ranking agent: Claude Opus 5.5 reviews Qloo's raw slate one domain at a time, writes a why-line per pick, and
 // drops or demotes picks a partner couldn't or shouldn't sign (the design notes: deterministic retrieval,
 // agentic reasoning). All six domains run in parallel, so why-lines land row by row.
-// rank-v3 (Oct 17): the order is Qloo's affinity order, set in code. The model can only drop or demote a pick,
+// rank-v3: the order is Qloo's affinity order, set in code. The model can only drop or demote a pick,
 // always with a stated reason, never promote one, so the scorecard's "#N of 10" matches the card order.
 import { generateText, jsonSchema, Output, type LanguageModelUsage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -11,7 +11,7 @@ import { DOMAINS, type Card, type Domain, type Pick, type Slate } from "../slate
 
 export const MODEL = "claude-opus-5-5";
 export type Effort = "low" | "medium";
-export const RANK_EFFORT: Effort = "medium"; // Oct 14: low kept a ski resort for Mt. Joy and missed a catski lodge for Liquid Death; medium caught both at similar speed
+export const RANK_EFFORT: Effort = "medium"; // low kept a ski resort for Mt. Joy and missed a catski lodge for Liquid Death; medium caught both at similar speed
 
 export type Kept = { entity_id: string; why: string; demoted?: string; competitor?: true; excluded?: true };
 export type Dropped = { entity_id: string; name: string; reason: string };

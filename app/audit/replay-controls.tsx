@@ -5,7 +5,7 @@ import { CONTROL_FREEZE, controlSentences } from "@/lib/replay-control.ts";
 import reverse from "@/audit/replay-reverse.json";
 import { REVERSE_FREEZE, reverseLimit, reverseSentences } from "@/lib/replay-reverse.ts";
 
-// Replay controls (moonshot round 2, real Oct 22), beside the v2 block: the scrambled-seed control
+// Replay controls, beside the v2 block: the scrambled-seed control
 // (audit/replay-control-protocol.md), the fair popularity number (scripts/popularity-fair.ts) and the reverse replay
 // (audit/replay-reverse-protocol.md). Published as run.
 export function ReplayControls() {

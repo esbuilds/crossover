@@ -1,4 +1,4 @@
-// The seller's side (W2, real Oct 24): the same both-ways rows read down the right column. Pure and client-safe. The
+// The seller's side: the same both-ways rows read down the right column. Pure and client-safe. The
 // pick and every line are code over the table's cells and the review step's score, never the model; lib/ask/pitch.ts
 // runs the checked forms through the frozen checker.
 import { COUNT, th, type BothWays, type Row } from "./both-rules.ts";

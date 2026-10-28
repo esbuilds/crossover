@@ -25,7 +25,7 @@ test("rebracket: known names get their brackets back, a new name is bracketed, c
   assert.equal(rebracket(decision.calls[0].reason, shown, `${shown} The Nike deal fits.`), `${decision.calls[0].reason} The [[Nike]] deal fits.`);
 });
 
-// A-1 (real Oct 27): a name Qloo doesn't know ends in a passing decision with no calls; the box has no reason to edit
+// a name Qloo doesn't know ends in a passing decision with no calls; the box has no reason to edit
 test("fool it: a decision with no calls is rejected, not a crash", () => {
   const none: Decision = { calls: [], cautions: [], summary: [{ text: "Qloo doesn't know [[Nobody's Pickle Co.]], so there is nothing to measure.", steps: [1] }] };
   assert.equal(checkEdit(none, steps, "", "anything").ok, false);

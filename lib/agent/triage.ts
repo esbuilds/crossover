@@ -72,5 +72,5 @@ async function generate(input: TriageInput): Promise<Streamed & { usage: Languag
 }
 
 const keyOf = (i: TriageInput) => `${i.seed.entity_id}:${i.rows.map((r) => r.id).sort().join(",")}`;
-// triage-v2 (Oct 9 real): the seed by name, none of the words seed, bucket or row. triage-v3 (Oct 11): both ranks, not "which way the interest runs".
+// triage-v2 (Oct 9 real): the seed by name, none of the words seed, bucket or row. triage-v3: both ranks, not "which way the interest runs".
 export const triageTable = streamCache("triage", "triage-v3", keyOf, (i: TriageInput) => generate(i));

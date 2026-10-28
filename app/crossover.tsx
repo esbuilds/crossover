@@ -626,7 +626,7 @@ function Results({
           </section>
         );
   };
-  // Places and podcasts sit under one "More domains" disclosure (Oct 24): the pitch is brands first. They stay in the
+  // Places and podcasts sit under one "More domains" disclosure: the pitch is brands first. They stay in the
   // response, the trace counts and the ranking.
   const MORE: Domain[] = ["place", "podcast"];
   const main = data.domains.filter((d) => !MORE.includes(d.domain));

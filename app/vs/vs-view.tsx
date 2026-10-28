@@ -1,4 +1,4 @@
-// The rivals result (brief-oct12-front): shared by the front door (client) and /vs (server). No hooks, no server
+// The rivals result: shared by the front door (client) and /vs (server). No hooks, no server
 // imports. Every word comes from code or from Qloo.
 import Link from "next/link";
 import { btnText, chip, Chip, cite, linkInline } from "@/app/ui";
@@ -61,12 +61,12 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
   const lead = leadLine(A, B, d.map, r.leansA);
   return (
     <>
-      {/* the verdict, then the map, at every width (W5b, real Oct 25: on phones the answer sat under the map). From 1024
+      {/* the verdict, then the map, at every width (on phones the answer sat under the map). From 1024
           the map sits beside the verdict (WOW F3), so the picture is in the first screen at 1280 instead of a page-wide
           map 700 px down. */}
       <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12">
         <header className="order-1 mt-block lg:col-span-2">
-          {/* the page's h1 is the question above the form (DC F8); the pair is the result's headline */}
+          {/* the page's h1 is the question above the form; the pair is the result's headline */}
           <h2 className="font-display text-2xl">
             {A} <span className="font-italic-display text-ink-3">vs</span> {B}
           </h2>
@@ -78,7 +78,7 @@ export function VsResult({ d, method }: { d: VsPayload; method?: { line: string;
           {method && <div className="mt-3">{method.node}</div>}
         </header>
         <div className="order-2 lg:col-start-1 lg:row-start-2">
-          {/* what a partnerships lead does with it, from the numbers on this page (W5b, real Oct 25): it was only in a
+          {/* what a partnerships lead does with it, from the numbers on this page: it was only in a
               fold at the bottom, so it leads now */}
           {lead && (
             <p className="mt-6 max-w-lead text-lg text-ink">
@@ -200,7 +200,7 @@ function MapSection({ d }: { d: VsPayload }) {
 
 const DOMAIN: Record<string, string> = { "urn:entity:artist": "artists", "urn:entity:tv_show": "TV", "urn:entity:movie": "film", "urn:entity:podcast": "podcasts" };
 
-// the X-ray (real Oct 13): the columns' test in four more domains, counts and the three widest gaps per side
+// the X-ray: the columns' test in four more domains, counts and the three widest gaps per side
 function XraySection({ d, rows, check }: { d: VsPayload; rows: Xray[]; check: number }) {
   const A = d.rivals.a.name, B = d.rivals.b.name;
   const names = (xs: Xray["topA"]) => xs.map((x) => `${x.name} ${x.a.toFixed(2)}/${x.b.toFixed(2)}`).join(", ");
@@ -232,7 +232,7 @@ function XraySection({ d, rows, check }: { d: VsPayload; rows: Xray[]; check: nu
 // a number tied to its log line, as the brief panel does
 function Cite({ checks, children }: { checks: string; children: React.ReactNode }) {
   return (
-    // a trailing citation tag, like the ask's "step n", instead of a dotted underline that read as a dead link (DC F8)
+    // a trailing citation tag, like the ask's "step n", instead of a dotted underline that read as a dead link
     <>
       {children} <CheckTag checks={checks} />
     </>
@@ -240,7 +240,7 @@ function Cite({ checks, children }: { checks: string; children: React.ReactNode 
 }
 
 export function CheckTag({ checks }: { checks: string }) {
-  // "step", as the ask cites (W5b, real Oct 25: "Qloo check" here, "step" there); the numbers are the steps fold's
+  // "step", as the ask cites ("Qloo check" here, "step" there); the numbers are the steps fold's
   return <span className={cite}>step{checks.includes(" ") ? "s" : ""} {checks}</span>;
 }
 
@@ -250,7 +250,7 @@ function Column({ title, rows, d, side, empty }: { title: string; rows: RivalRow
       <h2 className="font-display text-xl">
         {title} <span className="font-sans text-base font-normal text-ink-3 tabular-nums">{rows.length}</span>
       </h2>
-      {/* cited once per column (W5b): every row's scores are steps 4 and 5, its ranks steps 2 and 3 */}
+      {/* cited once per column: every row's scores are steps 4 and 5, its ranks steps 2 and 3 */}
       {rows.length > 0 && <p className="mt-1 text-sm text-ink-3">Scores from <CheckTag checks="4 and 5" />, ranks from <CheckTag checks="2 and 3" /></p>}
       {rows.length ? (
         <>

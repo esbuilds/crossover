@@ -1,4 +1,4 @@
-// The second look's gates (audit/second-look-protocol.md, AGENT-1). Run only after the protocol is committed.
+// The second look's gates (audit/second-look-protocol.md). Run only after the protocol is committed.
 //   node --env-file=.env.local scripts/second-look.ts list          0 calls: prints both gates' lists
 //   node --env-file=.env.local scripts/second-look.ts gate-b        the 14 replay v2 cases (case asks under "ask-script")
 //   node --env-file=.env.local scripts/second-look.ts gate-c        the cached seeds in audit/forks.json

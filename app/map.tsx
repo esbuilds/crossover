@@ -29,7 +29,7 @@ export const StatesLayer = memo(function StatesLayer() {
             stroke="#ffffff"
             strokeWidth={0.75}
             style={{ outline: "none" }}
-            tabIndex={-1} // react-simple-maps makes every state a tab stop; the map isn't interactive (CT F7)
+            tabIndex={-1} // react-simple-maps makes every state a tab stop; the map isn't interactive
           />
         ))
       }
@@ -66,9 +66,9 @@ const overlaps = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y <
 
 // Top five (or count) plus whatever the list is hovering. Greedy placement: right, left, above, below,
 // first spot that doesn't collide with an earlier label wins. color: per-metro fill (the collision map's sides).
-// DES-7 (real Oct 23): a label also keeps off every other city's dot, and the width estimate is the bold serif's
+// a label also keeps off every other city's dot, and the width estimate is the bold serif's
 // (0.58 em; 0.5 let "San Francisco" run into Denver on the call sheet's small map).
-// DES-follow-up (real Oct 23): a city named in the text beside the map (named) is placed first and always prints; only an
+// a city named in the text beside the map (named) is placed first and always prints; only an
 // unnamed city can lose its label, and only after the diagonal and farther spots are tried too.
 const LABEL_EM = 0.58;
 export function Labels({ metros, hovered, font, count = 5, color, named = "" }: { metros: City[]; hovered: string | null; font: number; count?: number; color?: (m: City) => string; named?: string }) {
@@ -93,7 +93,7 @@ export function Labels({ metros, hovered, font, count = 5, color, named = "" }: 
       const spots: (Box & { anchor: "start" | "end" | "middle" })[] = [
         { x: x + 11, y: y - h / 2, w, h, anchor: "start" },
         { x: x - 11 - w, y: y - h / 2, w, h, anchor: "end" },
-        // above and below slide inside the edge instead of dropping out (DES-7: San Francisco on a small map)
+        // above and below slide inside the edge instead of dropping out (San Francisco on a small map)
         { x: Math.min(Math.max(x - w / 2, 0), W - w), y: y - 12 - h, w, h, anchor: "middle" },
         { x: Math.min(Math.max(x - w / 2, 0), W - w), y: y + 12, w, h, anchor: "middle" },
         { x: x + 8, y: y - 10 - h, w, h, anchor: "start" },
@@ -105,7 +105,7 @@ export function Labels({ metros, hovered, font, count = 5, color, named = "" }: 
       ];
       const inside = spots.filter((s) => s.x >= 0 && s.x + s.w <= W && s.y >= 0 && s.y + s.h <= H); // never clip at the edge
       const clear = (s: Box) => !boxes.some((b) => overlaps(s, b)) && !dots.some((d) => d.name !== m.name && overlaps(s, d));
-      // no spot clear of the labels already placed: an unnamed city's dot stays without its name (DES-7). A named or
+      // no spot clear of the labels already placed: an unnamed city's dot stays without its name. A named or
       // hovered city always prints, in its first spot if it must.
       const spot = inside.find(clear) ?? inside.find((s) => !boxes.some((b) => overlaps(s, b))) ?? (must(m) ? inside[0] ?? spots[0] : undefined);
       if (!spot) return [{ m, x, y, tx: 0, ty: 0, anchor: "start" as const, named: false }];
@@ -145,7 +145,7 @@ export function Labels({ metros, hovered, font, count = 5, color, named = "" }: 
 }
 
 // labels stay LABEL_PX on screen: convert to map units from the rendered width
-// px: the call sheet's small map asks for 12 (DES-7): nine 14px names don't fit a 2.6in map without colliding
+// px: the call sheet's small map asks for 12: nine 14px names don't fit a 2.6in map without colliding
 export function useLabelFont(px = LABEL_PX) {
   const box = useRef<HTMLDivElement>(null);
   const [font, setFont] = useState(21);

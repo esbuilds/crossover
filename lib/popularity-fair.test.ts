@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fairSentence, popularityFair, topThreeChance } from "./popularity-fair.ts";
 import stored from "../audit/popularity-fair.json" with { type: "json" };
-const STANDIN = "demo" in stored; // audit/demo/ (W2): the public mirror builds on made-up tables
+const STANDIN = "demo" in stored; // audit/demo/: the public mirror builds on made-up tables
 
 test("fair tie-break: an eight-way tie gives 3 in 8, two above and four tied gives 1 in 5", () => {
   assert.equal(topThreeChance(1, [1, 1, 1, 1, 1, 1, 1]), 3 / 8);

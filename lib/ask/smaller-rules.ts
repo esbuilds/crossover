@@ -1,11 +1,11 @@
-// Smaller names (moonshots round 4 pick 5, real Oct 18): the rules and the line, client-safe (lib/ask/smaller.ts holds the
+// Smaller names: the rules and the line, client-safe (lib/ask/smaller.ts holds the
 // Qloo reads), as both-rules.ts is for both-ways.
 export const CAP = 0.5;
 export const GAP = 0.05;
 export type Row = { name: string; affinity: number; popularity: number };
 export type Smaller = { seed: string; cap: number; leader: Row; rows: Row[] };
 
-// The leader's note when it's the same-field rival the agent set aside (HARSH-8, real Oct 22), so "then why not call it?"
+// The leader's note when it's the same-field rival the agent set aside, so "then why not call it?"
 // answers itself. rival: the findRival step's pick and step number.
 export const asideNote = (s: Smaller, rival?: { name: string; step: number } | null) => (rival && rival.name === s.leader.name ? `the rival the agent set aside in step ${rival.step}` : null);
 

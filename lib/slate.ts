@@ -34,7 +34,7 @@ const toPick = (e: Entity): Pick => ({
 // All six calls start at once; the client's 4/s bucket spaces them out. onDomain fires as each one lands.
 // tag (proxy mode only): a brand-category tag applied to the brand call, so a tinned-fish brand's stand-ins
 // (cookware) don't turn its brand row into home goods. Brand domain only: it's a brand tag.
-// refine (Oct 19): per-domain extra params from a constraint set (lib/refine.ts refineParams); null skips the
+// refine: per-domain extra params from a constraint set (lib/refine.ts refineParams); null skips the
 // domain. Without refine the params are exactly what they always were, so unrefined runs keep their cache hits.
 // relaxedFor: the same params with hard include-tag filters turned into soft signals, used when a domain comes
 // back empty under the filter. onNote reports what happened to a domain in plain words (trace).
@@ -46,7 +46,7 @@ export type RefineHook = {
 };
 const DOMAIN_LABEL: Record<Domain, string> = { brand: "brands", artist: "artists", tv_show: "TV shows", movie: "films", place: "places", podcast: "podcasts" };
 
-// Proxy (POST) place calls ignore signal.location.query (Oct 22: a Northeast refine on Graza returned San Francisco
+// Proxy (POST) place calls ignore signal.location.query (a Northeast refine on Graza returned San Francisco
 // restaurants); filter.location.query is honored. GET calls keep the signal, so entity-mode caches are untouched.
 const postLocation = (d: Domain, p: Record<string, string | number>) => {
   if (d !== "place" || !("signal.location.query" in p)) return p;
@@ -105,7 +105,7 @@ export function orderSlate(slate: Slate): { domain: Domain; picks: Pick[] }[] {
     .filter((d) => d.picks.length)
     .sort(
       (a, b) =>
-        Number(b.domain === "brand") - Number(a.domain === "brand") || // brands first: partners are the pitch (Oct 11)
+        Number(b.domain === "brand") - Number(a.domain === "brand") || // brands first: partners are the pitch
         Number(a.domain === "place") - Number(b.domain === "place") ||
         strength(b.picks) - strength(a.picks),
     );
@@ -124,7 +124,7 @@ export const toCard = (e: Entity, type = e.types[0]): Card => ({
 
 // The hackathon host has no /v2/entities, so a card comes from a filter-only insights call for one type: 1 call,
 // cached 30 days. An empty result is cached too, so a repeat of an unknown id is free (that is the not-found
-// cache). Public routes and share links must pass the type (Oct 19): an untyped lookup tries all five types, and
+// cache). Public routes and share links must pass the type: an untyped lookup tries all five types, and
 // a stream of random ids could burn the daily cap. Only internal callers without a type fall back to the loop.
 export const isEntityType = (t: string | null | undefined): t is string => RESOLVE_TYPES.includes(t ?? "");
 // Cache-only card lookup for crawlers (share-link metadata and OG images): never spends a Qloo call.

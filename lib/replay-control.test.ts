@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { controlSentences, replayLine } from "./replay-control.ts";
 import control from "../audit/replay-control.json" with { type: "json" };
 import draw from "../audit/replay-control-draw.json" with { type: "json" };
-const STANDIN = "demo" in control; // audit/demo/ (W2): the public mirror builds on made-up tables
+const STANDIN = "demo" in control; // audit/demo/: the public mirror builds on made-up tables
 
 test("the control ran on the drawn seeds, none its own", { skip: STANDIN && "the real audit is Qloo data, kept private; audit/ holds stand-ins" }, () => {
   assert.equal(control.cases.length, 23);

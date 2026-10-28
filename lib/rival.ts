@@ -1,4 +1,4 @@
-// Who's your rival, rival-v2 (brief-oct12-rival2): one name in, the closest brand from the seed's own top 50, chosen in
+// Who's your rival, rival-v2: one name in, the closest brand from the seed's own top 50, chosen in
 // code. Field order: the seed's second-level genre tag (the /vs same-field rule); if it has none, a Qloo
 // product_category tag; if still nothing, the broader chips. Qloo's competitor_brand tags ride along as a second chip
 // line, cited as Qloo's label and resolved only when clicked. Non-brand seeds get their top three brands as chips.

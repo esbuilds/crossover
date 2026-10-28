@@ -11,10 +11,10 @@ export type Check = { ok: true } | { ok: false; problems: string[] };
 
 const BRACKET = /\[\[([^\]]+)\]\]/g;
 const DECIMAL = /(?<![\w.])\d+\.\d+/g;
-// the fixed list from the judge-probe ruling (Oct 15); a semicolon counts too
-// plus a count of others ("seven others", "7 others"; the checker sign-off, Oct 15), bound as "the others" is
+// the fixed list; a semicolon counts too
+// plus a count of others ("seven others", "7 others"), bound as "the others" is
 const CONTRAST = /\b(?:against|versus|vs\.?|compared with|while|whereas|for the others|for the rest|the others|the rest|(?:[2-9]|\d{2,}|two|three|four|five|six|seven|eight|nine) others?)\b|;/i;
-export const CHECK_RULE = "v3.1"; // v3.1 real Oct 22: a rank that ends a sentence ("9.") is bound too; v3 until then; v2 until real Oct 18 (mutation gate); v1 until real Oct 15: a number after the first brand, up to the next name, was its own
+export const CHECK_RULE = "v3.1"; // v3.1 Oct 22: a rank that ends a sentence ("9.") is bound too; v3 until then; v2 until Oct 18; v1 until Oct 15: a number after the first brand, up to the next name, was its own
 export const unbracket = (t: string) => t.replace(BRACKET, "$1");
 // what checkDecision matches to a cited step: every bracketed name and every number (the front door's stamp counts these)
 export const claimCount = (d: Decision) =>
@@ -29,8 +29,8 @@ const DISPLAY: Record<string, string> = {
   Alternative: "Alternative Apparel", // Qloo 26B1E073-D09A-4242-AD7F-EED546CE55A7: "Alternative Apparel is a sustainable clothing brand"
 };
 export const displayName = (name: string) => DISPLAY[name] ?? name;
-// Also render only: the agent calls the overlap step by its tool name, "twins"; a reader sees "the overlap check" (agency
-// persona, Oct 14). Outside brackets only, and never right after a capitalised word, so [[Minnesota Twins]] stays.
+// Also render only: the agent calls the overlap step by its tool name, "twins"; a reader sees "the overlap check".
+// Outside brackets only, and never right after a capitalised word, so [[Minnesota Twins]] stays.
 const overlap = (t: string) => t.split(/(\[\[[^\]]+\]\])/).map((p) => (p.startsWith("[[") ? p : p.replace(/(?<![A-Z][a-z]+ )\b([Tt])wins\b/g, (_, c: string) => `${c === "T" ? "The" : "the"} overlap check`))).join("");
 export const forDisplay = (t: string) => overlap(t).replace(BRACKET, (_, n: string) => displayName(n));
 // a single name, bracketed or not (a call's name field arrives either way)
@@ -87,11 +87,11 @@ export function checkDecision(d: Decision, steps: StepRecord[]): Check {
     const first = [...it.text.matchAll(BRACKET)].find((m) => !seed.has(m[1]));
     if (first) {
       const after = it.text.slice(first.index! + first[0].length);
-      // rule v3 (mutation gate, real Oct 18): the seed's bracket doesn't end the segment ("X has the top score under
+      // rule v3: the seed's bracket doesn't end the segment ("X has the top score under
       // [[seed]] fans at 0.97" is X's number); only another brand's bracket does
       const nextOther = [...after.matchAll(BRACKET)].find((m) => !seed.has(m[1]));
       const upto = nextOther ? nextOther.index! : after.length;
-      // rule v2 (the judge-probe ruling, real Oct 15): the first brand's segment also ends at a contrast marker.
+      // rule v2: the first brand's segment also ends at a contrast marker.
       // Numbers after the marker belong to the next bracketed brand if one follows, else to some other candidate.
       const cut = after.slice(0, upto).search(CONTRAST);
       const segment = after.slice(0, cut >= 0 ? cut : upto).replace(BRACKET, " ");

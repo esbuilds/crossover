@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
   if (only && !RESOLVE_TYPES.includes(only)) return Response.json({ error: "only must be an entity type such as brand" }, { status: 400 });
   try {
     // warm first: a list already measured answers from the cache; a cold one (a typed list, "pick from these eight")
-    // spends one of the visitor's cold allowances like a new pair, then runs live (review round 4, Oct 13)
+    // spends one of the visitor's cold allowances like a new pair, then runs live (since Oct 13)
     return await warmFirst(async (mode) => {
       const src = mode === "peek" ? CACHE : LIVE;
       const seedId = await identify(typeof body.seed === "string" ? body.seed : { name: body.seed.name ?? "seed", id: body.seed.id, type: body.seed.type }, src);

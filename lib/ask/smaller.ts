@@ -1,4 +1,4 @@
-// Smaller names, nearly the same fit (moonshots round 4 pick 5, real Oct 18): the seed's fans' brand list read twice, as
+// Smaller names, nearly the same fit: the seed's fans' brand list read twice, as
 // is and with Qloo's popularity capped (filter.popularity.max), and the capped names that sit within 0.05 of the
 // strongest name, the product's own tie rule. Evidence beside the frozen decision, never a second decision. Gate run
 // Oct 18 (audit/popularity-probe.json): affinity is the same number in both reads, so the comparison holds.

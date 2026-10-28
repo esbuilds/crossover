@@ -126,7 +126,7 @@ async function placesInCity(input: BriefInput, market: string) {
   // artists add live-music venues (tag looked up once via /v2/tags, cached); every type gets restaurants and bars
   const extra = playbookFor(input.seed.type).venueQuery;
   const extraTag = extra ? await placeTag(extra).catch(() => null) : null;
-  // no-alcohol refines (Oct 24): swap the bar tag for cafes and coffee shops, looked up once via /v2/tags (cached)
+  // no-alcohol refines: swap the bar tag for cafes and coffee shops, looked up once via /v2/tags (cached)
   const dry = input.noBars ? (await Promise.all(["cafe", "coffee shop"].map((q) => placeTag(q).catch(() => null)))).filter((t) => t !== null).map((t) => t.tag_id) : [];
   const base = input.noBars ? [PLACE_TAGS[0], ...new Set(dry)] : PLACE_TAGS;
   const placeTags = extraTag ? [extraTag.tag_id, ...base] : base;
@@ -255,8 +255,8 @@ async function generate(input: BriefInput, say: (t: string) => void, write: (d: 
 const keyOf = (i: BriefInput) => `${i.seed.entity_id}:${i.seed.name}:${i.basedOn?.join("|") ?? ""}:${i.pick.entity_id}`;
 
 // Cached 30 days per (seed, pick). Bump the version to regenerate every brief after a prompt change.
-// brief-v4.3 / v4.4 (Oct 11): rank facts instead of "like the seed back", and "Ranked both ways" replaces "Mutual fit".
-// Refined briefs (with constraints) were brief-v4.2: the venue-skipping line (Oct 23). Unrefined briefs kept brief-v4.1, so
+// brief-v4.3 / v4.4: rank facts instead of "like the seed back", and "Ranked both ways" replaces "Mutual fit".
+// Refined briefs (with constraints) were brief-v4.2: the venue-skipping line. Unrefined briefs kept brief-v4.1, so
 // the warm demo briefs stay cached; their prompt is unchanged apart from the venue tool returning eight.
 export const brief = streamCache("brief", (i: BriefInput) => (i.constraints ? "brief-v4.4" : "brief-v4.3"), keyOf, generate);
 export { CapReached } from "./stream-cache.ts";

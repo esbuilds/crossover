@@ -1,4 +1,4 @@
-// "Where to start" probe (Eric's features push, real Oct 14): for each prepared ask, venues in the lead market that both
+// "Where to start" probe: for each prepared ask, venues in the lead market that both
 // the seed's and the first call's fans favor (the brief's own venue params: restaurants and bars, plus live music for
 // artists, both entities as signals). Gate set before the run: every ask returns at least 3 venues located in the named
 // city, none a national chain (a name that also comes back in another market counts as a chain). About 10 calls.

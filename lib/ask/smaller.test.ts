@@ -24,7 +24,7 @@ test("smaller: nothing within the gap says fame and fit go together", async () =
   assert.match(smallerLine(s), /No brand under popularity 0\.5 comes within 0\.05/);
 });
 
-test("the leader is labelled when it's the rival the agent set aside (HARSH-8, real Oct 22)", () => {
+test("the leader is labelled when it's the rival the agent set aside", () => {
   const s = { seed: "Allbirds", cap: 0.5, leader: { name: "Outdoor Voices", affinity: 0.94, popularity: 0.96 }, rows: [] };
   assert.match(smallerLine(s, { name: "Outdoor Voices", step: 2 }), /^Outdoor Voices, the rival the agent set aside in step 2, leads Allbirds fans' brands at 0\.94/);
   assert.match(smallerLine(s, { name: "Vuori", step: 2 }), /^Outdoor Voices leads/);

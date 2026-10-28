@@ -1,4 +1,4 @@
-// Break-the-checker gate (moonshots round 4, real Oct 18), over the cache only: 0 Qloo, 0 Anthropic calls.
+// Break-the-checker gate, over the cache only: 0 Qloo, 0 Anthropic calls.
 // Every passing cached ask is copied, one fact is tampered with per copy, and rule v2 re-checks the copy. Nothing is
 // written back. Reports the catch rate per tamper kind and lists every miss.
 //   node --env-file=.env.local scripts/mutation-gate.ts [--write]   (--write saves audit/mutation.json for /audit)
@@ -34,7 +34,7 @@ for (const key of keys) {
 
 if (runs.some((r) => namesIn(r.steps).has(INVENTED))) throw new Error(`${INVENTED} appears in a cached step; pick another invented name`);
 console.log(`${keys.length} cached asks scanned, ${runs.length} passing answers tampered with\n`);
-// the kinds and the loop live in lib/ask/tamper.ts (W3), shared with the no-keys verify
+// the kinds and the loop live in lib/ask/tamper.ts, shared with the no-keys verify
 const t = tamper(runs);
 for (const k of t.kinds) {
   if (process.env.VERBOSE) for (const m of k.misses) if (m.text) console.log(`      ${m.seed}: ${m.text.slice(0, 220)}`);

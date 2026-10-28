@@ -1,5 +1,5 @@
 "use client";
-// The 60-second judge tour bar (Eric's features push, real Oct 14): shows on any page opened with ?tour=n, pinned to the
+// The 60-second judge tour bar: shows on any page opened with ?tour=n, pinned to the
 // bottom, "n of 3", the stop's line, Next (or Done) and a close link. The stops are lib/tour.ts.
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { btnPrimary, btnText } from "./ui";
 
 export default function TourBar() {
   const n = Number(useSearchParams().get("tour"));
-  const here = usePathname(); // challenge persona (Oct 15): Close and Done at the last stop sent you back to /; stay put
+  const here = usePathname(); // Close and Done at the last stop sent you back to /; stay put
   if (!Number.isInteger(n) || n < 1 || n > TOUR.length) return null;
   return (
     <>

@@ -23,6 +23,6 @@ export function reverseSentences(r: Reverse) {
   ];
 }
 
-// the line under the paragraph (Eric's round 2 ruling): why it failed, from the same run
+// the line under the paragraph: why it failed, from the same run
 export const reverseLimit = (r: Reverse) =>
   `With take=50, the reverse direction can't be measured for most pairs: the seed was missing from ${r.summary.seedOutCells} of the ${r.summary.cells} fans' top 50 lists in this run.`;

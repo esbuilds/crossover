@@ -27,8 +27,8 @@ const descriptor = (tags: string[]) => tags.filter((t) => t.length <= 20 && !/\d
 
 // initial: a share link, which opens on its reveal once the route answers (picks are indices into its names).
 // embedded: inside a page that brings its own shell and header (/pick-three since Oct 13; below the rivals front door
-// before that). The top margin and rule that separated it from the rivals result are gone with that placement (WILD-F4,
-// real Oct 21): on its own page they read as an empty band under the header. The pick step's heading is the page's h1.
+// before that). The top margin and rule that separated it from the rivals result are gone with that placement:
+// on its own page they read as an empty band under the header. The pick step's heading is the page's h1.
 export default function ReviewView({ initial, embedded = false }: { initial?: Shared; embedded?: boolean }) {
   const initCase = initial ? (CASES.find((c) => c.key === initial.caseKey) ?? null) : CASES[0];
   const [caseKey, setCaseKey] = useState<string | null>(initCase?.key ?? null);

@@ -6,7 +6,7 @@ import { leadersSvg } from "@/lib/og-map.ts";
 import { LEADER_TONE } from "@/lib/leader-tones.ts";
 
 // GET /map/<slug>/og: the aisle's share card, cache only (a crawler never spends a Qloo call). An aisle with a leaders
-// map shows it (round 3 pick 2); otherwise the constellation; cold or unknown gets the text card.
+// map shows it; otherwise the constellation; cold or unknown gets the text card.
 export async function GET(_request: Request, { params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
   const l = await getLeaders(category, true).catch(() => null);

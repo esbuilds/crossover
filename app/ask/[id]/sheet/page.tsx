@@ -20,7 +20,7 @@ import { mapLine } from "@/lib/vs.ts";
 import { peekVs } from "@/lib/rivals.ts";
 import { TONE } from "@/lib/collide.ts";
 
-// The call sheet (Oct 14): /ask/<id>/sheet?t=<type>. One printed page from a cached ask only; an ask that isn't
+// The call sheet: /ask/<id>/sheet?t=<type>. One printed page from a cached ask only; an ask that isn't
 // cached shows the waiting state and never spends.
 export const metadata: Metadata = { title: "Call sheet", robots: { index: false, follow: false } };
 
@@ -57,7 +57,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
   const vs = s.map ? await peekVs({ id: s.map.seed.id!, type: s.map.seed.type! }, { id: s.map.rival.id!, type: s.map.rival.type! }).catch(() => null) : null;
   const cells = vs && vs !== "cold" ? vs.map : null;
   const cities = s.map ? mapLine(s.map.seed.name, s.map.rival.name, { metrosA: s.map.seedMarkets.map((name) => ({ name })), metrosB: s.map.rivalMarkets.map((name) => ({ name })) } as unknown as Parameters<typeof mapLine>[2]) : null;
-  // persona round 2 (Live Nation): copied text read "rank 1.4"; brackets keep the step apart from the number
+  // copied text read "rank 1.4"; brackets keep the step apart from the number
   const why = events ? firstCallWhy(both, s.calls[0].name, tieOf(stepsFrom(events))) : null;
   const fn = (ns: number[]) => <sup className="ml-0.5 font-mono text-[0.7em] text-ink-3">[{ns.join(",")}]</sup>;
 
@@ -68,10 +68,10 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
         <p className="print:hidden"><PrintButton /></p>
       </header>
       <h1 className="mt-3 font-display text-2xl">{s.question}</h1>
-      {/* the same call card as the page (tie ruling, Oct 14): two lines, two labels */}
+      {/* the same call card as the page: two lines, two labels */}
       <div className={`${panelStrong} mt-2 px-3 py-2`}>
         <p className="text-base font-semibold">{s.card.first}</p>
-        {/* J4 (real Oct 25): inside a tie, whether the both-ways read separates the first call, as on the ask page */}
+        {/* inside a tie, whether the both-ways read separates the first call, as on the ask page */}
         {why && <p>{why}</p>}
         {s.card.where && <p className="text-ink-2">{s.card.where}</p>}
         {where?.line && <p className="text-ink-2">{where.line}</p>}
@@ -79,7 +79,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
 
       <section className="mt-3 grid gap-4 sm:grid-cols-[1fr_auto] print:grid-cols-[1fr_auto]">
         <div>
-          {/* a label for the reason, not a second headline under the box's "First call" (DES-7) */}
+          {/* a label for the reason, not a second headline under the box's "First call" */}
           <h2 className="font-semibold text-ink-2">{firstCallHeading(both, s.calls[0].name)}</h2>
           <p className="text-ink-2">{s.calls[0].reason}{fn(s.calls[0].steps)}</p>
           {both && <BothTable b={both} compact />}
@@ -99,7 +99,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
         {s.map && (
           <figure>
             {cells && <CollisionMap cells={cells.cells} metrosA={cells.metrosA} metrosB={cells.metrosB} a={s.map.seed.name} b={s.map.rival.name} labelPx={12} named={[s.card.where, where?.line, cities, ...s.calls.map((c) => c.reason), ...s.notes.map((x) => x.text)].join(" ")} />}
-            {/* persona test, Oct 14: the map needs its own legend on a forwarded page */}
+            {/* the map needs its own legend on a forwarded page */}
             <p className="mt-1 flex flex-wrap gap-x-3 text-[11px] text-ink-2">
               {(["a", "b", "both"] as const).map((k) => (
                 <span key={k} className="inline-flex items-center gap-1"><span className="inline-block size-2 rounded-full" style={{ background: TONE[k] }} aria-hidden />{k === "a" ? `Leans ${s.map!.seed.name}` : k === "b" ? `Leans ${s.map!.rival.name}` : "Both"}</span>
@@ -110,7 +110,7 @@ async function Sheet({ params, searchParams }: Pick<PageProps<"/ask/[id]/sheet">
             </figcaption>
           </figure>
         )}
-            {/* the card's picture of the table beside it (DES-7): the same rows and cells, drawn. Screen only: the
+            {/* the card's picture of the table beside it: the same rows and cells, drawn. Screen only: the
                 printed page was already 9.97in of Letter's 10 at 0.5in margins, and the table prints the same cells */}
             {both && <div className="print:hidden"><BothSlope b={both} column /></div>}
           </div>

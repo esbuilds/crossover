@@ -40,7 +40,7 @@ export const fields = (e: Entity) =>
 // what an entity is, in Qloo's own genre tag names, most specific first ("Energy Drink", "Drinks"; "Indie Folk" for an
 // artist seed). Used instead of
 // Qloo's short descriptions, which name who a brand is for ("busy women", "toddler foods"); the page carries no
-// audience words (brief-oct13-vs copy rules).
+// audience words.
 const kindOf = (e: Entity) =>
   e.tags
     .filter((t) => t.tag_id.startsWith("urn:tag:genre:"))
@@ -118,10 +118,10 @@ export async function getRivals(a: Entity, b: Entity, peek = false, type = BRAND
   return sa && sb ? compareLists(a, b, listA, listB, sa, sb) : null;
 }
 
-// --- the page's loader (brief-oct13-vs): cards, rivals, compare tags; warm from cache or one counted cold run ---
+// --- the page's loader: cards, rivals, compare tags; warm from cache or one counted cold run ---
 // map null: a person seed (flat heatmaps, VERIFY-4 Cedric), so no heatmap calls and the page says so
 export type VsMap = Collision & { metrosA: City[]; metrosB: City[] };
-// X-ray (Perplexity moonshot 2, real Oct 13, scripts/xray-probe.ts): the rivals test in four more domains. Counts and
+// X-ray (scripts/xray-probe.ts, Oct 13): the rivals test in four more domains. Counts and
 // the three widest gaps per side only. Cache only, never a call: a pair shows it once warmed (prepared pairs are).
 export const XRAY_TYPES = ["artist", "tv_show", "movie", "podcast"].map((t) => `urn:entity:${t}`);
 type XrayName = { name: string; a: number; b: number };

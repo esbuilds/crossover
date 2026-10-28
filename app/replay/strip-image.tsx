@@ -1,6 +1,6 @@
 import control from "@/audit/replay-control.json";
 
-// The deal strip (SPECTACLE-1) as placed on /audit#replays and /replay; the image is app/replay/strip/[size]/route.tsx.
+// The deal strip as placed on /audit#replays and /replay; the image is app/replay/strip/[size]/route.tsx.
 export function StripImage({ className = "" }: { className?: string }) {
   const alt = `The 23 replayed deals as rows of eight slots ranked left to right, the real partner's slot filled. The real partner sits in the first three slots ${control.summary.realHits} times in ${control.summary.cases}, and ${control.summary.scrambledHits} times in ${control.summary.cases} with the seed scrambled.`;
   return (

@@ -7,7 +7,7 @@ import { FAIL_COPY } from "@/lib/fail-copy.ts";
 
 // POST /api/cohort {same body as /api/brief, peek?: true} -> {cohort} or {cohort: null} on a peek miss.
 // peek reads the cache only (0 Qloo calls), so an opened brief shows a chart that was already run.
-// Slate picks can carry the bare "urn:entity" as their first type; Qloo rejects that as filter.type (Oct 22: four
+// Slate picks can carry the bare "urn:entity" as their first type; Qloo rejects that as filter.type (four
 // 400s). Fall back to the domain the pick came from.
 const entityType = (type: string, domain: string) => (/^urn:entity:\w/.test(type) ? type : `urn:entity:${domain}`);
 

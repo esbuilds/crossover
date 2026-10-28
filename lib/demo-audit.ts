@@ -1,4 +1,4 @@
-// W2 (real Oct 25): the real audit tables are Qloo data, which Qloo's hackathon guide keeps out of public repos, so the
+// the real audit tables are Qloo data, which Qloo's hackathon guide keeps out of public repos, so the
 // public mirror builds on the stand-ins in audit/demo/ (scripts/demo-audit.ts), moved over audit/<file>.json and marked
 // "demo": true. Production never carries the mark. Pages that read these tables print the notice when it's there.
 import results from "../audit/results.json" with { type: "json" };

@@ -1,4 +1,4 @@
-// The slopegraph against the table for every cached ask (SPECTACLE-2, real Oct 22): each drawn label must equal the
+// The slopegraph against the table for every cached ask: each drawn label must equal the
 // table cell it stands for. Reads Redis only (the asks and their cached reverse reads): zero Qloo and model calls.
 //   node --env-file=.env.local scripts/slope-check.ts
 import { bothWays } from "../lib/ask/both-ways.ts";

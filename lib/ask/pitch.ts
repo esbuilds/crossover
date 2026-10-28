@@ -1,4 +1,4 @@
-// The pitch sheet's model (W2, real Oct 24): the cached ask's steps plus one appended step, the both-ways rows, so the
+// The pitch sheet's model: the cached ask's steps plus one appended step, the both-ways rows, so the
 // frozen checker (lib/ask/check.ts) gates the pitch line exactly as it gates an answer. Pure over the events and the
 // both-ways rows; it never writes to the ask's cache. A line the checker rejects means no pitch sheet.
 import type { AskEvent } from "./agent.ts";

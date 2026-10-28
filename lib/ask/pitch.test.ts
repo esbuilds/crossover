@@ -1,4 +1,4 @@
-// The pitch sheet (W2, real Oct 24): the seller's pick and line from the demo world's artist and brand asks (lib/ask/demo/,
+// The pitch sheet: the seller's pick and line from the demo world's artist and brand asks (lib/ask/demo/,
 // shaped like the cached Mt. Joy and Allbirds asks) and their both-ways rows, checked by the frozen checker with one appended step.
 import { test } from "node:test";
 import assert from "node:assert/strict";

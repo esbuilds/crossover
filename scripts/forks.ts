@@ -1,4 +1,4 @@
-// What the agent decided, counted (AGENT-6, moonshot round 2, real Oct 22; from the agent lane's agency-probe.mjs).
+// What the agent decided, counted.
 // Every cached ask in Redis (cx:ask:*, all prompt versions): tool refusals, widenings, ties, stops, blocked answers, and
 // the distinct seeds whose ask is cached under the current version (Gate C's list). With --looks, the second looks too.
 // Zero Qloo and model calls; reads Redis only. Writes audit/forks.json.

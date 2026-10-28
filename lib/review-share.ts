@@ -1,4 +1,4 @@
-// Share links for the Pick three front door (Oct 10). Request parameters only, so a link (and its preview card) never
+// Share links for the Pick three front door. Request parameters only, so a link (and its preview card) never
 // needs a Qloo call to describe itself:
 //   prepared case:  /?c=mt-joy&p=0,2,5[&g=1]          p = the visitor's picks as indices into the case's names
 //   your own list:  /?s=Liquid+Death&n=Yeti&n=Poppi&p=0,1

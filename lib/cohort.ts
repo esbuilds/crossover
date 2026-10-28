@@ -1,4 +1,4 @@
-// "Who does this land with?" (Oct 22): the partner's affinity among the seed's fans, one
+// "Who does this land with?": the partner's affinity among the seed's fans, one
 // age bracket at a time. 6 Qloo calls on first use, then one Haiku sentence naming the strongest bracket. The whole
 // result is cached under cohort-v2; peekCohort reads it without ever calling Qloo or Claude.
 import { generateText } from "ai";
@@ -47,6 +47,6 @@ Write one plain sentence of 25 words or fewer for a partnerships lead: name the 
 }
 
 const cohortCached = cached("cohort", (_v: string, i: CohortInput) => compute(i));
-// cohort-v2 (Oct 23): the sentence held to 25 words. The six bracket lookups are cached on their own, so a bump costs no Qloo calls.
+// cohort-v2: the sentence held to 25 words. The six bracket lookups are cached on their own, so a bump costs no Qloo calls.
 export const getCohort = (i: CohortInput) => cohortCached("cohort-v2", i);
 export const peekCohort = (i: CohortInput) => cohortCached.peek("cohort-v2", i);

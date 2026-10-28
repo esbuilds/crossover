@@ -18,7 +18,7 @@ export function controlSentences(c: Control, v2From = 9) {
   ].filter(Boolean);
 }
 
-// The /replay sentence and the strip's title (Eric's rulings, real Oct 22): pooled, the 23 cases under their own seed and
+// The /replay sentence and the strip's title: pooled, the 23 cases under their own seed and
 // under the scrambled seeds, both from audit/replay-control.json
 export const replayLine = (c: Control) =>
   `Qloo's data put the real partner in its top three ${c.summary.realHits} times in ${c.summary.cases}. With the wrong seed brand swapped in, it still did ${c.summary.scrambledHits} times, so these lists favor the real partner whoever is asking.`;

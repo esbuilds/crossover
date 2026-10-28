@@ -1,4 +1,4 @@
-// Who leads each city (round 3 pick 2, "the big three"): three camp heads of an aisle, each brand's national heatmap
+// Who leads each city ("the big three"): three camp heads of an aisle, each brand's national heatmap
 // ranked by percentile within the cells all three carry (the pair map's rule: a brand can't lead a cell it has no
 // reading for, and raw ranks are skewed by footprint). A cell goes to the brand with the highest percentile there,
 // blank where none reaches its own top half. "Leads" = over-indexes most relative to its own pattern, not most fans.

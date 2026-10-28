@@ -20,7 +20,7 @@ export default function Vs() {
       <Suspense fallback={<Skeleton lines={8} />}>
         <Hero />
       </Suspense>
-      {/* moved from the home footer (Oct 14): one judge path up front, the rest of Crossover behind /vs */}
+      {/* moved from the home footer: one judge path up front, the rest of Crossover behind /vs */}
       <footer className="mt-section border-t border-rule pt-block text-base">
         <p className="flex flex-wrap items-center gap-2">
           <span className="text-ink-2">Whole aisles:</span>

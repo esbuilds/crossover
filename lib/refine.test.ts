@@ -44,7 +44,7 @@ test("a full constraint set: tags, region, domains, chips, and the trace summary
   assert.equal(refineParams(c, "movie"), null);
   // without a whitelist, places get only the location, never the tag stack (Qloo timed out on that, Oct 19)
   assert.deepEqual(refineParams({ ...c, domains: null }, "place"), { "signal.location.query": "Texas" });
-  // the ranker never sees the region: it read "West Coast" as where a brand is based (Oct 20)
+  // the ranker never sees the region: it read "West Coast" as where a brand is based
   assert.equal(appliedSentence(c), "no beer, brands and artists only");
 });
 

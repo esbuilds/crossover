@@ -10,7 +10,7 @@ const INK_2 = "#514c49";
 const RULE = "#e0dddc";
 
 let fonts: Promise<{ name: string; data: ArrayBuffer; weight: 400 | 600; style: "normal" }[]> | null = null;
-// the mono is for the front door card's trace rail (TR F12); the site's own mono is the system's, which a card can't load
+// the mono is for the front door card's trace rail; the site's own mono is the system's, which a card can't load
 export function loadFonts() {
   fonts ??= (async () => {
     const css = await (await fetch("https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600&family=JetBrains+Mono:wght@400")).text();
@@ -27,7 +27,7 @@ export function loadFonts() {
 
 export async function ogCard({ title, line, rail }: { title: string; line?: string; rail?: string[] }) {
   // a Pick three seed may be 100 characters (review-share MAX_LEN): past 70 the title steps down once more so the
-  // lines and the picks line stay off the header rule and the footer (WILD-F8, real Oct 21)
+  // lines and the picks line stay off the header rule and the footer
   const size = title.length > 70 ? 56 : title.length > 34 ? 72 : 88;
   return new ImageResponse(
     (

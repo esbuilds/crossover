@@ -1,4 +1,4 @@
-// The resolver tests' search table without Qloo's results in it (W2, real Oct 25). scripts/record-fixtures.ts records
+// The resolver tests' search table without Qloo's results in it. scripts/record-fixtures.ts records
 // /search into fixtures/demo/search.json (gitignored); this writes fixtures/search.json from it, keeping what the
 // resolver reads (each word's token against the query's, types, the two facts in lib/fixture-facts.ts) and nothing of
 // which entities Qloo returned: every query is ours (fixtures/brands.txt), a hit's name keeps the query's own words,

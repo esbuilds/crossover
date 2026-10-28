@@ -1,4 +1,4 @@
-// Aisle leaders probe (brief-oct13-moonshots-3 pick 2 gate), energy aisle only. Each brand's national heatmap is
+// Aisle leaders probe, energy aisle only. Each brand's national heatmap is
 // re-ranked by percentile within itself; a cell goes to the brand with the highest percentile there, blank where no
 // brand reaches its own top half. Gate: no brand above 40% of coloured cells, and at least 55% of coloured cells
 // share their winner with the majority of their coloured neighbours (regions, not noise). About 6 calls, serial.

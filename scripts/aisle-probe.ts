@@ -1,4 +1,4 @@
-// Any-aisle probe (brief-oct13-moonshots-3 pick 3 gate): for a typed category, the brand tag whose name matches best,
+// Any-aisle probe: for a typed category, the brand tag whose name matches best,
 // then the top brands under it. Gate: at least 4 of 5 categories give 8+ brands a partnerships person would recognise,
 // no wrong-type entities. 2 calls per category (tag search, list), serial.
 //   node --env-file=.env.local scripts/aisle-probe.ts

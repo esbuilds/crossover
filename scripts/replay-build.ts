@@ -1,4 +1,4 @@
-// Historical replay, stage 1 of 2 (real Oct 13; protocol in audit/replay-protocol.md). Builds each case's eight-name
+// Historical replay, stage 1 of 2 (Oct 13; protocol in audit/replay-protocol.md). Builds each case's eight-name
 // list WITHOUT reading any affinity: resolve seed and real partner by exact name (brand only, the audit's identity
 // rule), take the partner's most specific Qloo genre tag, list brands under that tag (no signal), and keep the seven
 // whose Qloo popularity sits closest to the partner's, excluding the seed. A case is dropped, as the protocol says,

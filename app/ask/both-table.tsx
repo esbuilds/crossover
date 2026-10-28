@@ -1,14 +1,14 @@
-// The "both ways" table (the columns ruling, real Oct 15): all eight rows in the frozen review's order, the agent's
+// The "both ways" table: all eight rows in the frozen review's order, the agent's
 // calls marked, both ranks, one static caption. Shared by the ask page and the sheet; no hooks.
 import Link from "next/link";
 import { linkInline } from "@/app/ui";
 import { cell as show, OUT_LINES, slope, SLOPE, type BothWays } from "@/lib/ask/both-rules.ts";
 
-// lead: the pitch sheet's pick (W2), drawn in the accent and bold; without it the table renders as before
+// lead: the pitch sheet's pick, drawn in the accent and bold; without it the table renders as before
 export function BothTable({ b, compact = false, lead }: { b: BothWays; compact?: boolean; lead?: string }) {
-  // DC F14: rows top-aligned and the ranks kept on one line, so a phone wraps the long name instead of every "not in their top 50"
+  // rows top-aligned and the ranks kept on one line, so a phone wraps the long name instead of every "not in their top 50"
   const cell = `align-top ${compact ? "py-0 pr-4" : "py-1 pr-6"}`;
-  // persona round 2 (Olipop lead): a withheld table said nothing; now one line says why
+  // a withheld table said nothing; now one line says why
   if (!b.shown)
     return (
       <p className={compact ? "mt-1.5 text-ink-2" : "mt-3 max-w-copy text-sm text-ink-3"}>
@@ -45,15 +45,15 @@ export function BothTable({ b, compact = false, lead }: { b: BothWays; compact?:
   );
 }
 
-// The same rows as a slopegraph (SPECTACLE-2, real Oct 22): left, the seed's fans' rank of each; right, each one's fans'
+// The same rows as a slopegraph: left, the seed's fans' rank of each; right, each one's fans'
 // rank of the seed. A line that climbs is drawn in the accent. Every label is a table cell (lib/ask/both-rules.ts
 // slope), and the table on the page carries the same ranks for screen readers.
-// column: the call sheet's 2.6in side column (DES-7) takes the narrow drawing at every width and in print
-// left: leftSub's line for the wide drawing (W1); the phone and sheet drawings don't take it
-// drawn: the ask page's home replay (W3): "pending" holds the lines at a quarter strength until step 5 lands, "drawn" draws
+// column: the call sheet's 2.6in side column takes the narrow drawing at every width and in print
+// left: leftSub's line for the wide drawing; the phone and sheet drawings don't take it
+// drawn: the ask page's home replay: "pending" holds the lines at a quarter strength until step 5 lands, "drawn" draws
 // the climbing line in; undefined (every other page, and the sheets) is at rest
 export function BothSlope({ b, column = false, left = null, lead, drawn }: { b: BothWays; column?: boolean; left?: string | null; lead?: string; drawn?: "pending" | "drawn" }) {
-  // two drawings of the same rows: the wide one from 640, the narrow one on phones (DES-6), each sized so its text
+  // two drawings of the same rows: the wide one from 640, the narrow one on phones, each sized so its text
   // renders at 12 to 14 px. The narrow one runs into the card's padding and never draws larger than 14 px.
   const wide = slope(b, false, left, lead), narrow = slope(b, true, null, lead);
   if (!wide || !narrow) return null;
@@ -61,7 +61,7 @@ export function BothSlope({ b, column = false, left = null, lead, drawn }: { b: 
   const state = drawn ? `slope-${drawn}` : "";
   return (
     <>
-      {/* W3: the answer's picture, as wide as its column allows up to text at 14 px (it was capped at 28rem) */}
+      {/* the answer's picture, as wide as its column allows up to text at 14 px (it was capped at 28rem) */}
       <SlopeSvg b={b} s={wide} className={`mt-4 w-full text-[13px] max-sm:hidden ${state}`} style={{ maxWidth: Math.round((wide.w * 14) / 13) }} />
       <SlopeSvg b={b} s={narrow} narrow className={`-mx-2 mt-4 w-[calc(100%+1rem)] text-[12px] sm:hidden ${state}`} style={{ maxWidth: Math.round((narrow.w * 14) / 12) }} />
     </>
@@ -79,7 +79,7 @@ function SlopeSvg({ b, s, narrow = false, className, style }: { b: BothWays; s: 
     <svg viewBox={`0 0 ${w} ${s.height}`} className={className} style={style} aria-hidden="true">
       {head(l, "end", `${b.seed} fans`, "rank it")}
       {head(r, "start", "Its fans rank", b.seed)}
-      {/* asked both ways (W1, real Oct 24): which direction each column was asked in, and each column's spread. Wide only */}
+      {/* asked both ways: which direction each column was asked in, and each column's spread. Wide only */}
       {!narrow && (
         <>
           <defs>

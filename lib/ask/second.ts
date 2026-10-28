@@ -1,5 +1,5 @@
 // lib/ask/second.ts
-// The second look (AGENT-1 with AGENT-4, moonshot round 2, real Oct 22). Beside a cached ask, never instead of it: the
+// The second look. Beside a cached ask, never instead of it: the
 // frozen answer stays the answer of record. The agent reads the frozen steps and decision, chooses whether to measure the
 // other direction (otherWay: where each candidate's own fans rank the seed), then keeps, changes or declines its calls.
 // The checker runs on the result; a "no" is fed back once as a visible "check" event. Own cache family (look-v1).
@@ -71,7 +71,7 @@ export function outcomeOf(frozen: string[], final: { decision: Decision | null; 
   return now.length === frozen.length && now.every((n, i) => n === frozen[i]) ? "kept" : "changed";
 }
 
-// scope "script": a replay case asked under the script-only family (Gate B); eight is that case's list
+// scope "script": a replay case asked under the script-only family; eight is that case's list
 export type LookInput = { ask: AskInput; scope?: "script"; eight?: Candidate[] };
 // events: the frozen ask's events (from peekAsk, or a script-only case ask); emits the new events only.
 // model: injectable so the loop is tested with a scripted model (lib/ask/second.test.ts)
@@ -135,7 +135,7 @@ export async function runLook(events: AskEvent[], get: Get, emit: (e: LookEvent)
     if (part.type === "tool-error" || part.type === "error") throw (part as { error: unknown }).error;
   }
   emit({ type: "decision", ...final });
-  // AGENT-4: a blocked answer that passes the second time with fewer names and numbers, and no new measurement between
+  // a blocked answer that passes the second time with fewer names and numbers, and no new measurement between
   const citedLess = !!rejected && final.check.ok && !measuredAfterNo && !!final.decision && claimCount(final.decision) < claimCount(rejected);
   emit({ type: "look", outcome: outcomeOf(frozenCalls, final), frozen: frozenCalls, calls: final.decision?.calls.map((c) => unbracket(c.name)) ?? [], measured: measures > 0, checkFed: !!rejected, citedLess });
 }

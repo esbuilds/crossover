@@ -42,14 +42,14 @@ export async function resolve(query: string, candidates: Entity[], judge: Judge 
   const exact = candidates.filter((c) => names(c).some((n) => norm(n) === q.join(" ")));
   const known = exact.filter((c) => c.popularity >= POPULARITY_FLOOR);
   // Musicians come back twice with the exact name: a person and an artist, sometimes as separate entities with the
-  // person first (Taylor Swift). Crossover means the act, and the artist is the one with a music audience (Oct 25).
+  // person first (Taylor Swift). Crossover means the act, and the artist is the one with a music audience.
   if (known.length) {
     // A person matched only through an alias steps aside (Stan Lee carries the alias "Stanley"); brands keep their
     // aliases ("Chelsea FC" is the club's alias).
     const viaAlias = (c: Entity) => c.types.includes("urn:entity:person") && norm(c.name) !== q.join(" ");
     const pool = known.some((c) => !viaAlias(c)) ? known.filter((c) => !viaAlias(c)) : known;
-    // Qloo's order decides among exact names (YETI the brand before Yeti the artist), except on a person/artist tie
-    // (Oct 12, brief-oct12-rival2): the more popular entity wins, and within 0.1 the artist (Taylor Swift, Oct 25),
+    // Qloo's order decides among exact names (YETI the brand before Yeti the artist), except on a person/artist tie:
+    // the more popular entity wins, and within 0.1 the artist (Taylor Swift, Oct 25),
     // so "Cedric the Entertainer" lands on the person (0.94) over his comedy-album artist entity (0.37).
     const person = pool.find((c) => c.types.includes("urn:entity:person"));
     const artist = pool.find((c) => c.types.includes("urn:entity:artist"));

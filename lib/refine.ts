@@ -268,15 +268,15 @@ async function interpretUncached(seedName: string, seedKind: string, sentence: s
 }
 
 // Cached 30 days per (seed, sentence).
-// refine-v3 (Oct 22): tag_queries in Qloo's own brand category words (Fashion, Headphones), not "apparel", "audio".
-// refine-v4 (Oct 23): kinds of partner with no Qloo tag are applied by the ranker ("Applied by the agent").
+// refine-v3: tag_queries in Qloo's own brand category words (Fashion, Headphones), not "apparel", "audio".
+// refine-v4: kinds of partner with no Qloo tag are applied by the ranker ("Applied by the agent").
 export const interpret = (seedName: string, seedKind: string, sentence: string) => interpretCached("refine-v4", seedName, seedKind, sentence.trim().slice(0, 200));
 const interpretCached = cached("refine", (_v: string, seedName: string, seedKind: string, sentence: string) => interpretUncached(seedName, seedKind, sentence));
 
 // The applied constraints as one sentence for the ranking prompt. Attribute phrases are left out on purpose: the UI
 // says they couldn't be applied, so the ranker must not quietly apply them from its own guesses. Category phrases
 // with no Qloo tag ("agent") are in: the ranker is the only check on them, and the chip says so.
-// Regions are left out too (Oct 21): they already filter markets and domain calls, and the ranker read "West Coast"
+// Regions are left out too: they already filter markets and domain calls, and the ranker read "West Coast"
 // as where a brand is based.
 export const appliedSentence = (c: ConstraintSet) =>
   c.applied
@@ -296,7 +296,7 @@ export function relaxedParams(c: ConstraintSet, d: Domain): Record<string, strin
 export function refineParams(c: ConstraintSet | null | undefined, d: Domain): Record<string, string | number> | null {
   if (!c) return {};
   if (c.domains && !c.domains.includes(d)) return null; // domain not wanted: skip the call
-  // Places get only the location (Oct 20): tag stacks on places made Qloo time out (504s on Oct 19), and the
+  // Places get only the location: tag stacks on places made Qloo time out (504s on Oct 19), and the
   // ranker drops off-brand venues with an "excluded by constraint" label instead.
   if (d === "place") return c.locationQuery ? { "signal.location.query": c.locationQuery } : {};
   const inc = c.includeTags.filter((t) => t.domains.includes(d)).map((t) => t.tag_id);

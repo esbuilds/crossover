@@ -1,4 +1,4 @@
-// Category constellation (brief-oct13-moonshots pick 1): one category's brands laid out by mutual audience affinity.
+// Category constellation: one category's brands laid out by mutual audience affinity.
 // Every brand but the last scores all the others in one call (filter.results.entities), so each pair has at least one
 // reading and usually two; same-type affinity is symmetric (VERIFY-3), so the two are averaged. Distance is 1 minus
 // affinity, projected to 2-D by classical MDS in code. No model. 0 calls warm, n-1 calls cold per category.
@@ -132,7 +132,7 @@ export async function getConstellation(slug: string, peek = false): Promise<Cons
   return build(cat, rows, cat.brands.length - 1);
 }
 
-// --- your brand on the aisle (brief-oct13-moonshots-3 pick 1) ---
+// --- your brand on the aisle ---
 // A typed brand is scored once against the aisle (same-type affinity is symmetric, so one call gives both directions)
 // and dropped onto the fixed layout: the point whose distances to its three nearest brands best match 1 - affinity,
 // by least squares. The prepared dots never move. fit is the placement's stress-1, comparable to the layout's.

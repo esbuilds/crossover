@@ -12,7 +12,7 @@ import LeadersMap from "../leaders-map";
 import { getLeaders, type Leaders } from "@/lib/leaders.ts";
 import { LEADER_TONE } from "@/lib/leader-tones.ts";
 
-// Category constellation (brief-oct13-moonshots pick 1): /map/<slug> for the three prepared categories. Warm: 0 calls.
+// Category constellation: /map/<slug> for the three prepared categories. Warm: 0 calls.
 // Cold (only before the warm script ran): one scoring call per brand but the last, cached for good after.
 
 export async function generateMetadata({ params }: PageProps<"/map/[category]">): Promise<Metadata> {

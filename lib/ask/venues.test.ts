@@ -1,4 +1,4 @@
-// "Where to start" (Eric's features push, real Oct 14): venues in one market that both the seed's and the first call's
+// "Where to start": venues in one market that both the seed's and the first call's
 // fans favor, by the brief's own venue params. Probe: scripts/venues-probe.ts (3 of 3 asks, real local venues, no chains).
 import { test } from "node:test";
 import assert from "node:assert/strict";

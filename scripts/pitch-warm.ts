@@ -1,5 +1,5 @@
 // scripts/pitch-warm.ts
-// The pitch sheet's "Where to pitch it" (W2, real Oct 24): the sheet reads venues from the cache only, so warm the
+// The pitch sheet's "Where to pitch it": the sheet reads venues from the cache only, so warm the
 // Mt. Joy x Allbirds venues in Mt. Joy's lead market once (3 place calls; the Allbirds x Bombas venues are the call
 // sheet's own, already cached). venuesIn live: whereToStart's peek can't warm it, since venuesIn turns a cold list into
 // an empty one. Prints production's /api/usage before and after. Run once:
@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import { whereToStart } from "../lib/ask/where.ts";
 import { venueLine, venuesIn } from "../lib/ask/venues.ts";
 import type { AskEvent } from "../lib/ask/agent.ts";
-// read, not imported: the recorded asks are Qloo data and stay out of the public repo (W2, real Oct 25)
+// read, not imported: the recorded asks are Qloo data and stay out of the public repo
 const mtJoy = JSON.parse(readFileSync(new URL("../lib/ask/fixtures/mt-joy.json", import.meta.url), "utf8"));
 
 const base = process.argv[2];

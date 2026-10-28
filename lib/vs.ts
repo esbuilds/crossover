@@ -1,11 +1,11 @@
-// The /vs page's words, generated in code from the rivals counts (brief-oct13-vs). No Claude, no server imports.
+// The /vs page's words, generated in code from the rivals counts. No Claude, no server imports.
 import type { Rivals, RivalRow, VsMap } from "./rivals.ts";
 import type { RivalPick } from "./rival.ts";
 
 export type VsState = "split" | "two lists" | "shared-heavy";
 
 const n = (k: number, one: string, many = `${one}s`) => `${k} ${k === 1 ? one : many}`;
-// possessive: "Allbirds'" not "Allbirds's"; a name that's already one stays as it is ("Arby's fans", A-14, real Oct 27)
+// possessive: "Allbirds'" not "Allbirds's"; a name that's already one stays as it is ("Arby's fans")
 export const poss = (name: string) => (/['’]s$/i.test(name) ? name : /s$/i.test(name) ? `${name}'` : `${name}'s`);
 
 export function vsState(r: Rivals): VsState {
@@ -45,7 +45,7 @@ export function mapLine(a: string, b: string, map: Pick<VsMap, "metrosA" | "metr
   return `${a} leads in ${list(oa)}; ${b} in ${list(ob)}.`;
 }
 
-// What a partnerships lead at the left name does with the split (W5b, real Oct 25), from the page's own numbers only:
+// What a partnerships lead at the left name does with the split, from the page's own numbers only:
 // the markets only its audience leads (mapLine's), then the first two rows on its side, the widest gaps. null without
 // a map or a measured row. Liquid Death vs Celsius gives the hand-written case's markets and brands (rivals-cases.ts).
 export function leadLine(a: string, b: string, map: Pick<VsMap, "metrosA" | "metrosB"> | null, leans: Pick<RivalRow, "name" | "a" | "b">[]): string | null {
@@ -70,7 +70,7 @@ export function methodLine(seed: string, r: RivalPick): string {
   return `Qloo's top 50 for ${seed} has no same-field brand. Type one on the right.`;
 }
 
-// Which finder line leads (brief-oct12-design ruling 2): a genre pick is our measured claim, so it leads and Qloo's
+// Which finder line leads: a genre pick is our measured claim, so it leads and Qloo's
 // competitor line sits under it; a category pick or no pick, and Qloo's own label leads. Non-brand seeds carry no
 // Qloo line. The auto-run is the measured pick either way.
 export function finderOrder(r: RivalPick): ("measured" | "qloo")[] {
@@ -79,7 +79,7 @@ export function finderOrder(r: RivalPick): ("measured" | "qloo")[] {
   return r.kind === "pick" && r.field === "genre" ? ["measured", "qloo"] : ["qloo", "measured"];
 }
 
-// Qloo's own label, attributed (brief-oct12-rival2 ruling 3): the only place "competitor" may appear on a page
+// Qloo's own label, attributed: the only place "competitor" may appear on a page
 export const COMPETITOR_LABEL = "Tagged by Qloo as competitor brands:";
 
 // empty column copy (shared-heavy pairs can leave one side with nothing past the same-field cut)

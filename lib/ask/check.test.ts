@@ -82,7 +82,7 @@ test("a group range next to one brand passes; a score right after a brand's name
   assert.equal(checkDecision({ ...ok, cautions: [], summary: [{ text: "[[REI]] scores 0.95, ahead of [[Allbirds]].", steps: [2] }] }, s3).ok, false);
 });
 
-// Review round 4 follow-up (Oct 13): Qloo names the entity "Alternative"; its own description says "Alternative Apparel".
+// Qloo names the entity "Alternative"; its own description says "Alternative Apparel".
 // The page shows the brand name, the checker keeps matching Qloo's.
 test("displayName renders a bare Qloo name as its brand, in brackets or plain names", () => {
   assert.equal(displayName("Alternative"), "Alternative Apparel");
@@ -99,7 +99,7 @@ test("nameForDisplay: bracketed or plain, the display name applies", () => {
   assert.equal(nameForDisplay("Bombas"), "Bombas");
 });
 
-// Rule v2 (the judge-probe ruling, real Oct 15): Noah Kahan's true caution was blocked because the numbers after
+// Rule v2: Noah Kahan's true caution was blocked because the numbers after
 // "against" were charged to the brand before it. A contrast marker ends the first brand's segment; what follows binds to
 // the next bracketed brand, or with none, to some other candidate. Every number must still be in a cited step.
 test("rule v2: a contrast clause's numbers bind to the others, not the first brand, and still can't leak", () => {
@@ -112,7 +112,7 @@ test("rule v2: a contrast clause's numbers bind to the others, not the first bra
   assert.equal(say("[[A]] scores 0.95, against 0.80 for [[B]].").ok, false); // before the marker, still A's own
 });
 
-// The checker sign-off (Oct 15): "with seven others between 0.94 and 0.95" is a contrast clause too.
+// "with seven others between 0.94 and 0.95" is a contrast clause too.
 test("rule v2: a count of others binds as 'the others' does", () => {
   const s5: StepRecord[] = [steps[0], { ...steps[1], output: { groups: [[{ name: "A", affinity: 0.97 }, { name: "B", affinity: 0.95 }, { name: "C", affinity: 0.94 }]] } }];
   const say = (text: string) => checkDecision({ ...ok, calls: [], cautions: [], summary: [{ text, steps: [2] }] }, s5);
@@ -120,8 +120,8 @@ test("rule v2: a count of others binds as 'the others' does", () => {
   assert.equal(say("[[A]] sits closest at 0.97, with seven others at 0.97.").ok, false); // A's own number can't stand for the others
 });
 
-// Agency persona (Oct 14): "twins" is an internal name; the reader sees "the overlap check". Brand names stay.
-// Rule v3 (mutation gate, real Oct 18): tampered copies of cached answers slipped through when the number sat after the
+// "twins" is an internal name; the reader sees "the overlap check". Brand names stay.
+// Rule v3: tampered copies of cached answers slipped through when the number sat after the
 // seed's bracket, or was a rank (every rank 1 to 50 sits somewhere in a top-50 step).
 test("rule v3: the seed's bracket doesn't end a brand's segment, and ranks bind too", () => {
   const say = (text: string) => checkDecision({ ...ok, calls: [], cautions: [], summary: [{ text, steps: [2] }] }, steps);
@@ -149,7 +149,7 @@ test("claimCount counts the names, decimals and ranks the checker binds", () => 
   assert.equal(claimCount(ok), 8);
 });
 
-test("v3.1: a rank that ends the sentence is bound to the brand it's said of (builder 2's gap, real Oct 22)", () => {
+test("v3.1: a rank that ends the sentence is bound to the brand it's said of", () => {
   const steps = [{ n: 1, tool: "resolve", why: "", summary: "", output: { state: "confirmed", name: "Allbirds" } }, { n: 2, tool: "otherWay", why: "", summary: "", output: { rows: [{ name: "Bombas", rank: 1 }, { name: "Tuft & Needle", rank: 9 }] } }];
   const d = (t: string) => checkDecision({ calls: [{ name: "Bombas", reason: t, steps: [2] }], cautions: [], summary: [] }, steps);
   assert.deepEqual(d("[[Bombas]] fans rank [[Allbirds]] 9."), { ok: false, problems: ["call 1: 9 isn't Bombas's own number"] });

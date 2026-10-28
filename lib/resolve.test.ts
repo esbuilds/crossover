@@ -38,7 +38,7 @@ for (const [q, name] of Object.entries(KNOWN)) {
   });
 }
 
-// Oct 25: a person and an artist with the exact same name resolve to the artist, whichever Qloo lists first.
+// a person and an artist with the exact same name resolve to the artist, whichever Qloo lists first.
 for (const [q, id] of [
   ["Taylor Swift", "7A591B34-D42B-4A28-9BB9-0B9F128E4449"], // person listed first, separate artist entity
   ["Metallica", "67DE5A14-0870-4282-9189-45DDFED7F220"], // artist listed first

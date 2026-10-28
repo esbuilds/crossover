@@ -1,4 +1,4 @@
-// The mark (Oct 24): two names trading rank, the crossing in the ask's slopegraph. Ink line and accent line.
+// The mark: two names trading rank, the crossing in the ask's slopegraph. Ink line and accent line.
 // Hex rather than the theme tokens so next/og cards (satori) can draw the same component; #bd4510 is --color-accent.
 // app/icon.svg is the same drawing on a white tile; keep them in step.
 export function Mark({ size, ink = "#1b1716" }: { size: number; ink?: string }) {

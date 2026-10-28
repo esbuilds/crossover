@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Mark } from "@/lib/mark.tsx";
 
-// The video's end card (Oct 26). Not linked from anywhere; no sitemap exists, and it asks not to be indexed.
+// The video's end card. Not linked from anywhere; no sitemap exists, and it asks not to be indexed.
 export const metadata: Metadata = { title: { absolute: "Crossover" }, robots: { index: false, follow: false } };
 
 export default function EndCard() {

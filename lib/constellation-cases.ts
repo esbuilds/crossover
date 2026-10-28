@@ -1,10 +1,10 @@
-// Prepared categories for the constellation (brief-oct13-moonshots pick 1). No server imports: the front door links them.
+// Prepared categories for the constellation. No server imports: the front door links them.
 export type Brand = { name: string; id: string };
-// absent: no Qloo brand entity. leaders: the three camp heads for the "who leads each city" map (round 3 pick 2), with
+// absent: no Qloo brand entity. leaders: the three camp heads for the "who leads each city" map, with
 // why when the choice isn't obvious; an aisle without leaders failed its gate and has no map.
 export type Category = { slug: string; title: string; brands: Brand[]; absent?: string[]; leaders?: { names: [string, string, string]; why?: string } };
 
-// Ids from /search on real Oct 12. Qloo has no brand entity for Alani Nu, Ghost, Prime,
+// Ids from /search on Oct 12. Qloo has no brand entity for Alani Nu, Ghost, Prime,
 // Culture Pop or San Pellegrino, and "Topo Chico" finds only the hard seltzer, so they're left out (the page says so).
 export const CATEGORIES: Category[] = [
   {

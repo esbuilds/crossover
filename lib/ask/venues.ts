@@ -1,4 +1,4 @@
-// "Where to start" (Eric's features push, real Oct 14): venues in one market that both the seed's and the first call's
+// "Where to start": venues in one market that both the seed's and the first call's
 // fans favor, with the brief's own venue params (restaurants and bars, plus live music for artists; both entities as
 // signals). Computed by code beside the frozen answer, never part of it. Qloo's scores tie within a city on the probe
 // (0.92 for all six in San Francisco), so the line lists names and never a number. Probe: scripts/venues-probe.ts.

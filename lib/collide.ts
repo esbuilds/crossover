@@ -1,4 +1,4 @@
-// Collision map (Oct 14 row, brief-oct13-vs map defaults): two heatmaps on Qloo's shared geohash grid, diffed per cell.
+// Collision map: two heatmaps on Qloo's shared geohash grid, diffed per cell.
 // Each side's affinity_rank is re-ranked within the cells both heatmaps carry, because raw ranks are skewed by how many
 // cells each side has (Olipop's sit 0.24 above Poppi's at the median). Cells missing on either side are not drawn.
 // The page shows a lean per cell, never a number.
@@ -10,7 +10,7 @@ const MAX_CELLS = 1500; // as the single map: the hottest cells only
 
 export type Tone = "a" | "b" | "both";
 // SVG and inline styles take no CSS vars: A is --color-accent (as app/map.tsx ACCENT and the bars), B a dark ink
-// (darker than ink-2 since real Oct 20, CT F4: the two sides sat at one luminance, 1.21:1; now 1.65:1, and B's cells
+// (darker than ink-2 since Oct 20: the two sides sat at one luminance, 1.21:1; now 1.65:1, and B's cells
 // 4.9:1 on land), both --color-rule-strong. Here, not in the client map, so the server page's legend gets the values too.
 export const TONE: Record<Tone, string> = { a: "#bd4510", b: "#3b3634", both: "#c8c4c1" };
 export type CollideCell = [lat: number, lon: number, tone: Tone];

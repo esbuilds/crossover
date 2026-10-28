@@ -5,7 +5,7 @@ import { mapLine } from "@/lib/vs.ts";
 import { TONE } from "@/lib/collide.ts";
 import { isEntityType } from "@/lib/slate.ts";
 
-// GET /vs/<idA>/<idB>/og?ta=&tb=: the share card is the map (brief-oct12-front). Cache only: a crawler never spends a
+// GET /vs/<idA>/<idB>/og?ta=&tb=: the share card is the map. Cache only: a crawler never spends a
 // Qloo call. A pair that isn't fully cached, or a person pair with no map, gets the text card.
 export async function GET(request: Request, { params }: { params: Promise<{ a: string; b: string }> }) {
   const { a, b } = await params;

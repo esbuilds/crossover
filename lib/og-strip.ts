@@ -1,4 +1,4 @@
-// The deal strip (SPECTACLE-1, moonshot round 2, real Oct 22): the 23 replayed deals as rows of eight slots ranked left
+// The deal strip: the 23 replayed deals as rows of eight slots ranked left
 // to right, the real partner's slot filled. Built only from the audit files (through lib/replay-challenge.ts): 0 calls.
 // Drawn by app/replay/strip/[size]/route.tsx for the gallery (1200 x 800) and Nov 5 (1920 x 1080).
 import { CHALLENGE, PROTOCOL } from "./replay-challenge.ts";

@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   try {
     return Response.json((await whereToStart(events, generationKey(request))) ?? { line: null }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
-    // 200: a side line that can't load isn't an error in the visitor's console (Oct 15)
+    // 200: a side line that can't load isn't an error in the visitor's console
     if (err instanceof ColdPairCap) return Response.json({ line: null, error: "cap" });
     console.error("[ask/where]", err);
     return Response.json({ line: null }, { status: 502 });

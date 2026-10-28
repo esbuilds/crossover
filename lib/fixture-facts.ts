@@ -1,4 +1,4 @@
-// The recorded /search fixture keeps no Qloo numbers (planner ruling, real Oct 12): popularity is entity-level Qloo
+// The recorded /search fixture keeps no Qloo numbers: popularity is entity-level Qloo
 // output, so the recorder stores the two facts the resolver's rules read, derived by our code, and the test loader
 // maps them back to stand-in values that reproduce the same comparisons. Production reads live popularity.
 import { POPULARITY_FLOOR, tokens } from "./resolve.ts";

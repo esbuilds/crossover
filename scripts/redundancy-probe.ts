@@ -1,4 +1,4 @@
-// Redundancy probe (Perplexity moonshot 1, real Oct 13): do the audit briefs' candidates differ in how much they share
+// Redundancy probe: do the audit briefs' candidates differ in how much they share
 // an audience with each other, enough that a "least redundant three" is a different, defensible pick?
 // Input: the as-run review outputs (probe/out-review, .v2 where present), so no name is re-resolved.
 // Per brief: each measured, eligible candidate scores the others in one call (same-type affinity is symmetric, so the

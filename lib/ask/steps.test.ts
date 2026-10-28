@@ -46,7 +46,7 @@ test("twinsStep: nothing to draw when no pair stands out", () => {
   assert.deepEqual(twinsStep([{ n: 1, tool: "twins", why: "x", summary: "", output: { found: true, a: { name: "REI" }, b: { name: "Patagonia" }, value: 0.97, next: 0.89 } }]), { a: "REI", b: "Patagonia", value: 0.97, next: 0.89 });
 });
 
-// REPLAY-LINE (real Oct 22): the line under the decision reads the control's summary, never a typed number.
+// the line under the decision reads the control's summary, never a typed number.
 test("replayLine: the pooled replay beside the scrambled-seed control, from the published summary", () => {
   assert.equal(
     replayLine(control.summary),
@@ -54,7 +54,7 @@ test("replayLine: the pooled replay beside the scrambled-seed control, from the 
   );
 });
 
-// PROOF-LINE (real Oct 22): the line under every answer is the checker's attacked count, read from the gate's file.
+// the line under every answer is the checker's attacked count, read from the gate's file.
 test("checkerLine: the mutation gate's count and the misses, from the published file", () => {
   assert.equal(
     checkerLine(mutation.gated),
@@ -62,7 +62,7 @@ test("checkerLine: the mutation gate's count and the misses, from the published 
   );
 });
 
-// The world-class brief (Oct 14): step 5 draws a dumbbell, fame (Qloo popularity) at one end, taste (affinity) at
+// Step 5 draws a dumbbell, fame (Qloo popularity) at one end, taste (affinity) at
 // the other, one row per candidate, sorted by the gap between them; unmeasured names last.
 test("dumbbellStep: rows sorted by taste minus fame, unmeasured last", () => {
   const steps = [
@@ -79,7 +79,7 @@ test("dumbbellStep: nothing to draw without popularity in the review output (ask
   assert.equal(dumbbellStep(ld), null); // like the recorded ask it's shaped from, this one predates the field
 });
 
-// the two prepared asks as recaptured after the dumbbell re-warm (real Oct 14): both draw eight rows
+// the two prepared asks as recaptured after the dumbbell re-warm: both draw eight rows
 test("dumbbellStep on the prepared asks: the artist ask (one tied group) and the brand ask (with a split)", () => {
   const ab = stepsFrom(load("corvid-co"));
   for (const steps of [mj, ab]) {
@@ -100,7 +100,7 @@ test("dumbbellStep on the prepared asks: the artist ask (one tied group) and the
   assert.deepEqual([m.seed.name, m.rival.name, m.closerToSeed, m.closerToRival, m.withinGapOfBoth], ["Corvid & Co.", "Brightwell Optics", 2, 4, 50]);
 });
 
-// The tie ruling (Oct 14): a two-line call card from existing outputs, two labels, never fused into one claim.
+// a two-line call card from existing outputs, two labels, never fused into one claim.
 test("callCard: the first call and where the seed's audience leads, as two separate lines", () => {
   const ab = stepsFrom(load("corvid-co"));
   const decision = load("corvid-co").findLast((e) => e.type === "decision") as Extract<AskEvent, { type: "decision" }>;
@@ -116,7 +116,7 @@ test("callCard: the first call and where the seed's audience leads, as two separ
   assert.equal(mjCard.where, null); // no split, so no market in any step: no line
 });
 
-// A-1 (real Oct 27): a typed name Qloo doesn't know resolves to nothing, and the agent's decision passes the checker with
+// a typed name Qloo doesn't know resolves to nothing, and the agent's decision passes the checker with
 // no calls. That's no answer: the page must not render one (fool-it.tsx read calls[0].reason and the page crashed).
 test("answerOf: a passing decision with no calls is no answer; a passing one with calls is", () => {
   const unknown = [

@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 // Malformed or untyped share links land here without touching Qloo.
-// The tab used to carry the site's full default title, as if the page were the front door (WILD-F7, real Oct 21).
+// The tab used to carry the site's full default title, as if the page were the front door.
 export const metadata: Metadata = { title: "Not found" };
 export default function NotFound() {
   return (

@@ -7,25 +7,25 @@ export const btnPrimary =
   "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-accent px-5 text-base font-medium text-white transition-[background-color,transform] duration-150 ease-out motion-reduce:transition-none hover:bg-accent-strong active:translate-y-px disabled:cursor-wait disabled:bg-ink-3 motion-reduce:active:translate-y-0";
 export const btnSecondary =
   "inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-rule-ui bg-surface px-4 text-base text-ink transition-[border-color] duration-150 ease-out motion-reduce:transition-none hover:border-ink disabled:opacity-50";
-// Three click styles (DC F2, CT F3): linkInline for links inside a sentence, btnText for actions and standalone links,
+// Three click styles: linkInline for links inside a sentence, btnText for actions and standalone links,
 // chip for the rows of names to try. Underlines belong to linkInline only, until hover.
 export const linkInline =
   "underline decoration-ink-3 underline-offset-4 transition-[color,text-decoration-color] duration-150 ease-out motion-reduce:transition-none hover:text-ink hover:decoration-ink";
-// One citation style (DES-3, real Oct 23): a step or Qloo check named after a claim, as a small tinted tag in the body
+// One citation style: a step or Qloo check named after a claim, as a small tinted tag in the body
 // face, quieter than the claim and still on every one. Mono stays for the trace; the sheet prints the same as [5].
 export const cite = "whitespace-nowrap rounded-sm bg-surface-2 px-1 py-px text-xs text-ink-3";
 export const btnText =
   "inline-flex min-h-11 items-center text-base font-medium text-ink decoration-ink-3 underline-offset-4 transition-[color,text-decoration-color] duration-150 ease-out motion-reduce:transition-none hover:underline disabled:text-ink-3 disabled:no-underline";
-// 44px tall on phones (W3, PRODUCT.md's tap targets). max-w-full and no nowrap of its own (FIX-F10): a long Qloo name wraps inside the chip instead of pushing a 390 page
+// 44px tall on phones. max-w-full and no nowrap of its own: a long Qloo name wraps inside the chip instead of pushing a 390 page
 // sideways; the /vs Try row on phones still scrolls as one line because its row sets nowrap and chips inherit it
 export const chip =
   "inline-flex max-w-full shrink-0 items-center rounded-full border border-rule px-3 py-1 text-left text-sm max-sm:min-h-11 text-ink transition-[border-color] duration-150 ease-out motion-reduce:transition-none hover:border-ink aria-[current=true]:border-ink disabled:text-ink-3";
 export const field =
   "min-h-11 w-full min-w-0 rounded-md border border-rule-ui bg-surface px-3 text-base text-ink placeholder:text-ink-3 outline-none transition-[border-color] duration-150 ease-out motion-reduce:transition-none focus:border-ink";
-// one card treatment (DC F9): panel for containers, panelStrong for the call card only (a firmer border, no tint)
+// one card treatment: panel for containers, panelStrong for the call card only (a firmer border, no tint)
 export const panel = "rounded-md border border-rule bg-surface";
 export const panelStrong = "rounded-md border border-rule-strong";
-// The page shell (SPACE, real Oct 21): one width, a fluid gutter, and a full section of air before the colophon.
+// The page shell: one width, a fluid gutter, and a full section of air before the colophon.
 // Every route's <main> uses it; the title section under the header takes pt-page (globals.css has the scale).
 export const shell = "mx-auto max-w-shell px-gutter pb-section";
 
@@ -38,7 +38,7 @@ export function Chevron() {
   );
 }
 
-// One fold (W3, real Oct 25): a ruled row that opens to its lines, for long supporting text under a short visible line.
+// One fold: a ruled row that opens to its lines, for long supporting text under a short visible line.
 // The lines are in the page either way, open or shut, and open without JS. Consecutive folds share one rule.
 export function Fold({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -132,9 +132,9 @@ export function MatchCard({ card, onNotIt }: { card: Card; onNotIt?: () => void 
 
 
 // Wordmark left, the nav right. Same on every page.
-// One nav on every page (Oct 14): ask, two names in, Pick three, the audit. The old per-page link (href, label)
+// One nav on every page: ask, two names in, Pick three, the audit. The old per-page link (href, label)
 // is ignored, so the routes cut from the nav (/map, /find, /pair, /triage, /s, /review, /end-card) keep their own code.
-// A review ruling (Oct 15): the challenge takes Pick three's place; Pick three stays one click from every answer and the footer.
+// the challenge takes Pick three's place; Pick three stays one click from every answer and the footer.
 // The links live in NavLinks, a client component, because the current-page mark reads the path.
 export function SiteHeader(props: { href?: string; label?: string }) {
   void props;
@@ -156,7 +156,7 @@ export const EXAMPLES = [
   { name: "Mt. Joy", note: "indie folk band", href: "/s/A6EAB02E-5AD7-46D1-9FD1-C70CBCF15C9A?t=urn%3Aentity%3Aartist" },
   { name: "Somebody Feed Phil", note: "Netflix food show", href: "/s/02F34B14-E7B2-4AFA-B21E-AA9332CD9CC2?t=urn%3Aentity%3Atv_show" },
 ];
-// More warm names for the home page's quiet "or try" row (Oct 25): all warmed, so they open instantly.
+// More warm names for the home page's quiet "or try" row: all warmed, so they open instantly.
 export const MORE_EXAMPLES = [
   { name: "Taylor Swift", href: "/s/4BBEF799-A0C4-4110-AB01-39216993C312?t=urn%3Aentity%3Aartist" },
   { name: "Stranger Things", href: "/s/07F1170E-BB69-4982-82C6-255F477EBBAD?t=urn%3Aentity%3Atv_show" },
@@ -178,7 +178,7 @@ export function ExampleLinks() {
   );
 }
 
-// The judge path (Oct 13), on every main page: the ask, the measurement behind any step, the audit.
+// The judge path, on every main page: the ask, the measurement behind any step, the audit.
 export function JudgePath() {
   return (
     <p className="mt-2 text-sm text-ink-3">

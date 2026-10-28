@@ -1,4 +1,4 @@
-// Break the checker (moonshots round 4, real Oct 18): a visitor edits the first call's reason as displayed, and the same
+// Break the checker: a visitor edits the first call's reason as displayed, and the same
 // checker that gates every answer re-checks the edit. Pure and client-safe, 0 calls.
 import { checkDecision, displayName, type Check, type Decision, type StepRecord } from "./check.ts";
 

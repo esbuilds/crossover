@@ -1,4 +1,4 @@
-// Prepared rivals pairs (brief-oct13-vs ruling 5). Ids only, picked by hand: "New York Yankees"
+// Prepared rivals pairs. Ids only, picked by hand: "New York Yankees"
 // searches at popularity 0.00, so a typed name would ask instead of landing.
 const B = "urn:entity:brand", AR = "urn:entity:artist";
 export type VsCase = { a: { name: string; id: string; type: string }; b: { name: string; id: string; type: string } };
@@ -10,10 +10,10 @@ export const VS_CASES: VsCase[] = [
 ];
 export const vsHref = (c: VsCase) => `/vs/${c.a.id}/${c.b.id}?ta=${encodeURIComponent(c.a.type)}&tb=${encodeURIComponent(c.b.type)}`;
 
-// "or try" pairs (brief-oct12-front list; brief-oct12-design ruling 1: Stanley by its warm-list id, D3D8956E, because
-// typed "Stanley" asks brand or artist). Only pairs already warm are listed; the last four were warmed real Oct 12.
+// "or try" pairs (Stanley by its warm-list id, D3D8956E, because
+// typed "Stanley" asks brand or artist). Only pairs already warm are listed; the last four were warmed Oct 12.
 const TV = "urn:entity:tv_show";
-// cut to five when the ask became the front door (Oct 13, review round 4); the dropped pairs stay warm and linkable
+// cut to five when the ask became the front door (Oct 13); the dropped pairs stay warm and linkable
 export const VS_MORE: VsCase[] = [
   { a: { name: "Dr. Squatch", id: "F688F736-4F16-480A-84C4-08BBCC550375", type: B }, b: { name: "Manscaped", id: "461A4F35-1565-4372-916F-7A3E10903ED5", type: B } },
   // YETI first: that order is the one already warm (pair order is part of the cache keys)
@@ -23,7 +23,7 @@ export const VS_MORE: VsCase[] = [
   { a: { name: "Taylor Swift", id: "4BBEF799-A0C4-4110-AB01-39216993C312", type: AR }, b: { name: "Beyoncé", id: "F6754C46-B3E7-457F-8B7E-06C613597320", type: AR } },
 ];
 
-// One worked case, hand-written from the cached numbers (planner brief, real Oct 12): what a partnerships lead does
+// One worked case, hand-written from the cached numbers: what a partnerships lead does
 // with Liquid Death vs Celsius. Only this pair; every number below is on the page above it.
 export const PAIR_CASE = {
   a: "4DF7C265-52D9-4A99-8803-F62C2302D561",

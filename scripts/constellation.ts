@@ -1,4 +1,4 @@
-// Warm and print the category constellations (brief-oct13-moonshots pick 1). Serial, through the cached client, so
+// Warm and print the category constellations. Serial, through the cached client, so
 // it reads and writes the shared production cache and counts every live call.
 //   node --env-file=.env.local scripts/constellation.ts [slug]
 import { CATEGORIES, getConstellation } from "../lib/constellation.ts";

@@ -14,7 +14,7 @@ export function failCode(err: unknown): FailCode | null {
 }
 
 // The ask route's error line. ColdPairCap is the per-visitor daily cap on new pairs (lib/rivals.ts), not Qloo being busy:
-// it read "try this one again in a minute" until real Oct 27, which fails again a minute later.
+// it read "try this one again in a minute" until Oct 27, which fails again a minute later.
 export function askErrorCopy(err: unknown): string {
   const code = failCode(err);
   if (code) return FAIL_COPY[code];

@@ -23,7 +23,7 @@ test("share-link types match the resolver's", () => {
   for (const t of RESOLVE_TYPES) assert.equal(validShareLink(`/s/${ID}`, new URLSearchParams(`t=${t}`)), true);
 });
 
-test("ask links: a Qloo id with a known or absent type passes, anything else is a 404 (FIX-F6)", () => {
+test("ask links: a Qloo id with a known or absent type passes, anything else is a 404", () => {
   const q = (s: string) => new URLSearchParams(s);
   assert.equal(validShareLink(`/ask/${ID}`, q("t=urn:entity:artist")), true);
   assert.equal(validShareLink(`/ask/${ID}`, q("")), true); // untyped: the page reads it as a brand

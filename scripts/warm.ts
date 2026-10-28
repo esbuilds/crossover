@@ -1,4 +1,4 @@
-// Re-warm the cache through the deployed app, one entity at a time (Oct 22). Per entity: resolve, the full run
+// Re-warm the cache through the deployed app, one entity at a time. Per entity: resolve, the full run
 // (ranking, badges, trends), then the top brand's brief and its age breakdown. Serial on purpose: never parallel
 // against live APIs. It reads /api/usage before every step, stops before the shared daily cap, logs Qloo calls per
 // entity, and is restartable: finished entities are recorded in the state file and skipped, and everything it
@@ -75,9 +75,9 @@ for (const item of list) {
   const failed = run.find((e) => e.type === "error");
   if (failed) throw new Error(`${item.name} run: ${failed.message}`);
   const brands = run.find((e) => e.type === "ranking" && e.domain === "brand")?.data as { kept: { entity_id: string }[]; demoted?: { entity_id: string }[] } | undefined;
-  // a missing brand ranking means the ranker failed (Oct 23: the Anthropic balance ran out); don't mark this done
+  // a missing brand ranking means the ranker failed (the Anthropic balance ran out); don't mark this done
   if (!brands) throw new Error(`${item.name} run: no brand ranking (ranker failed); rerun to retry`);
-  // nothing kept: the first ranked-lower brand is the brief target, as on the slate (Oct 25)
+  // nothing kept: the first ranked-lower brand is the brief target, as on the slate
   const topBrand = brands.kept[0]?.entity_id ?? brands.demoted?.[0]?.entity_id ?? null;
   const trends = run.find((e) => e.type === "trends")?.data ?? {};
   console.log(`${item.name}: slate ok, top brand ${topBrand ?? "none"}, trends ${JSON.stringify(trends)}`);

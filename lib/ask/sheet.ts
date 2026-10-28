@@ -1,4 +1,4 @@
-// The call sheet (Oct 14): one printed page a partnerships lead forwards, drawn from a cached ask only. Every
+// The call sheet: one printed page a partnerships lead forwards, drawn from a cached ask only. Every
 // sentence on it is one the checker already passed, a code-generated line from the step outputs, or static text; the
 // numbers trace to the steps, the checker line (lib/ask/proof.ts) or the blocked count (lib/ask/blocked.json).
 import type { AskEvent } from "./agent.ts";

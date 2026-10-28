@@ -1,4 +1,4 @@
-// MCP gate (moonshots round 4, real Oct 18): a stock MCP client lists the tools, reads a cached answer, and the checker
+// MCP gate: a stock MCP client lists the tools, reads a cached answer, and the checker
 // rejects a tampered copy of it. 0 Qloo, 0 model calls.
 //   node scripts/mcp-gate.ts [url]   (default http://localhost:3000/api/mcp)
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";

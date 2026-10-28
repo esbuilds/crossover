@@ -1,4 +1,4 @@
-// Audience read probe (world-class item 7, Eric's features push, real Oct 14): does a Qloo audience segment reorder a
+// Audience read probe: does a Qloo audience segment reorder a
 // prepared ask's frozen eight? Gate set before the run: for each of the three seeds, at least one audience changes the
 // top three AND moves some candidate by 2 or more ranks. Else publish the flat result and build nothing. About 12 calls.
 //   QLOO_DAILY_CAP=<n> node --env-file=.env.local scripts/audience-probe.ts

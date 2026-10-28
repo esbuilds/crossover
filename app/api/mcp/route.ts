@@ -1,5 +1,5 @@
 // app/api/mcp/route.ts
-// Crossover over MCP (moonshots round 4, real Oct 18): any MCP client can read a checked answer and re-check it.
+// Crossover over MCP: any MCP client can read a checked answer and re-check it.
 // Cache only: peekAsk never calls Qloo or the model, so the 600-a-day cap and the 20-per-IP limit can't be spent here.
 // ponytail: no auth, read-only over published answers; add withMcpAuth if a write or live tool ever lands.
 import { createMcpHandler } from "mcp-handler";

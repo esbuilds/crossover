@@ -38,7 +38,7 @@ export async function runReview(seed: Ref, kept: Identity[], buyer: Buyer = {}, 
   return { ...review, ranks, twins };
 }
 
-// Cold-first runs (review round 4, Oct 13): try the whole run from the cache; only if some piece is cold, spend the
+// Cold-first runs (since Oct 13): try the whole run from the cache; only if some piece is cold, spend the
 // visitor's cold allowance (the /vs pair cap) and run live. Pieces signal "not cached" by throwing Cold.
 export class Cold extends Error {}
 export async function warmFirst<T>(run: (mode: "peek" | "live") => Promise<T>, spend: () => Promise<void>): Promise<T> {

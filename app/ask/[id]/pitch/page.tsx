@@ -17,7 +17,7 @@ import { PITCH_CAPTION, PITCH_WHO } from "@/lib/ask/pitch-rules.ts";
 import { BothSlope, BothTable } from "../../both-table";
 import { FoolIt } from "../../fool-it";
 
-// The pitch sheet (W2, real Oct 24): /ask/<id>/pitch?t=<type>. The call sheet's both-ways rows read down the right
+// The pitch sheet: /ask/<id>/pitch?t=<type>. The call sheet's both-ways rows read down the right
 // column, for the seller. One printed page from a cached ask only, as the call sheet; the line is code over the table's
 // cells and the review score, checked by the frozen checker with the rows appended as one cited step (lib/ask/pitch.ts).
 export const metadata: Metadata = { title: "Pitch sheet", robots: { index: false, follow: false } };

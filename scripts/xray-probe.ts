@@ -1,4 +1,4 @@
-// X-ray probe (Perplexity moonshot 2, real Oct 13): does the rivals split hold outside brands? For each prepared pair,
+// X-ray probe: does the rivals split hold outside brands? For each prepared pair,
 // the same top-50-both-ways scoring as rivals (compareLists), per domain: artist, tv_show, movie, podcast.
 // A domain splits when 10 or more names lean each way. Gate: 3 of 4 domains split on 2 of 3 pairs.
 // About 6 calls per pair per domain, serial. Derived numbers only to stdout.

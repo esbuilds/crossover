@@ -1,4 +1,4 @@
-// Stand-ins for the six audit tables the build imports (W2, real Oct 25). The real ones are Qloo data, which Qloo's
+// Stand-ins for the six audit tables the build imports. The real ones are Qloo data, which Qloo's
 // hackathon guide keeps out of public repos, so the public mirror swaps audit/demo/<file>.json in at audit/<file>.json:
 // the same keys and types so /audit and /replay build, but every name invented, every id fresh, and every score and
 // rank drawn at random, marked "demo": true. Counts, years, enums and links stay. Pages show a notice on these, and the

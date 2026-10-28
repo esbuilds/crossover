@@ -1,4 +1,4 @@
-// Reverse-rank probe (real Oct 15): the seed's rank among each candidate's fans' brands,
+// Reverse-rank probe: the seed's rank among each candidate's fans' brands,
 // the same rankIn as lib/review-run.ts (take 50), fetched into the same cache so the ask's block can read it later.
 // Gate written before the run: A) the agent's three differ by 5+ positions (or one is outside the top 50);
 // B) the reverse order isn't the forward order for the three.

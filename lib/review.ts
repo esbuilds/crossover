@@ -1,4 +1,4 @@
-// Review desk core (the design notes, blind round 2 and the Oct 10 signal test), label review-v3 (v2: leader-relative ties; v3: an exact name shared across types is ambiguous).
+// Review desk core (the Oct 10 signal test), label review-v3 (v2: leader-relative ties; v3: an exact name shared across types is ambiguous).
 // Of up to eight proposed partners, which deserve investigation, and on what measured evidence? Pure functions plus
 // a fixed-candidate adapter that takes its Qloo scorer as an argument, so everything here runs in tests without the API.
 // Rules: forward affinity selects, reverse is context and never combined with it; gaps under GAP are ties; no
@@ -281,7 +281,7 @@ export function assemble(seed: Ref, ids: Identity[], forward: Record<string, Cel
     const gates = Object.fromEntries(base.map((b) => [b.id, gateFor(b.i.entity, b.i.input, buyer)]));
     const eligible = base.filter((b) => gates[b.id].state !== "excluded");
     // Eligible rows are read against the same pool the picks come from, so a pick never shows as a tie (Red Bull,
-    // Oct 10: excluded Monster Energy chained GoPro, Oakley and Nike into one band). Excluded rows keep their reading
+    // excluded Monster Energy chained GoPro, Oakley and Nike into one band). Excluded rows keep their reading
     // against everything Qloo measured.
     const evidence = { ...evidenceFor(base), ...evidenceFor(eligible) };
     const rows = base

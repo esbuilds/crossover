@@ -7,7 +7,7 @@ import { askErrorCopy } from "@/lib/failure.ts";
 import { sse } from "@/lib/sse.ts";
 import { parseAskBody } from "@/lib/ask/body.ts";
 
-// a cold ask runs about 40 s; the stalled outage drill ran 70 (Oct 15): an explicit limit, not the plan default
+// a cold ask runs about 40 s; the stalled outage drill ran 70: an explicit limit, not the plan default
 export const maxDuration = 120;
 
 
