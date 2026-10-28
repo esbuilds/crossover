@@ -1,6 +1,6 @@
 # Historical replay protocol, second round (replay-v2)
 
-Drafted real Oct 13, 2026, after replay-v1 failed its bar (6 of 9 in the top three, needed 7; frozen 77c81de). Adding cases after a miss can flatter a result, so v2 is a separate test with its own bar, on new cases only, and v1 stays on /audit beside it, unchanged. Frozen in git before stage 2 runs.
+Drafted real Oct 13, 2026, after replay-v1 failed its bar (6 of 9 in the top three, needed 7; frozen 3dc3118). Adding cases after a miss can flatter a result, so v2 is a separate test with its own bar, on new cases only, and v1 stays on /audit beside it, unchanged. Frozen in git before stage 2 runs.
 
 ## What carries over from v1 (audit/replay-protocol.md), unchanged
 
