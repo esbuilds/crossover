@@ -220,7 +220,7 @@ A fully cold pair is 8 or 9 calls; a warm one is 0.
 
 ## The audit
 
-`audit/briefs.json` is the protocol (audit-v1): twelve brand briefs of eight candidates, split six dev and six held-out by a fixed seed, plus 24 resolution challenges. It was frozen in git (commit `017c671`) before the held-out briefs ran once through `scripts/audit-run.ts`. Its results are Qloo scores, so `audit/results.json` stays private (here it is a stand-in) and /audit on the live site shows them: 4 of 6 held-out briefs give a clear three; 0 of 12 "famous" names reach the picks; resolution was 20 of 24 as run and 24 of 24 after the review-v3 fix, labelled as not held-out.
+`audit/briefs.json` is the protocol (audit-v1): twelve brand briefs of eight candidates, split six dev and six held-out by a fixed seed, plus 24 resolution challenges. It was frozen in git (commit `659044a`) before the held-out briefs ran once through `scripts/audit-run.ts`. Its results are Qloo scores, so `audit/results.json` stays private (here it is a stand-in) and /audit on the live site shows them: 4 of 6 held-out briefs give a clear three; 0 of 12 "famous" names reach the picks; resolution was 20 of 24 as run and 24 of 24 after the review-v3 fix, labelled as not held-out.
 
 ## Architecture
 
